@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<beast beautitemplate='Standard' beautistatus='' namespace="beast.core:beast.evolution.alignment:beast.evolution.tree.coalescent:beast.core.util:beast.evolution.nuc:beast.evolution.operators:beast.evolution.sitemodel:beast.evolution.substitutionmodel:beast.evolution.likelihood" required="" version="2.6">
+
+
+
+	<map name="Uniform" >beast.math.distributions.Uniform</map>
+	<map name="Exponential" >beast.math.distributions.Exponential</map>
+	<map name="LogNormal" >beast.math.distributions.LogNormalDistributionModel</map>
+	<map name="Normal" >beast.math.distributions.Normal</map>
+	<map name="Beta" >beast.math.distributions.Beta</map>
+	<map name="Gamma" >beast.math.distributions.Gamma</map>
+	<map name="LaplaceDistribution" >beast.math.distributions.LaplaceDistribution</map>
+	<map name="prior" >beast.math.distributions.Prior</map>
+	<map name="InverseGamma" >beast.math.distributions.InverseGamma</map>
+	<map name="OneOnX" >beast.math.distributions.OneOnX</map>
+	<map name="Dirichlet" >beast.math.distributions.Dirichlet</map>
+
+
+
+
+	<run id="XMLSimulator" spec="xmlsimulator.SimulateXML">
+
+	
+		
+		<data id="datasetSampler" spec="xmlsimulator.DatasetSampler">
+			<file spec="xmlsimulator.WeightedFile" value="../datasets/Becker_2016/alignment.nex" />
+			<file spec="xmlsimulator.WeightedFile" value="../datasets/Cognato_2001/alignment.nex" />
+		</data>
+		
+				
+		<tree id="tree" spec="beast.evolution.tree.Tree" name="stateNode">
+			<taxonset id="tree.taxonset" spec="TaxonSet">
+				<alignment idref="alignment"/>
+			</taxonset>
+		</tree>
+		
+		
+		<model id="siteModelSampler" spec="xmlsimulator.ModelElementSampler">
+			<file spec="xmlsimulator.WeightedFile" value="../models/site/HKY.xml" />
+			<file spec="xmlsimulator.WeightedFile" value="../models/site/JC.xml" />
+		</model>
+
+
+		<distribution id="treeLikelihood.$(tree)" spec="TreeLikelihood" tree="@tree">
+			<data spec="FilteredAlignment" data="@benchmark" filter="1-649"/>
+			<siteModel idref="siteModel.$(tree)" />
+			<branchRateModel idref="clockModel" />
+		</distribution>
+		
+		
+		
+		<logger spec="xmlsimulator.XMLSimulatorLogger" fileName="xmlsimulator.log" />
+
+
+	</run>
+
+</beast>
+
+
+
+
+
+
+
