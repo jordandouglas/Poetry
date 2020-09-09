@@ -1,41 +1,44 @@
-<!-- Build XMLSimulator. It is also used by Hudson BEAST_II project. JUnit test is available for this build. -->
-<project basedir="." default="build_jar_all_XMLSimulator" name="BUILD_XMLS">
+<!-- Build XMLSimulator. It is also used by Hudson XMLSimulator project. JUnit test is available for this build. -->
+<project basedir="." default="build_jar_all_XMLSimulator" name="BUILD_XMLSimulator">
 	<description>
 	    Build XMLSimulator. 
-            Also used by Hudson BEAST_II project. 
 	    JUnit test is available for this build.
-	    $Id: build_BEAST_II.xml $
+	    $Id: build_XMLSimulator.xml $
 	</description>
 
 	<!-- set global properties for this build -->
-	<property name="srclabs" location="../XMLSimulator/src" />
-	<property name="buildlabs" location="../XMLSimulator/build" />
-	<property name="liblabs" location="../XMLSimulator/lib" />
+	<property name="versionXMLSimulator" value="0.0.1" />
+	<property name="srcXMLSimulator" location="src" />
+	<property name="docXMLSimulator" location="doc" />
+	<property name="buildXMLSimulator" location="build" />
+	<property name="libXMLSimulator" location="lib" />
 	<property name="release_dir" value="release" />
-	<property name="distlabs" location="${buildlabs}/dist" />
-	<property name="beast2path" location="../beast2" />
+	<property name="distXMLSimulator" location="${buildXMLSimulator}/dist" />
+	<property name="beast2path" location="../beast2"/>
+	<property name="libBeast2" location="${beast2path}/lib" />
 	<property name="srcBeast2" location="${beast2path}/src" />
 	<property name="beast2classpath" location="${beast2path}/build" />
 	<property name="Add_on_dir" value="${release_dir}/add-on" />
-	<property name="version" value="0.0.1" />
 
     <import file="${beast2path}/build.xml" />
 
-
-	<property name="main_class_BEAST" value="beast.app.BeastMCMC" />
-	<property name="report" value="${buildlabs}/junitreport"/>
+	<property name="main_class_CladeAge" value="beast.app.ca.XMLSimulatorPanel" />
+	<property name="report" value="${buildXMLSimulator}/junitreport"/>
 
 	<path id="classpath">
-        <pathelement path="${buildlabs}"/>
-		<fileset dir="${liblabs}" includes="junit-4.8.2.jar"/>
+        <pathelement path="${buildXMLSimulator}"/>
+		<fileset dir="${libBeast2}" includes="junit-4.8.2.jar"/>
+		<fileset dir="${libBeast2}" includes="jam.jar"/>
+		<fileset dir="${libBeast2}" includes="commons-math3-3.1.1.jar"/>
+	<pathelement path="${beast2classpath}"/>
 		<fileset dir="${beast2path}/lib" includes="jam.jar"/>
 		<fileset dir="${beast2path}/lib" includes="beagle.jar"/>
 		<fileset dir="${beast2path}/lib" includes="fest.jar"/>
 		<fileset dir="${beast2path}/lib" includes="colt.jar"/>
-		<fileset dir="${beast2path}/lib" includes="antlr-runtime-4.7.jar"/>
-		<fileset dir="${beast2path}/lib" includes="commons-math3-3.1.1.jar"/>
-        <pathelement path="${beast2classpath}"/>
 	</path>
+
+
+
 
 	<!-- start -->
 	<target name="initXMLSimulator">
@@ -43,7 +46,7 @@
 	</target>
 
 	<target name="cleanXMLSimulator">
-    	<delete dir="${buildlabs}" />
+    	<delete dir="${buildXMLSimulator}" />
 	</target>
 
 	<!-- clean previous build, and then compile Java source code, and Juint test -->
@@ -63,7 +66,7 @@
 	</target>
 
 	<!-- compile Java source code -->
-	<target name="compile-allXMLSimulator" depends="initXMLSimulator">
+	<target name="compile-allXMLSimulator" depends="initXMLSimulator,compile-all">
 
 
 	    <!-- Capture the path as a delimited property using the refid attribute -->
@@ -71,85 +74,66 @@
 	    <!-- Emit the property to the ant console -->
 	    <echo message="Classpath = ${myclasspath}"/>
 
-		<mkdir dir="${buildlabs}" />
+		<mkdir dir="${buildXMLSimulator}" />
 
-		<!-- Compile the java code from ${srclabs} into ${buildlabs} /bin -->
-		<javac srcdir="${srclabs}" destdir="${buildlabs}" classpathref="classpath" 
+		<!-- Compile the java code from ${srcXMLSimulator} into ${buildXMLSimulator} /bin -->
+		<javac srcdir="${srcXMLSimulator}" destdir="${buildXMLSimulator}" classpathref="classpath" 
 		       fork="true"
 		       memoryinitialsize="256m"
-		       memorymaximumsize="1024m"
+		       memorymaximumsize="256m"
 			   source="1.8"
 		       target="1.8">
-			<include name="beast/**/**" />
+			<include name="**/**" />
 			<!-- compile JUnit test classes -->
 			<include name="test/beast/**" />
 		</javac>
+		<copy todir="${buildXMLSimulator}">
+			<fileset dir="${srcXMLSimulator}" includes="**/*.png" />
+		</copy>
 		<echo message="Successfully compiled." />
 	</target>
 
-	<!-- make the XMLSimulator.hjar and TreeAnnotator.jar -->
+	<!-- make the beast.jar and beauti.jar -->
 	<target name="dist_all_XMLSimulator" depends="compile-allXMLSimulator" description="create XMLSimulator jar">
 		<!-- Create the distribution directory -->
-		<mkdir dir="${distlabs}" />
+		<mkdir dir="${distXMLSimulator}" />
 
-		<!-- Put everything in ${buildlabs} into the beast.jar file -->
-		<jar jarfile="${distlabs}/XMLSimulator.jar">
+		<!-- Put everything in ${buildXMLSimulator} into the beast.jar file -->
+		<jar jarfile="${distXMLSimulator}/XMLSimulator.jar">
 			<manifest>
 				<attribute name="Built-By" value="${user.name}" />
-				<attribute name="Main-Class" value="${main_class_BEAST}" />
+				<attribute name="Main-Class" value="${main_class_CladeAge}" />
 			</manifest>
-			<fileset dir="${buildlabs}">
-				<include name="beast/**/*.class" />
+			<fileset dir="${buildXMLSimulator}">
+				<include name="**/*.class" />
+				<include name="**/*.png" />
 			</fileset>
 			<fileset dir="${beast2classpath}">
-				<include name="beast/**/*.class" />
-				<include name="beast/**/*.properties" />
-				<include name="beast/**/*.png" />
-				<include name="beagle/**/*.class" />
-				<include name="org/**/*.class" />
+				<include name="**/*.class" />
+				<include name="**/*.properties" />
+				<include name="**/*.png" />
 			</fileset>
-			<zipgroupfileset dir="${beast2path}/lib" includes="jam.jar" />
-			<zipgroupfileset dir="${beast2path}/lib" includes="beagle.jar" />
-			<zipgroupfileset dir="${beast2path}/lib" includes="colt.jar" />
-			<zipgroupfileset dir="${beast2path}/lib" includes="commons-math3-3.1.1.jar" />
-			<zipgroupfileset dir="${beast2path}/lib" includes="antlr-runtime-4.7.jar"/>
+			<zipgroupfileset dir="${libBeast2}" includes="jam.jar" />
+			<zipgroupfileset dir="${libBeast2}" includes="beagle.jar" />
+			<zipgroupfileset dir="${libBeast2}" includes="colt.jar" />
+			<zipgroupfileset dir="${libBeast2}" includes="commons-math3-3.1.1.jar" />
+			<zipgroupfileset dir="${libBeast2}" includes="antlr-runtime-4.7.jar" />
 		</jar>
-
-		<jar jarfile="${distlabs}/treeannotator.jar">
-			<manifest>
-				<attribute name="Built-By" value="${user.name}" />
-				<attribute name="Main-Class" value="beast.app.treeannotator.TreeAnnotator" />
-			</manifest>
-			<fileset dir="${buildlabs}">
-				<include name="beast/**/*.class" />
-			</fileset>
-			<fileset dir="${beast2classpath}">
-				<include name="beast/**/*.class" />
-				<include name="beast/**/*.properties" />
-				<include name="beast/**/*.png" />
-				<include name="beagle/**/*.class" />
-				<include name="org/**/*.class" />
-			</fileset>
-			<zipgroupfileset dir="${beast2path}/lib" includes="jam.jar" />
-			<!--zipgroupfileset dir="${lib}" includes="commons-math-II.0.jar" /-->
-		</jar>
-		<jar jarfile="${distlabs}/XMLSimulator.src.jar">
-			<fileset dir="${srclabs}">
-				<include name="beast/**/*.java" />
-				<include name="test/**/*.java" />
-				<include name="beast/**/*.png" />
-				<include name="beast/**/*.xsl" />
+		<jar jarfile="${distXMLSimulator}/XMLSimulator.src.jar">
+			<fileset dir="${srcXMLSimulator}">
+				<include name="**/*.java" />
+				<include name="**/*.png" />
+				<include name="**/*.xsl" />
 			</fileset>
         </jar>
-		<jar jarfile="${distlabs}/XMLSimulator.addon.jar">
+		<jar jarfile="${distXMLSimulator}/XMLSimulator.addon.jar">
 			<manifest>
 				<attribute name="Built-By" value="${user.name}" />
 			</manifest>
-			<fileset dir="${buildlabs}">
-				<include name="beast/**/*.class" />
-				<exclude name="**/**/Sequence.class"/>
-				<exclude name="**/**/Prior.class"/>
-				<exclude name="**/**/SkyrideBlockOperator.class"/>
+			<fileset dir="${buildXMLSimulator}">
+				<include name="**/*.png" />
+				<include name="**/*.class" />
+				<include name="**/*.class" />
 				<include name="**/*.properties" />
 			</fileset>
 		</jar>
@@ -157,7 +141,7 @@
 
 	<!-- run beast.jar -->
 	<target name="run_XMLSimulator">
-		<java jar="${distlabs}/XMLSimulator.jar" fork="true" />
+		<java jar="${distXMLSimulator}/XMLSimulator.jar" fork="true" />
 	</target>
 
 	
@@ -167,20 +151,18 @@
 		<junit printsummary="yes"> <!--showoutput='yes'-->
 			<classpath>
 				<path refid="classpath" />
-				<path location="${buildlabs}" />
+				<path location="${buildXMLSimulator}" />
 			</classpath>
 
 			<formatter type="xml" />
 
 			<batchtest fork="yes" todir="${report}">
-				<fileset dir="${srclabs}">
-                    <include name="test/**/*Test.java"/>
-                    <exclude name="test/beast/integration/**/*Test.java"/>
+				<fileset dir="${srcXMLSimulator}">
+                    <include name="test/**/*Test.java"/>                                         
 				</fileset>
 				<fileset dir="${srcBeast2}">
                     <include name="test/beast/integration/**/*Test.java"/>                                         
                     <exclude name="test/beast/integration/**/ResumeTest.java"/>                                         
-                    <exclude name="test/beast/integration/**/ExampleXmlParsingTest.java"/>                                         
 				</fileset>
 			</batchtest>
 		</junit>
@@ -195,6 +177,7 @@
 		<echo message="JUnit test report finished." />
 	</target>
 
+
 	<target name="addon"
 	        depends="build_jar_all_XMLSimulator_NoJUnitTest"
 	        description="release BEAST 2 add-on version of XMLSimulator">
@@ -203,6 +186,7 @@
 		<!-- Create the release directory -->
 		<mkdir dir="${Add_on_dir}" />
 		<mkdir dir="${Add_on_dir}/lib" />
+		<mkdir dir="${Add_on_dir}/doc" />
 		<mkdir dir="${Add_on_dir}/examples" />
 		<mkdir dir="${Add_on_dir}/templates" />
 
@@ -210,26 +194,169 @@
 			<fileset file="version.xml"/>
 		</copy>
 		<copy todir="${Add_on_dir}/examples">
-			<fileset dir="examples" includes="*.xml">
-			</fileset>
+			<fileset dir="examples" />
 		</copy>
-
+		<!--
+		<copy todir="${Add_on_dir}/doc">
+			<fileset dir="doc" includes="XMLSimulator.pdf"/>
+		</copy>
+		-->
 		<copy todir="${Add_on_dir}/lib">
-			<fileset  file="${distlabs}/XMLSimulator.addon.jar" />
+			<fileset dir="${distXMLSimulator}" includes="XMLSimulator.addon.jar" />
 		</copy>
 		<copy todir="${Add_on_dir}">
-			<fileset file="${distlabs}/XMLSimulator.src.jar" />
+			<fileset dir="${distXMLSimulator}" includes="XMLSimulator.src.jar" />
 		</copy>
+		
+		
 		<copy todir="${Add_on_dir}/templates">
-			<fileset file="templates/Weibull.xml" />
-			<fileset file="templates/extras.xml" />
+			<fileset file="templates/*.xml" />
 		</copy>
-		<jar jarfile="${distlabs}/XMLSimulator.addon.v${version}.zip">
+		
+		
+		<jar jarfile="${distXMLSimulator}/XMLSimulator.addon.v${versionXMLSimulator}.zip">
 			<fileset dir="${Add_on_dir}">
 				<include name="**/*" />
 			</fileset>
         </jar>
-		<echo message="Add-on version release is finished." />
+		<echo message="Add-on version v${versionXMLSimulator} release is finished." />
 	</target>
+
+
+
+
+
+	<!-- Release -->
+	<property name="version" value="1.0.0" />
+	<property name="version_number" value="${versionXMLSimulator}" />
+	<property name="release_dirXMLSimulator" value="release" />
+	<property name="copyright" value="CladeAge development team 2013" />
+
+	<property name="CladeAge_name" value="CladeAge" />
+
+	<property name="common_dirXMLSimulator" value="${release_dirXMLSimulator}/common" />
+	<property name="Mac_dirXMLSimulator" value="${release_dirXMLSimulator}/Mac" />
+	<property name="Linux_dirXMLSimulator" value="${release_dirXMLSimulator}/Linux" />
+	<property name="Windows_dirXMLSimulator" value="${release_dirXMLSimulator}/Windows" />
+
+	<property name="Mac_package_dirXMLSimulator" value="${Mac_dirXMLSimulator}/${CladeAge_name}" />
+	<property name="Linux_package_dirXMLSimulator" value="${Linux_dirXMLSimulator}/${CladeAge_name}" />
+	<property name="Windows_package_dirXMLSimulator" value="${Windows_dirXMLSimulator}/${CladeAge_name}" />
+
+	<!-- Need to either install Launch4j under {CladeAge workspace}/${release}
+                 or install it in the default directory and change the location of launch4j.dir -->
+	<target name="windows"
+	        depends="build_jar_all_XMLSimulator_NoJUnitTest"
+	        description="release Windows version of CladeAge">
+
+		<delete dir="${Windows_package_dirXMLSimulator}" />
+		<!-- Create the release directory -->
+		<mkdir dir="${Windows_package_dirXMLSimulator}" />
+
+		<property name="launch4j.dir" location="../../launch4j" />
+		<taskdef name="launch4j"
+		         classname="net.sf.launch4j.ant.Launch4jTask"
+		         classpath="${launch4j.dir}/launch4j.jar :${launch4j.dir}/lib/xstream.jar" />
+
+		<copy file="${distXMLSimulator}/XMLSimulator.src.jar" todir="${Windows_package_dirXMLSimulator}/lib" />
+		<copy file="${common_dirXMLSimulator}/VERSION HISTORY.txt" todir="${Windows_package_dirXMLSimulator}" />
+		<copy file="${common_dirXMLSimulator}/README.txt" todir="${Windows_package_dirXMLSimulator}" />
+		<copy file="${common_dirXMLSimulator}/LICENSE.txt" todir="${Windows_package_dirXMLSimulator}" />
+
+		<!-- CladeAge v?.?.?.exe -->
+		<launch4j configFile="${Windows_dirXMLSimulator}/CladeAge_launch4j.xml"
+		          jar="${distXMLSimulator}/XMLSimulator.jar"
+		          outfile="${Windows_package_dirXMLSimulator}/${CladeAge_name}.exe"
+		          fileVersion="${version_number}.0"
+		          txtFileVersion="${versionXMLSimulator}"
+		          productVersion="${version_number}.0"
+		          txtProductVersion="${versionXMLSimulator}" />
+
+		<copy todir="${Windows_package_dirXMLSimulator}/templates/">
+			<fileset dir="templates/" />
+		</copy>
+
+		<zip destfile="${Windows_dirXMLSimulator}/${CladeAge_name} v${versionXMLSimulator}.zip">
+			<zipfileset dir="${Windows_package_dirXMLSimulator}" prefix="${CladeAge_name}" />
+		</zip>
+
+		<echo message="Windows version release is finished." />
+	</target>
+
+	<target name="linux"
+	        depends="build_jar_all_XMLSimulator_NoJUnitTest"
+	        description="release Linux/Unix version of CladeAge">
+		<delete dir="${Linux_package_dirXMLSimulator}" />
+		<!-- Create the release directory -->
+		<mkdir dir="${Linux_package_dirXMLSimulator}" />
+
+		<copy todir="${Linux_package_dirXMLSimulator}/bin">
+			<fileset dir="${Linux_dirXMLSimulator}/bin" />
+		</copy>
+		<chmod dir="${Linux_package_dirXMLSimulator}/bin" perm="755" includes="**/**" />
+
+		<copy file="${distXMLSimulator}/XMLSimulator.jar" todir="${Linux_package_dirXMLSimulator}/lib" />
+		<copy file="${distXMLSimulator}/XMLSimulator.src.jar" todir="${Linux_package_dirXMLSimulator}/lib" />
+		<copy file="${common_dirXMLSimulator}/icons/XMLSimulator.png" todir="${Linux_package_dirXMLSimulator}/images" />
+
+		<copy file="${common_dirXMLSimulator}/VERSION HISTORY.txt" todir="${Linux_package_dirXMLSimulator}" />
+		<copy file="${common_dirXMLSimulator}/README.txt" todir="${Linux_package_dirXMLSimulator}" />
+		<copy file="${common_dirXMLSimulator}/LICENSE.txt" todir="${Linux_package_dirXMLSimulator}" />
+
+		<echo message="Have to tar manaully, because [ANT Bug 550] the tar task change the mode of the executables files." />
+		<echo message="Linux/Unix version release is finished." />
+	</target>
+
+	<property name="jarbundler_dir" value="/Applications/eclipse/plugins/org.apache.ant_1.8.3.v201301120609/lib" />
+	<target name="mac"
+	        depends="build_jar_all_XMLSimulator_NoJUnitTest"
+	        description="release Mac version of CladeAge">
+		<delete dir="${Mac_package_dirXMLSimulator}" />
+		<delete file="${Mac_dirXMLSimulator}/pack.temp.dmg"/>
+		<delete file="${Mac_dirXMLSimulator}/CladeAge v${versionXMLSimulator}.dmg"/>
+		<!-- Create the release directory -->
+		<mkdir dir="${Mac_package_dirXMLSimulator}" />
+
+		<copy todir="${Mac_package_dirXMLSimulator}/bin">
+			<fileset dir="${Linux_dirXMLSimulator}/bin" />
+		</copy>
+		<chmod dir="${Mac_package_dirXMLSimulator}/bin" perm="755" includes="**/**" />
+
+		<copy file="${distXMLSimulator}/XMLSimulator.jar" todir="${Mac_package_dirXMLSimulator}/lib" />
+		<copy file="${distXMLSimulator}/XMLSimulator.src.jar" todir="${Mac_package_dirXMLSimulator}/lib" />
+
+		<copy file="${common_dirXMLSimulator}/VERSION HISTORY.txt" todir="${Mac_package_dirXMLSimulator}" />
+		<copy file="${common_dirXMLSimulator}/README.txt" todir="${Mac_package_dirXMLSimulator}" />
+		<copy file="${common_dirXMLSimulator}/LICENSE.txt" todir="${Mac_package_dirXMLSimulator}" />
+
+		<taskdef name="jarbundler"
+		         classname="net.sourceforge.jarbundler.JarBundler"
+		         classpath="${jarbundler_dir}/jarbundler-2.2.0.jar" />
+
+		<!-- create a jar bundle for the mac -->
+		<jarbundler dir="${Mac_package_dirXMLSimulator}"
+		            name="${CladeAge_name}"
+		            mainclass="${main_class_CladeAge}"
+		            icon="${common_dirXMLSimulator}/icons/XMLSimulator.icns"
+		            jvmversion="1.8+"
+		            vmoptions="-Xmx1024M"
+		            arguments="-window -working -options"
+		            version="${versionXMLSimulator}"
+		            infostring="${CladeAge_name}, ${copyright}"
+		            bundleid="${main_class_CladeAge}">
+			<jarfileset dir="${Mac_package_dirXMLSimulator}/lib">
+				<include name="**/XMLSimulator.jar" />
+			</jarfileset>
+			<javaproperty name="apple.laf.useScreenMenuBar" value="true" />
+			<javaproperty name="java.library.path" value="$JAVAROOT:/usr/local/lib" />
+		</jarbundler>
+
+		<echo message="Building disk image." />
+		<exec executable='release/Mac/createdmg.sh'/>
+		<echo message="Mac version release is finished." />
+	</target>
+
+
+
 
 </project>
