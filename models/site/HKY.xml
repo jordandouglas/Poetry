@@ -1,55 +1,74 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<beast beautitemplate='Standard' beautistatus='' namespace="beast.core:beast.evolution.alignment:beast.evolution.tree.coalescent:beast.core.util:beast.evolution.nuc:beast.evolution.operators:beast.evolution.sitemodel:beast.evolution.substitutionmodel:beast.evolution.likelihood" required="" version="2.6">
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<fragment>
 
 
 
-	<parameter spec="parameter.RealParameter" id="kappa.t:$(tree)" lower="0.0" name="object">2.0</parameter>
-	<parameter spec="parameter.RealParameter" id="freqParameter.t:$(tree)" dimension="4" name="object">0.25</parameter> 
-	<parameter spec="parameter.RealParameter" id="clockRate.t:$(tree)" name="object">1.0</parameter>
+	<head>
 
-	<prior spec="util.CompoundDistribution" name="object" x="@kappa.t:$(tree)">
-		<LogNormal name="distr">
-			<parameter spec="parameter.RealParameter" estimate="false" name="M">1.0</parameter>
-			<parameter spec="parameter.RealParameter" estimate="false" name="S">1.25</parameter>
-		</LogNormal>
-	</prior>
+		<siteModel id="siteModel.t:$(tree)" spec="SiteModel" gammaCategoryCount="1" mutationRate="@clockRate.t:$(tree)">
+				<parameter spec="parameter.RealParameter" estimate="false" name="shape">1.0</parameter>
+				<substModel spec="HKY" kappa="@kappa.t:$(tree)">
+					<frequencies spec="Frequencies" frequencies="@freqParameter.t:$(tree)"/>
+				</substModel>
+		</siteModel>
 
-	<prior spec="util.CompoundDistribution" name="object" x="@freqParameter.t:$(tree)">
-		<Dirichlet alpha="10 10 10 10" name="distr"/>
-	</prior>
+	</head>
+
+	<run>
 
 
-	<prior spec="util.CompoundDistribution" name="object" x="@clockRate.t:$(tree)">
-		<LogNormal name="distr" meanInRealSpace="true">
-			<parameter spec="parameter.RealParameter" estimate="false" name="M">1.0</parameter>
-			<parameter spec="parameter.RealParameter" estimate="false" name="S">0.6</parameter>
-		</LogNormal>
-	</prior>
+		<state id="state" spec="State" storeEvery="1000">
+
+
+			<parameter spec="parameter.RealParameter" id="kappa.t:$(tree)" lower="0.0" name="stateNode">2.0</parameter>
+			<parameter spec="parameter.RealParameter" id="freqParameter.t:$(tree)" dimension="4" name="stateNode">0.25</parameter> 
+			<parameter spec="parameter.RealParameter" id="clockRate.t:$(tree)" name="stateNode">1.0</parameter>
+
+		</state>
+
+		<distribution id="prior">
+
+			<prior id="kappaPrior.t:$(tree)" name="distribution" x="@kappa.t:$(tree)">
+				<LogNormal name="distr">
+					<parameter spec="parameter.RealParameter" estimate="false" name="M">1.0</parameter>
+					<parameter spec="parameter.RealParameter" estimate="false" name="S">1.25</parameter>
+				</LogNormal>
+			</prior>
+
+
+			<prior id="freqParameterPrior.t:$(tree)" name="distribution" x="@freqParameter.t:$(tree)">
+				<Dirichlet alpha="10 10 10 10" name="distr"/>
+			</prior>
+
+
+			<prior id="clockRatePrior.t:$(tree)" name="distribution" x="@clockRate.t:$(tree)">
+				<LogNormal name="distr" meanInRealSpace="true">
+					<parameter spec="parameter.RealParameter" estimate="false" name="M">1.0</parameter>
+					<parameter spec="parameter.RealParameter" estimate="false" name="S">0.6</parameter>
+				</LogNormal>
+			</prior>
+
+
+		</distribution>
+
+
+
+		<operator id="KappaScaler.t:$(tree)" spec="ScaleOperator" parameter="@kappa.t:$(tree)" scaleFactor="0.5" weight="0.2"/>
+		<operator id="FreqExchanger.t:$(tree)" spec="DeltaExchangeOperator" delta="0.01" weight="0.2">
+			<parameter idref="freqParameter.t:$(tree)"/>
+		</operator>
+
+
+		<operator id="ClockRateExchanger" spec="BactrianDeltaExchangeOperator" delta="0.01" weight="0.4">
+			<kernelDistribution spec="beast.evolution.operators.KernelDistribution$Bactrian" m="0.95" mode="uniform"/>
+			<parameter idref="clockRate.t:$(tree)"/>
+		</operator>
+
+	</run>
+
+
+</fragment>
 	
-	
-	<siteModel spec="SiteModel" name="object" gammaCategoryCount="1" mutationRate="@clockRate.t:$(tree)">
-			<parameter spec="parameter.RealParameter" estimate="false" name="shape">1.0</parameter>
-			<substModel spec="HKY" kappa="@kappa.t:$(tree)">
-				<frequencies spec="Frequencies" frequencies="@freqParameter.t:$(tree)"/>
-			</substModel>
-	</siteModel>
-
-
-	
-	<operator id="KappaScaler.t:$(tree)" spec="ScaleOperator" parameter="@kappa.t:$(tree)" scaleFactor="0.5" weight="0.2"/>
-	<operator id="FreqExchanger.t:$(tree)" spec="DeltaExchangeOperator" delta="0.01" weight="0.2">
-		<parameter idref="freqParameter.t:$(tree)"/>
-	</operator>
-
-
-	<operator id="ClockRateExchanger" spec="BactrianDeltaExchangeOperator" delta="0.01" weight="0.4">
-		<kernelDistribution spec="beast.evolution.operators.KernelDistribution$Bactrian" m="0.95" mode="uniform"/>
-		<parameter idref="clockRate.t:$(tree)"/>
-	</operator>
-
-
-
-	
-</beast>
 
 

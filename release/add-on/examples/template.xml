@@ -23,19 +23,62 @@
 	<run id="XMLSimulator" spec="xmlsimulator.SimulateXML" xml="out.xml" data="@alignment">
 
 	
-		<run id="mcmc" spec="beast.coupledMCMC.CoupledMCMC"  chainLength="50000000" storeEvery="1000000" deltaTemperature="0.05" chains="4" resampleEvery="1000">
+		<runner id="mcmc" spec="beast.core.MCMC"  chainLength="50000000">
 		
+
+			<init spec="beast.util.ClusterTree" id="NJtree" initial="@tree" clusterType="neighborjoining" taxa="@alignment"/>
 		
-			<tree id="tree" spec="beast.evolution.tree.Tree" name="object">
-				<taxonset id="tree.taxonset" spec="TaxonSet">
-					<alignment idref="alignment"/>
-				</taxonset>
-			</tree>
-		
-		</run>
+
+			<state id="state" spec="State" storeEvery="1000">
+
+				<tree id="tree" spec="beast.evolution.tree.Tree" name="stateNode">
+					<taxonset id="tree.taxonset" spec="TaxonSet">
+						<alignment idref="alignment"/>
+					</taxonset>
+				</tree>
+
+				<parameter id="birthRate" spec="parameter.RealParameter" name="stateNode">1.0</parameter>
+
+
+			</state>
+
+
+			<distribution id="posterior" spec="util.CompoundDistribution">
+
+
+				<distribution id="YuleModel.t:benchmark" spec="beast.evolution.speciation.YuleModel" birthDiffRate="@birthRate" tree="@tree"/>
+                            
+
+
+				<prior id="YuleBirthRatePrior.t:benchmark" name="distribution" x="@birthRate">
+					<LogNormal id="LogNormalDistributionModel.2" name="distr">
+						<parameter id="RealParameter.17" spec="parameter.RealParameter" estimate="false" name="M">1.0</parameter>
+						<parameter id="RealParameter.18" spec="parameter.RealParameter" estimate="false" name="S">1.25</parameter>
+					</LogNormal>
+				</prior>
+
+
+			</distribution>
+
+
+			<operator id="YuleBirthRateScaler.t:dummy" spec="ScaleOperator" parameter="@birthRate" scaleFactor="0.75" weight="2.0"/>
+			<operator id="YuleModelTreeScaler.t:dummy" spec="ScaleOperator" scaleFactor="0.5" tree="@tree" weight="3.0"/>
+			<operator id="YuleModelTreeRootScaler.t:dummy" spec="ScaleOperator" rootOnly="true" scaleFactor="0.5" tree="@tree" weight="3.0"/>
+			<operator id="YuleModelUniformOperator.t:dummy" spec="Uniform" tree="@tree" weight="30.0"/>
+			<operator id="YuleModelSubtreeSlide.t:dummy" spec="SubtreeSlide" tree="@tree" weight="15.0"/>
+			<operator id="YuleModelWide.t:dummy" spec="Exchange" isNarrow="false" tree="@tree" weight="3.0"/>
+			<operator id="YuleModelWilsonBalding.t:dummy" spec="WilsonBalding" tree="@tree" weight="3.0"/>
+
+
+			<logger id="screenlog" spec="Logger" logEvery="1000">
+				<log idref="posterior"/>
+				<log idref="birthRate"/>
+			</logger>
+			
+		</runner>
 
 		
-				
+	
 
 		
 		<!--

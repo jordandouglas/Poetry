@@ -3,10 +3,14 @@ package xmlsimulator;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
-import beast.core.BEASTObject;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 import beast.core.Input;
 import beast.core.util.Log;
 import beast.evolution.alignment.Alignment;
@@ -15,7 +19,7 @@ import beast.util.NexusParser;
 import beast.util.Randomizer;
 
 
-public class DatasetSampler extends Alignment  {
+public class DatasetSampler extends Alignment implements XMLSample  {
 	
 	final public Input<List<WeightedFile>> filesInput = new Input<>("file", "The location of a dataset file in .nexus format (can be zipped)", new ArrayList<>());
 	final public Input<Integer> maxNumPartitionsInput = new Input<>("partitions", 
@@ -24,7 +28,7 @@ public class DatasetSampler extends Alignment  {
 
 	protected int numFiles;
 	protected int maxNumPartitions;
-	protected File alignmentFile;
+	protected WeightedFile sampledFile;
 	protected List<Alignment> partitions;
 	
 	
@@ -40,7 +44,11 @@ public class DatasetSampler extends Alignment  {
 			throw new IllegalArgumentException("Please provide at least 1 alignment file");
 		}
 		
+		if (this.getID() == null || this.getID().isEmpty()) {
+			throw new IllegalArgumentException("Please ensure this object has an ID");
+		}
 		
+		this.reset();
 		
 	}
 	
@@ -48,12 +56,13 @@ public class DatasetSampler extends Alignment  {
 	/**
 	 * (Re)sample the alignment and partitions
 	 */
+	@Override
 	public void reset() {
 		
 		// Sample an alignment and set this object's inputs accordingly
 		NexusParser parser = this.sampleAlignment();
 		Alignment aln = parser.m_alignment;
-		System.out.println("Sampling alignment: " +  this.alignmentFile.getAbsolutePath());
+		System.out.println("Sampling alignment: " +  this.sampledFile.getFile().getAbsolutePath());
 		this.initAlignment(aln.sequenceInput.get(), aln.dataTypeInput.get());
 		
 
@@ -62,6 +71,39 @@ public class DatasetSampler extends Alignment  {
 		System.out.println("Subsampling " + this.partitions.size() + " partitions from the alignment");
 		
 	}
+	
+	
+	
+	/**
+	 * Coerce the XML into that of an Alignment
+	 */
+	@Override
+	public void tidyXML(Document doc, Element runnable) throws Exception {
+		
+
+		
+		// Get all input names which are specific to the Alignment superclass
+		List<String> namesToKeep = new ArrayList<String>();
+		for (Field field : Alignment.class.getDeclaredFields()) {
+			Class<?> cls = field.getType();
+			if (cls.equals(Input.class)) {
+				final Input<?> input = (Input<?>) field.get(this);
+				namesToKeep.add(input.getName());
+			}
+		}
+
+		// Remove all children that don't correspond to the Alignment superclass
+		Element ele = XMLUtils.getElementById(doc, this.getID());
+		XMLUtils.removeChildrenWithoutName(ele, namesToKeep);
+		
+		
+		// Change the spec attribute to 'Alignment'
+		ele.setAttribute("spec", Alignment.class.getCanonicalName());
+		
+
+		
+	}
+	
 	
 	
 	
@@ -78,6 +120,7 @@ public class DatasetSampler extends Alignment  {
 	 */
 	protected void initAlignment(List<Sequence> sequences, String dataType) {
 		
+		this.sequenceInput.get().clear();
 		for (Sequence sequence : sequences) {
             sequenceInput.setValue(sequence, this);
         }
@@ -98,11 +141,11 @@ public class DatasetSampler extends Alignment  {
 		// Sample a file uniformly at random and get its alignment
 		NexusParser parser = new NexusParser();
 		int fileNum = Randomizer.nextInt(this.numFiles);
-		this.alignmentFile = filesInput.get().get(fileNum).getFile();
+		this.sampledFile = filesInput.get().get(fileNum);
 		try {
-			parser.parseFile(this.alignmentFile);
+			parser.parseFile(this.sampledFile.getFile());
 		} catch(IOException e) {
-			Log.err("Cannot find " + this.alignmentFile.getAbsolutePath());
+			Log.err("Cannot find " + this.sampledFile.getFile().getAbsolutePath());
 			System.exit(1);
 		}
 		
@@ -131,7 +174,7 @@ public class DatasetSampler extends Alignment  {
 		
 
 			// Sample the number of partitions to subsample (UAR)
-			int numPartSamples = Randomizer.nextInt(Math.min(this.maxNumPartitions, numPart));
+			int numPartSamples = Randomizer.nextInt(Math.min(this.maxNumPartitions, numPart)) + 1;
 
 			// Subsample this many partitions
 			int[] indices = Randomizer.permuted(numPart);
@@ -147,6 +190,16 @@ public class DatasetSampler extends Alignment  {
 		
 		
 	}
+
+
+	@Override
+	public String getComments() {
+		return "Dataset sampled from " + this.sampledFile.getFile().getPath() +
+						" with " + this.partitions.size() + " partitions. Description: " +  this.sampledFile.getDesc();
+	}
+
+
+
 	
 
 
