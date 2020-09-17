@@ -15,15 +15,20 @@
 
 
 	<!-- Alignment sampler -->
-	<data id="alignment" spec="xmlsimulator.DatasetSampler">
+	<data id="alignment.$(partition)" spec="xmlsimulator.DatasetSampler">
 		<!--<file spec="xmlsimulator.WeightedFile" file="../datasets/Becker_2016/alignment.nex" desc="Benchmark data by Becker 2016"/>-->
 		<file spec="xmlsimulator.WeightedFile" file="../datasets/Anderson_2013/alignment.nex" desc="Benchmark data by Anderson 2013"/>
 		<file spec="xmlsimulator.WeightedFile" file="../datasets/Cognato_2001/alignment.nex" desc="Benchmark data by Cognato 2001"/>
+
+
+		<!-- Do not repeat $(partition) across all partitions in these elements. Just use the first partition -->
+		<norepeat>tree.taxonset NJtree</norepeat>
+
 	</data>
 
 
 	<!-- Placeholder site model -->
-	<siteModel id="siteModel.t:$(tree)" spec="SiteModel" gammaCategoryCount="1">
+	<siteModel id="siteModel.t:$(partition)" spec="SiteModel" gammaCategoryCount="1">
 		<parameter spec="parameter.RealParameter" estimate="false" name="mutationRate">1.0</parameter>
 		<parameter spec="parameter.RealParameter" estimate="false" name="shape">1.0</parameter>
 		<substModel spec="JukesCantor" />
@@ -31,41 +36,49 @@
 
 
 	<!-- Placeholder clock model -->
-  	<branchRateModel id="ClockModel.t:$(tree)" spec="beast.evolution.branchratemodel.StrictClockModel">
-			<parameter id="ucldMean.c:$(tree)" estimate="false" name="clock.rate">1.0</parameter>
+  	<branchRateModel id="ClockModel.t:$(partition)" spec="beast.evolution.branchratemodel.StrictClockModel">
+			<parameter id="ucldMean.c:$(partition)" estimate="false" name="clock.rate">1.0</parameter>
     </branchRateModel>
 
 
-	<run id="XMLSimulator" spec="xmlsimulator.SimulateXML" xml="out.xml" data="@alignment">
+	<run id="XMLSimulator" spec="xmlsimulator.SimulateXML" xml="out.xml" data="@alignment.$(partition)">
 
+
+
+		
 
 
 		<!-- Site model sampler -->
 		<model id="siteModelSampler" spec="xmlsimulator.ModelSampler">
 			<file spec="xmlsimulator.WeightedFile" file="../models/site/nucleotide/JukesCantor.xml" desc="The Jukes-Cantor site model" />
+			<!--
 			<file spec="xmlsimulator.WeightedFile" file="../models/site/nucleotide/HKY.xml" desc="The HKY site model" />
 			<file spec="xmlsimulator.WeightedFile" file="../models/site/nucleotide/HKYf.xml" desc="The HKY site model with estimated frequencies" />
 			<file spec="xmlsimulator.WeightedFile" file="../models/site/nucleotide/GTR.xml" desc="The GTR site model" />
+		-->
 		</model>
 		
 
+		<!-- Tree prior sampler -->
+		<model id="treeModelSampler" spec="xmlsimulator.ModelSampler">
+			<file spec="xmlsimulator.WeightedFile" file="../models/tree/Yule.xml" desc="A Yule tree prior" />
+			<file spec="xmlsimulator.WeightedFile" file="../models/tree/Coalescent.xml" desc="A coalescent tree prior" />
+		</model>
 	
 		<runner id="mcmc" spec="beast.core.MCMC"  chainLength="50000000">
 		
 
-			<init spec="beast.util.ClusterTree" id="NJtree" initial="@tree" clusterType="neighborjoining" taxa="@alignment"/>
+			<init spec="beast.util.ClusterTree" id="NJtree" initial="@tree" clusterType="neighborjoining" taxa="@alignment.$(partition)"/>
 		
 
 			<state id="state" spec="State" storeEvery="1000">
 
 				<tree id="tree" spec="beast.evolution.tree.Tree" name="stateNode">
-					<taxonset id="tree.taxonset" spec="TaxonSet">
-						<alignment idref="alignment"/>
-					</taxonset>
+					<taxonset id="tree.taxonset" spec="TaxonSet" alignment="@alignment.$(partition)" />
 				</tree>
 
-				<parameter id="birthRate" spec="parameter.RealParameter" name="stateNode">1.0</parameter>
-				<parameter spec="parameter.RealParameter" id="clockRate.t:$(tree)" name="stateNode">1.0</parameter>
+				
+				<parameter spec="parameter.RealParameter" id="clockRate.t:$(partition)" name="stateNode">1.0</parameter>
 
 			</state>
 
@@ -77,7 +90,7 @@
 				<distribution id="likelihood" spec="util.CompoundDistribution" useThreads="true">
 
 				
-						<distribution id="treeLikelihood.$(tree)" spec="TreeLikelihood" tree="@tree" data="@alignment" siteModel="@siteModel.t:$(tree)" branchRateModel="@ClockModel.t:$(tree)">
+						<distribution id="treeLikelihood.$(partition)" spec="TreeLikelihood" tree="@tree" data="@alignment.$(partition)" siteModel="@siteModel.t:$(partition)" branchRateModel="@ClockModel.t:$(partition)">
 						    <!--<data spec="FilteredAlignment" data="@benchmark" filter="1-649"/>-->
 						    
 
@@ -89,19 +102,9 @@
 
 				<distribution id="prior" spec="util.CompoundDistribution">
 
-					<distribution id="YuleModel.t:benchmark" spec="beast.evolution.speciation.YuleModel" birthDiffRate="@birthRate" tree="@tree"/>
 
 
-					<prior id="YuleBirthRatePrior.t:benchmark" name="distribution" x="@birthRate">
-						<LogNormal id="LogNormalDistributionModel.2" name="distr">
-							<parameter id="RealParameter.17" spec="parameter.RealParameter" estimate="false" name="M">1.0</parameter>
-							<parameter id="RealParameter.18" spec="parameter.RealParameter" estimate="false" name="S">1.25</parameter>
-						</LogNormal>
-					</prior>
-
-
-
-					<prior id="clockRatePrior.t:$(tree)" name="distribution" x="@clockRate.t:$(tree)">
+					<prior id="clockRatePrior.t:$(partition)" name="distribution" x="@clockRate.t:$(partition)">
 						<LogNormal name="distr" meanInRealSpace="true">
 							<parameter spec="parameter.RealParameter" estimate="false" name="M">1.0</parameter>
 							<parameter spec="parameter.RealParameter" estimate="false" name="S">0.6</parameter>
@@ -114,13 +117,13 @@
 			</distribution>
 
 
-			<operator id="YuleBirthRateScaler.t:dummy" spec="ScaleOperator" parameter="@birthRate" scaleFactor="0.75" weight="2.0"/>
-			<operator id="YuleModelTreeScaler.t:dummy" spec="ScaleOperator" scaleFactor="0.5" tree="@tree" weight="3.0"/>
-			<operator id="YuleModelTreeRootScaler.t:dummy" spec="ScaleOperator" rootOnly="true" scaleFactor="0.5" tree="@tree" weight="3.0"/>
-			<operator id="YuleModelUniformOperator.t:dummy" spec="Uniform" tree="@tree" weight="30.0"/>
-			<operator id="YuleModelSubtreeSlide.t:dummy" spec="SubtreeSlide" tree="@tree" weight="15.0"/>
-			<operator id="YuleModelWide.t:dummy" spec="Exchange" isNarrow="false" tree="@tree" weight="3.0"/>
-			<operator id="YuleModelWilsonBalding.t:dummy" spec="WilsonBalding" tree="@tree" weight="3.0"/>
+			
+			<operator id="TreeScaler.t:tree" spec="ScaleOperator" scaleFactor="0.5" tree="@tree" weight="3.0"/>
+			<operator id="TreeRootScaler.t:tree" spec="ScaleOperator" rootOnly="true" scaleFactor="0.5" tree="@tree" weight="3.0"/>
+			<operator id="UniformOperator.t:tree" spec="Uniform" tree="@tree" weight="30.0"/>
+			<operator id="SubtreeSlide.t:tree" spec="SubtreeSlide" tree="@tree" weight="15.0"/>
+			<operator id="Wide.t:tree" spec="Exchange" isNarrow="false" tree="@tree" weight="3.0"/>
+			<operator id="WilsonBalding.t:tree" spec="WilsonBalding" tree="@tree" weight="3.0"/>
 
 
 
@@ -129,13 +132,12 @@
 
 			<operator id="ClockRateExchanger" spec="BactrianDeltaExchangeOperator" delta="0.01" weight="0.4">
 				<kernelDistribution spec="beast.evolution.operators.KernelDistribution$Bactrian" m="0.95" mode="uniform"/>
-				<parameter idref="clockRate.t:$(tree)"/>
+				<parameter idref="clockRate.t:$(partition)"/>
 			</operator>
 
 
-			<logger id="screenlog" spec="Logger" logEvery="1000">
+			<logger id="screenlog" spec="Logger" logEvery="10000">
 				<log idref="posterior"/>
-				<log idref="birthRate"/>
 			</logger>
 
 
@@ -144,7 +146,6 @@
 				<log idref="posterior"/>
 				<log idref="likelihood"/>
 				<log idref="prior"/>
-				<log idref="birthRate"/>
 				<log id="TreeHeight.t:benchmark" spec="beast.evolution.tree.TreeStatLogger" tree="@tree"/>
 			</logger>
 
@@ -157,9 +158,9 @@
 
 
 		<!--
-		<distribution id="treeLikelihood.$(tree)" spec="TreeLikelihood" tree="@tree">
+		<distribution id="treeLikelihood.$(partition)" spec="TreeLikelihood" tree="@tree">
 			<data spec="FilteredAlignment" data="@benchmark" filter="1-649"/>
-			<siteModel idref="siteModel.$(tree)" />
+			<siteModel idref="siteModel.$(partition)" />
 			<branchRateModel idref="clockModel" />
 		</distribution>
 		-->
