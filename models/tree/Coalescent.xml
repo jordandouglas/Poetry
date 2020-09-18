@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<fragment>
+
+
+	<append>
+
+	</append>
+
+
+
+	<append id="mcmc">
+
+		<state id="state">
+			<parameter id="popSize" spec="parameter.RealParameter" name="stateNode">1.0</parameter>
+		</state>
+
+
+		<distribution id="prior">
+
+			<distribution id="CoalescentModel.t:tree" spec="beast.evolution.tree.coalescent.Coalescent">
+				<treeIntervals spec="TreeIntervals" tree="@tree" />
+                <populationModel spec="ConstantPopulation" popSize="@popSize" />
+			</distribution>
+
+
+			<prior id="PopulationSizesRatePrior.t:tree" name="distribution" x="@popSize">
+				<LogNormal name="distr">
+					<parameter spec="parameter.RealParameter" estimate="false" name="M">-1.0</parameter>
+					<parameter spec="parameter.RealParameter" estimate="false" name="S">1.0</parameter>
+				</LogNormal>
+			</prior>
+
+		</distribution>
+
+
+		<operator id="CoalescentPopSizeScaler.t:tree" spec="ScaleOperator" parameter="@popSize" scaleFactor="0.75" weight="2.0"/>
+
+
+
+		<logger id="tracelog">
+			<log idref="popSize"/>
+		</logger>
+
+	</append>
+
+
+</fragment>
+	
+
+

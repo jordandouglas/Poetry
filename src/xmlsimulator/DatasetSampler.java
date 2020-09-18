@@ -6,17 +6,21 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import beast.core.Input;
 import beast.core.util.Log;
 import beast.evolution.alignment.Alignment;
+import beast.evolution.alignment.FilteredAlignment;
 import beast.evolution.alignment.Sequence;
 import beast.util.NexusParser;
 import beast.util.Randomizer;
+import beast.util.XMLProducer;
 
 
 public class DatasetSampler extends Alignment implements XMLSample  {
@@ -24,13 +28,14 @@ public class DatasetSampler extends Alignment implements XMLSample  {
 	final public Input<List<WeightedFile>> filesInput = new Input<>("file", "The location of a dataset file in .nexus format (can be zipped)", new ArrayList<>());
 	final public Input<Integer> maxNumPartitionsInput = new Input<>("partitions", 
 			"The maximum number of partitions to use, or set to zero to concatenate all into a single partition (default: all)", Integer.MAX_VALUE);
+	final public Input<List<String>> norepeatsInput = new Input<>("norepeat", "ids of elements that should not be repeated 1x for each partition", new ArrayList<>());
 	
-
+	//protected String newID; // A new unique identifier for this element in output xmls
 	protected int numFiles;
 	protected int maxNumPartitions;
 	protected WeightedFile sampledFile;
 	protected List<Alignment> partitions;
-	
+	protected List<String> norepeats;
 	
 	@Override
 	public void initAndValidate() {
@@ -48,6 +53,14 @@ public class DatasetSampler extends Alignment implements XMLSample  {
 			throw new IllegalArgumentException("Please ensure this object has an ID");
 		}
 		
+		this.norepeats = norepeatsInput.get();
+		
+		
+		
+		
+		// New ID
+		//this.newID = this.getID().replace("$(partition)", "*") + Randomizer.nextInt(100000000);
+		
 		this.reset();
 		
 	}
@@ -62,7 +75,10 @@ public class DatasetSampler extends Alignment implements XMLSample  {
 		// Sample an alignment and set this object's inputs accordingly
 		NexusParser parser = this.sampleAlignment();
 		Alignment aln = parser.m_alignment;
-		System.out.println("Sampling alignment: " +  this.sampledFile.getFile().getAbsolutePath());
+		System.out.println("Sampling alignment: " +  this.sampledFile.getFilePath());
+		
+		
+		
 		this.initAlignment(aln.sequenceInput.get(), aln.dataTypeInput.get());
 		
 
@@ -80,8 +96,20 @@ public class DatasetSampler extends Alignment implements XMLSample  {
 	@Override
 	public void tidyXML(Document doc, Element runnable) throws Exception {
 		
-
 		
+		Element thisEle = XMLUtils.getElementById(doc, this.getID());
+		
+		
+		// Move the alignment to the head if it is not already
+		Element parent = (Element) thisEle.getParentNode();
+		parent.removeChild(thisEle);
+		runnable.getParentNode().insertBefore(thisEle, runnable);
+		if (!parent.getNodeName().equals("beast")) {
+			parent.setAttribute(thisEle.getNodeName(), "@" + this.getID());
+		}
+		
+		
+
 		// Get all input names which are specific to the Alignment superclass
 		List<String> namesToKeep = new ArrayList<String>();
 		for (Field field : Alignment.class.getDeclaredFields()) {
@@ -93,14 +121,108 @@ public class DatasetSampler extends Alignment implements XMLSample  {
 		}
 
 		// Remove all children that don't correspond to the Alignment superclass
-		Element ele = XMLUtils.getElementById(doc, this.getID());
-		XMLUtils.removeChildrenWithoutName(ele, namesToKeep);
-		
+		XMLUtils.removeChildrenWithoutName(thisEle, namesToKeep);
 		
 		// Change the spec attribute to 'Alignment'
-		ele.setAttribute("spec", Alignment.class.getCanonicalName());
+		thisEle.setAttribute("spec", Alignment.class.getCanonicalName());
+		
 		
 
+		
+		
+		
+		// Replace all occurrences of $(partition) with partition names, and repeat these elements to reach the number of partitions
+		List<Element> idMatch = XMLUtils.getAllElementsWithAttrMatch(doc, "*", "$(partition)");
+		//idMatch.addAll(XMLUtils.getAllElementsWithAttrMatch(doc, "idref", "$(partition)"));
+		List<Element> roots = XMLUtils.getTopLevels(idMatch);
+		for (Element root : roots) {
+			
+			
+			// If this has been flagged under 'norepeat' then do not copy it once for each partition. Only use partition 1.
+			boolean repeat = true;
+			String rootID = root.getAttribute("id");
+			if (rootID.equals(this.getID())) continue;
+			if (rootID != null && this.norepeats.contains(rootID)) repeat = false;
+			
+
+			// The full subtree will be repeated once for each partition
+			for (int pNum = 0; pNum < this.partitions.size(); pNum++) {
+				
+				Alignment partition = this.partitions.get(pNum);
+				
+				// Partition info
+				FilteredAlignment filtered = (FilteredAlignment) partition;
+				String pName = filtered.getID();
+				//int[] filter = filtered.indices();
+				
+				// Deep copy the subtree
+				Element copy = (Element) root.cloneNode(true);
+				
+				// Replace all occurrences of $(partition) with the partition name
+				XMLUtils.XMLReplace(copy, "$(partition)", pName);
+				
+				// Add this into the XML subtree
+				root.getParentNode().insertBefore(copy, root);
+				
+				// Make sure all ids are unique
+				for (Node child : XMLUtils.getAllElements(copy)) {
+					if (!(child instanceof Element)) continue;
+					Element ele = (Element) child;
+					if (!ele.hasAttribute("id")) continue;
+					XMLUtils.setID(ele, ele.getAttribute("id"), doc);
+				}
+
+
+				
+				if (!repeat) break;
+
+
+			}
+			
+			// Remove the original subtree
+			root.getParentNode().removeChild(root);
+			
+
+			
+		}
+		
+		
+		
+		
+		// One alignment per partition rather than just a long one
+		for (int pNum = 0; pNum < this.partitions.size(); pNum++) {
+			
+			FilteredAlignment partition = (FilteredAlignment) this.partitions.get(pNum);
+			String pName = partition.getID();
+			//partition.setID(this.getID());
+	        Document pdoc = XMLUtils.loadXMLFromString(new XMLProducer().toXML(partition));
+	        Element partitionNode = XMLUtils.getElementById(pdoc, pName);
+	        Element importedNode = (Element) doc.importNode(partitionNode, true);
+	        
+	        // Set id to partition name
+	        importedNode.setAttribute("id", this.getID().replace("$(partition)", pName));
+	        
+	        // Remove data from element children and make it an attribute
+	        importedNode.setAttribute("data", "@" + this.getID());
+	        NodeList children = importedNode.getElementsByTagName("data");
+	        if (children.getLength() > 0) importedNode.removeChild(children.item(0));
+	        
+	        // Add the data to the xml
+	        thisEle.getParentNode().insertBefore(importedNode, thisEle);
+	        doc.renameNode(importedNode, null, "data");
+	        
+	        
+			
+		}
+		
+		// Remove the generic unfiltered alignment
+		//thisEle.getParentNode().removeChild(thisEle);
+		
+		
+		
+		
+	
+		
 		
 	}
 	
@@ -138,14 +260,15 @@ public class DatasetSampler extends Alignment implements XMLSample  {
 	 */
 	protected NexusParser sampleAlignment() {
 		
-		// Sample a file uniformly at random and get its alignment
+		// Sample an alignment proportionally to its weight
 		NexusParser parser = new NexusParser();
-		int fileNum = Randomizer.nextInt(this.numFiles);
-		this.sampledFile = filesInput.get().get(fileNum);
+		this.sampledFile =  WeightedFile.sampleFile(this.filesInput.get());
 		try {
-			parser.parseFile(this.sampledFile.getFile());
+			File file = this.sampledFile.unzipFile();
+			parser.parseFile(file);
+			this.sampledFile.close();
 		} catch(IOException e) {
-			Log.err("Cannot find " + this.sampledFile.getFile().getAbsolutePath());
+			Log.err("Cannot find " + this.sampledFile.getFilePath());
 			System.exit(1);
 		}
 		
@@ -194,7 +317,7 @@ public class DatasetSampler extends Alignment implements XMLSample  {
 
 	@Override
 	public String getComments() {
-		return "Dataset sampled from " + this.sampledFile.getFile().getPath() +
+		return "Dataset sampled from " + this.sampledFile.getFilePath() +
 						" with " + this.partitions.size() + " partitions. Description: " +  this.sampledFile.getDesc();
 	}
 

@@ -14,6 +14,7 @@ import org.w3c.dom.Node;
 import beast.core.BEASTObject;
 import beast.core.Input;
 import beast.core.Runnable;
+import beast.core.util.Log;
 import beast.evolution.alignment.Alignment;
 import beast.util.XMLProducer;
 
@@ -28,8 +29,9 @@ public class SimulateXML extends Runnable {
 	final public Input<List<ModelSampler>> modelInput = new Input<>("model", "A component of the model. All of its data will be dumped into this xml.", new ArrayList<>());
 	final public Input<File> xmlOutInput = new Input<>("xml", "Filename to save the sampled XML file to", Input.Validate.REQUIRED);
 	final public Input<XMLSimulatorLogger> loggerInput = new Input<>("logger", "Log file for printing summary statistics to", Input.Validate.OPTIONAL);
-	final public Input<List<Alignment>> dataInput = new Input<>("data", "A dataset samplers for loading and sampling data. Optional", new ArrayList<>());
+	final public Input<Alignment> dataInput = new Input<>("data", "A dataset samplers for loading and sampling data. Optional", Input.Validate.OPTIONAL);
 	final public Input<Integer> nsamplesInput = new Input<>("nsamples", "Number of xml files to produce (default 1)", 1);
+
 	
 	
 	final public Input<List<BEASTObject>> nodesInput = new Input<>("object", "Any beast object to be added into the main file "
@@ -45,9 +47,10 @@ public class SimulateXML extends Runnable {
 	
 	int nsamples;
 	Runnable runner;
-	List<Alignment> data;
+	Alignment data;
 	List<ModelSampler> modelElements;
 	File xmlOutput;
+	
 	
 	
 	@Override
@@ -58,6 +61,7 @@ public class SimulateXML extends Runnable {
 		this.data = dataInput.get();
 		this.modelElements = modelInput.get();
 		this.xmlOutput = xmlOutInput.get();
+		
 		
 		
 		// Ensure that runner already has an ID
@@ -80,11 +84,9 @@ public class SimulateXML extends Runnable {
 			System.out.println("Sample " + sample);
 			
 			// Sample alignments
-			for (Alignment dataset : this.data) {
-				if (dataset instanceof XMLSample) {
-					DatasetSampler d = (DatasetSampler) dataset;
-					d.reset();
-	        	}
+			if (this.data != null && this.data instanceof XMLSample) {
+				DatasetSampler d = (DatasetSampler) this.data;
+				d.reset();
 			}
 			
 			
@@ -105,6 +107,8 @@ public class SimulateXML extends Runnable {
 		
 		}
 		
+		Log.warning("Done!");
+		
 		
 	}
 	
@@ -118,6 +122,10 @@ public class SimulateXML extends Runnable {
 	protected String toXML() throws Exception {
 		
 		String sXML = new XMLProducer().toXML(this);
+		
+		//XMLProducer t = new XMLProducer();
+		//t.get
+		
 		
 		// xml comments
 		String comments = "\n";
@@ -139,20 +147,19 @@ public class SimulateXML extends Runnable {
         parent.appendChild(runner);
        
 
-        
-        // Tidy the XML of all XMLSampler datasets (and get some comments)
-        for (Alignment dataset : this.data) {
-			if (dataset instanceof XMLSample) {
-				XMLSample d = (XMLSample) dataset;
-				d.tidyXML(doc, runner);
-				comments += d.getComments() + "\n";
-        	}
-		}
-        
+ 
         // Tidy the XML of all XMLSampler models (and get some comments)
 		for (ModelSampler model : this.modelElements) {
 			model.tidyXML(doc, runner);
 			comments += model.getComments() + "\n";
+		}
+		
+		
+		 // Tidy the XML of all XMLSampler datasets (and get some comments)
+        if (this.data != null && this.data instanceof XMLSample) {
+			DatasetSampler d = (DatasetSampler) this.data;
+			d.tidyXML(doc, runner);
+			comments += d.getComments() + "\n";
 		}
   
 		
@@ -161,7 +168,7 @@ public class SimulateXML extends Runnable {
 		Comment comment = doc.createComment(comments);
 		element.getParentNode().insertBefore(comment, element);
 		
- 
+
 		
 		// Merge elements which share an id
 		XMLUtils.mergeElementsWhichShareID(doc);

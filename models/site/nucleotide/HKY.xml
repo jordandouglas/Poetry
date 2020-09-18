@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<fragment>
+
+
+	<append>
+
+	</append>
+
+
+	<override id="siteModel.t:$(partition)" name="siteModel" spec="SiteModel" gammaCategoryCount="1" mutationRate="@clockRate.t:$(partition)">
+
+		<parameter spec="parameter.RealParameter" estimate="false" name="shape">1.0</parameter>
+		<substModel spec="HKY" kappa="@kappa.t:$(partition)">
+			<frequencies spec="Frequencies" data="@alignment.$(partition)"/>
+		</substModel>
+
+	</override>
+
+
+	<append id="mcmc">
+
+
+		<state id="state" spec="State" storeEvery="1000">
+
+			<parameter spec="parameter.RealParameter" id="kappa.t:$(partition)" lower="0.0" name="stateNode">2.0</parameter>
+
+		</state>
+
+		<distribution id="prior">
+
+			<prior id="kappaPrior.t:$(partition)" name="distribution" x="@kappa.t:$(partition)">
+				<LogNormal name="distr">
+					<parameter spec="parameter.RealParameter" estimate="false" name="M">1.0</parameter>
+					<parameter spec="parameter.RealParameter" estimate="false" name="S">1.25</parameter>
+				</LogNormal>
+			</prior>
+
+
+
+		</distribution>
+
+
+
+		<operator id="KappaScaler.t:$(partition)" spec="ScaleOperator" parameter="@kappa.t:$(partition)" scaleFactor="0.5" weight="0.2"/>
+
+
+
+		<logger id="tracelog">
+			<log idref="kappa.t:$(partition)"/>
+		</logger>
+
+	</append>
+
+
+</fragment>
+	
+
+

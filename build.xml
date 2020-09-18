@@ -11,7 +11,7 @@
 	<property name="srcXMLSimulator" location="src" />
 	<property name="docXMLSimulator" location="doc" />
 	<property name="buildXMLSimulator" location="build" />
-	<property name="libXMLSimulator" location="lib" />
+	<property name="libXMLSimulator" location="../XMLSimulator/lib" />
 	<property name="release_dir" value="release" />
 	<property name="distXMLSimulator" location="${buildXMLSimulator}/dist" />
 	<property name="beast2path" location="../beast2"/>
@@ -27,10 +27,11 @@
 
 	<path id="classpath">
         <pathelement path="${buildXMLSimulator}"/>
+        <fileset dir="${libXMLSimulator}" includes="commons-compress-1.20.jar"/>
 		<fileset dir="${libBeast2}" includes="junit-4.8.2.jar"/>
 		<fileset dir="${libBeast2}" includes="jam.jar"/>
 		<fileset dir="${libBeast2}" includes="commons-math3-3.1.1.jar"/>
-	<pathelement path="${beast2classpath}"/>
+		<pathelement path="${beast2classpath}"/>
 		<fileset dir="${beast2path}/lib" includes="jam.jar"/>
 		<fileset dir="${beast2path}/lib" includes="beagle.jar"/>
 		<fileset dir="${beast2path}/lib" includes="fest.jar"/>
@@ -195,6 +196,10 @@
 		</copy>
 		<copy todir="${Add_on_dir}/examples">
 			<fileset dir="examples" />
+		</copy>
+
+		<copy todir="${Add_on_dir}/lib">
+			<fileset dir="${libXMLSimulator}" includes="commons-compress-1.20.jar" />
 		</copy>
 		<!--
 		<copy todir="${Add_on_dir}/doc">

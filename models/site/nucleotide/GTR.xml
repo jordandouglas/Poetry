@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<fragment>
+
+
+	<append>
+
+	</append>
+
+
+	<override id="siteModel.t:$(partition)" name="siteModel" spec="SiteModel" gammaCategoryCount="1" mutationRate="@clockRate.t:$(partition)">
+
+		<parameter spec="parameter.RealParameter" estimate="false" name="shape">1.0</parameter>
+		<substModel spec="GTR" rateAC="@rateAC.t:$(partition)" rateAG="@rateAG.t:$(partition)" rateAT="@rateAT.t:$(partition)" rateCG="@rateCG.t:$(partition)" rateCT="@rateCT.t:$(partition)" rateGT="@rateGT.t:$(partition)">
+			<frequencies spec="Frequencies" data="@alignment.$(partition)"/>
+		</substModel>
+
+	</override>
+
+
+	<append id="mcmc">
+
+
+		<state id="state" spec="State" storeEvery="1000">
+
+
+			<parameter spec="parameter.RealParameter" id="rateAC.t:$(partition)" lower="0.0" name="stateNode">2.0</parameter>
+			<parameter spec="parameter.RealParameter" id="rateAG.t:$(partition)" lower="0.0" name="stateNode">2.0</parameter>
+			<parameter spec="parameter.RealParameter" id="rateAT.t:$(partition)" lower="0.0" name="stateNode">2.0</parameter>
+			<parameter spec="parameter.RealParameter" id="rateCG.t:$(partition)" lower="0.0" name="stateNode">2.0</parameter>
+			<parameter spec="parameter.RealParameter" id="rateCT.t:$(partition)" lower="0.0" name="stateNode">2.0</parameter>
+			<parameter spec="parameter.RealParameter" id="rateGT.t:$(partition)" lower="0.0" name="stateNode">2.0</parameter>
+			
+
+		</state>
+
+		<distribution id="prior">
+
+			<prior id="rateACPrior.t:$(partition)" name="distribution" x="@rateAC.t:$(partition)">
+				<LogNormal name="distr">
+					<parameter spec="parameter.RealParameter" estimate="false" name="M">1.0</parameter>
+					<parameter spec="parameter.RealParameter" estimate="false" name="S">1.25</parameter>
+				</LogNormal>
+			</prior>
+
+			<prior id="rateAGPrior.t:$(partition)" name="distribution" x="@rateAG.t:$(partition)">
+				<LogNormal name="distr">
+					<parameter spec="parameter.RealParameter" estimate="false" name="M">1.0</parameter>
+					<parameter spec="parameter.RealParameter" estimate="false" name="S">1.25</parameter>
+				</LogNormal>
+			</prior>
+
+			<prior id="rateATPrior.t:$(partition)" name="distribution" x="@rateAT.t:$(partition)">
+				<LogNormal name="distr">
+					<parameter spec="parameter.RealParameter" estimate="false" name="M">1.0</parameter>
+					<parameter spec="parameter.RealParameter" estimate="false" name="S">1.25</parameter>
+				</LogNormal>
+			</prior>
+
+			<prior id="rateCGPrior.t:$(partition)" name="distribution" x="@rateCG.t:$(partition)">
+				<LogNormal name="distr">
+					<parameter spec="parameter.RealParameter" estimate="false" name="M">1.0</parameter>
+					<parameter spec="parameter.RealParameter" estimate="false" name="S">1.25</parameter>
+				</LogNormal>
+			</prior>
+
+			<prior id="rateCTPrior.t:$(partition)" name="distribution" x="@rateCT.t:$(partition)">
+				<LogNormal name="distr">
+					<parameter spec="parameter.RealParameter" estimate="false" name="M">1.0</parameter>
+					<parameter spec="parameter.RealParameter" estimate="false" name="S">1.25</parameter>
+				</LogNormal>
+			</prior>
+
+			<prior id="rateGTPrior.t:$(partition)" name="distribution" x="@rateGT.t:$(partition)">
+				<LogNormal name="distr">
+					<parameter spec="parameter.RealParameter" estimate="false" name="M">1.0</parameter>
+					<parameter spec="parameter.RealParameter" estimate="false" name="S">1.25</parameter>
+				</LogNormal>
+			</prior>
+
+
+
+
+		</distribution>
+
+
+
+		<operator id="rateACScaler.t:$(partition)" spec="ScaleOperator" parameter="@rateAC.t:$(partition)" scaleFactor="0.5" weight="0.2"/>
+		<operator id="rateAGScaler.t:$(partition)" spec="ScaleOperator" parameter="@rateAG.t:$(partition)" scaleFactor="0.5" weight="0.2"/>
+		<operator id="rateATScaler.t:$(partition)" spec="ScaleOperator" parameter="@rateAT.t:$(partition)" scaleFactor="0.5" weight="0.2"/>
+		<operator id="rateCGScaler.t:$(partition)" spec="ScaleOperator" parameter="@rateCG.t:$(partition)" scaleFactor="0.5" weight="0.2"/>
+		<operator id="rateCTScaler.t:$(partition)" spec="ScaleOperator" parameter="@rateCT.t:$(partition)" scaleFactor="0.5" weight="0.2"/>
+		<operator id="rateGTScaler.t:$(partition)" spec="ScaleOperator" parameter="@rateGT.t:$(partition)" scaleFactor="0.5" weight="0.2"/>
+		
+
+
+
+
+
+		<logger id="tracelog">
+			<log idref="rateAC.t:$(partition)"/>
+			<log idref="rateAG.t:$(partition)"/>
+			<log idref="rateAT.t:$(partition)"/>
+			<log idref="rateCG.t:$(partition)"/>
+			<log idref="rateCT.t:$(partition)"/>
+			<log idref="rateGT.t:$(partition)"/>
+		</logger>
+
+	</append>
+
+
+</fragment>
+	
+
+

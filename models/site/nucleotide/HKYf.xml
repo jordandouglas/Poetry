@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<fragment>
+
+
+	<append>
+
+	</append>
+
+
+	<override id="siteModel.t:$(partition)" name="siteModel" spec="SiteModel" gammaCategoryCount="1" mutationRate="@clockRate.t:$(partition)">
+
+		<parameter spec="parameter.RealParameter" estimate="false" name="shape">1.0</parameter>
+		<substModel spec="HKY" kappa="@kappa.t:$(partition)">
+			<frequencies spec="Frequencies" frequencies="@freqParameter.t:$(partition)"/>
+		</substModel>
+
+	</override>
+
+
+	<append id="mcmc">
+
+
+		<state id="state" spec="State" storeEvery="1000">
+
+
+			<parameter spec="parameter.RealParameter" id="kappa.t:$(partition)" lower="0.0" name="stateNode">2.0</parameter>
+			<parameter spec="parameter.RealParameter" id="freqParameter.t:$(partition)" dimension="4" name="stateNode">0.25</parameter> 
+
+		</state>
+
+		<distribution id="prior">
+
+			<prior id="kappaPrior.t:$(partition)" name="distribution" x="@kappa.t:$(partition)">
+				<LogNormal name="distr">
+					<parameter spec="parameter.RealParameter" estimate="false" name="M">1.0</parameter>
+					<parameter spec="parameter.RealParameter" estimate="false" name="S">1.25</parameter>
+				</LogNormal>
+			</prior>
+
+
+			<prior id="freqParameterPrior.t:$(partition)" name="distribution" x="@freqParameter.t:$(partition)">
+				<Dirichlet alpha="10 10 10 10" name="distr"/>
+			</prior>
+
+
+		</distribution>
+
+
+
+		<operator id="KappaScaler.t:$(partition)" spec="ScaleOperator" parameter="@kappa.t:$(partition)" scaleFactor="0.5" weight="0.2"/>
+		<operator id="FreqExchanger.t:$(partition)" spec="DeltaExchangeOperator" delta="0.01" weight="0.2">
+			<parameter idref="freqParameter.t:$(partition)"/>
+		</operator>
+
+
+
+
+		<logger id="tracelog">
+			<log idref="kappa.t:$(partition)"/>
+			<log idref="freqParameter.t:$(partition)"/>
+		</logger>
+
+	</append>
+
+
+</fragment>
+	
+
+
