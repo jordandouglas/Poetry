@@ -21,37 +21,61 @@ import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.utils.IOUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
 
 import beast.core.BEASTObject;
 import beast.core.Input;
+import beast.core.util.Log;
 import beast.util.Randomizer;
 
 public class WeightedFile extends BEASTObject {
 
 	
-	final public Input<File> fileInput = new Input<>("file", "The location of the file (can be zipped)", Input.Validate.REQUIRED);
+	final public Input<String> fileInput = new Input<>("file", "The location of the file (can be zipped)", Input.Validate.REQUIRED);
 	final public Input<Double> weightInput = new Input<>("weight", "The prior weight of this file being sampled (default 1)", 1.0);
 	final public Input<String> descInput = new Input<>("desc", "A simple description of this model", Input.Validate.REQUIRED);
 	
+	final public Input<String> speciesInput = new Input<>("species", "Position(s) within taxa name which contain the species. List a series of integers"
+			+ "(eg. 1,2,5) where count starts at 1. The taxon names will be split on the 'split' symbol. If this string is not specified, then"
+			+ "there will be no species tree.");
+	final public Input<String> splitInput = new Input<>("split", "Character to split taxon names by to determine string (default '_')", "_");
+	final public Input<List<Condition>> conditionsInput = new Input<>("condition", "Condition which must be met by another class in order for this to be sampled."
+			+ "Conditions are considered as a conjunction", new ArrayList<Condition>());
 	
 	
 	
 	File file;
 	double weight;
 	String desc;
+	boolean hasSpeciesMap;
+	int[] splitIndices;
+	String splitOn;
 	
 	List<File> createdTmpFiles;
+	List<Condition> conditions;
+	
+	
 	
 	
 	@Override
 	public void initAndValidate() {
-		this.file = fileInput.get();
+		this.file = new File(fileInput.get());
 		this.weight = weightInput.get();
 		this.desc = descInput.get();
+		this.splitOn = splitInput.get();
+		this.hasSpeciesMap = speciesInput.get() != null;
 		
+		// Get indices to read from split taxon strings
+		if (this.hasSpeciesMap) {
+			String[] bits = this.speciesInput.get().split(",");
+			this.splitIndices = new int[bits.length];
+			for (int i = 0; i < this.splitIndices.length; i ++) {
+				this.splitIndices[i] = Integer.parseInt(bits[i]) - 1;
+			}
+		}
 		
 		// A list of tmp files made during the unzipping. These will all be deleted when WeightedFile.close() is called
 		this.createdTmpFiles = new ArrayList<File>();
@@ -60,11 +84,25 @@ public class WeightedFile extends BEASTObject {
 		//if (!file.exists()) throw new IllegalArgumentException("Cannot locate file " + file.getAbsolutePath());
 		if (this.weight < 0) throw new IllegalArgumentException("Please set weight to at least 0");
 		
+		
+		// Conditions
+		this.conditions = this.conditionsInput.get();
+		
 	}
 	
-	
 
+	
+	/**
+	 * Get the weight of sampling this file
+	 * If a condition has not been met then returns 0
+	 * @return
+	 */
 	public double getWeight() {
+		
+		for (Condition condition : this.conditions) {
+			if (!condition.eval()) return 0;
+		}
+		
 		return this.weight;
 	}
 	
@@ -405,6 +443,11 @@ public class WeightedFile extends BEASTObject {
 			weightSum += weightedFiles.get(i).getWeight();
 		}
 		
+		if (weightSum == 0) {
+			Log.warning("Warning: cannot sampled a WeightedFile because the weight sum is 0. Perhaps all conditions have failed?");
+			return null;
+		}
+		
 		
 		// Get cumulative probability vector
 		double cumulativeWeight = 0;
@@ -420,6 +463,40 @@ public class WeightedFile extends BEASTObject {
 		return weightedFiles.get(fileNum);
 		
 		
+	}
+
+
+
+	/**
+	 * Get a species name from the taxon name using the string splitting rules supplied in the input
+	 * @param taxon
+	 * @return
+	 */
+	public String getSpecies(String taxon) {
+		if (!this.hasSpeciesMap) return null;
+		String[] bits = taxon.split(this.splitOn);
+		String species = "";
+		for (int i = 0; i < this.splitIndices.length; i ++) {
+			int index = this.splitIndices[i];
+			if (index >= bits.length) {
+				throw new IllegalArgumentException("Cannot parse species from " + taxon + " at position " + index + " because there are only " + bits.length + " bits");
+			}
+			String bit = bits[index];
+			species += bit;
+			if (i < this.splitIndices.length - 1) species += this.splitOn;
+			
+		}
+		return species;
+	}
+
+
+
+	/**
+	 * Whether or not there are rules for extracting species from taxon names
+	 * @return
+	 */
+	public boolean hasSpeciesMap() {
+		return this.hasSpeciesMap;
 	}
 	
 	

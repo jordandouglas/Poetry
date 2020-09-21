@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 
@@ -18,12 +19,17 @@ import beast.core.util.Log;
 import beast.evolution.alignment.Alignment;
 import beast.evolution.alignment.FilteredAlignment;
 import beast.evolution.alignment.Sequence;
+import beast.evolution.datatype.Aminoacid;
+import beast.evolution.datatype.DataType;
+import beast.evolution.datatype.Nucleotide;
 import beast.util.NexusParser;
 import beast.util.Randomizer;
 import beast.util.XMLProducer;
 
 
 public class DatasetSampler extends Alignment implements XMLSample  {
+	
+
 	
 	final public Input<List<WeightedFile>> filesInput = new Input<>("file", "The location of a dataset file in .nexus format (can be zipped)", new ArrayList<>());
 	final public Input<Integer> maxNumPartitionsInput = new Input<>("partitions", 
@@ -36,6 +42,7 @@ public class DatasetSampler extends Alignment implements XMLSample  {
 	protected WeightedFile sampledFile;
 	protected List<Alignment> partitions;
 	protected List<String> norepeats;
+	protected DataType datatype;
 	
 	@Override
 	public void initAndValidate() {
@@ -54,7 +61,7 @@ public class DatasetSampler extends Alignment implements XMLSample  {
 		}
 		
 		this.norepeats = norepeatsInput.get();
-		
+		this.datatype = null;
 		
 		
 		
@@ -66,6 +73,27 @@ public class DatasetSampler extends Alignment implements XMLSample  {
 	}
 	
 	
+	
+	/**
+	 * Is the currently sampled alignment nucleotide?
+	 * @return
+	 */
+	public boolean isDNA() {
+		return this.datatype instanceof Nucleotide;
+	}
+	
+	
+	
+	/**
+	 * Is the currently sampled alignment amino acid?
+	 * @return
+	 */
+	public boolean isAminoAcid() {
+		return this.datatype instanceof Aminoacid;
+	}
+	
+	
+	
 	/**
 	 * (Re)sample the alignment and partitions
 	 */
@@ -75,13 +103,12 @@ public class DatasetSampler extends Alignment implements XMLSample  {
 		// Sample an alignment and set this object's inputs accordingly
 		NexusParser parser = this.sampleAlignment();
 		Alignment aln = parser.m_alignment;
+		this.datatype = aln.getDataType();
+		
 		System.out.println("Sampling alignment: " +  this.sampledFile.getFilePath());
-		
-		
 		
 		this.initAlignment(aln.sequenceInput.get(), aln.dataTypeInput.get());
 		
-
 		// Subsample partitions from the alignment
 		this.partitions = this.samplePartitions(parser);
 		System.out.println("Subsampling " + this.partitions.size() + " partitions from the alignment");
@@ -144,6 +171,10 @@ public class DatasetSampler extends Alignment implements XMLSample  {
 			if (rootID.equals(this.getID())) continue;
 			if (rootID != null && this.norepeats.contains(rootID)) repeat = false;
 			
+			
+			if (rootID.contains("clockRatePrior")) {
+				int x = 5;
+			}
 
 			// The full subtree will be repeated once for each partition
 			for (int pNum = 0; pNum < this.partitions.size(); pNum++) {
@@ -169,7 +200,7 @@ public class DatasetSampler extends Alignment implements XMLSample  {
 					if (!(child instanceof Element)) continue;
 					Element ele = (Element) child;
 					if (!ele.hasAttribute("id")) continue;
-					XMLUtils.setID(ele, ele.getAttribute("id"), doc);
+					//XMLUtils.setID(ele, ele.getAttribute("id"), doc);
 				}
 
 
@@ -226,8 +257,7 @@ public class DatasetSampler extends Alignment implements XMLSample  {
 		
 	}
 	
-	
-	
+
 	
 	public List<Alignment> getPartitions(){
 		return this.partitions;
@@ -322,11 +352,42 @@ public class DatasetSampler extends Alignment implements XMLSample  {
 	}
 
 
+	
+	
+	/**
+	 * Return taxon to species mapping for this alignment, according to the string split function specified in the WeightedFile
+	 * @param alignment
+	 * @param wfile
+	 * @return
+	 */
+	public static HashMap<String, String> getSpeciesMap(Alignment alignment, WeightedFile wfile){
+		
+		if (wfile.hasSpeciesMap()) return null;
+		HashMap<String, String> map = new HashMap<String, String>();
+		
+		// Iterate through taxon names
+		for (String taxon : alignment.getTaxaNames()) {
+			String species = wfile.getSpecies(taxon); 
+			map.put(taxon, species);
+		}
+		
+		return map;
+		
+	}
 
 	
 
 
 }
+
+
+
+
+
+
+
+
+
 
 
 

@@ -3,32 +3,28 @@
 <fragment>
 
 
-	<append>
 
+
+	<append id="state">
+		<parameter id="birthRate" spec="parameter.RealParameter" name="stateNode">1.0</parameter>
+	</append>
+
+
+
+	<append id="prior">
+		<distribution id="YuleModel.t:tree" spec="beast.evolution.speciation.YuleModel" birthDiffRate="@birthRate" tree="@tree"/>
+		<prior id="YuleBirthRatePrior.t:tree" name="distribution" x="@birthRate">
+			<LogNormal name="distr">
+				<parameter spec="parameter.RealParameter" estimate="false" name="M">1.0</parameter>
+				<parameter spec="parameter.RealParameter" estimate="false" name="S">1.25</parameter>
+			</LogNormal>
+		</prior>
 	</append>
 
 
 
 	<append id="mcmc">
 
-		<state id="state">
-			<parameter id="birthRate" spec="parameter.RealParameter" name="stateNode">1.0</parameter>
-		</state>
-
-
-		<distribution id="prior">
-
-			<distribution id="YuleModel.t:tree" spec="beast.evolution.speciation.YuleModel" birthDiffRate="@birthRate" tree="@tree"/>
-
-
-			<prior id="YuleBirthRatePrior.t:tree" name="distribution" x="@birthRate">
-				<LogNormal name="distr">
-					<parameter spec="parameter.RealParameter" estimate="false" name="M">1.0</parameter>
-					<parameter spec="parameter.RealParameter" estimate="false" name="S">1.25</parameter>
-				</LogNormal>
-			</prior>
-
-		</distribution>
 
 
 		<operator id="YuleBirthRateScaler.t:tree" spec="ScaleOperator" parameter="@birthRate" scaleFactor="0.75" weight="2.0"/>

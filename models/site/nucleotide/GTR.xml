@@ -3,7 +3,64 @@
 <fragment>
 
 
-	<append>
+
+	<append id="state" spec="State" storeEvery="1000">
+
+
+		<parameter spec="parameter.RealParameter" id="rateAC.t:$(partition)" lower="0.0" name="stateNode">2.0</parameter>
+		<parameter spec="parameter.RealParameter" id="rateAG.t:$(partition)" lower="0.0" name="stateNode">2.0</parameter>
+		<parameter spec="parameter.RealParameter" id="rateAT.t:$(partition)" lower="0.0" name="stateNode">2.0</parameter>
+		<parameter spec="parameter.RealParameter" id="rateCG.t:$(partition)" lower="0.0" name="stateNode">2.0</parameter>
+		<parameter spec="parameter.RealParameter" id="rateCT.t:$(partition)" lower="0.0" name="stateNode">2.0</parameter>
+		<parameter spec="parameter.RealParameter" id="rateGT.t:$(partition)" lower="0.0" name="stateNode">2.0</parameter>
+		
+
+	</append>
+
+	<append id="prior">
+
+		<prior id="rateACPrior.t:$(partition)" name="distribution" x="@rateAC.t:$(partition)">
+			<LogNormal name="distr">
+				<parameter spec="parameter.RealParameter" estimate="false" name="M">1.0</parameter>
+				<parameter spec="parameter.RealParameter" estimate="false" name="S">1.25</parameter>
+			</LogNormal>
+		</prior>
+
+		<prior id="rateAGPrior.t:$(partition)" name="distribution" x="@rateAG.t:$(partition)">
+			<LogNormal name="distr">
+				<parameter spec="parameter.RealParameter" estimate="false" name="M">1.0</parameter>
+				<parameter spec="parameter.RealParameter" estimate="false" name="S">1.25</parameter>
+			</LogNormal>
+		</prior>
+
+		<prior id="rateATPrior.t:$(partition)" name="distribution" x="@rateAT.t:$(partition)">
+			<LogNormal name="distr">
+				<parameter spec="parameter.RealParameter" estimate="false" name="M">1.0</parameter>
+				<parameter spec="parameter.RealParameter" estimate="false" name="S">1.25</parameter>
+			</LogNormal>
+		</prior>
+
+		<prior id="rateCGPrior.t:$(partition)" name="distribution" x="@rateCG.t:$(partition)">
+			<LogNormal name="distr">
+				<parameter spec="parameter.RealParameter" estimate="false" name="M">1.0</parameter>
+				<parameter spec="parameter.RealParameter" estimate="false" name="S">1.25</parameter>
+			</LogNormal>
+		</prior>
+
+		<prior id="rateCTPrior.t:$(partition)" name="distribution" x="@rateCT.t:$(partition)">
+			<LogNormal name="distr">
+				<parameter spec="parameter.RealParameter" estimate="false" name="M">1.0</parameter>
+				<parameter spec="parameter.RealParameter" estimate="false" name="S">1.25</parameter>
+			</LogNormal>
+		</prior>
+
+		<prior id="rateGTPrior.t:$(partition)" name="distribution" x="@rateGT.t:$(partition)">
+			<LogNormal name="distr">
+				<parameter spec="parameter.RealParameter" estimate="false" name="M">1.0</parameter>
+				<parameter spec="parameter.RealParameter" estimate="false" name="S">1.25</parameter>
+			</LogNormal>
+		</prior>
+
 
 	</append>
 
@@ -19,69 +76,6 @@
 
 
 	<append id="mcmc">
-
-
-		<state id="state" spec="State" storeEvery="1000">
-
-
-			<parameter spec="parameter.RealParameter" id="rateAC.t:$(partition)" lower="0.0" name="stateNode">2.0</parameter>
-			<parameter spec="parameter.RealParameter" id="rateAG.t:$(partition)" lower="0.0" name="stateNode">2.0</parameter>
-			<parameter spec="parameter.RealParameter" id="rateAT.t:$(partition)" lower="0.0" name="stateNode">2.0</parameter>
-			<parameter spec="parameter.RealParameter" id="rateCG.t:$(partition)" lower="0.0" name="stateNode">2.0</parameter>
-			<parameter spec="parameter.RealParameter" id="rateCT.t:$(partition)" lower="0.0" name="stateNode">2.0</parameter>
-			<parameter spec="parameter.RealParameter" id="rateGT.t:$(partition)" lower="0.0" name="stateNode">2.0</parameter>
-			
-
-		</state>
-
-		<distribution id="prior">
-
-			<prior id="rateACPrior.t:$(partition)" name="distribution" x="@rateAC.t:$(partition)">
-				<LogNormal name="distr">
-					<parameter spec="parameter.RealParameter" estimate="false" name="M">1.0</parameter>
-					<parameter spec="parameter.RealParameter" estimate="false" name="S">1.25</parameter>
-				</LogNormal>
-			</prior>
-
-			<prior id="rateAGPrior.t:$(partition)" name="distribution" x="@rateAG.t:$(partition)">
-				<LogNormal name="distr">
-					<parameter spec="parameter.RealParameter" estimate="false" name="M">1.0</parameter>
-					<parameter spec="parameter.RealParameter" estimate="false" name="S">1.25</parameter>
-				</LogNormal>
-			</prior>
-
-			<prior id="rateATPrior.t:$(partition)" name="distribution" x="@rateAT.t:$(partition)">
-				<LogNormal name="distr">
-					<parameter spec="parameter.RealParameter" estimate="false" name="M">1.0</parameter>
-					<parameter spec="parameter.RealParameter" estimate="false" name="S">1.25</parameter>
-				</LogNormal>
-			</prior>
-
-			<prior id="rateCGPrior.t:$(partition)" name="distribution" x="@rateCG.t:$(partition)">
-				<LogNormal name="distr">
-					<parameter spec="parameter.RealParameter" estimate="false" name="M">1.0</parameter>
-					<parameter spec="parameter.RealParameter" estimate="false" name="S">1.25</parameter>
-				</LogNormal>
-			</prior>
-
-			<prior id="rateCTPrior.t:$(partition)" name="distribution" x="@rateCT.t:$(partition)">
-				<LogNormal name="distr">
-					<parameter spec="parameter.RealParameter" estimate="false" name="M">1.0</parameter>
-					<parameter spec="parameter.RealParameter" estimate="false" name="S">1.25</parameter>
-				</LogNormal>
-			</prior>
-
-			<prior id="rateGTPrior.t:$(partition)" name="distribution" x="@rateGT.t:$(partition)">
-				<LogNormal name="distr">
-					<parameter spec="parameter.RealParameter" estimate="false" name="M">1.0</parameter>
-					<parameter spec="parameter.RealParameter" estimate="false" name="S">1.25</parameter>
-				</LogNormal>
-			</prior>
-
-
-
-
-		</distribution>
 
 
 

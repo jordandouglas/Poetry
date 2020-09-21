@@ -49,6 +49,7 @@ public class ModelSampler extends BEASTObject implements XMLSample {
 		// Sample a model according to its prior probability
 		this.sampledFile = this.sampleAFile();
 		
+		
 			
 		
 	}

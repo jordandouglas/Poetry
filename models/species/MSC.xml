@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<fragment>
+
+
+	<override id="tree" name="tree" spec="starbeast3.SpeciesTree">
+
+		<taxonset id="taxonsuperset" spec="TaxonSet" >
+            
+        </taxonset>
+
+
+	</override>
+
+
+
+</fragment>
+	
+
+

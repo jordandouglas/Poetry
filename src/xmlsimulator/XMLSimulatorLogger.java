@@ -9,19 +9,14 @@ import beast.core.Input;
 
 public class XMLSimulatorLogger extends BEASTObject {
 
-	final public Input<File> fileInput = new Input<>("fileName", "The location of the file (can be zipped)", Input.Validate.REQUIRED);
+	final public Input<String> fileInput = new Input<>("fileName", "The location of the file (can be zipped)", Input.Validate.REQUIRED);
 
 	File fileOut;
 	
 	@Override
 	public void initAndValidate() {
-		
-
-		this.fileOut = fileInput.get();
-		
-		
+		this.fileOut = new File(fileInput.get());
 	}
-	
 	
 	
 	

@@ -14,10 +14,17 @@
 	<map name="Dirichlet" >beast.math.distributions.Dirichlet</map>
 
 
+
+
+	<condition id="dnaOnly" spec="xmlsimulator.Condition" obj="@alignment.$(partition)" method="isDNA" />
+	<condition id="aaOnly" spec="xmlsimulator.Condition" obj="@alignment.$(partition)" method="isAminoAcid" />
+
+
 	<!-- Alignment sampler -->
 	<data id="alignment.$(partition)" spec="xmlsimulator.DatasetSampler">
 
-		<file spec="xmlsimulator.WeightedFile" file="../datasets/Cognato_2001.tar.gz/Cognato_2001/alignment.nex" desc="Benchmark alignment" />
+		<file spec="xmlsimulator.WeightedFile" file="../datasets/Anderson_2013.tar.gz/Anderson_2013/alignment.nex" desc="Benchmark alignment" species="1,2" split="_" />
+		<file spec="xmlsimulator.WeightedFile" file="../datasets/Becker_2016.tar.gz/Becker_2016/alignment.nex" desc="Benchmark alignment"  />
 
 		<!--
 		<file spec="xmlsimulator.WeightedFile" file="../datasets/Anderson_2013.tar.gz/Anderson_2013/alignment.nex" desc="Benchmark alignment" />
@@ -108,23 +115,35 @@
 	<run id="XMLSimulator" spec="xmlsimulator.SimulateXML" xml="out.xml" data="@alignment.$(partition)">
 
 
-
-		
+		<!-- Species model sampler 
+		<model id="speciesModelSampler" spec="xmlsimulator.ModelSampler">
+			<file spec="xmlsimulator.WeightedFile" file="../models/species/Concat.xml" desc="Loci are concatenated (as partitions)" />
+			<file spec="xmlsimulator.WeightedFile" file="../models/species/MSC.xml" desc="Loci are treated as gene trees" />
+		</model>
+		-->
 
 
 		<!-- Site model sampler -->
 		<model id="siteModelSampler" spec="xmlsimulator.ModelSampler">
-			<file spec="xmlsimulator.WeightedFile" file="../models/site/nucleotide/JukesCantor.xml" desc="The Jukes-Cantor site model" />
-			<file spec="xmlsimulator.WeightedFile" file="../models/site/nucleotide/HKY.xml" desc="The HKY site model" />
-			<file spec="xmlsimulator.WeightedFile" file="../models/site/nucleotide/HKYf.xml" desc="The HKY site model with estimated frequencies" />
-			<file spec="xmlsimulator.WeightedFile" file="../models/site/nucleotide/GTR.xml" desc="The GTR site model" />
+
+			<!-- Nucleotide -->
+			<file spec="xmlsimulator.WeightedFile" file="../models/site/nucleotide/JukesCantor.xml" desc="The Jukes-Cantor site model" condition="@dnaOnly" />
+			<file spec="xmlsimulator.WeightedFile" file="../models/site/nucleotide/HKY.xml" desc="The HKY site model" condition="@dnaOnly" />
+			<file spec="xmlsimulator.WeightedFile" file="../models/site/nucleotide/HKYf.xml" desc="The HKY site model with estimated frequencies" condition="@dnaOnly" />
+			<file spec="xmlsimulator.WeightedFile" file="../models/site/nucleotide/GTR.xml" desc="The GTR site model" condition="@dnaOnly" />
+
+			<!-- Amino acid -->
+			<file spec="xmlsimulator.WeightedFile" file="../models/site/aminoacid/WAG.xml" desc="The WAG site model" condition="@aaOnly" />
+			<file spec="xmlsimulator.WeightedFile" file="../models/site/aminoacid/Blosum62.xml" desc="The Blosum62 site model" condition="@aaOnly" />
+			<file spec="xmlsimulator.WeightedFile" file="../models/site/aminoacid/MTREV.xml" desc="The MTREV site model" condition="@aaOnly" />
+			
 		</model>
 		
 
 		<!-- Clock model sampler -->
 		<model id="clockModelSampler" spec="xmlsimulator.ModelSampler">
 			<file spec="xmlsimulator.WeightedFile" file="../models/clock/Strict.xml" desc="The strict clock" />
-			<file weight="0" spec="xmlsimulator.WeightedFile" file="../models/clock/RelaxedLN.xml" desc="A relaxed clock with lognormal prior" />
+			<file spec="xmlsimulator.WeightedFile" file="../models/clock/RelaxedLN.xml" desc="A relaxed clock with lognormal prior" />
 		</model>
 
 

@@ -3,7 +3,26 @@
 <fragment>
 
 
-	<append>
+	
+	<append id="state" spec="State" storeEvery="1000">
+		<parameter id="ucldStdev.clock" spec="parameter.RealParameter" lower="0.0" name="stateNode">0.1</parameter>
+		<stateNode id="rates.clock" spec="parameter.RealParameter">1</stateNode>
+	</append>
+
+	<append id="prior">
+
+
+		<prior id="ucldStdevPrior.clock" name="distribution" x="@ucldStdev.clock">
+			<Gamma id="Gamma.2" name="distr">
+				<parameter id="RealParameter.10" spec="parameter.RealParameter" estimate="false" name="alpha">0.5396</parameter>
+				<parameter id="RealParameter.11" spec="parameter.RealParameter" estimate="false" name="beta">0.3819</parameter>
+			</Gamma>
+		</prior>
+
+
+		<prior id="FastRatePriorDistrbution.clock" name="distribution" x="@rates.clock">
+			<LogNormal id="LogNormalDistributionModel.clock" S="@ucldStdev.clock" M="1" meanInRealSpace="true" name="distr"/>
+		</prior>
 
 	</append>
 
@@ -22,31 +41,6 @@
 
 
 	<append id="mcmc">
-
-
-		<state id="state" spec="State" storeEvery="1000">
-			<parameter id="ucldStdev.clock" spec="parameter.RealParameter" lower="0.0" name="stateNode">0.1</parameter>
-			<stateNode id="rates.clock" spec="parameter.RealParameter">1</stateNode>
-		</state>
-
-		<distribution id="prior">
-
-
-			<prior id="ucldStdevPrior.clock" name="distribution" x="@ucldStdev.clock">
-				<Gamma id="Gamma.2" name="distr">
-					<parameter id="RealParameter.10" spec="parameter.RealParameter" estimate="false" name="alpha">0.5396</parameter>
-					<parameter id="RealParameter.11" spec="parameter.RealParameter" estimate="false" name="beta">0.3819</parameter>
-				</Gamma>
-			</prior>
-
-
-			<prior id="FastRatePriorDistrbution.clock" name="distribution" x="@rates.clock">
-				<LogNormal id="LogNormalDistributionModel.clock" S="@ucldStdev.clock" M="1" meanInRealSpace="true" name="distr"/>
-			</prior>
-
-
-
-		</distribution>
 
 
 
@@ -101,7 +95,7 @@
 				<kernelDistribution spec="beast.evolution.operators.KernelDistribution$Bactrian" m="0.95" mode="bactrian_normal"/>
 			</operator>
 
-			<operator id="orc.operators.SampleFromPriorOperator.clock" spec="orc.operators.SampleFromPriorOperator" parameter="@rates.clock" np="1" prior="@LogNormalDistributionModel.rates" weight="1"/>
+			<operator id="orc.operators.SampleFromPriorOperator.clock" spec="orc.operators.SampleFromPriorOperator" parameter="@rates.clock" np="1" prior="@LogNormalDistributionModel.clock" weight="1"/>
 
 		</operator>
 

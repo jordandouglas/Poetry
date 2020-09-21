@@ -11,11 +11,13 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
+import beast.core.BEASTInterface;
 import beast.core.BEASTObject;
 import beast.core.Input;
 import beast.core.Runnable;
 import beast.core.util.Log;
 import beast.evolution.alignment.Alignment;
+import beast.util.XMLParser;
 import beast.util.XMLProducer;
 
 
@@ -27,7 +29,7 @@ public class SimulateXML extends Runnable {
 	final public Input<Runnable> runnableInput = new Input<>("runner", "A runnable object (eg. mcmc)", Input.Validate.REQUIRED);
 	
 	final public Input<List<ModelSampler>> modelInput = new Input<>("model", "A component of the model. All of its data will be dumped into this xml.", new ArrayList<>());
-	final public Input<File> xmlOutInput = new Input<>("xml", "Filename to save the sampled XML file to", Input.Validate.REQUIRED);
+	final public Input<String> xmlOutInput = new Input<>("xml", "Filename to save the sampled XML file to", Input.Validate.REQUIRED);
 	final public Input<XMLSimulatorLogger> loggerInput = new Input<>("logger", "Log file for printing summary statistics to", Input.Validate.OPTIONAL);
 	final public Input<Alignment> dataInput = new Input<>("data", "A dataset samplers for loading and sampling data. Optional", Input.Validate.OPTIONAL);
 	final public Input<Integer> nsamplesInput = new Input<>("nsamples", "Number of xml files to produce (default 1)", 1);
@@ -60,8 +62,7 @@ public class SimulateXML extends Runnable {
 		this.nsamples = nsamplesInput.get();
 		this.data = dataInput.get();
 		this.modelElements = modelInput.get();
-		this.xmlOutput = xmlOutInput.get();
-		
+		this.xmlOutput = new File(xmlOutInput.get());
 		
 		
 		// Ensure that runner already has an ID
@@ -76,10 +77,7 @@ public class SimulateXML extends Runnable {
 	public void run() throws Exception {
 
 		
-		
-		
 		for (int sample = 1; sample <= this.nsamples; sample ++) {
-		
 		
 			System.out.println("Sample " + sample);
 			
@@ -121,7 +119,15 @@ public class SimulateXML extends Runnable {
 	 */
 	protected String toXML() throws Exception {
 		
-		String sXML = new XMLProducer().toXML(this);
+		
+		
+		XMLSimProducer producer = new XMLSimProducer();
+		String sXML = producer.toXML(this);
+		//XMLParser parser = new XMLParser();
+		//BEASTInterface parsed = parser.parseFragment(sXML1, false);
+		//String sXML = new XMLProducer().toXML(parsed);
+		
+		
 		
 		//XMLProducer t = new XMLProducer();
 		//t.get
@@ -176,17 +182,13 @@ public class SimulateXML extends Runnable {
 		
         sXML = XMLUtils.getXMLStringFromDocument(doc);
 		return sXML;
+		
 	}
 	
-
-	 
+	
 	
 
 }
-
-
-
-
 
 
 

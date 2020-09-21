@@ -18,28 +18,22 @@
 	</override>
 
 
+	<append id="prior">
+		<prior id="kappaPrior.t:$(partition)" name="distribution" x="@kappa.t:$(partition)">
+			<LogNormal name="distr">
+				<parameter spec="parameter.RealParameter" estimate="false" name="M">1.0</parameter>
+				<parameter spec="parameter.RealParameter" estimate="false" name="S">1.25</parameter>
+			</LogNormal>
+		</prior>
+	</append>
+
+
+
+	<append id="state">
+		<parameter spec="parameter.RealParameter" id="kappa.t:$(partition)" lower="0.0" name="stateNode">2.0</parameter>
+	</append>
+
 	<append id="mcmc">
-
-
-		<state id="state" spec="State" storeEvery="1000">
-
-			<parameter spec="parameter.RealParameter" id="kappa.t:$(partition)" lower="0.0" name="stateNode">2.0</parameter>
-
-		</state>
-
-		<distribution id="prior">
-
-			<prior id="kappaPrior.t:$(partition)" name="distribution" x="@kappa.t:$(partition)">
-				<LogNormal name="distr">
-					<parameter spec="parameter.RealParameter" estimate="false" name="M">1.0</parameter>
-					<parameter spec="parameter.RealParameter" estimate="false" name="S">1.25</parameter>
-				</LogNormal>
-			</prior>
-
-
-
-		</distribution>
-
 
 
 		<operator id="KappaScaler.t:$(partition)" spec="ScaleOperator" parameter="@kappa.t:$(partition)" scaleFactor="0.5" weight="0.2"/>

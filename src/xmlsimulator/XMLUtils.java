@@ -425,16 +425,15 @@ public class XMLUtils {
 
 
 	/**
-	 * Merge all elements in the doc which share an id attr
-	 * This is done by finding the last occurrences of each duplicate id and moving their contents into the first occurrence
+	 * Delete all duplicate ids
+	 * This is done by finding the last occurrences of each duplicate and deleting them
+	 * Their parent nodes will refer to the first occurrence of the object with the id
 	 * @param doc
 	 */
 	public static void mergeElementsWhichShareID(Document doc) {
 		
 		List<Node> elements = getAllElements(doc);
 
-		// Elements to move (after iterating)
-		//Map<Node, Element> moveNodeTo = new HashMap<Node, Element>();
 		
 		// Elements to delete (after iterating)
 		List<Element> nodesToDelete = new ArrayList<Element>();
@@ -471,13 +470,14 @@ public class XMLUtils {
         					//System.out.println("Found match " + id_j);
         					
         					// Move the contents of j into i
+        					/*
         					List<Node> toMove = nodeListToList(ele_j.getChildNodes());
         					for (int k = 0; k < toMove.size(); k ++) {
         						Node node = toMove.get(k);
         						ele_j.removeChild(node);
         						ele_i.appendChild(node);
-        						//moveNodeTo.put(node, ele_i);
         					}
+        					*/
         					nodesToDelete.add(ele_j);
         					
         				}
@@ -497,6 +497,9 @@ public class XMLUtils {
 		for (Element duplicate : nodesToDelete) {
 			if (duplicate.getParentNode() != null) {
 				//System.out.println("removing " + duplicate.getAttribute("id"));
+				String name = duplicate.hasAttribute("name") ? duplicate.getAttribute("name") : duplicate.getNodeName();
+				String id = duplicate.getAttribute("id");
+				((Element)duplicate.getParentNode()).setAttribute(name, "@" + id);
 				duplicate.getParentNode().removeChild(duplicate);
 			}
 		}
