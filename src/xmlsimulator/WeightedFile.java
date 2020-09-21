@@ -66,7 +66,7 @@ public class WeightedFile extends BEASTObject {
 		this.weight = weightInput.get();
 		this.desc = descInput.get();
 		this.splitOn = splitInput.get();
-		this.hasSpeciesMap = speciesInput.get() != null;
+		this.hasSpeciesMap = speciesInput.get() != null && !speciesInput.get().isEmpty();
 		
 		// Get indices to read from split taxon strings
 		if (this.hasSpeciesMap) {

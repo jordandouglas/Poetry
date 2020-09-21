@@ -50,7 +50,7 @@ public class ModelSampler extends BEASTObject implements XMLSample {
 		this.sampledFile = this.sampleAFile();
 		
 		
-			
+		System.out.println("Sampling model: " +  this.sampledFile.getFilePath());
 		
 	}
 	

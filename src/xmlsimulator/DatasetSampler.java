@@ -73,26 +73,7 @@ public class DatasetSampler extends Alignment implements XMLSample  {
 	}
 	
 	
-	
-	/**
-	 * Is the currently sampled alignment nucleotide?
-	 * @return
-	 */
-	public boolean isDNA() {
-		return this.datatype instanceof Nucleotide;
-	}
-	
-	
-	
-	/**
-	 * Is the currently sampled alignment amino acid?
-	 * @return
-	 */
-	public boolean isAminoAcid() {
-		return this.datatype instanceof Aminoacid;
-	}
-	
-	
+
 	
 	/**
 	 * (Re)sample the alignment and partitions
@@ -376,6 +357,36 @@ public class DatasetSampler extends Alignment implements XMLSample  {
 	}
 
 	
+	
+	/**
+	 * Methods below are used by the Condition class
+	 */
+	
+	/**
+	 * Is the currently sampled alignment nucleotide?
+	 * @return
+	 */
+	public boolean isDNA() {
+		return this.datatype instanceof Nucleotide;
+	}
+	
+	
+	
+	/**
+	 * Is the currently sampled alignment amino acid?
+	 * @return
+	 */
+	public boolean isAminoAcid() {
+		return this.datatype instanceof Aminoacid;
+	}
+	
+	/**
+	 * Does the currently sampled file have a species tree map?
+	 * @return
+	 */
+	public boolean hasSpeciesMap() {
+		return this.sampledFile.hasSpeciesMap();
+	}
 
 
 }

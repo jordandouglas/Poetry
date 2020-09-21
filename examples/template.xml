@@ -18,6 +18,7 @@
 
 	<condition id="dnaOnly" spec="xmlsimulator.Condition" obj="@alignment.$(partition)" method="isDNA" />
 	<condition id="aaOnly" spec="xmlsimulator.Condition" obj="@alignment.$(partition)" method="isAminoAcid" />
+	<condition id="speciesOnly" spec="xmlsimulator.Condition" obj="@alignment.$(partition)" method="hasSpeciesMap" />
 
 
 	<!-- Alignment sampler -->
@@ -115,12 +116,12 @@
 	<run id="XMLSimulator" spec="xmlsimulator.SimulateXML" xml="out.xml" data="@alignment.$(partition)">
 
 
-		<!-- Species model sampler 
+		<!-- Species model sampler -->
 		<model id="speciesModelSampler" spec="xmlsimulator.ModelSampler">
 			<file spec="xmlsimulator.WeightedFile" file="../models/species/Concat.xml" desc="Loci are concatenated (as partitions)" />
-			<file spec="xmlsimulator.WeightedFile" file="../models/species/MSC.xml" desc="Loci are treated as gene trees" />
+			<file weight="1000" spec="xmlsimulator.WeightedFile" file="../models/species/MSC.xml" desc="Loci are treated as gene trees" condition="@speciesOnly" />
 		</model>
-		-->
+		
 
 
 		<!-- Site model sampler -->

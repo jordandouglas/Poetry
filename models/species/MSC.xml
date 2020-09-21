@@ -2,7 +2,7 @@
 
 <fragment>
 
-
+	<!--
 	<override id="tree" name="tree" spec="starbeast3.SpeciesTree">
 
 		<taxonset id="taxonsuperset" spec="TaxonSet" >
@@ -11,7 +11,7 @@
 
 
 	</override>
-
+	-->
 
 
 </fragment>
