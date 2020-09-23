@@ -388,6 +388,15 @@ public class DatasetSampler extends Alignment implements XMLSample  {
 	
 	
 	/**
+	 * Are the tips dated?
+	 * @return
+	 */
+	public boolean tipsAreDated() {
+		return this.sampledFile.tipsAreDated;
+	}
+	
+	
+	/**
 	 * Return the taxon to species map as an XML Element
 	 * @return
 	 */

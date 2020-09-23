@@ -41,7 +41,13 @@ public class WeightedFile extends BEASTObject {
 	final public Input<String> speciesInput = new Input<>("species", "Position(s) within taxa name which contain the species. List a series of integers"
 			+ "(eg. 1,2,5) where count starts at 1. The taxon names will be split on the 'split' symbol. If this string is not specified, then"
 			+ "there will be no species tree.");
-	final public Input<String> splitInput = new Input<>("split", "Character to split taxon names by to determine string (default '_')", "_");
+	final public Input<String> speciesSplitInput = new Input<>("speciessplit", "Character to split taxon names by to determine species string (default '_')", "_");
+	
+	
+	final public Input<String> dateInput = new Input<>("date", "Position(s) within taxa name which contain the date. List a series of integers"
+			+ "(eg. 1,2,5) where count starts at 1. If this string is not specified, then tip dates will not be used.");
+	final public Input<String> dateSplitInput = new Input<>("datesplit", "Character to split taxon names by to determine data string (default '_')", "_");
+	
 	final public Input<List<XMLCondition>> conditionsInput = new Input<>("condition", "Condition which must be met by another class in order for this to be sampled."
 			+ "Conditions are considered as a conjunction", new ArrayList<XMLCondition>());
 	
@@ -51,9 +57,12 @@ public class WeightedFile extends BEASTObject {
 	double weight;
 	String desc;
 	boolean hasSpeciesMap;
+	boolean tipsAreDated;
 	boolean wasSampled;
-	int[] splitIndices;
-	String splitOn;
+	int[] speciesSplitIndices;
+	int[] dateSplitIndices;
+	String speciesSplitOn;
+	String dateSplitOn;
 	
 	List<File> createdTmpFiles;
 	List<XMLCondition> conditions;
@@ -66,16 +75,28 @@ public class WeightedFile extends BEASTObject {
 		this.file = new File(fileInput.get());
 		this.weight = weightInput.get();
 		this.desc = descInput.get();
-		this.splitOn = splitInput.get();
+		this.speciesSplitOn = speciesSplitInput.get();
+		this.dateSplitOn = dateSplitInput.get();
 		this.hasSpeciesMap = speciesInput.get() != null && !speciesInput.get().isEmpty();
+		this.tipsAreDated = dateInput.get() != null && !dateInput.get().isEmpty();
+		
 		this.wasSampled = false;
 		
 		// Get indices to read from split taxon strings
 		if (this.hasSpeciesMap) {
 			String[] bits = this.speciesInput.get().split(",");
-			this.splitIndices = new int[bits.length];
-			for (int i = 0; i < this.splitIndices.length; i ++) {
-				this.splitIndices[i] = Integer.parseInt(bits[i]) - 1;
+			this.speciesSplitIndices = new int[bits.length];
+			for (int i = 0; i < this.speciesSplitIndices.length; i ++) {
+				this.speciesSplitIndices[i] = Integer.parseInt(bits[i]) - 1;
+			}
+		}
+		
+		// Get indices to read from split dates strings
+		if (this.tipsAreDated) {
+			String[] bits = this.dateInput.get().split(",");
+			this.dateSplitIndices = new int[bits.length];
+			for (int i = 0; i < this.dateSplitIndices.length; i ++) {
+				this.dateSplitIndices[i] = 1; // TODO parse date
 			}
 		}
 		
@@ -507,16 +528,16 @@ public class WeightedFile extends BEASTObject {
 	public String getSpecies(String taxon) {
 		if (!this.hasSpeciesMap) return null;
 		//System.out.println(taxon);
-		String[] bits = taxon.split(this.splitOn);
+		String[] bits = taxon.split(this.speciesSplitOn);
 		String species = "";
-		for (int i = 0; i < this.splitIndices.length; i ++) {
-			int index = this.splitIndices[i];
+		for (int i = 0; i < this.speciesSplitIndices.length; i ++) {
+			int index = this.speciesSplitIndices[i];
 			if (index >= bits.length) {
 				throw new IllegalArgumentException("Cannot parse species from " + taxon + " at position " + index + " because there are only " + bits.length + " bits");
 			}
 			String bit = bits[index];
 			species += bit;
-			if (i < this.splitIndices.length - 1) species += this.splitOn;
+			if (i < this.speciesSplitIndices.length - 1) species += this.speciesSplitOn;
 			
 		}
 		return species;
@@ -533,7 +554,13 @@ public class WeightedFile extends BEASTObject {
 	}
 	
 	
-
-
+	/**
+	 * Whether or not tips are dated
+	 * @return
+	 */
+	public boolean tipsAreDated() {
+		return this.tipsAreDated;
+	}
+	
 	
 }

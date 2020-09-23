@@ -10,7 +10,7 @@
 	<append id="tracelog">
 
 		<log id="NJ_Distance" spec="beast.evolution.tree.TreeDistanceLogger" tree="@tree" >
-			<ref id="NJ_Distance_ref" spec="beast.util.ClusterTree" clusterType="neighborjoining" taxa="@alignment.$(partition)"/>
+			<ref idref="NJtree"/>
 		</log>
 		<log id="UPGMA_Distance" spec="beast.evolution.tree.TreeDistanceLogger" tree="@tree" >
 			<ref id="UPGMA_Distance_ref" spec="beast.util.ClusterTree" clusterType="upgma" taxa="@alignment.$(partition)"/>

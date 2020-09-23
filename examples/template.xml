@@ -19,8 +19,9 @@
 	<data id="alignment.$(partition)" spec="xmlsimulator.DatasetSampler">
 
 		<file spec="xmlsimulator.WeightedFile" file="../datasets/Becker_2016.tar.gz/Becker_2016/alignment.nex" desc="Benchmark alignment"  />
-		<file spec="xmlsimulator.WeightedFile" file="../datasets/Murray_2013.tar.gz/Murray_2013/alignment.nex" desc="Benchmark alignment" species="3,4" split="_" />
+		<file spec="xmlsimulator.WeightedFile" file="../datasets/Murray_2013.tar.gz/Murray_2013/alignment.nex" desc="Benchmark alignment" species="3,4" speciessplit="_" />
 		<file spec="xmlsimulator.WeightedFile" file="../datasets/Worobey_2014h.tar.gz/Worobey_2014h/alignment.nex" desc="Benchmark alignment" />
+		<file spec="xmlsimulator.WeightedFile" file="../datasets/DouglasMendes_2020.tar.gz/DouglasMendes_2020/alignment.nex" date="2" datesplit="|" desc="SARS-CoV-2 alignment" />
 
 		<!--
 		<file spec="xmlsimulator.WeightedFile" file="../datasets/Anderson_2013.tar.gz/Anderson_2013/alignment.nex" desc="Benchmark alignment" />
@@ -39,6 +40,7 @@
 		<file spec="xmlsimulator.WeightedFile" file="../datasets/Day_2013.tar.gz/Day_2013/alignment.nex" desc="Benchmark alignment" />
 		<file spec="xmlsimulator.WeightedFile" file="../datasets/Devitt_2013.tar.gz/Devitt_2013/alignment.nex" desc="Benchmark alignment" />
 		<file spec="xmlsimulator.WeightedFile" file="../datasets/Dornburg_2012.tar.gz/Dornburg_2012/alignment.nex" desc="Benchmark alignment" />
+		<file spec="xmlsimulator.WeightedFile" file="../datasets/DouglasMendes_2020.tar.gz/DouglasMendes_2020/alignment.nex" desc="SARS-CoV-2 alignment" />
 		<file spec="xmlsimulator.WeightedFile" file="../datasets/Faircloth_2013.tar.gz/Faircloth_2013/alignment.nex" desc="Benchmark alignment" />
 		<file spec="xmlsimulator.WeightedFile" file="../datasets/Fong_2012.tar.gz/Fong_2012/alignment.nex" desc="Benchmark alignment" />
 		<file spec="xmlsimulator.WeightedFile" file="../datasets/Horn_2014.tar.gz/Horn_2014/alignment.nex" desc="Benchmark alignment" />
@@ -89,7 +91,7 @@
 
 
 		<!-- Do not repeat $(partition) across all partitions in these elements. Just use the first partition -->
-		<norepeat>tree.taxonset NJtree NJ_Distance_ref UPGMA_Distance_ref</norepeat>
+		<norepeat>tree.taxonset NJtree UPGMA_Distance_ref</norepeat>
 
 	</data>
 
@@ -120,6 +122,9 @@
 		<function id="notSpeciesOnly" spec="xmlsimulator.XMLCondition" obj="@alignment.$(partition)" method="hasSpeciesMap" negate="true" />
 		<function id="doingMSCAnalysis" spec="xmlsimulator.XMLCondition" obj="@MSCWeightedFile" method="wasSampled" />
 		<function id="doingConcatAnalysis" spec="xmlsimulator.XMLCondition" obj="@ConcatWeightedFile" method="wasSampled" />
+		<function id="tipsAreDated" spec="xmlsimulator.XMLCondition" obj="@alignment.$(partition)" method="tipsAreDated" />
+
+
 		<function id="mscTaxonSet" spec="xmlsimulator.XMLPopulator" obj="@alignment.$(partition)" method="getMSCTaxonSet" />
 
 
@@ -147,11 +152,11 @@
 		</model>
 		
 
-		<!-- Clock model sampler -->
+		<!-- Branch rate model sampler -->
 		<model id="clockModelSampler" spec="xmlsimulator.ModelSampler">
-			<file spec="xmlsimulator.WeightedFile" file="../models/clock/Strict.xml" desc="The strict clock" condition="@doingConcatAnalysis" />
-			<file spec="xmlsimulator.WeightedFile" file="../models/clock/RelaxedLN.xml" desc="A relaxed clock with lognormal prior" condition="@doingConcatAnalysis" />
-			<file spec="xmlsimulator.WeightedFile" file="../models/clock/SB3RelaxedClock.xml" desc="Multispecies coalescent relaxed clock model with lognormal prior" condition="@doingMSCAnalysis" />
+			<file spec="xmlsimulator.WeightedFile" file="../models/branch/Strict.xml" desc="The strict clock" condition="@doingConcatAnalysis" />
+			<file spec="xmlsimulator.WeightedFile" file="../models/branch/RelaxedLN.xml" desc="A relaxed clock with lognormal prior" condition="@doingConcatAnalysis" />
+			<file spec="xmlsimulator.WeightedFile" file="../models/branch/SB3RelaxedClock.xml" desc="Multispecies coalescent relaxed clock model with lognormal prior" condition="@doingMSCAnalysis" />
 		</model>
 
 
