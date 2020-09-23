@@ -42,7 +42,7 @@
 
 	<append id="mcmc">
 
-	    <init id="SBI" spec="starbeast3.StarBeastStartState" birthRate="@birthRate" estimate="false" method="point-estimate" popMean="@popMean" speciesTree="@tree" initial="@tree">
+	    <init id="SBI" spec="starbeast3.StarBeastStartState" birthRate="@birthRate" estimate="false" method="point-estimate" popMean="@popMean" speciesTree="@tree" >
 	        <gene idref="GeneTree.t:$(partition)"/>
 
 	        <speciesTreePrior id="SpeciesTreePopSize.Species" spec="starbeast3.SpeciesTreePrior" bottomPopSize="@popSize" gammaParameter="@popMean" popFunction="constant" taxonset="@tree.taxonset" tree="@tree" >
@@ -145,10 +145,10 @@
 		<log id="TreeDistanceLogger.species" spec="beast.evolution.tree.TreeDistanceLogger" tree="@tree" />
 		<log id="TreeDistanceInit.t:$(partition)" spec="beast.evolution.tree.TreeDistanceLogger" tree="@GeneTree.t:$(partition)" />
 		<log id="TreeDistanceNJ.t:$(partition)" spec="beast.evolution.tree.TreeDistanceLogger" tree="@GeneTree.t:$(partition)" >
-			<ref spec="beast.util.ClusterTree" initial="@GeneTree.t:$(partition)" clusterType="neighborjoining" taxa="@alignment.$(partition)"/>
+			<ref spec="beast.util.ClusterTree" clusterType="neighborjoining" taxa="@alignment.$(partition)"/>
 		</log>
 		<log id="TreeDistanceUPGMA.t:$(partition)" spec="beast.evolution.tree.TreeDistanceLogger" tree="@GeneTree.t:$(partition)" >
-			<ref spec="beast.util.ClusterTree" initial="@GeneTree.t:$(partition)" clusterType="upgma" taxa="@alignment.$(partition)"/>
+			<ref spec="beast.util.ClusterTree" clusterType="upgma" taxa="@alignment.$(partition)"/>
 		</log>
 
 		<log idref="popMean"/>

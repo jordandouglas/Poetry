@@ -19,7 +19,8 @@
 	<data id="alignment.$(partition)" spec="xmlsimulator.DatasetSampler">
 
 		<file spec="xmlsimulator.WeightedFile" file="../datasets/Becker_2016.tar.gz/Becker_2016/alignment.nex" desc="Benchmark alignment"  />
-		<file weight="10000" spec="xmlsimulator.WeightedFile" file="../datasets/Murray_2013.tar.gz/Murray_2013/alignment.nex" desc="Benchmark alignment" species="3,4" split="_" />
+		<file spec="xmlsimulator.WeightedFile" file="../datasets/Murray_2013.tar.gz/Murray_2013/alignment.nex" desc="Benchmark alignment" species="3,4" split="_" />
+		<file spec="xmlsimulator.WeightedFile" file="../datasets/Worobey_2014h.tar.gz/Worobey_2014h/alignment.nex" desc="Benchmark alignment" />
 
 		<!--
 		<file spec="xmlsimulator.WeightedFile" file="../datasets/Anderson_2013.tar.gz/Anderson_2013/alignment.nex" desc="Benchmark alignment" />
@@ -88,7 +89,7 @@
 
 
 		<!-- Do not repeat $(partition) across all partitions in these elements. Just use the first partition -->
-		<norepeat>tree.taxonset NJtree</norepeat>
+		<norepeat>tree.taxonset NJtree NJ_Distance_ref UPGMA_Distance_ref</norepeat>
 
 	</data>
 
@@ -124,7 +125,7 @@
 
 		<!-- Species model sampler -->
 		<model id="speciesModelSampler" spec="xmlsimulator.ModelSampler">
-			<file weight="10000" id="ConcatWeightedFile" spec="xmlsimulator.WeightedFile" file="../models/species/Concat.xml" desc="Loci are concatenated (as partitions)" />
+			<file id="ConcatWeightedFile" spec="xmlsimulator.WeightedFile" file="../models/species/Concat.xml" desc="Loci are concatenated (as partitions)" />
 			<file id="MSCWeightedFile" spec="xmlsimulator.WeightedFile" file="../models/species/MSC.xml" desc="Loci are treated as gene trees" condition="@speciesOnly" />
 		</model>
 

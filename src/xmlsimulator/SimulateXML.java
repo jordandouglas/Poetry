@@ -158,7 +158,7 @@ public class SimulateXML extends Runnable {
         	comments += "Using standard MCMC (i.e. MC2)\n";
         }
         
-        
+
 
 		// Move the alignment to the head if it is not already
         if (this.data != null) {
@@ -167,18 +167,22 @@ public class SimulateXML extends Runnable {
 			datasetParent.removeChild(dataset);
 			runner.getParentNode().insertBefore(dataset, runner);
 			if (!datasetParent.getNodeName().equals("beast")) {
-				datasetParent.setAttribute(dataset.getNodeName(), "@" + this.getID());
+				datasetParent.setAttribute(dataset.getNodeName(), "@" + this.data.getID());
 			}
         }
+
 
  
         // Tidy the XML of all XMLSampler models (and get some comments)
 		for (ModelSampler model : this.modelElements) {
+			
+			PrintStream out = new PrintStream(this.xmlOutput);
+			out.println(XMLUtils.getXMLStringFromDocument(doc));
+			out.close();
+			
 			model.tidyXML(doc, runner, this.functions);
 			comments += model.getComments() + "\n";
-			//PrintStream out = new PrintStream(this.xmlOutput);
-			//out.println(XMLUtils.getXMLStringFromDocument(doc));
-			//out.close();
+			
 		}
 		
 		

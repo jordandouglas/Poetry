@@ -1,0 +1,715 @@
+#NEXUS
+
+Begin taxa;
+	Dimensions ntax=351;
+		Taxlabels
+			1934|Avian|A/chicken/Rostock/45/1934|Germany|H7N1
+			1934|Avian|A/fowl/Weybridge|United_Kingdom|H7N7
+			1935|Avian|A/chicken/Brescia/1902|Italy|H7N7
+			1949|Avian|A/chicken/Germany/N/1949|Germany|H10N7
+			1956|Avian|A/duck/Czech_Republic/1/1956|Czech_Republic|H4N6
+			1956|Avian|A/duck/England/1/1956|United_Kingdom|H11N6
+			1959|Avian|A/chicken/Scotland/1959|United_Kingdom|H5N1
+			1961|Avian|A/tern/South_Africa/1961|South_Africa|H5N3
+			1963|Avian|A/duck/Ukraine/1/1963|Ukraine|H3N8
+			1963|Avian|A/turkey/Canada/1963|Canada|H6N8
+			1963|Avian|A/turkey/England/1963|United_Kingdom|H7N3
+			1965|Avian|A/turkey/Massachusetts/3740/1965|USA|H6N2
+			1966|Avian|A/turkey/Ontario/6213/1966|Canada|mixed
+			1968|Avian|A/turkey/Wisconsin/1/1968|USA|H5N9
+			1969|Avian|A/duck/PA/486/1969|USA|H6N1
+			1969|Avian|A/turkey/England/1969|United_Kingdom|H3N2
+			1971|Avian|A/turkey/Oregon/1971|USA|H7N3
+			1972|Avian|A/duck/Chabarovsk/1610/1972_|Russia|H3N8
+			1972|Avian|A/turkey/CO/118899/1972|USA|H5N2
+			1973|Avian|A/turkey/England/N28/73|United_Kingdom|H5N2
+			1974|Avian|A/duck/Memphis/546/1974|USA|H11N9
+			1975|Avian|A/Canada_goose/Wisconsin/902/1975|USA|H5N2
+			1975|Avian|A/chicken/Alabama/1975|USA|H4N8
+			1975|Avian|A/duck/Hong_Kong/7/1975|Hong_Kong|H3N2
+			1975|Avian|A/mallard/WI/169/1975|USA|H5N3
+			1975|Avian|A/mallard/Wisconsin/34/1975|USA|H5N6
+			1975|Avian|A/mallard/Wisconsin/428/1975|USA|H5N1
+			1976|Avian|A/duck/Hong_Kong/d73/1976|Hong_Kong|H6N1
+			1976|Avian|A/goose/HK/10/1976|Hong_Kong|H3N2
+			1977|Avian|A/chicken/Hong_Kong/17/1977|Hong_Kong|H6N1
+			1977|Avian|A/gadwall_duck/Alberta/291/1977|Canada|H7N3
+			1977|Avian|A/mallard/Alberta/294/1977|Canada|H11N9
+			1977|Avian|A/mallard/Alberta/300/1977|Canada|H4N3
+			1978|Avian|A/blue-winged_teal/ALB/221/1978|Canada|H7N2
+			1978|Avian|A/duck/Hong_Kong/278/1978|Hong_Kong|H2N9
+			1978|Avian|A/duck/Hong_Kong/293/1978|Hong_Kong|H7N2
+			1978|Avian|A/duck/Hong_Kong/342/78|Hong_Kong|H5N2
+			1979|Avian|A/African_starling/England-Q/983/1979|United_Kingdom|H7N1
+			1979|Avian|A/blue-winged_teal/New_York/370ac/1979|USA|H4N2
+			1979|Avian|A/goose/Leipzig/187-7/1979|Germany|H7N7
+			1979|Avian|A/mallard_duck/Minnesota/19/1979|USA|H10N7
+			1979|Avian|A/mallard/Alberta/965/1979|Canada|H1N1
+			1980|Avian|A/black_duck/AUS/4045/1980|Australia|H6N5
+			1980|Avian|A/red-necked_stint/Australia/4500/1980|Australia|H3N8
+			1980|Avian|A/turkey/Italy/1980|Italy|H5N2
+			1981|Avian|A/pintail_duck/ALB/631/1981|Canada|H1N5
+			1981|Avian|A/red-necked_stint/Australia/5745/1981|Australia|H12N9
+			1982|Avian|A/mallard_duck/New_York/90/1982|USA|H6N8
+			1982|Avian|A/pintail/Alberta/189/82|Canada|H6N6
+			1983|Avian|A/mallard_duck/ALB/797/1983|Canada|H11N3
+			1983|Avian|A/mallard/Marquenterre/Z237/1983|France|H1N1
+			1983|Avian|A/red-necked_stint/Western_Australia/4923/1983|Australia|H3N8
+			1983|Avian|A/turkey/Ireland/1378/1983|Ireland|H5N8
+			1983|Avian|A/turkey/Virginia/6962/1983|USA|H5N2
+			1984|Avian|A/Chicken/Virginia/40018/84|USA|H5N2
+			1984|Avian|A/duck/New_Zealand/78/1984|New_Zealand|H9N2
+			1984|Avian|A/duck/NZL/41/1984|New_Zealand|H1N2
+			1984|Avian|A/mallard_duck/Alberta/630/1984|Canada|H4N2
+			1984|Avian|A/pintail_duck/ALB/584/1984|Canada|H10N6
+			1984|Avian|A/red-necked_stint/Western_Australia/4915/1984|Australia|H3N8
+			1985|Avian|A/green-winged_teal/ALB/228/1985|Canada|H7N3
+			1985|Avian|A/laughing_gull/New_Jersey/75/1985|USA|H2N9
+			1985|Avian|A/mallard/Tennessee/11457/1985|USA|H11N9
+			1985|Avian|A/redhead_duck/ALB/116/1985|Canada|H4N6
+			1986|Avian|A/chicken/MA/11801/1986|USA|H5N2
+			1986|Avian|A/duck/LA/B174/1986|USA|H8N4
+			1986|Avian|A/green-winged_teal/Ohio/397/1986|USA|H11N9
+			1986|Avian|A/herring_gull/Delaware/471/1986|USA|H2N7
+			1986|Avian|A/mallard/Ohio/264/1986|USA|H3N8
+			1986|Avian|A/sanderling/Delaware/1258/1986|USA|H6N6
+			1987|Avian|A/chicken/NY/12004-3/1987|USA|H5N2
+			1987|Avian|A/coot/ALB/134/1987|Canada|H6N2
+			1987|Avian|A/duck/LA/17G/1987|USA|H3N8
+			1987|Avian|A/duck/LA/32M/1987|USA|H6N2
+			1987|Avian|A/green-winged_teal/Ohio/430/1987|USA|H1N1
+			1987|Avian|A/mallard/Ohio/421/1987|USA|H7N8
+			1987|Avian|A/pintail/Ohio/339/1987|USA|H3N8
+			1988|Avian|A/black_duck/New_York/184/1988|USA|H5N2
+			1988|Avian|A/chicken/Florida/22780-2/88|USA|H5N2
+			1988|Avian|A/mallard/Ohio/324/1988|USA|H4N6
+			1988|Avian|A/mallard/Ohio/409/1988|USA|H12N5
+			1989|Avian|A/duck/Perak/2458/1989|Malaysia|H3N8
+			1989|Avian|A/mallard/Ohio/42/1989|USA|H10N6
+			1989|Avian|A/pintail/Ohio/73/1989|USA|H6N2
+			1990|Avian|A/black_duck/Ohio/195/1990|USA|mixed
+			1990|Avian|A/blue-winged_teal/ALB/67/1990|Canada|H4N5
+			1990|Avian|A/mallard_duck/ALB/253/1990|Canada|H6N3
+			1991|Avian|A/green-winged_teal/ALB/199/1991|Canada|H12N5
+			1991|Avian|A/mallard/ALB/124/1991|Canada|H11N2
+			1991|Avian|A/mallard/Alberta/12/1991|Canada|H4N6
+			1991|Avian|A/pintail/Alberta/105/1991|Canada|H3N8
+			1992|Avian|A/blue-winged_teal/Alberta/141/1992|Canada|H1N1
+			1992|Avian|A/duck/Nanchang/1749/1992|China|H11N2
+			1992|Avian|A/duck/Victoria/1992|Australia|H3N8
+			1992|Avian|A/mallard/Alberta/194/1992|Canada|H8N4
+			1993|Avian|A/pintail/ALB/179/1993|Canada|H6N1
+			1994|Avian|A/chicken/Mexico/31381-7/1994|Mexico|H5N2
+			1994|Avian|A/chicken/NY/13142-5/1994|USA|H7N2
+			1994|Avian|A/duck/Victoria/D23/1994|Australia|H4N2
+			1994|Avian|A/emu/NY/12716/1994|USA|H5N9
+			1995|Avian|A/chicken/Chiapas/28159-488/1995|Mexico|H5N2
+			1995|Avian|A/chicken/NY/13833-7/1995|USA|H7N2
+			1995|Avian|A/emu/TX/25414/1995|USA|H7N2
+			1995|Avian|A/guinea_fowl/New_York/26410-17/1995|USA|H11N9
+			1996|Avian|A/chicken/Mexico/37821-771/1996|Mexico|H5N2
+			1996|Avian|A/chicken/NY/3202-7/1996|USA|H7N2
+			1997|Avian|A/chicken/Chiapas/15406/1997|Mexico|H5N2
+			1997|Avian|A/chicken/Italy/312/1997|Italy|H5N2
+			1997|Avian|A/mallard/Alberta/52/1997|Canada|H12N5
+			1997|Avian|A/Teal/Hong_Kong/W312/97|Hong_Kong|H6N1
+			1997|Avian|A/turkey/PA/7975/1997|USA|H7N2
+			1998|Avian|A/chicken/Mexico/22184/1998|Mexico|H5N2
+			1998|Avian|A/chicken/PA/9801289/1998|USA|H7N2
+			1998|Avian|A/duck/Hokkaido/49/98|Japan|H9N2
+			1998|Avian|A/mallard/Minnesota/319/1998|USA|H6
+			1998|Avian|A/parakeet/Narita/92A/98|Japan|H9N2
+			1999|Avian|A/chicken/NY/21586-8/1999|USA|H7N2
+			1999|Avian|A/chicken/Taiwan/ns2/99|Taiwan|H6N1
+			1999|Avian|A/mallard/Minnesota/280/1999|USA|H3N5
+			1999|Avian|A/mallard/Netherlands/1/1999|Netherlands|H4N6
+			2000|Avian|A/chicken/Henan/26/00|China|H9N2
+			2000|Avian|A/chicken/NJ/30739-6/2000|USA|H7N2
+			2000|Avian|A/chicken/Taiwan/SP1/00|Taiwan|H6N1
+			2000|Avian|A/common_teal/Netherlands/10/2000|Netherlands|H1N1
+			2000|Avian|A/shorebird/Delaware_Bay/277/2000|USA|H9N7
+			2001|Avian|A/blue-winged_teal/Texas/71/2001|USA|H2N1
+			2001|Avian|A/chicken/Hong_Kong/SF3/2001|Hong_Kong|H6N1
+			2001|Avian|A/chicken/NJ/118878-5/2001|USA|H7N2
+			2001|Avian|A/cinnamon_teal/Bolivia/4537/2001|Bolivia|H7N3
+			2001|Avian|A/goose/Viet_Nam/113/2001|Viet_Nam|H5N1
+			2002|Avian|A/chicken/Taiwan/0107/02|Taiwan|H6N1
+			2002|Avian|A/duck/Victoria/5383/2002|Australia|H4N8
+			2002|Avian|A/goose/Hong_Kong/739.2/2002|Hong_Kong|H5N1
+			2002|Avian|A/guinea_fowl/Hong_Kong/SSP99/2002|Hong_Kong|H6N2
+			2002|Avian|A/shorebird/Delaware_Bay/18/2002|USA|H1N9
+			2003|Avian|A/chicken/France/03426/2003|France|H5N2
+			2003|Avian|A/chicken/Taiwan/0706/03|Taiwan|H6N1
+			2003|Avian|A/duck/Victoria/2853/2003|Australia|H4N8
+			2004|Avian|A/chicken/Taiwan/0305/04|Taiwan|H6N1
+			2004|Avian|A/ruddy_turnstone/NJ/238/2004|USA|H10N7
+			2005|Avian|A/chicken/Taiwan/A342/05|Taiwan|H6N1
+			2005|Avian|A/chicken/Vietnam/NCVD09/2005|Viet_Nam|H5N1
+			2006|Avian|A/northern_shoveler/Washington/44249-645/2006|USA|H5N2
+			2006|Avian|A/pekin_duck/California/P30/2006|USA|H4N2
+			2007|Avian|A/chicken/Bac_Lieu/07-10/2007|Viet_Nam|H5N1
+			2007|Avian|A/cinnamon_teal/California/44287-325/2007|USA|H3N8
+			2007|Avian|A/rosy-billed_pochard/Argentina/CIP051-269/2007|Argentina|H6N8
+			2007|Avian|A/rosy-billed_pochard/Argentina/CIP051-557/2007|Argentina|H6N2
+			2007|Avian|A/rosy-billed_pochard/Argentina/CIP051-559/2007|Argentina|H9N2
+			2008|Avian|A/mallard/California/6524/2008|USA|H12N5
+			2008|Avian|A/red-winged_tinamou/Argentina/MP1/2008|Argentina|H1N1
+			2008|Avian|A/rosy-billed_pochard/Argentina/CIP051-925/2008|Argentina|H6N2
+			2009|Avian|A/chicken/Cambodia/TLC1/2009|Cambodia|H5N1
+			2009|Avian|A/northern_shovelerMissouri/196/2009|USA|H10N3
+			2010|Avian|A/blue-winged_teal/Guatemala/CIP049-12/2010|Guatemala|H5N4
+			2010|Avian|A/chicken/Cambodia/TKCMB8F/2010|Cambodia|H5N1
+			2010|Avian|A/rosy-billed_pochard/Argentina/CIP051-1977/2010|Argentina|H6N2
+			2011|Avian|A/heron/Cambodia/TM068/2011|Cambodia|H5N1
+			1990|Avian|A/semi-palmated_sandpiper/Brazil/43/1990|Brazil|H2N1
+			2009|A/bat/Guatemala/153/2009|H17N10
+			2009|A/bat/Guatemala/164/2009|H17N10
+			2010|A/bat/Guatemala/060/2010|H17N10
+			1918|Human|A/Brevig_Mission/1/1918|USA|H1N1
+			1935|Human|A/bh/1935||H1N1
+			1935|Human|A/Melbourne/1935|Australia|H1N1
+			1935|Human|A/Phila/1935|USA|H1N1
+			1936|Human|A/Henry/1936|USA|H1N1
+			1942|Human|A/Bellamy/1942|USA|H1N1
+			1943|Human|A/Iowa/1943|USA|H1N1
+			1943|Human|A/Weiss/1943|USA|H1N1
+			1945|Human|A/AA/Huston/1945|USA|H1N1
+			1947|Human|A/Fort_Monmouth/1/1947|USA|H1N1
+			1948|Human|A/Albany/4835/1948|USA|H1N1
+			1948|Human|A/Hemsbury/1948|USA|H1N1
+			1949|Human|A/Roma/1949|Italy|H1N1
+			1950|Human|A/Albany/4836/1950|USA|H1N1
+			1950|Human|A/Fort_Warren/1/1950|USA|H1N1
+			1951|Human|A/Albany/14/1951|USA|H1N1
+			1953|Human|A/Netherlands/001R1/1953|Netherlands|H1N1
+			1954|Human|A/Netherlands/001H1/1954|Netherlands|H1N1
+			1956|Human|A/Netherlands/002Z1/1956|Netherlands|H1N1
+			1957|Human|A/Denver/1957|USA|H1N1
+			1958|Human|A/Netherlands/001M/1958|Netherlands|H2N2
+			1959|Human|A/Albany/1/1959|USA|H2N2
+			1960|Human|A/Ann_Arbor/6/1960|USA|H2N2
+			1961|Human|A/Panama/1/61|Panama|H2N2
+			1963|Human|A/Netherlands/001K1/1963|Netherlands|H2N2
+			1964|Human|A/Taiwan/1964|Taiwan|H2N2
+			1965|Human|A/Potsdam/2/1965|Germany|H2N2
+			1966|Human|A/Czech_Republic/1/1966|Czech_Republic|H2N2
+			1968|Human|A/Albany/19/1968|USA|H3N2
+			1969|Human|A/Hong_Kong/3/1969|Hong_Kong|H3N2
+			1970|Human|A/Albany/3/1970|USA|H3N2
+			1971|Human|A/Bilthoven/21801/1971|Netherlands|H3N2
+			1972|Human|A/Bilthoven/6022/1972|Netherlands|H3N2
+			1974|Human|A/Albany/20/1974|USA|H3N2
+			1975|Human|A/Bilthoven/4273/1975|Netherlands|H3N2
+			1976|Human|A/Bilthoven/628/1976|Netherlands|H3N2
+			1977|Human|A/Texas/1/1977|USA|H3N2
+			1978|Human|A/Memphis/18/1978|USA|H3N2
+			1981|Human|A/Bilthoven/4791/1981|Netherlands|H3N2
+			1984|Human|A/Hong_Kong/7/1984|Hong_Kong|H3N2
+			1985|Human|A/Memphis/7/1985|USA|H3N2
+			1986|Human|A/Colorado/2/1986|USA|H3N2
+			1987|Human|A/Los_Angeles/2/1987|USA|H3N2
+			1989|Human|A/Netherlands/620/1989|Netherlands|H3N2
+			1990|Human|A/Siena/4/1990|Italy|H3N2
+			1993|Human|A/Singapore/19/1993|Singapore|H3N2
+			1995|Human|A/Siena/3/1995|Italy|H3N2
+			1996|Human|A/Niigata/137/96|Japan|H3N2
+			1997|Human|A/Shiga/25/97|Japan|H3N2
+			1999|Human|A/New_South_Wales/17/1999|Australia|H3N2
+			2001|Human|A/Sydney/405A/2001|Australia|H3N2
+			2003|Human|A/Wyoming/03/2003|USA|H3N2
+			2005|Human|A/Hiroshima/52/2005|Japan|H3N2
+			2007|Human|A/HungYen/HY6/2007|Viet_Nam|H3N2
+			2009|Human|A/Netherlands/761/2009|Netherlands|H3N2
+			2010|Human|A/Netherlands/009/2010|Netherlands|H3N2
+			2011|Human|A/California/NHRC0001/2011|USA|H3N2
+			1951|Human|A/Memphis/13/1978|USA|H1N1*
+			1979|Human|A/USSR/46/1979|Russia|H1N1
+			1953|Human|A/Memphis/7/1980|USA|H1N1*
+			1956|Human|A/Memphis/10/1983|USA|H1N1*
+			1957|Human|A/Memphis/1/1984|USA|H1N1*
+			1959|Human|A/New_York/2924-1/1986|USA|H1N1*
+			1960|Human|A/Memphis/3/1987|USA|H1N1*
+			1964|Human|A/Texas/36/1991|USA|H1N1*
+			1968|Human|A/Beijing/262/1995|China|H1N1*
+			1969|Human|A/Nanchang/13/1996|China|H1N1*
+			1970|Human|A/TW/3355/1997|Taiwan|H1N1*
+			1972|Human|A/Taiwan/5072/1999|Taiwan|H1N1*
+			1973|Human|A/Auckland/590/2000|New_Zealand|H1N1*
+			1974|Human|A/HaNoi/2017/2001|Viet_Nam|H1N1*
+			1975|Human|A/HaNoi/2546/2002|Viet_Nam|H1N1*
+			1978|Human|A/Waikato/13/2005|New_Zealand|H1N1*
+			1979|Human|A/Thailand/CU88/2006|Thailand|H1N1*
+			1980|Human|A/New_York/UR06-0326/2007|USA|H1N1*
+			1981|Human|A/New_York/08-1253/2008|USA|H1N1*
+			1982|Human|A/Alaska/WRAIR1114P/2009|USA|H1N1*
+			1999|Swine|A/Swine/Indiana/9K035/99_|USA|H1N2
+			2000|Swine|A/Swine/Minnesota/55551/2000|USA|H1N2
+			2002|Swine|A/swine/Iowa/H02PW7/2002|USA|H1N1
+			2004|Swine|A/swine/IN/PU542/04_|USA|H3N1
+			2005|Swine|A/swine/Hong_Kong/1562/2005|Hong_Kong|H1N2
+			2005|Swine|A/swine/Nebraska/00722/2005|USA|mixed
+			2006|Swine|A/swine/Minnesota/001332/2006|USA|H3N2
+			2006|Swine|A/swine/Guangxi/13/2006|China|H1N2
+			2007|Swine|A/swine/Kansas/77778/2007|USA|H1N1
+			2009|Swine|A/swine/Hubei/05/2009|China|H1N2
+			2009|Swine|A/swine/Minnesota/02782/2009|USA|H3N2
+			2010|Swine|A/swine/Guangdong/1/2010|China|H1N2
+			2010|Swine|A/swine/Indiana/A00968322/2010|USA|H3N2
+			2011|Swine|A/swine/Iowa/A01202659/2011|USA|H3N2
+			1956|Equine|A/equine/Prague/1/1956|Czech_Republic|H7N7
+			1956|Equine|A/equine/Prague/2/1956|Czech_Republic|H7N7
+			1966|Equine|A/equine/Lexington/1/1966|USA|H7N7
+			1981|Swine|A/swine/Germany/2/1981|Germany|H1N1
+			1985|Swine|A/swine/France/WVL4/1985|France|H1N1
+			1983|Swine|A/swine/Belgium/WVL2/1983|Belgium|H1N1
+			1987|Swine|A/swine/Italy/670/1987|Italy|H1N1
+			1992|Swine|A/swine/England/WVL7/1992|United_Kingdom|H1N1
+			1993|Swine|A/swine/England/WVL10/1993|United_Kingdom|H1N1
+			1994|Swine|A/swine/England/WVL11/1994|United_Kingdom|H1N1
+			1998|Swine|A/swine/Italy/62/1998|Italy|H1N2
+			1999|Swine|A/swine/Italy/3592/1999|Italy|H1N2
+			2000|Swine|A/swine/Bakum/1832/2000|Germany|H1N2
+			2002|Swine|A/swine/Hong_Kong/1669/2002|Hong_Kong|H1N1
+			2003|Swine|A/swine/Hong_Kong/NS129/2003|Hong_Kong|H1N1
+			2004|Swine|A/swine/Hong_Kong/NS1170/2004|Hong_Kong|H1N1
+			2005|Swine|A/swine/Hong_Kong/1683/2005|Hong_Kong|H1N1
+			2007|Swine|A/swine/Zhejiang/1/2007|China|H1N1
+			2008|Swine|A/swine/Shandong/101/2008|China|H1N1
+			2009|Swine|A/swine/Shandong/327/2009|China|H1N1
+			1963|Equine|A/equine/Miami/1/1963|USA|H3N8
+			1963|Equine|A/equine/Uruguay/1/1963|Uruguay|H3N8
+			1969|Equine|A/equine/Sao_Paulo/1/1969|Brazil|H3N8
+			1971|Equine|A/equine/Sachiyama/1/1971|Japan|H3N8
+			1971|Equine|A/equine/Tokyo/2/1971|Japan|H3N8
+			1972|Equine|A/equine/Algiers/1/1972|Algeria|H3N8
+			1973|Equine|A/equine/London/1416/1973|United_Kingdom|H7N7
+			1974|Equine|A/equine/Cornell/16/74|USA|H7N7
+			1975|Equine|A/equine/Kentucky/1a/1975|USA|H7N7
+			1975|Equine|A/equine/New_York/1/1975|USA|H3N8
+			1976|Equine|A/equine/Sao_Paulo/4/1976|Brazil|H7N7
+			1977|Equine|A/equine/Argentina/1/1977|Argentina|H7N7
+			1978|Equine|A/equine/Kascakew/1/1978|unknown|H3N8
+			1980|Equine|A/equine/Kentucky/4/1980|USA|H3N8
+			1981|Equine|A/equine/Kentucky/2/1981|USA|H3N8
+			1982|Equine|A/equine/California/83/1982|USA|H3N8
+			1985|Equine|A/equine/Santa_Fe/1/1985|USA|H3N8
+			1986|Equine|A/equine/Kentucky/1/1986|USA|H3N8
+			1987|Equine|A/equine/Kentucky/1/1987|USA|H3N8
+			1988|Equine|A/equine/Kentucky/692/1988|USA|H3N8
+			1989|Equine|A/equine/Rook/93753/1989|United_Kingdom|H3N8
+			1990|Equine|A/equine/Kentucky/1277/1990|USA|H3N8
+			1991|Equine|A/equine/Kentucky/1/1991|USA|H3N8
+			1991|Equine|A/equine/Rome/5/1991|Italy|H3N8
+			1992|Equine|A/equine/Italy/1199/1992|Italy|H3N8
+			1992|Equine|A/equine/Kentucky/1/1992|USA|H3N8
+			1993|Equine|A/equine/Newmarket/1/1993|United_Kingdom|H3N8
+			1993|Equine|A/equine/Switzerland/173/1993|Switzerland|H3N8
+			1994|Equine|A/equine/Kentucky/8/1994|USA|H3N8
+			1997|Equine|A/equine/California/4537/1997|USA|H3N8
+			2002|Equine|A/equine/California/8560/2002|USA|H3N8
+			2003|Equine|A/equine/Newmarket/5/2003|United_Kingdom|H3N8
+			2005|Equine|A/equine/Texas/117793/2005|USA|H3N8
+			2007|Equine|A/equine/Xinjiang/3/2007|China|H3N8
+			2008|Equine|A/equine/Liaoning/9/2008|China|H3N8
+			1930|Swine|A/swine/Iowa/15/1930|USA|H1N1
+			1931|Swine|A/swine/USA/1976/1931|USA|H1N1
+			1935|Swine|A/swine/Ohio/23/1935|USA|H1N1
+			1957|Swine|A/swine/Wisconsin/1/1957|USA|H1N1
+			1961|Swine|A/swine/Wisconsin/1/1961|USA|H1N1
+			1966|Swine|A/swine/Wisconsin/2/1966|USA|H1N1
+			1967|Swine|A/swine/Wisconsin/1/1967|USA|H1N1
+			1970|Swine|A/swine/Wisconsin/2/1970|USA|H1N1
+			1971|Swine|A/swine/Wisconsin/1/1971|USA|H1N1
+			1975|Swine|A/swine/Minnesota/24/1975|USA|H1N1
+			1976|Swine|A/swine/Tennessee/15/1976|USA|H1N1
+			1978|Swine|A/swine/Tennessee/4/1978|USA|H1N1
+			1979|Swine|A/swine/Minnesota/5892-7/1979|USA|H1N1
+			1980|Swine|A/swine/Wisconsin/11/1980|USA|H1N1
+			1981|Swine|A/swine/Ontario/3/1981|Canada|H1N1
+			1985|Swine|A/swine/Iowa/2/1985|USA|H1N1
+			1987|Swine|A/swine/Iowa/1/1987|USA|H1N1
+			1988|Swine|A/swine/Iowa/31483/1988|USA|H1N1
+			1990|Swine|A/swine/Iowa/3421/1990|USA|H1N1
+			1991|Swine|A/swine/Iowa/24297/1991|USA|H1N1
+			1993|Swine|A/swine/Hong_Kong/574/1993|Hong_Kong|H1N1
+			1994|Swine|A/swine/Hong_Kong/2422/1994|Hong_Kong|H1N1
+			2000|Swine|A/swine/Hong_Kong/6301/2000|Hong_Kong|H1N1
+			2001|Swine|A/swine/Hong_Kong/NS1022/2001|Hong_Kong|H1N1
+			2002|Swine|A/swine/Hong_Kong/762/2002|Hong_Kong|H1N1
+			2005|Swine|A/swine/Shanghai/1/2005|China|H1N1
+			2006|Swine|A/swine/Guangdong/628/2006|China|H1N1
+			2008|Swine|A/swine/Guangdong/07/2008|China|H1N1
+			2009|Swine|A/swine/Guangdong/11/2009|China|H1N1
+			1975|Avian|A/arctic_tern/Alaska/300/1975|USA|H5N3
+			1977|Avian|A/gull/Maryland/704/1977|USA|H13N6
+			1980|Avian|A/gull/Minnesota/945/1980|USA|H13N6
+			1986|Avian|A/herring_gull/New_Jersey/780/86|USA|H1N3
+			1987|Avian|A/laughing_gull/Delaware_Bay/2838/1987|USA|H13N2
+			1988|Avian|A/herring_gull/DE/665/1988|USA|H4N6
+			1990|Avian|A/turkey/Minnesota/1012/1990|USA|H13N2
+			1984|Avian|A/gull/Astrakhan/227/1984|Russia|H13N6
+			1985|Avian|A/blackhead_gull/Astrakhan/458/1985|Russia|H13N6
+			1998|Avian|A/duck/Siberia/272/1998|Russia|H13N6
+			2004|Avian|A/shorebird/DE/68/2004|USA|H13N9
+			2005|Avian|A/black-headed_gull/Sweden/1/2005|Sweden|H13N8
+			2006|Avian|A/shorebird/Delaware/221/2006|USA|H13N9
+			2008|Avian|A/laughing_gull/New_Jersey/Sg-00568/2008|USA|H13N9
+			;
+End;
+Begin trees;
+	Translate
+		   1 1934|Avian|A/chicken/Rostock/45/1934|Germany|H7N1,
+		   2 1934|Avian|A/fowl/Weybridge|United_Kingdom|H7N7,
+		   3 1935|Avian|A/chicken/Brescia/1902|Italy|H7N7,
+		   4 1949|Avian|A/chicken/Germany/N/1949|Germany|H10N7,
+		   5 1956|Avian|A/duck/Czech_Republic/1/1956|Czech_Republic|H4N6,
+		   6 1956|Avian|A/duck/England/1/1956|United_Kingdom|H11N6,
+		   7 1959|Avian|A/chicken/Scotland/1959|United_Kingdom|H5N1,
+		   8 1961|Avian|A/tern/South_Africa/1961|South_Africa|H5N3,
+		   9 1963|Avian|A/duck/Ukraine/1/1963|Ukraine|H3N8,
+		  10 1963|Avian|A/turkey/Canada/1963|Canada|H6N8,
+		  11 1963|Avian|A/turkey/England/1963|United_Kingdom|H7N3,
+		  12 1965|Avian|A/turkey/Massachusetts/3740/1965|USA|H6N2,
+		  13 1966|Avian|A/turkey/Ontario/6213/1966|Canada|mixed,
+		  14 1968|Avian|A/turkey/Wisconsin/1/1968|USA|H5N9,
+		  15 1969|Avian|A/duck/PA/486/1969|USA|H6N1,
+		  16 1969|Avian|A/turkey/England/1969|United_Kingdom|H3N2,
+		  17 1971|Avian|A/turkey/Oregon/1971|USA|H7N3,
+		  18 1972|Avian|A/duck/Chabarovsk/1610/1972_|Russia|H3N8,
+		  19 1972|Avian|A/turkey/CO/118899/1972|USA|H5N2,
+		  20 1973|Avian|A/turkey/England/N28/73|United_Kingdom|H5N2,
+		  21 1974|Avian|A/duck/Memphis/546/1974|USA|H11N9,
+		  22 1975|Avian|A/Canada_goose/Wisconsin/902/1975|USA|H5N2,
+		  23 1975|Avian|A/chicken/Alabama/1975|USA|H4N8,
+		  24 1975|Avian|A/duck/Hong_Kong/7/1975|Hong_Kong|H3N2,
+		  25 1975|Avian|A/mallard/WI/169/1975|USA|H5N3,
+		  26 1975|Avian|A/mallard/Wisconsin/34/1975|USA|H5N6,
+		  27 1975|Avian|A/mallard/Wisconsin/428/1975|USA|H5N1,
+		  28 1976|Avian|A/duck/Hong_Kong/d73/1976|Hong_Kong|H6N1,
+		  29 1976|Avian|A/goose/HK/10/1976|Hong_Kong|H3N2,
+		  30 1977|Avian|A/chicken/Hong_Kong/17/1977|Hong_Kong|H6N1,
+		  31 1977|Avian|A/gadwall_duck/Alberta/291/1977|Canada|H7N3,
+		  32 1977|Avian|A/mallard/Alberta/294/1977|Canada|H11N9,
+		  33 1977|Avian|A/mallard/Alberta/300/1977|Canada|H4N3,
+		  34 1978|Avian|A/blue-winged_teal/ALB/221/1978|Canada|H7N2,
+		  35 1978|Avian|A/duck/Hong_Kong/278/1978|Hong_Kong|H2N9,
+		  36 1978|Avian|A/duck/Hong_Kong/293/1978|Hong_Kong|H7N2,
+		  37 1978|Avian|A/duck/Hong_Kong/342/78|Hong_Kong|H5N2,
+		  38 1979|Avian|A/African_starling/England-Q/983/1979|United_Kingdom|H7N1,
+		  39 1979|Avian|A/blue-winged_teal/New_York/370ac/1979|USA|H4N2,
+		  40 1979|Avian|A/goose/Leipzig/187-7/1979|Germany|H7N7,
+		  41 1979|Avian|A/mallard_duck/Minnesota/19/1979|USA|H10N7,
+		  42 1979|Avian|A/mallard/Alberta/965/1979|Canada|H1N1,
+		  43 1980|Avian|A/black_duck/AUS/4045/1980|Australia|H6N5,
+		  44 1980|Avian|A/red-necked_stint/Australia/4500/1980|Australia|H3N8,
+		  45 1980|Avian|A/turkey/Italy/1980|Italy|H5N2,
+		  46 1981|Avian|A/pintail_duck/ALB/631/1981|Canada|H1N5,
+		  47 1981|Avian|A/red-necked_stint/Australia/5745/1981|Australia|H12N9,
+		  48 1982|Avian|A/mallard_duck/New_York/90/1982|USA|H6N8,
+		  49 1982|Avian|A/pintail/Alberta/189/82|Canada|H6N6,
+		  50 1983|Avian|A/mallard_duck/ALB/797/1983|Canada|H11N3,
+		  51 1983|Avian|A/mallard/Marquenterre/Z237/1983|France|H1N1,
+		  52 1983|Avian|A/red-necked_stint/Western_Australia/4923/1983|Australia|H3N8,
+		  53 1983|Avian|A/turkey/Ireland/1378/1983|Ireland|H5N8,
+		  54 1983|Avian|A/turkey/Virginia/6962/1983|USA|H5N2,
+		  55 1984|Avian|A/Chicken/Virginia/40018/84|USA|H5N2,
+		  56 1984|Avian|A/duck/New_Zealand/78/1984|New_Zealand|H9N2,
+		  57 1984|Avian|A/duck/NZL/41/1984|New_Zealand|H1N2,
+		  58 1984|Avian|A/mallard_duck/Alberta/630/1984|Canada|H4N2,
+		  59 1984|Avian|A/pintail_duck/ALB/584/1984|Canada|H10N6,
+		  60 1984|Avian|A/red-necked_stint/Western_Australia/4915/1984|Australia|H3N8,
+		  61 1985|Avian|A/green-winged_teal/ALB/228/1985|Canada|H7N3,
+		  62 1985|Avian|A/laughing_gull/New_Jersey/75/1985|USA|H2N9,
+		  63 1985|Avian|A/mallard/Tennessee/11457/1985|USA|H11N9,
+		  64 1985|Avian|A/redhead_duck/ALB/116/1985|Canada|H4N6,
+		  65 1986|Avian|A/chicken/MA/11801/1986|USA|H5N2,
+		  66 1986|Avian|A/duck/LA/B174/1986|USA|H8N4,
+		  67 1986|Avian|A/green-winged_teal/Ohio/397/1986|USA|H11N9,
+		  68 1986|Avian|A/herring_gull/Delaware/471/1986|USA|H2N7,
+		  69 1986|Avian|A/mallard/Ohio/264/1986|USA|H3N8,
+		  70 1986|Avian|A/sanderling/Delaware/1258/1986|USA|H6N6,
+		  71 1987|Avian|A/chicken/NY/12004-3/1987|USA|H5N2,
+		  72 1987|Avian|A/coot/ALB/134/1987|Canada|H6N2,
+		  73 1987|Avian|A/duck/LA/17G/1987|USA|H3N8,
+		  74 1987|Avian|A/duck/LA/32M/1987|USA|H6N2,
+		  75 1987|Avian|A/green-winged_teal/Ohio/430/1987|USA|H1N1,
+		  76 1987|Avian|A/mallard/Ohio/421/1987|USA|H7N8,
+		  77 1987|Avian|A/pintail/Ohio/339/1987|USA|H3N8,
+		  78 1988|Avian|A/black_duck/New_York/184/1988|USA|H5N2,
+		  79 1988|Avian|A/chicken/Florida/22780-2/88|USA|H5N2,
+		  80 1988|Avian|A/mallard/Ohio/324/1988|USA|H4N6,
+		  81 1988|Avian|A/mallard/Ohio/409/1988|USA|H12N5,
+		  82 1989|Avian|A/duck/Perak/2458/1989|Malaysia|H3N8,
+		  83 1989|Avian|A/mallard/Ohio/42/1989|USA|H10N6,
+		  84 1989|Avian|A/pintail/Ohio/73/1989|USA|H6N2,
+		  85 1990|Avian|A/black_duck/Ohio/195/1990|USA|mixed,
+		  86 1990|Avian|A/blue-winged_teal/ALB/67/1990|Canada|H4N5,
+		  87 1990|Avian|A/mallard_duck/ALB/253/1990|Canada|H6N3,
+		  88 1991|Avian|A/green-winged_teal/ALB/199/1991|Canada|H12N5,
+		  89 1991|Avian|A/mallard/ALB/124/1991|Canada|H11N2,
+		  90 1991|Avian|A/mallard/Alberta/12/1991|Canada|H4N6,
+		  91 1991|Avian|A/pintail/Alberta/105/1991|Canada|H3N8,
+		  92 1992|Avian|A/blue-winged_teal/Alberta/141/1992|Canada|H1N1,
+		  93 1992|Avian|A/duck/Nanchang/1749/1992|China|H11N2,
+		  94 1992|Avian|A/duck/Victoria/1992|Australia|H3N8,
+		  95 1992|Avian|A/mallard/Alberta/194/1992|Canada|H8N4,
+		  96 1993|Avian|A/pintail/ALB/179/1993|Canada|H6N1,
+		  97 1994|Avian|A/chicken/Mexico/31381-7/1994|Mexico|H5N2,
+		  98 1994|Avian|A/chicken/NY/13142-5/1994|USA|H7N2,
+		  99 1994|Avian|A/duck/Victoria/D23/1994|Australia|H4N2,
+		 100 1994|Avian|A/emu/NY/12716/1994|USA|H5N9,
+		 101 1995|Avian|A/chicken/Chiapas/28159-488/1995|Mexico|H5N2,
+		 102 1995|Avian|A/chicken/NY/13833-7/1995|USA|H7N2,
+		 103 1995|Avian|A/emu/TX/25414/1995|USA|H7N2,
+		 104 1995|Avian|A/guinea_fowl/New_York/26410-17/1995|USA|H11N9,
+		 105 1996|Avian|A/chicken/Mexico/37821-771/1996|Mexico|H5N2,
+		 106 1996|Avian|A/chicken/NY/3202-7/1996|USA|H7N2,
+		 107 1997|Avian|A/chicken/Chiapas/15406/1997|Mexico|H5N2,
+		 108 1997|Avian|A/chicken/Italy/312/1997|Italy|H5N2,
+		 109 1997|Avian|A/mallard/Alberta/52/1997|Canada|H12N5,
+		 110 1997|Avian|A/Teal/Hong_Kong/W312/97|Hong_Kong|H6N1,
+		 111 1997|Avian|A/turkey/PA/7975/1997|USA|H7N2,
+		 112 1998|Avian|A/chicken/Mexico/22184/1998|Mexico|H5N2,
+		 113 1998|Avian|A/chicken/PA/9801289/1998|USA|H7N2,
+		 114 1998|Avian|A/duck/Hokkaido/49/98|Japan|H9N2,
+		 115 1998|Avian|A/mallard/Minnesota/319/1998|USA|H6,
+		 116 1998|Avian|A/parakeet/Narita/92A/98|Japan|H9N2,
+		 117 1999|Avian|A/chicken/NY/21586-8/1999|USA|H7N2,
+		 118 1999|Avian|A/chicken/Taiwan/ns2/99|Taiwan|H6N1,
+		 119 1999|Avian|A/mallard/Minnesota/280/1999|USA|H3N5,
+		 120 1999|Avian|A/mallard/Netherlands/1/1999|Netherlands|H4N6,
+		 121 2000|Avian|A/chicken/Henan/26/00|China|H9N2,
+		 122 2000|Avian|A/chicken/NJ/30739-6/2000|USA|H7N2,
+		 123 2000|Avian|A/chicken/Taiwan/SP1/00|Taiwan|H6N1,
+		 124 2000|Avian|A/common_teal/Netherlands/10/2000|Netherlands|H1N1,
+		 125 2000|Avian|A/shorebird/Delaware_Bay/277/2000|USA|H9N7,
+		 126 2001|Avian|A/blue-winged_teal/Texas/71/2001|USA|H2N1,
+		 127 2001|Avian|A/chicken/Hong_Kong/SF3/2001|Hong_Kong|H6N1,
+		 128 2001|Avian|A/chicken/NJ/118878-5/2001|USA|H7N2,
+		 129 2001|Avian|A/cinnamon_teal/Bolivia/4537/2001|Bolivia|H7N3,
+		 130 2001|Avian|A/goose/Viet_Nam/113/2001|Viet_Nam|H5N1,
+		 131 2002|Avian|A/chicken/Taiwan/0107/02|Taiwan|H6N1,
+		 132 2002|Avian|A/duck/Victoria/5383/2002|Australia|H4N8,
+		 133 2002|Avian|A/goose/Hong_Kong/739.2/2002|Hong_Kong|H5N1,
+		 134 2002|Avian|A/guinea_fowl/Hong_Kong/SSP99/2002|Hong_Kong|H6N2,
+		 135 2002|Avian|A/shorebird/Delaware_Bay/18/2002|USA|H1N9,
+		 136 2003|Avian|A/chicken/France/03426/2003|France|H5N2,
+		 137 2003|Avian|A/chicken/Taiwan/0706/03|Taiwan|H6N1,
+		 138 2003|Avian|A/duck/Victoria/2853/2003|Australia|H4N8,
+		 139 2004|Avian|A/chicken/Taiwan/0305/04|Taiwan|H6N1,
+		 140 2004|Avian|A/ruddy_turnstone/NJ/238/2004|USA|H10N7,
+		 141 2005|Avian|A/chicken/Taiwan/A342/05|Taiwan|H6N1,
+		 142 2005|Avian|A/chicken/Vietnam/NCVD09/2005|Viet_Nam|H5N1,
+		 143 2006|Avian|A/northern_shoveler/Washington/44249-645/2006|USA|H5N2,
+		 144 2006|Avian|A/pekin_duck/California/P30/2006|USA|H4N2,
+		 145 2007|Avian|A/chicken/Bac_Lieu/07-10/2007|Viet_Nam|H5N1,
+		 146 2007|Avian|A/cinnamon_teal/California/44287-325/2007|USA|H3N8,
+		 147 2007|Avian|A/rosy-billed_pochard/Argentina/CIP051-269/2007|Argentina|H6N8,
+		 148 2007|Avian|A/rosy-billed_pochard/Argentina/CIP051-557/2007|Argentina|H6N2,
+		 149 2007|Avian|A/rosy-billed_pochard/Argentina/CIP051-559/2007|Argentina|H9N2,
+		 150 2008|Avian|A/mallard/California/6524/2008|USA|H12N5,
+		 151 2008|Avian|A/red-winged_tinamou/Argentina/MP1/2008|Argentina|H1N1,
+		 152 2008|Avian|A/rosy-billed_pochard/Argentina/CIP051-925/2008|Argentina|H6N2,
+		 153 2009|Avian|A/chicken/Cambodia/TLC1/2009|Cambodia|H5N1,
+		 154 2009|Avian|A/northern_shovelerMissouri/196/2009|USA|H10N3,
+		 155 2010|Avian|A/blue-winged_teal/Guatemala/CIP049-12/2010|Guatemala|H5N4,
+		 156 2010|Avian|A/chicken/Cambodia/TKCMB8F/2010|Cambodia|H5N1,
+		 157 2010|Avian|A/rosy-billed_pochard/Argentina/CIP051-1977/2010|Argentina|H6N2,
+		 158 2011|Avian|A/heron/Cambodia/TM068/2011|Cambodia|H5N1,
+		 159 1990|Avian|A/semi-palmated_sandpiper/Brazil/43/1990|Brazil|H2N1,
+		 160 2009|A/bat/Guatemala/153/2009|H17N10,
+		 161 2009|A/bat/Guatemala/164/2009|H17N10,
+		 162 2010|A/bat/Guatemala/060/2010|H17N10,
+		 163 1918|Human|A/Brevig_Mission/1/1918|USA|H1N1,
+		 164 1935|Human|A/bh/1935||H1N1,
+		 165 1935|Human|A/Melbourne/1935|Australia|H1N1,
+		 166 1935|Human|A/Phila/1935|USA|H1N1,
+		 167 1936|Human|A/Henry/1936|USA|H1N1,
+		 168 1942|Human|A/Bellamy/1942|USA|H1N1,
+		 169 1943|Human|A/Iowa/1943|USA|H1N1,
+		 170 1943|Human|A/Weiss/1943|USA|H1N1,
+		 171 1945|Human|A/AA/Huston/1945|USA|H1N1,
+		 172 1947|Human|A/Fort_Monmouth/1/1947|USA|H1N1,
+		 173 1948|Human|A/Albany/4835/1948|USA|H1N1,
+		 174 1948|Human|A/Hemsbury/1948|USA|H1N1,
+		 175 1949|Human|A/Roma/1949|Italy|H1N1,
+		 176 1950|Human|A/Albany/4836/1950|USA|H1N1,
+		 177 1950|Human|A/Fort_Warren/1/1950|USA|H1N1,
+		 178 1951|Human|A/Albany/14/1951|USA|H1N1,
+		 179 1953|Human|A/Netherlands/001R1/1953|Netherlands|H1N1,
+		 180 1954|Human|A/Netherlands/001H1/1954|Netherlands|H1N1,
+		 181 1956|Human|A/Netherlands/002Z1/1956|Netherlands|H1N1,
+		 182 1957|Human|A/Denver/1957|USA|H1N1,
+		 183 1958|Human|A/Netherlands/001M/1958|Netherlands|H2N2,
+		 184 1959|Human|A/Albany/1/1959|USA|H2N2,
+		 185 1960|Human|A/Ann_Arbor/6/1960|USA|H2N2,
+		 186 1961|Human|A/Panama/1/61|Panama|H2N2,
+		 187 1963|Human|A/Netherlands/001K1/1963|Netherlands|H2N2,
+		 188 1964|Human|A/Taiwan/1964|Taiwan|H2N2,
+		 189 1965|Human|A/Potsdam/2/1965|Germany|H2N2,
+		 190 1966|Human|A/Czech_Republic/1/1966|Czech_Republic|H2N2,
+		 191 1968|Human|A/Albany/19/1968|USA|H3N2,
+		 192 1969|Human|A/Hong_Kong/3/1969|Hong_Kong|H3N2,
+		 193 1970|Human|A/Albany/3/1970|USA|H3N2,
+		 194 1971|Human|A/Bilthoven/21801/1971|Netherlands|H3N2,
+		 195 1972|Human|A/Bilthoven/6022/1972|Netherlands|H3N2,
+		 196 1974|Human|A/Albany/20/1974|USA|H3N2,
+		 197 1975|Human|A/Bilthoven/4273/1975|Netherlands|H3N2,
+		 198 1976|Human|A/Bilthoven/628/1976|Netherlands|H3N2,
+		 199 1977|Human|A/Texas/1/1977|USA|H3N2,
+		 200 1978|Human|A/Memphis/18/1978|USA|H3N2,
+		 201 1981|Human|A/Bilthoven/4791/1981|Netherlands|H3N2,
+		 202 1984|Human|A/Hong_Kong/7/1984|Hong_Kong|H3N2,
+		 203 1985|Human|A/Memphis/7/1985|USA|H3N2,
+		 204 1986|Human|A/Colorado/2/1986|USA|H3N2,
+		 205 1987|Human|A/Los_Angeles/2/1987|USA|H3N2,
+		 206 1989|Human|A/Netherlands/620/1989|Netherlands|H3N2,
+		 207 1990|Human|A/Siena/4/1990|Italy|H3N2,
+		 208 1993|Human|A/Singapore/19/1993|Singapore|H3N2,
+		 209 1995|Human|A/Siena/3/1995|Italy|H3N2,
+		 210 1996|Human|A/Niigata/137/96|Japan|H3N2,
+		 211 1997|Human|A/Shiga/25/97|Japan|H3N2,
+		 212 1999|Human|A/New_South_Wales/17/1999|Australia|H3N2,
+		 213 2001|Human|A/Sydney/405A/2001|Australia|H3N2,
+		 214 2003|Human|A/Wyoming/03/2003|USA|H3N2,
+		 215 2005|Human|A/Hiroshima/52/2005|Japan|H3N2,
+		 216 2007|Human|A/HungYen/HY6/2007|Viet_Nam|H3N2,
+		 217 2009|Human|A/Netherlands/761/2009|Netherlands|H3N2,
+		 218 2010|Human|A/Netherlands/009/2010|Netherlands|H3N2,
+		 219 2011|Human|A/California/NHRC0001/2011|USA|H3N2,
+		 220 1951|Human|A/Memphis/13/1978|USA|H1N1*,
+		 221 1979|Human|A/USSR/46/1979|Russia|H1N1,
+		 222 1953|Human|A/Memphis/7/1980|USA|H1N1*,
+		 223 1956|Human|A/Memphis/10/1983|USA|H1N1*,
+		 224 1957|Human|A/Memphis/1/1984|USA|H1N1*,
+		 225 1959|Human|A/New_York/2924-1/1986|USA|H1N1*,
+		 226 1960|Human|A/Memphis/3/1987|USA|H1N1*,
+		 227 1964|Human|A/Texas/36/1991|USA|H1N1*,
+		 228 1968|Human|A/Beijing/262/1995|China|H1N1*,
+		 229 1969|Human|A/Nanchang/13/1996|China|H1N1*,
+		 230 1970|Human|A/TW/3355/1997|Taiwan|H1N1*,
+		 231 1972|Human|A/Taiwan/5072/1999|Taiwan|H1N1*,
+		 232 1973|Human|A/Auckland/590/2000|New_Zealand|H1N1*,
+		 233 1974|Human|A/HaNoi/2017/2001|Viet_Nam|H1N1*,
+		 234 1975|Human|A/HaNoi/2546/2002|Viet_Nam|H1N1*,
+		 235 1978|Human|A/Waikato/13/2005|New_Zealand|H1N1*,
+		 236 1979|Human|A/Thailand/CU88/2006|Thailand|H1N1*,
+		 237 1980|Human|A/New_York/UR06-0326/2007|USA|H1N1*,
+		 238 1981|Human|A/New_York/08-1253/2008|USA|H1N1*,
+		 239 1982|Human|A/Alaska/WRAIR1114P/2009|USA|H1N1*,
+		 240 1999|Swine|A/Swine/Indiana/9K035/99_|USA|H1N2,
+		 241 2000|Swine|A/Swine/Minnesota/55551/2000|USA|H1N2,
+		 242 2002|Swine|A/swine/Iowa/H02PW7/2002|USA|H1N1,
+		 243 2004|Swine|A/swine/IN/PU542/04_|USA|H3N1,
+		 244 2005|Swine|A/swine/Hong_Kong/1562/2005|Hong_Kong|H1N2,
+		 245 2005|Swine|A/swine/Nebraska/00722/2005|USA|mixed,
+		 246 2006|Swine|A/swine/Minnesota/001332/2006|USA|H3N2,
+		 247 2006|Swine|A/swine/Guangxi/13/2006|China|H1N2,
+		 248 2007|Swine|A/swine/Kansas/77778/2007|USA|H1N1,
+		 249 2009|Swine|A/swine/Hubei/05/2009|China|H1N2,
+		 250 2009|Swine|A/swine/Minnesota/02782/2009|USA|H3N2,
+		 251 2010|Swine|A/swine/Guangdong/1/2010|China|H1N2,
+		 252 2010|Swine|A/swine/Indiana/A00968322/2010|USA|H3N2,
+		 253 2011|Swine|A/swine/Iowa/A01202659/2011|USA|H3N2,
+		 254 1956|Equine|A/equine/Prague/1/1956|Czech_Republic|H7N7,
+		 255 1956|Equine|A/equine/Prague/2/1956|Czech_Republic|H7N7,
+		 256 1966|Equine|A/equine/Lexington/1/1966|USA|H7N7,
+		 257 1981|Swine|A/swine/Germany/2/1981|Germany|H1N1,
+		 258 1985|Swine|A/swine/France/WVL4/1985|France|H1N1,
+		 259 1983|Swine|A/swine/Belgium/WVL2/1983|Belgium|H1N1,
+		 260 1987|Swine|A/swine/Italy/670/1987|Italy|H1N1,
+		 261 1992|Swine|A/swine/England/WVL7/1992|United_Kingdom|H1N1,
+		 262 1993|Swine|A/swine/England/WVL10/1993|United_Kingdom|H1N1,
+		 263 1994|Swine|A/swine/England/WVL11/1994|United_Kingdom|H1N1,
+		 264 1998|Swine|A/swine/Italy/62/1998|Italy|H1N2,
+		 265 1999|Swine|A/swine/Italy/3592/1999|Italy|H1N2,
+		 266 2000|Swine|A/swine/Bakum/1832/2000|Germany|H1N2,
+		 267 2002|Swine|A/swine/Hong_Kong/1669/2002|Hong_Kong|H1N1,
+		 268 2003|Swine|A/swine/Hong_Kong/NS129/2003|Hong_Kong|H1N1,
+		 269 2004|Swine|A/swine/Hong_Kong/NS1170/2004|Hong_Kong|H1N1,
+		 270 2005|Swine|A/swine/Hong_Kong/1683/2005|Hong_Kong|H1N1,
+		 271 2007|Swine|A/swine/Zhejiang/1/2007|China|H1N1,
+		 272 2008|Swine|A/swine/Shandong/101/2008|China|H1N1,
+		 273 2009|Swine|A/swine/Shandong/327/2009|China|H1N1,
+		 274 1963|Equine|A/equine/Miami/1/1963|USA|H3N8,
+		 275 1963|Equine|A/equine/Uruguay/1/1963|Uruguay|H3N8,
+		 276 1969|Equine|A/equine/Sao_Paulo/1/1969|Brazil|H3N8,
+		 277 1971|Equine|A/equine/Sachiyama/1/1971|Japan|H3N8,
+		 278 1971|Equine|A/equine/Tokyo/2/1971|Japan|H3N8,
+		 279 1972|Equine|A/equine/Algiers/1/1972|Algeria|H3N8,
+		 280 1973|Equine|A/equine/London/1416/1973|United_Kingdom|H7N7,
+		 281 1974|Equine|A/equine/Cornell/16/74|USA|H7N7,
+		 282 1975|Equine|A/equine/Kentucky/1a/1975|USA|H7N7,
+		 283 1975|Equine|A/equine/New_York/1/1975|USA|H3N8,
+		 284 1976|Equine|A/equine/Sao_Paulo/4/1976|Brazil|H7N7,
+		 285 1977|Equine|A/equine/Argentina/1/1977|Argentina|H7N7,
+		 286 1978|Equine|A/equine/Kascakew/1/1978|unknown|H3N8,
+		 287 1980|Equine|A/equine/Kentucky/4/1980|USA|H3N8,
+		 288 1981|Equine|A/equine/Kentucky/2/1981|USA|H3N8,
+		 289 1982|Equine|A/equine/California/83/1982|USA|H3N8,
+		 290 1985|Equine|A/equine/Santa_Fe/1/1985|USA|H3N8,
+		 291 1986|Equine|A/equine/Kentucky/1/1986|USA|H3N8,
+		 292 1987|Equine|A/equine/Kentucky/1/1987|USA|H3N8,
+		 293 1988|Equine|A/equine/Kentucky/692/1988|USA|H3N8,
+		 294 1989|Equine|A/equine/Rook/93753/1989|United_Kingdom|H3N8,
+		 295 1990|Equine|A/equine/Kentucky/1277/1990|USA|H3N8,
+		 296 1991|Equine|A/equine/Kentucky/1/1991|USA|H3N8,
+		 297 1991|Equine|A/equine/Rome/5/1991|Italy|H3N8,
+		 298 1992|Equine|A/equine/Italy/1199/1992|Italy|H3N8,
+		 299 1992|Equine|A/equine/Kentucky/1/1992|USA|H3N8,
+		 300 1993|Equine|A/equine/Newmarket/1/1993|United_Kingdom|H3N8,
+		 301 1993|Equine|A/equine/Switzerland/173/1993|Switzerland|H3N8,
+		 302 1994|Equine|A/equine/Kentucky/8/1994|USA|H3N8,
+		 303 1997|Equine|A/equine/California/4537/1997|USA|H3N8,
+		 304 2002|Equine|A/equine/California/8560/2002|USA|H3N8,
+		 305 2003|Equine|A/equine/Newmarket/5/2003|United_Kingdom|H3N8,
+		 306 2005|Equine|A/equine/Texas/117793/2005|USA|H3N8,
+		 307 2007|Equine|A/equine/Xinjiang/3/2007|China|H3N8,
+		 308 2008|Equine|A/equine/Liaoning/9/2008|China|H3N8,
+		 309 1930|Swine|A/swine/Iowa/15/1930|USA|H1N1,
+		 310 1931|Swine|A/swine/USA/1976/1931|USA|H1N1,
+		 311 1935|Swine|A/swine/Ohio/23/1935|USA|H1N1,
+		 312 1957|Swine|A/swine/Wisconsin/1/1957|USA|H1N1,
+		 313 1961|Swine|A/swine/Wisconsin/1/1961|USA|H1N1,
+		 314 1966|Swine|A/swine/Wisconsin/2/1966|USA|H1N1,
+		 315 1967|Swine|A/swine/Wisconsin/1/1967|USA|H1N1,
+		 316 1970|Swine|A/swine/Wisconsin/2/1970|USA|H1N1,
+		 317 1971|Swine|A/swine/Wisconsin/1/1971|USA|H1N1,
+		 318 1975|Swine|A/swine/Minnesota/24/1975|USA|H1N1,
+		 319 1976|Swine|A/swine/Tennessee/15/1976|USA|H1N1,
+		 320 1978|Swine|A/swine/Tennessee/4/1978|USA|H1N1,
+		 321 1979|Swine|A/swine/Minnesota/5892-7/1979|USA|H1N1,
+		 322 1980|Swine|A/swine/Wisconsin/11/1980|USA|H1N1,
+		 323 1981|Swine|A/swine/Ontario/3/1981|Canada|H1N1,
+		 324 1985|Swine|A/swine/Iowa/2/1985|USA|H1N1,
+		 325 1987|Swine|A/swine/Iowa/1/1987|USA|H1N1,
+		 326 1988|Swine|A/swine/Iowa/31483/1988|USA|H1N1,
+		 327 1990|Swine|A/swine/Iowa/3421/1990|USA|H1N1,
+		 328 1991|Swine|A/swine/Iowa/24297/1991|USA|H1N1,
+		 329 1993|Swine|A/swine/Hong_Kong/574/1993|Hong_Kong|H1N1,
+		 330 1994|Swine|A/swine/Hong_Kong/2422/1994|Hong_Kong|H1N1,
+		 331 2000|Swine|A/swine/Hong_Kong/6301/2000|Hong_Kong|H1N1,
+		 332 2001|Swine|A/swine/Hong_Kong/NS1022/2001|Hong_Kong|H1N1,
+		 333 2002|Swine|A/swine/Hong_Kong/762/2002|Hong_Kong|H1N1,
+		 334 2005|Swine|A/swine/Shanghai/1/2005|China|H1N1,
+		 335 2006|Swine|A/swine/Guangdong/628/2006|China|H1N1,
+		 336 2008|Swine|A/swine/Guangdong/07/2008|China|H1N1,
+		 337 2009|Swine|A/swine/Guangdong/11/2009|China|H1N1,
+		 338 1975|Avian|A/arctic_tern/Alaska/300/1975|USA|H5N3,
+		 339 1977|Avian|A/gull/Maryland/704/1977|USA|H13N6,
+		 340 1980|Avian|A/gull/Minnesota/945/1980|USA|H13N6,
+		 341 1986|Avian|A/herring_gull/New_Jersey/780/86|USA|H1N3,
+		 342 1987|Avian|A/laughing_gull/Delaware_Bay/2838/1987|USA|H13N2,
+		 343 1988|Avian|A/herring_gull/DE/665/1988|USA|H4N6,
+		 344 1990|Avian|A/turkey/Minnesota/1012/1990|USA|H13N2,
+		 345 1984|Avian|A/gull/Astrakhan/227/1984|Russia|H13N6,
+		 346 1985|Avian|A/blackhead_gull/Astrakhan/458/1985|Russia|H13N6,
+		 347 1998|Avian|A/duck/Siberia/272/1998|Russia|H13N6,
+		 348 2004|Avian|A/shorebird/DE/68/2004|USA|H13N9,
+		 349 2005|Avian|A/black-headed_gull/Sweden/1/2005|Sweden|H13N8,
+		 350 2006|Avian|A/shorebird/Delaware/221/2006|USA|H13N9,
+		 351 2008|Avian|A/laughing_gull/New_Jersey/Sg-00568/2008|USA|H13N9
+;
+tree STATE_0 = ((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((1[&rate=1.0]:1.0,2[&rate=1.0]:1.0)[&rate=1.0]:1.0,3[&rate=1.0]:2.0)[&rate=1.0]:1.0,4[&rate=1.0]:3.0)[&rate=1.0]:1.0,5[&rate=1.0]:4.0)[&rate=1.0]:1.0,6[&rate=1.0]:5.0)[&rate=1.0]:1.0,7[&rate=1.0]:6.0)[&rate=1.0]:1.0,8[&rate=1.0]:7.0)[&rate=1.0]:1.0,9[&rate=1.0]:8.0)[&rate=1.0]:1.0,10[&rate=1.0]:9.0)[&rate=1.0]:1.0,11[&rate=1.0]:10.0)[&rate=1.0]:1.0,12[&rate=1.0]:11.0)[&rate=1.0]:1.0,13[&rate=1.0]:12.0)[&rate=1.0]:1.0,14[&rate=1.0]:13.0)[&rate=1.0]:1.0,15[&rate=1.0]:14.0)[&rate=1.0]:1.0,16[&rate=1.0]:15.0)[&rate=1.0]:1.0,17[&rate=1.0]:16.0)[&rate=1.0]:1.0,18[&rate=1.0]:17.0)[&rate=1.0]:1.0,19[&rate=1.0]:18.0)[&rate=1.0]:1.0,20[&rate=1.0]:19.0)[&rate=1.0]:1.0,21[&rate=1.0]:20.0)[&rate=1.0]:1.0,22[&rate=1.0]:21.0)[&rate=1.0]:1.0,23[&rate=1.0]:22.0)[&rate=1.0]:1.0,24[&rate=1.0]:23.0)[&rate=1.0]:1.0,25[&rate=1.0]:24.0)[&rate=1.0]:1.0,26[&rate=1.0]:25.0)[&rate=1.0]:1.0,27[&rate=1.0]:26.0)[&rate=1.0]:1.0,28[&rate=1.0]:27.0)[&rate=1.0]:1.0,29[&rate=1.0]:28.0)[&rate=1.0]:1.0,30[&rate=1.0]:29.0)[&rate=1.0]:1.0,31[&rate=1.0]:30.0)[&rate=1.0]:1.0,32[&rate=1.0]:31.0)[&rate=1.0]:1.0,33[&rate=1.0]:32.0)[&rate=1.0]:1.0,34[&rate=1.0]:33.0)[&rate=1.0]:1.0,35[&rate=1.0]:34.0)[&rate=1.0]:1.0,36[&rate=1.0]:35.0)[&rate=1.0]:1.0,37[&rate=1.0]:36.0)[&rate=1.0]:1.0,38[&rate=1.0]:37.0)[&rate=1.0]:1.0,39[&rate=1.0]:38.0)[&rate=1.0]:1.0,40[&rate=1.0]:39.0)[&rate=1.0]:1.0,41[&rate=1.0]:40.0)[&rate=1.0]:1.0,42[&rate=1.0]:41.0)[&rate=1.0]:1.0,43[&rate=1.0]:42.0)[&rate=1.0]:1.0,44[&rate=1.0]:43.0)[&rate=1.0]:1.0,45[&rate=1.0]:44.0)[&rate=1.0]:1.0,46[&rate=1.0]:45.0)[&rate=1.0]:1.0,47[&rate=1.0]:46.0)[&rate=1.0]:1.0,48[&rate=1.0]:47.0)[&rate=1.0]:1.0,49[&rate=1.0]:48.0)[&rate=1.0]:1.0,50[&rate=1.0]:49.0)[&rate=1.0]:1.0,51[&rate=1.0]:50.0)[&rate=1.0]:1.0,52[&rate=1.0]:51.0)[&rate=1.0]:1.0,53[&rate=1.0]:52.0)[&rate=1.0]:1.0,54[&rate=1.0]:53.0)[&rate=1.0]:1.0,55[&rate=1.0]:54.0)[&rate=1.0]:1.0,56[&rate=1.0]:55.0)[&rate=1.0]:1.0,57[&rate=1.0]:56.0)[&rate=1.0]:1.0,58[&rate=1.0]:57.0)[&rate=1.0]:1.0,59[&rate=1.0]:58.0)[&rate=1.0]:1.0,60[&rate=1.0]:59.0)[&rate=1.0]:1.0,61[&rate=1.0]:60.0)[&rate=1.0]:1.0,62[&rate=1.0]:61.0)[&rate=1.0]:1.0,63[&rate=1.0]:62.0)[&rate=1.0]:1.0,64[&rate=1.0]:63.0)[&rate=1.0]:1.0,65[&rate=1.0]:64.0)[&rate=1.0]:1.0,66[&rate=1.0]:65.0)[&rate=1.0]:1.0,67[&rate=1.0]:66.0)[&rate=1.0]:1.0,68[&rate=1.0]:67.0)[&rate=1.0]:1.0,69[&rate=1.0]:68.0)[&rate=1.0]:1.0,70[&rate=1.0]:69.0)[&rate=1.0]:1.0,71[&rate=1.0]:70.0)[&rate=1.0]:1.0,72[&rate=1.0]:71.0)[&rate=1.0]:1.0,73[&rate=1.0]:72.0)[&rate=1.0]:1.0,74[&rate=1.0]:73.0)[&rate=1.0]:1.0,75[&rate=1.0]:74.0)[&rate=1.0]:1.0,76[&rate=1.0]:75.0)[&rate=1.0]:1.0,77[&rate=1.0]:76.0)[&rate=1.0]:1.0,78[&rate=1.0]:77.0)[&rate=1.0]:1.0,79[&rate=1.0]:78.0)[&rate=1.0]:1.0,80[&rate=1.0]:79.0)[&rate=1.0]:1.0,81[&rate=1.0]:80.0)[&rate=1.0]:1.0,82[&rate=1.0]:81.0)[&rate=1.0]:1.0,83[&rate=1.0]:82.0)[&rate=1.0]:1.0,84[&rate=1.0]:83.0)[&rate=1.0]:1.0,85[&rate=1.0]:84.0)[&rate=1.0]:1.0,86[&rate=1.0]:85.0)[&rate=1.0]:1.0,87[&rate=1.0]:86.0)[&rate=1.0]:1.0,88[&rate=1.0]:87.0)[&rate=1.0]:1.0,89[&rate=1.0]:88.0)[&rate=1.0]:1.0,90[&rate=1.0]:89.0)[&rate=1.0]:1.0,91[&rate=1.0]:90.0)[&rate=1.0]:1.0,92[&rate=1.0]:91.0)[&rate=1.0]:1.0,93[&rate=1.0]:92.0)[&rate=1.0]:1.0,94[&rate=1.0]:93.0)[&rate=1.0]:1.0,95[&rate=1.0]:94.0)[&rate=1.0]:1.0,96[&rate=1.0]:95.0)[&rate=1.0]:1.0,97[&rate=1.0]:96.0)[&rate=1.0]:1.0,98[&rate=1.0]:97.0)[&rate=1.0]:1.0,99[&rate=1.0]:98.0)[&rate=1.0]:1.0,100[&rate=1.0]:99.0)[&rate=1.0]:1.0,101[&rate=1.0]:100.0)[&rate=1.0]:1.0,102[&rate=1.0]:101.0)[&rate=1.0]:1.0,103[&rate=1.0]:102.0)[&rate=1.0]:1.0,104[&rate=1.0]:103.0)[&rate=1.0]:1.0,105[&rate=1.0]:104.0)[&rate=1.0]:1.0,106[&rate=1.0]:105.0)[&rate=1.0]:1.0,107[&rate=1.0]:106.0)[&rate=1.0]:1.0,108[&rate=1.0]:107.0)[&rate=1.0]:1.0,109[&rate=1.0]:108.0)[&rate=1.0]:1.0,110[&rate=1.0]:109.0)[&rate=1.0]:1.0,111[&rate=1.0]:110.0)[&rate=1.0]:1.0,112[&rate=1.0]:111.0)[&rate=1.0]:1.0,113[&rate=1.0]:112.0)[&rate=1.0]:1.0,114[&rate=1.0]:113.0)[&rate=1.0]:1.0,115[&rate=1.0]:114.0)[&rate=1.0]:1.0,116[&rate=1.0]:115.0)[&rate=1.0]:1.0,117[&rate=1.0]:116.0)[&rate=1.0]:1.0,118[&rate=1.0]:117.0)[&rate=1.0]:1.0,119[&rate=1.0]:118.0)[&rate=1.0]:1.0,120[&rate=1.0]:119.0)[&rate=1.0]:1.0,121[&rate=1.0]:120.0)[&rate=1.0]:1.0,122[&rate=1.0]:121.0)[&rate=1.0]:1.0,123[&rate=1.0]:122.0)[&rate=1.0]:1.0,124[&rate=1.0]:123.0)[&rate=1.0]:1.0,125[&rate=1.0]:124.0)[&rate=1.0]:1.0,126[&rate=1.0]:125.0)[&rate=1.0]:1.0,127[&rate=1.0]:126.0)[&rate=1.0]:1.0,128[&rate=1.0]:127.0)[&rate=1.0]:1.0,129[&rate=1.0]:128.0)[&rate=1.0]:1.0,130[&rate=1.0]:129.0)[&rate=1.0]:1.0,131[&rate=1.0]:130.0)[&rate=1.0]:1.0,132[&rate=1.0]:131.0)[&rate=1.0]:1.0,133[&rate=1.0]:132.0)[&rate=1.0]:1.0,134[&rate=1.0]:133.0)[&rate=1.0]:1.0,135[&rate=1.0]:134.0)[&rate=1.0]:1.0,136[&rate=1.0]:135.0)[&rate=1.0]:1.0,137[&rate=1.0]:136.0)[&rate=1.0]:1.0,138[&rate=1.0]:137.0)[&rate=1.0]:1.0,139[&rate=1.0]:138.0)[&rate=1.0]:1.0,140[&rate=1.0]:139.0)[&rate=1.0]:1.0,141[&rate=1.0]:140.0)[&rate=1.0]:1.0,142[&rate=1.0]:141.0)[&rate=1.0]:1.0,143[&rate=1.0]:142.0)[&rate=1.0]:1.0,144[&rate=1.0]:143.0)[&rate=1.0]:1.0,145[&rate=1.0]:144.0)[&rate=1.0]:1.0,146[&rate=1.0]:145.0)[&rate=1.0]:1.0,147[&rate=1.0]:146.0)[&rate=1.0]:1.0,148[&rate=1.0]:147.0)[&rate=1.0]:1.0,149[&rate=1.0]:148.0)[&rate=1.0]:1.0,150[&rate=1.0]:149.0)[&rate=1.0]:1.0,151[&rate=1.0]:150.0)[&rate=1.0]:1.0,152[&rate=1.0]:151.0)[&rate=1.0]:1.0,153[&rate=1.0]:152.0)[&rate=1.0]:1.0,154[&rate=1.0]:153.0)[&rate=1.0]:1.0,155[&rate=1.0]:154.0)[&rate=1.0]:1.0,156[&rate=1.0]:155.0)[&rate=1.0]:1.0,157[&rate=1.0]:156.0)[&rate=1.0]:1.0,158[&rate=1.0]:157.0)[&rate=1.0]:1.0,159[&rate=1.0]:158.0)[&rate=1.0]:1.0,160[&rate=1.0]:159.0)[&rate=1.0]:1.0,161[&rate=1.0]:160.0)[&rate=1.0]:1.0,162[&rate=1.0]:161.0)[&rate=1.0]:1.0,163[&rate=1.0]:162.0)[&rate=1.0]:1.0,164[&rate=1.0]:163.0)[&rate=1.0]:1.0,165[&rate=1.0]:164.0)[&rate=1.0]:1.0,166[&rate=1.0]:165.0)[&rate=1.0]:1.0,167[&rate=1.0]:166.0)[&rate=1.0]:1.0,168[&rate=1.0]:167.0)[&rate=1.0]:1.0,169[&rate=1.0]:168.0)[&rate=1.0]:1.0,170[&rate=1.0]:169.0)[&rate=1.0]:1.0,171[&rate=1.0]:170.0)[&rate=1.0]:1.0,172[&rate=1.0]:171.0)[&rate=1.0]:1.0,173[&rate=1.0]:172.0)[&rate=1.0]:1.0,174[&rate=1.0]:173.0)[&rate=1.0]:1.0,175[&rate=1.0]:174.0)[&rate=1.0]:1.0,176[&rate=1.0]:175.0)[&rate=1.0]:1.0,177[&rate=1.0]:176.0)[&rate=1.0]:1.0,178[&rate=1.0]:177.0)[&rate=1.0]:1.0,179[&rate=1.0]:178.0)[&rate=1.0]:1.0,180[&rate=1.0]:179.0)[&rate=1.0]:1.0,181[&rate=1.0]:180.0)[&rate=1.0]:1.0,182[&rate=1.0]:181.0)[&rate=1.0]:1.0,183[&rate=1.0]:182.0)[&rate=1.0]:1.0,184[&rate=1.0]:183.0)[&rate=1.0]:1.0,185[&rate=1.0]:184.0)[&rate=1.0]:1.0,186[&rate=1.0]:185.0)[&rate=1.0]:1.0,187[&rate=1.0]:186.0)[&rate=1.0]:1.0,188[&rate=1.0]:187.0)[&rate=1.0]:1.0,189[&rate=1.0]:188.0)[&rate=1.0]:1.0,190[&rate=1.0]:189.0)[&rate=1.0]:1.0,191[&rate=1.0]:190.0)[&rate=1.0]:1.0,192[&rate=1.0]:191.0)[&rate=1.0]:1.0,193[&rate=1.0]:192.0)[&rate=1.0]:1.0,194[&rate=1.0]:193.0)[&rate=1.0]:1.0,195[&rate=1.0]:194.0)[&rate=1.0]:1.0,196[&rate=1.0]:195.0)[&rate=1.0]:1.0,197[&rate=1.0]:196.0)[&rate=1.0]:1.0,198[&rate=1.0]:197.0)[&rate=1.0]:1.0,199[&rate=1.0]:198.0)[&rate=1.0]:1.0,200[&rate=1.0]:199.0)[&rate=1.0]:1.0,201[&rate=1.0]:200.0)[&rate=1.0]:1.0,202[&rate=1.0]:201.0)[&rate=1.0]:1.0,203[&rate=1.0]:202.0)[&rate=1.0]:1.0,204[&rate=1.0]:203.0)[&rate=1.0]:1.0,205[&rate=1.0]:204.0)[&rate=1.0]:1.0,206[&rate=1.0]:205.0)[&rate=1.0]:1.0,207[&rate=1.0]:206.0)[&rate=1.0]:1.0,208[&rate=1.0]:207.0)[&rate=1.0]:1.0,209[&rate=1.0]:208.0)[&rate=1.0]:1.0,210[&rate=1.0]:209.0)[&rate=1.0]:1.0,211[&rate=1.0]:210.0)[&rate=1.0]:1.0,212[&rate=1.0]:211.0)[&rate=1.0]:1.0,213[&rate=1.0]:212.0)[&rate=1.0]:1.0,214[&rate=1.0]:213.0)[&rate=1.0]:1.0,215[&rate=1.0]:214.0)[&rate=1.0]:1.0,216[&rate=1.0]:215.0)[&rate=1.0]:1.0,217[&rate=1.0]:216.0)[&rate=1.0]:1.0,218[&rate=1.0]:217.0)[&rate=1.0]:1.0,219[&rate=1.0]:218.0)[&rate=1.0]:1.0,220[&rate=1.0]:219.0)[&rate=1.0]:1.0,221[&rate=1.0]:220.0)[&rate=1.0]:1.0,222[&rate=1.0]:221.0)[&rate=1.0]:1.0,223[&rate=1.0]:222.0)[&rate=1.0]:1.0,224[&rate=1.0]:223.0)[&rate=1.0]:1.0,225[&rate=1.0]:224.0)[&rate=1.0]:1.0,226[&rate=1.0]:225.0)[&rate=1.0]:1.0,227[&rate=1.0]:226.0)[&rate=1.0]:1.0,228[&rate=1.0]:227.0)[&rate=1.0]:1.0,229[&rate=1.0]:228.0)[&rate=1.0]:1.0,230[&rate=1.0]:229.0)[&rate=1.0]:1.0,231[&rate=1.0]:230.0)[&rate=1.0]:1.0,232[&rate=1.0]:231.0)[&rate=1.0]:1.0,233[&rate=1.0]:232.0)[&rate=1.0]:1.0,234[&rate=1.0]:233.0)[&rate=1.0]:1.0,235[&rate=1.0]:234.0)[&rate=1.0]:1.0,236[&rate=1.0]:235.0)[&rate=1.0]:1.0,237[&rate=1.0]:236.0)[&rate=1.0]:1.0,238[&rate=1.0]:237.0)[&rate=1.0]:1.0,239[&rate=1.0]:238.0)[&rate=1.0]:1.0,240[&rate=1.0]:239.0)[&rate=1.0]:1.0,241[&rate=1.0]:240.0)[&rate=1.0]:1.0,242[&rate=1.0]:241.0)[&rate=1.0]:1.0,243[&rate=1.0]:242.0)[&rate=1.0]:1.0,244[&rate=1.0]:243.0)[&rate=1.0]:1.0,245[&rate=1.0]:244.0)[&rate=1.0]:1.0,246[&rate=1.0]:245.0)[&rate=1.0]:1.0,247[&rate=1.0]:246.0)[&rate=1.0]:1.0,248[&rate=1.0]:247.0)[&rate=1.0]:1.0,249[&rate=1.0]:248.0)[&rate=1.0]:1.0,250[&rate=1.0]:249.0)[&rate=1.0]:1.0,251[&rate=1.0]:250.0)[&rate=1.0]:1.0,252[&rate=1.0]:251.0)[&rate=1.0]:1.0,253[&rate=1.0]:252.0)[&rate=1.0]:1.0,254[&rate=1.0]:253.0)[&rate=1.0]:1.0,255[&rate=1.0]:254.0)[&rate=1.0]:1.0,256[&rate=1.0]:255.0)[&rate=1.0]:1.0,257[&rate=1.0]:256.0)[&rate=1.0]:1.0,258[&rate=1.0]:257.0)[&rate=1.0]:1.0,259[&rate=1.0]:258.0)[&rate=1.0]:1.0,260[&rate=1.0]:259.0)[&rate=1.0]:1.0,261[&rate=1.0]:260.0)[&rate=1.0]:1.0,262[&rate=1.0]:261.0)[&rate=1.0]:1.0,263[&rate=1.0]:262.0)[&rate=1.0]:1.0,264[&rate=1.0]:263.0)[&rate=1.0]:1.0,265[&rate=1.0]:264.0)[&rate=1.0]:1.0,266[&rate=1.0]:265.0)[&rate=1.0]:1.0,267[&rate=1.0]:266.0)[&rate=1.0]:1.0,268[&rate=1.0]:267.0)[&rate=1.0]:1.0,269[&rate=1.0]:268.0)[&rate=1.0]:1.0,270[&rate=1.0]:269.0)[&rate=1.0]:1.0,271[&rate=1.0]:270.0)[&rate=1.0]:1.0,272[&rate=1.0]:271.0)[&rate=1.0]:1.0,273[&rate=1.0]:272.0)[&rate=1.0]:1.0,274[&rate=1.0]:273.0)[&rate=1.0]:1.0,275[&rate=1.0]:274.0)[&rate=1.0]:1.0,276[&rate=1.0]:275.0)[&rate=1.0]:1.0,277[&rate=1.0]:276.0)[&rate=1.0]:1.0,278[&rate=1.0]:277.0)[&rate=1.0]:1.0,279[&rate=1.0]:278.0)[&rate=1.0]:1.0,280[&rate=1.0]:279.0)[&rate=1.0]:1.0,281[&rate=1.0]:280.0)[&rate=1.0]:1.0,282[&rate=1.0]:281.0)[&rate=1.0]:1.0,283[&rate=1.0]:282.0)[&rate=1.0]:1.0,284[&rate=1.0]:283.0)[&rate=1.0]:1.0,285[&rate=1.0]:284.0)[&rate=1.0]:1.0,286[&rate=1.0]:285.0)[&rate=1.0]:1.0,287[&rate=1.0]:286.0)[&rate=1.0]:1.0,288[&rate=1.0]:287.0)[&rate=1.0]:1.0,289[&rate=1.0]:288.0)[&rate=1.0]:1.0,290[&rate=1.0]:289.0)[&rate=1.0]:1.0,291[&rate=1.0]:290.0)[&rate=1.0]:1.0,292[&rate=1.0]:291.0)[&rate=1.0]:1.0,293[&rate=1.0]:292.0)[&rate=1.0]:1.0,294[&rate=1.0]:293.0)[&rate=1.0]:1.0,295[&rate=1.0]:294.0)[&rate=1.0]:1.0,296[&rate=1.0]:295.0)[&rate=1.0]:1.0,297[&rate=1.0]:296.0)[&rate=1.0]:1.0,298[&rate=1.0]:297.0)[&rate=1.0]:1.0,299[&rate=1.0]:298.0)[&rate=1.0]:1.0,300[&rate=1.0]:299.0)[&rate=1.0]:1.0,301[&rate=1.0]:300.0)[&rate=1.0]:1.0,302[&rate=1.0]:301.0)[&rate=1.0]:1.0,303[&rate=1.0]:302.0)[&rate=1.0]:1.0,304[&rate=1.0]:303.0)[&rate=1.0]:1.0,305[&rate=1.0]:304.0)[&rate=1.0]:1.0,306[&rate=1.0]:305.0)[&rate=1.0]:1.0,307[&rate=1.0]:306.0)[&rate=1.0]:1.0,308[&rate=1.0]:307.0)[&rate=1.0]:1.0,309[&rate=1.0]:308.0)[&rate=1.0]:1.0,310[&rate=1.0]:309.0)[&rate=1.0]:1.0,311[&rate=1.0]:310.0)[&rate=1.0]:1.0,312[&rate=1.0]:311.0)[&rate=1.0]:1.0,313[&rate=1.0]:312.0)[&rate=1.0]:1.0,314[&rate=1.0]:313.0)[&rate=1.0]:1.0,315[&rate=1.0]:314.0)[&rate=1.0]:1.0,316[&rate=1.0]:315.0)[&rate=1.0]:1.0,317[&rate=1.0]:316.0)[&rate=1.0]:1.0,318[&rate=1.0]:317.0)[&rate=1.0]:1.0,319[&rate=1.0]:318.0)[&rate=1.0]:1.0,320[&rate=1.0]:319.0)[&rate=1.0]:1.0,321[&rate=1.0]:320.0)[&rate=1.0]:1.0,322[&rate=1.0]:321.0)[&rate=1.0]:1.0,323[&rate=1.0]:322.0)[&rate=1.0]:1.0,324[&rate=1.0]:323.0)[&rate=1.0]:1.0,325[&rate=1.0]:324.0)[&rate=1.0]:1.0,326[&rate=1.0]:325.0)[&rate=1.0]:1.0,327[&rate=1.0]:326.0)[&rate=1.0]:1.0,328[&rate=1.0]:327.0)[&rate=1.0]:1.0,329[&rate=1.0]:328.0)[&rate=1.0]:1.0,330[&rate=1.0]:329.0)[&rate=1.0]:1.0,331[&rate=1.0]:330.0)[&rate=1.0]:1.0,332[&rate=1.0]:331.0)[&rate=1.0]:1.0,333[&rate=1.0]:332.0)[&rate=1.0]:1.0,334[&rate=1.0]:333.0)[&rate=1.0]:1.0,335[&rate=1.0]:334.0)[&rate=1.0]:1.0,336[&rate=1.0]:335.0)[&rate=1.0]:1.0,337[&rate=1.0]:336.0)[&rate=1.0]:1.0,338[&rate=1.0]:337.0)[&rate=1.0]:1.0,339[&rate=1.0]:338.0)[&rate=1.0]:1.0,340[&rate=1.0]:339.0)[&rate=1.0]:1.0,341[&rate=1.0]:340.0)[&rate=1.0]:1.0,342[&rate=1.0]:341.0)[&rate=1.0]:1.0,343[&rate=1.0]:342.0)[&rate=1.0]:1.0,344[&rate=1.0]:343.0)[&rate=1.0]:1.0,345[&rate=1.0]:344.0)[&rate=1.0]:1.0,346[&rate=1.0]:345.0)[&rate=1.0]:1.0,347[&rate=1.0]:346.0)[&rate=1.0]:1.0,348[&rate=1.0]:347.0)[&rate=1.0]:1.0,349[&rate=1.0]:348.0)[&rate=1.0]:1.0,350[&rate=1.0]:349.0)[&rate=1.0]:1.0,351[&rate=1.0]:350.0)[&rate=1.0]:0.0;
+tree STATE_10000 = ((((((((((((1[&rate=1.0]:0.18612106618175128,231[&rate=1.0]:0.18612106618175128)[&rate=1.0]:0.16408175106281353,(((((((((((((((((((((((((((((((((2[&rate=1.0]:4.494763446475268E-4,3[&rate=1.0]:4.494763446475268E-4)[&rate=1.0]:0.08326870543912086,((((((10[&rate=1.0]:0.004713967507691399,12[&rate=1.0]:0.004713967507691399)[&rate=1.0]:3.7802231277536333E-4,13[&rate=1.0]:0.005091989820466762)[&rate=1.0]:4.735255178570964E-5,(14[&rate=1.0]:0.0026350906802864327,15[&rate=1.0]:0.0026350906802864327)[&rate=1.0]:0.002504251691966039)[&rate=1.0]:0.07041624094170984,(((((((((101[&rate=1.0]:0.03701039027013618,155[&rate=1.0]:0.03701039027013618)[&rate=1.0]:9.472165390285656E-4,(103[&rate=1.0]:0.03602322475499168,104[&rate=1.0]:0.03602322475499168)[&rate=1.0]:0.0019343820541730672)[&rate=1.0]:0.0012632673546263407,105[&rate=1.0]:0.03922087416379109)[&rate=1.0]:0.009773138497674333,113[&rate=1.0]:0.04899401266146542)[&rate=1.0]:0.0027494641033678005,(112[&rate=1.0]:0.048035353032789344,118[&rate=1.0]:0.048035353032789344)[&rate=1.0]:0.0037081237320438776)[&rate=1.0]:0.00572399860075911,109[&rate=1.0]:0.05746747536559233)[&rate=1.0]:0.002884058644621157,293[&rate=1.0]:0.06035153401021349)[&rate=1.0]:0.003498099091788588,119[&rate=1.0]:0.06384963310200208)[&rate=1.0]:0.0028660088644821696,(107[&rate=1.0]:0.05742106708236855,((115[&rate=1.0]:0.006156770076552262,125[&rate=1.0]:0.006156770076552262)[&rate=1.0]:0.048153953222796746,130[&rate=1.0]:0.05431072329934901)[&rate=1.0]:0.0031103437830195396)[&rate=1.0]:0.009294574884115697)[&rate=1.0]:0.008839941347478064)[&rate=1.0]:0.0014568309494833037,((((17[&rate=1.0]:0.04138019215725768,((((((((((((42[&rate=1.0]:0.018233989519783993,46[&rate=1.0]:0.018233989519783993)[&rate=1.0]:0.0020220384005941137,58[&rate=1.0]:0.020256027920378106)[&rate=1.0]:0.005399554558284829,(59[&rate=1.0]:0.008532769607143657,63[&rate=1.0]:0.008532769607143657)[&rate=1.0]:0.017122812871519278)[&rate=1.0]:0.0012511261250054487,55[&rate=1.0]:0.026906708603668384)[&rate=1.0]:5.716654058006455E-4,((62[&rate=1.0]:0.026910885650720823,65[&rate=1.0]:0.026910885650720823)[&rate=1.0]:5.371158237136749E-4,64[&rate=1.0]:0.0274480014744345)[&rate=1.0]:3.03725350345313E-5)[&rate=1.0]:3.984382565774443E-4,66[&rate=1.0]:0.027876812266046474)[&rate=1.0]:0.0015124345473770638,(67[&rate=1.0]:0.026749821970894008,68[&rate=1.0]:0.026749821970894008)[&rate=1.0]:0.00263942484252953)[&rate=1.0]:2.184261098869128E-4,72[&rate=1.0]:0.02960767292331045)[&rate=1.0]:6.597166121332515E-5,(70[&rate=1.0]:0.029036738681667076,(71[&rate=1.0]:0.02229196940273758,286[&rate=1.0]:0.02229196940273758)[&rate=1.0]:0.006744769278929495)[&rate=1.0]:6.369059028566992E-4)[&rate=1.0]:8.967649275362956E-4,159[&rate=1.0]:0.03057040951206007)[&rate=1.0]:0.0023888141872955536,74[&rate=1.0]:0.032959223699355625)[&rate=1.0]:0.0032128885202440324,50[&rate=1.0]:0.03617211221959966)[&rate=1.0]:0.005208079937658025)[&rate=1.0]:0.0033209894423207598,69[&rate=1.0]:0.04470118159957844)[&rate=1.0]:0.012419378848307475,154[&rate=1.0]:0.05712056044788592)[&rate=1.0]:0.012693817460994065,106[&rate=1.0]:0.06981437790887998)[&rate=1.0]:0.007198036354565632)[&rate=1.0]:5.845949541757878E-5,((((((((((((19[&rate=1.0]:0.012306179053310844,23[&rate=1.0]:0.012306179053310844)[&rate=1.0]:0.005318496230716915,22[&rate=1.0]:0.01762467528402776)[&rate=1.0]:0.003119366822325966,21[&rate=1.0]:0.020744042106353725)[&rate=1.0]:0.004537768198442763,27[&rate=1.0]:0.02528181030479649)[&rate=1.0]:0.004934411299874018,((111[&rate=1.0]:0.004474247145754618,128[&rate=1.0]:0.004474247145754618)[&rate=1.0]:0.011709837333470259,280[&rate=1.0]:0.016184084479224876)[&rate=1.0]:0.01403213712544563)[&rate=1.0]:0.0015866511006433805,26[&rate=1.0]:0.03180287270531389)[&rate=1.0]:0.004641937013814608,(33[&rate=1.0]:0.00813362131509016,34[&rate=1.0]:0.00813362131509016)[&rate=1.0]:0.028311188404038335)[&rate=1.0]:6.48311047749997E-4,36[&rate=1.0]:0.03709312076687849)[&rate=1.0]:0.012265872709401791,(((((85[&rate=1.0]:0.03110234471689603,(86[&rate=1.0]:0.006283584215281185,90[&rate=1.0]:0.006283584215281185)[&rate=1.0]:0.024818760501614842)[&rate=1.0]:0.007068311865426339,(89[&rate=1.0]:0.037927544620475394,102[&rate=1.0]:0.037927544620475394)[&rate=1.0]:2.431119618469743E-4)[&rate=1.0]:4.575437714726682E-5,96[&rate=1.0]:0.038216410959469635)[&rate=1.0]:9.236872252580755E-4,92[&rate=1.0]:0.03914009818472771)[&rate=1.0]:0.0019665661755766187,(91[&rate=1.0]:0.03820091057871237,95[&rate=1.0]:0.03820091057871237)[&rate=1.0]:0.002905753781591962)[&rate=1.0]:0.008252329115975954)[&rate=1.0]:0.0028404812413269157,39[&rate=1.0]:0.0521994747176072)[&rate=1.0]:0.0031516798824964692,31[&rate=1.0]:0.05535115460010367)[&rate=1.0]:0.008863321633614744,(97[&rate=1.0]:0.04126323129511505,98[&rate=1.0]:0.04126323129511505)[&rate=1.0]:0.022951244938603364)[&rate=1.0]:0.01285639752514478)[&rate=1.0]:0.006647308024905194)[&rate=1.0]:0.003250917103726894,284[&rate=1.0]:0.08696909888749528)[&rate=1.0]:1.7360567841702423E-4,87[&rate=1.0]:0.0871427045659123)[&rate=1.0]:0.011934081729921414,(25[&rate=1.0]:0.08913866540308381,226[&rate=1.0]:0.08913866540308381)[&rate=1.0]:0.00993812089274991)[&rate=1.0]:0.006480837327627567,108[&rate=1.0]:0.10555762362346129)[&rate=1.0]:0.011871166906439301,276[&rate=1.0]:0.11742879052990059)[&rate=1.0]:0.009703752935635537,297[&rate=1.0]:0.12713254346553612)[&rate=1.0]:1.6420798409541582E-4,((117[&rate=1.0]:0.09219980669881002,(232[&rate=1.0]:0.07252878891150594,336[&rate=1.0]:0.07252878891150594)[&rate=1.0]:0.019671017787304082)[&rate=1.0]:0.034791999263129494,295[&rate=1.0]:0.1269918059619395)[&rate=1.0]:3.0494548769202656E-4)[&rate=1.0]:2.1388021136325985E-5,(((((((((49[&rate=1.0]:0.011202063269851322,283[&rate=1.0]:0.011202063269851322)[&rate=1.0]:0.007288429263119246,285[&rate=1.0]:0.018490492532970568)[&rate=1.0]:0.03130993350183153,281[&rate=1.0]:0.0498004260348021)[&rate=1.0]:0.0037071096421932084,278[&rate=1.0]:0.05350753567699531)[&rate=1.0]:0.03586051631221473,((274[&rate=1.0]:0.027749663766764073,277[&rate=1.0]:0.027749663766764073)[&rate=1.0]:0.04949086097811345,291[&rate=1.0]:0.07724052474487753)[&rate=1.0]:0.012127527244332512)[&rate=1.0]:0.019626411286057716,(288[&rate=1.0]:0.017978883843858196,289[&rate=1.0]:0.017978883843858196)[&rate=1.0]:0.09101557943140956)[&rate=1.0]:0.007714342337165919,252[&rate=1.0]:0.11670880561243367)[&rate=1.0]:0.0017467769944622125,294[&rate=1.0]:0.11845558260689588)[&rate=1.0]:5.3383079310825865E-5,(296[&rate=1.0]:0.06925410143345123,(307[&rate=1.0]:0.06720839733740999,312[&rate=1.0]:0.06720839733740999)[&rate=1.0]:0.00204570409604124)[&rate=1.0]:0.04925486425275548)[&rate=1.0]:0.008809173784561156)[&rate=1.0]:0.006314924829585067,158[&rate=1.0]:0.13363306430035293)[&rate=1.0]:0.0012312228635957823,((((300[&rate=1.0]:0.023704061422125187,301[&rate=1.0]:0.023704061422125187)[&rate=1.0]:0.013063407049670572,303[&rate=1.0]:0.03676746847179576)[&rate=1.0]:0.025488606752308678,((((302[&rate=1.0]:0.029991252968964023,305[&rate=1.0]:0.029991252968964023)[&rate=1.0]:0.0015781001006377263,306[&rate=1.0]:0.03156935306960175)[&rate=1.0]:0.01740884522403801,325[&rate=1.0]:0.04897819829363976)[&rate=1.0]:2.011897892572334E-4,304[&rate=1.0]:0.04917938808289699)[&rate=1.0]:0.013076687141207445)[&rate=1.0]:0.017104547767520725,308[&rate=1.0]:0.07936062299162516)[&rate=1.0]:0.05550366417232355)[&rate=1.0]:0.017703205655131393,((((143[&rate=1.0]:0.06267557982313834,(144[&rate=1.0]:0.05795887997904239,145[&rate=1.0]:0.05795887997904239)[&rate=1.0]:0.004716699844095958)[&rate=1.0]:3.343988759812039E-4,146[&rate=1.0]:0.06300997869911955)[&rate=1.0]:0.0332675712277538,152[&rate=1.0]:0.09627754992687335)[&rate=1.0]:0.01184209408431075,150[&rate=1.0]:0.1081196440111841)[&rate=1.0]:0.04444784880789601)[&rate=1.0]:0.007101287803234185,151[&rate=1.0]:0.1596687806223143)[&rate=1.0]:0.009056781655204404,331[&rate=1.0]:0.1687255622775187)[&rate=1.0]:0.001819116405386928,((((((((((((82[&rate=1.0]:0.0705132564603892,((88[&rate=1.0]:0.059524730934570516,((156[&rate=1.0]:0.038259170071394,157[&rate=1.0]:0.038259170071394)[&rate=1.0]:0.020117294065823653,298[&rate=1.0]:0.05837646413721765)[&rate=1.0]:0.0011482667973528662)[&rate=1.0]:0.008284338017623044,((166[&rate=1.0]:0.005895791297120842,167[&rate=1.0]:0.005895791297120842)[&rate=1.0]:0.06154794936284845,224[&rate=1.0]:0.06744374065996929)[&rate=1.0]:3.6532829222427066E-4)[&rate=1.0]:0.002704187508195635)[&rate=1.0]:6.703546885312578E-4,(163[&rate=1.0]:0.06729176467038844,172[&rate=1.0]:0.06729176467038844)[&rate=1.0]:0.00389184647853201)[&rate=1.0]:1.2296097124879501E-4,168[&rate=1.0]:0.07130657212016925)[&rate=1.0]:3.7537456650242607E-4,170[&rate=1.0]:0.07168194668667167)[&rate=1.0]:6.827851889140701E-5,((171[&rate=1.0]:0.026714768085256125,(174[&rate=1.0]:0.022889724615985606,175[&rate=1.0]:0.022889724615985606)[&rate=1.0]:0.0038250434692705185)[&rate=1.0]:0.010537104132665686,173[&rate=1.0]:0.03725187221792181)[&rate=1.0]:0.03449835298764127)[&rate=1.0]:4.951829324084389E-4,169[&rate=1.0]:0.07224540813797152)[&rate=1.0]:0.0031030429656687536,(179[&rate=1.0]:0.04524156358327396,220[&rate=1.0]:0.04524156358327396)[&rate=1.0]:0.03010688752036631)[&rate=1.0]:4.657046042606666E-4,177[&rate=1.0]:0.07581415570790094)[&rate=1.0]:1.8251244972856961E-4,178[&rate=1.0]:0.07599666815762951)[&rate=1.0]:6.967308407179185E-4,(180[&rate=1.0]:0.03789795876637151,(182[&rate=1.0]:0.01216161062253718,184[&rate=1.0]:0.01216161062253718)[&rate=1.0]:0.025736348143834333)[&rate=1.0]:0.03879544023197592)[&rate=1.0]:8.17197314289933E-4,(181[&rate=1.0]:0.009594705550284395,183[&rate=1.0]:0.009594705550284395)[&rate=1.0]:0.06791589076235297)[&rate=1.0]:0.08605898242679043,330[&rate=1.0]:0.1635695787394278)[&rate=1.0]:0.006975099943477836)[&rate=1.0]:2.370264960384061E-4,292[&rate=1.0]:0.17078170517894403)[&rate=1.0]:0.01339774596346563,(((309[&rate=1.0]:0.00816016194003502,310[&rate=1.0]:0.00816016194003502)[&rate=1.0]:0.016601405840399944,311[&rate=1.0]:0.02476156778043496)[&rate=1.0]:0.14860278085715214,(((313[&rate=1.0]:0.11995847394578393,320[&rate=1.0]:0.11995847394578393)[&rate=1.0]:0.009627370830111281,((314[&rate=1.0]:0.07484332815600354,(((315[&rate=1.0]:0.02198623392407477,316[&rate=1.0]:0.02198623392407477)[&rate=1.0]:2.446144533083186E-4,319[&rate=1.0]:0.022230848377383088)[&rate=1.0]:0.013866825579731817,317[&rate=1.0]:0.036097673957114905)[&rate=1.0]:0.03874565419888864)[&rate=1.0]:0.02415030361905686,318[&rate=1.0]:0.0989936317750604)[&rate=1.0]:0.03059221300083481)[&rate=1.0]:0.025414686736294434,((((321[&rate=1.0]:0.00377532782599596,322[&rate=1.0]:0.00377532782599596)[&rate=1.0]:0.1299989107106722,((((323[&rate=1.0]:0.04652572806117834,326[&rate=1.0]:0.04652572806117834)[&rate=1.0]:0.004891560618028465,(324[&rate=1.0]:0.01802193915540666,327[&rate=1.0]:0.01802193915540666)[&rate=1.0]:0.03339534952380015)[&rate=1.0]:0.010291686773239064,329[&rate=1.0]:0.06170897545244587)[&rate=1.0]:0.06706747326690111,328[&rate=1.0]:0.128776448719347)[&rate=1.0]:0.0049977898173211854)[&rate=1.0]:6.950469473492316E-4,334[&rate=1.0]:0.1344692854840174)[&rate=1.0]:0.00802019041956989,(332[&rate=1.0]:0.029242273771375824,(333[&rate=1.0]:0.028906698039637847,335[&rate=1.0]:0.028906698039637847)[&rate=1.0]:3.355757317379769E-4)[&rate=1.0]:0.11324720213221147)[&rate=1.0]:0.012511055608602356)[&rate=1.0]:0.018363817125397447)[&rate=1.0]:0.010815102504822566)[&rate=1.0]:0.004835733692489491,(((((164[&rate=1.0]:0.012076653209785737,165[&rate=1.0]:0.012076653209785737)[&rate=1.0]:0.07325099929645335,269[&rate=1.0]:0.08532765250623908)[&rate=1.0]:0.02920290176099448,239[&rate=1.0]:0.11453055426723356)[&rate=1.0]:0.029682284153298003,((((((((((((((((((185[&rate=1.0]:0.019142667782705337,(186[&rate=1.0]:0.0189316502161203,187[&rate=1.0]:0.0189316502161203)[&rate=1.0]:2.1101756658503668E-4)[&rate=1.0]:0.00500208151056885,189[&rate=1.0]:0.024144749293274186)[&rate=1.0]:0.01385982901614503,195[&rate=1.0]:0.03800457830941922)[&rate=1.0]:0.018681939891902935,188[&rate=1.0]:0.05668651820132215)[&rate=1.0]:0.0245064469728788,((190[&rate=1.0]:0.05606511749561121,(191[&rate=1.0]:0.05430370945078949,197[&rate=1.0]:0.05430370945078949)[&rate=1.0]:0.0017614080448217218)[&rate=1.0]:0.024250043478739804,260[&rate=1.0]:0.08031516097435101)[&rate=1.0]:8.778041998499381E-4)[&rate=1.0]:5.651718192649369E-5,(192[&rate=1.0]:0.02220252758643691,193[&rate=1.0]:0.02220252758643691)[&rate=1.0]:0.05904695476969053)[&rate=1.0]:0.0015699838729160281,194[&rate=1.0]:0.08281946622904347)[&rate=1.0]:5.713614932928296E-4,279[&rate=1.0]:0.0833908277223363)[&rate=1.0]:0.0013285822062695934,(((196[&rate=1.0]:0.030242088059689014,((198[&rate=1.0]:0.01735243203022808,200[&rate=1.0]:0.01735243203022808)[&rate=1.0]:0.01178907700118123,204[&rate=1.0]:0.029141509031409312)[&rate=1.0]:0.0011005790282797023)[&rate=1.0]:0.006129979953140911,((206[&rate=1.0]:0.004162489353731873,207[&rate=1.0]:0.004162489353731873)[&rate=1.0]:0.016685503830192735,211[&rate=1.0]:0.020847993183924607)[&rate=1.0]:0.015524074828905318)[&rate=1.0]:0.022941042882328108,199[&rate=1.0]:0.05931311089515803)[&rate=1.0]:0.025406299033447863)[&rate=1.0]:0.0015738006893928624,203[&rate=1.0]:0.08629321061799876)[&rate=1.0]:5.549303155406443E-4,201[&rate=1.0]:0.0868481409335394)[&rate=1.0]:7.12897781650873E-4,(205[&rate=1.0]:0.039492259032618895,(209[&rate=1.0]:0.021212129404307917,210[&rate=1.0]:0.021212129404307917)[&rate=1.0]:0.01828012962831098)[&rate=1.0]:0.04806877968257138)[&rate=1.0]:2.699604419414553E-4,(208[&rate=1.0]:0.08467407211874656,341[&rate=1.0]:0.08467407211874656)[&rate=1.0]:0.003156927038385174)[&rate=1.0]:0.0031169284069956366,(((((202[&rate=1.0]:0.053785167963223364,216[&rate=1.0]:0.053785167963223364)[&rate=1.0]:6.41758461428027E-4,217[&rate=1.0]:0.05442692642465139)[&rate=1.0]:0.008551888338577972,218[&rate=1.0]:0.06297881476322936)[&rate=1.0]:0.0022140594865455304,(212[&rate=1.0]:0.032420316598764154,(214[&rate=1.0]:0.010193558588313752,215[&rate=1.0]:0.010193558588313752)[&rate=1.0]:0.022226758010450404)[&rate=1.0]:0.03277255765101074)[&rate=1.0]:0.02523002605219296,213[&rate=1.0]:0.09042290030196785)[&rate=1.0]:5.250272621595137E-4)[&rate=1.0]:0.0024263199192336993,(227[&rate=1.0]:0.01656309944150093,234[&rate=1.0]:0.01656309944150093)[&rate=1.0]:0.07681114804186014)[&rate=1.0]:9.281594880712618E-5,219[&rate=1.0]:0.0934670634321682)[&rate=1.0]:0.008856676286724388,(221[&rate=1.0]:0.0945418438971224,287[&rate=1.0]:0.0945418438971224)[&rate=1.0]:0.007781895821770177)[&rate=1.0]:0.035989658749804865,222[&rate=1.0]:0.13831339846869745)[&rate=1.0]:0.005899439951834118)[&rate=1.0]:0.04345895251970944,((((((223[&rate=1.0]:0.020468090277077012,225[&rate=1.0]:0.020468090277077012)[&rate=1.0]:0.04855623195281654,(229[&rate=1.0]:0.00552046868537089,230[&rate=1.0]:0.00552046868537089)[&rate=1.0]:0.06350385354452266)[&rate=1.0]:0.030204614750125952,(233[&rate=1.0]:0.015713612007273715,237[&rate=1.0]:0.015713612007273715)[&rate=1.0]:0.08351532497274579)[&rate=1.0]:9.442250497211646E-5,236[&rate=1.0]:0.09932335948499162)[&rate=1.0]:0.002556327836521627,(((228[&rate=1.0]:0.04045074836280842,238[&rate=1.0]:0.04045074836280842)[&rate=1.0]:0.0595028812565281,235[&rate=1.0]:0.09995362961933651)[&rate=1.0]:8.764948906474224E-5,255[&rate=1.0]:0.10004127910840126)[&rate=1.0]:0.001838408213111986)[&rate=1.0]:0.08298406165676699,241[&rate=1.0]:0.18486374897828023)[&rate=1.0]:0.002808041961960772)[&rate=1.0]:0.0013433938946581514)[&rate=1.0]:0.006935664249785173,149[&rate=1.0]:0.19595084908468433)[&rate=1.0]:0.0039630449082817265,73[&rate=1.0]:0.19991389399296605)[&rate=1.0]:0.02599313698025113,(147[&rate=1.0]:0.02540681864651141,148[&rate=1.0]:0.02540681864651141)[&rate=1.0]:0.20050021232670578)[&rate=1.0]:0.022136585307257983,263[&rate=1.0]:0.24804361628047517)[&rate=1.0]:0.013657512053781407,(11[&rate=1.0]:0.10552723682510644,18[&rate=1.0]:0.10552723682510644)[&rate=1.0]:0.15617389150915012)[&rate=1.0]:5.413616359540296E-4,(((((28[&rate=1.0]:0.10377976547528675,346[&rate=1.0]:0.10377976547528675)[&rate=1.0]:0.054495927766470525,93[&rate=1.0]:0.15827569324175728)[&rate=1.0]:0.03598072365040028,(((48[&rate=1.0]:0.06787276215327506,(((248[&rate=1.0]:0.003329348855146352,250[&rate=1.0]:0.003329348855146352)[&rate=1.0]:0.033099547331781914,290[&rate=1.0]:0.03642889618692827)[&rate=1.0]:2.229750181075088E-4,282[&rate=1.0]:0.036651871205035776)[&rate=1.0]:0.031220890948239287)[&rate=1.0]:0.07035925816095795,((((240[&rate=1.0]:0.027142317969782948,(242[&rate=1.0]:0.014434028062082155,243[&rate=1.0]:0.014434028062082155)[&rate=1.0]:0.012708289907700792)[&rate=1.0]:0.00231233755496886,244[&rate=1.0]:0.029454655524751808)[&rate=1.0]:0.0630996067513237,((245[&rate=1.0]:0.009890626951045459,246[&rate=1.0]:0.009890626951045459)[&rate=1.0]:0.0788672612693806,(253[&rate=1.0]:0.0883856717330595,254[&rate=1.0]:0.0883856717330595)[&rate=1.0]:3.7221648736655844E-4)[&rate=1.0]:0.0037963740556494485)[&rate=1.0]:0.006088539665892206,(249[&rate=1.0]:0.028047254819383725,251[&rate=1.0]:0.028047254819383725)[&rate=1.0]:0.070595547122584)[&rate=1.0]:0.0395892183722653)[&rate=1.0]:0.05494844074817326,(257[&rate=1.0]:0.003521886418293663,258[&rate=1.0]:0.003521886418293663)[&rate=1.0]:0.18965857464411262)[&rate=1.0]:0.001075955829751285)[&rate=1.0]:0.005377207246095805,((94[&rate=1.0]:0.03195796373193231,138[&rate=1.0]:0.03195796373193231)[&rate=1.0]:0.06856262839347109,114[&rate=1.0]:0.1005205921254034)[&rate=1.0]:0.09911303201284996)[&rate=1.0]:0.031127931754509508,35[&rate=1.0]:0.23076155589276287)[&rate=1.0]:0.03148093407744773)[&rate=1.0]:8.164638190982232E-4,45[&rate=1.0]:0.2630589537893088)[&rate=1.0]:0.008703719738217153,24[&rate=1.0]:0.271762673527526)[&rate=1.0]:0.021534727857240143,((((((((((((4[&rate=1.0]:0.02014911524360503,6[&rate=1.0]:0.02014911524360503)[&rate=1.0]:0.002765003032093021,7[&rate=1.0]:0.022914118275698052)[&rate=1.0]:0.03796200273577449,142[&rate=1.0]:0.06087612101147254)[&rate=1.0]:0.02774702478118312,(8[&rate=1.0]:0.06751760816244261,9[&rate=1.0]:0.06751760816244261)[&rate=1.0]:0.021105537630213056)[&rate=1.0]:0.0013565706108801534,127[&rate=1.0]:0.08997971640353582)[&rate=1.0]:0.006306825739747071,(122[&rate=1.0]:0.05506374440292876,134[&rate=1.0]:0.05506374440292876)[&rate=1.0]:0.04122279774035413)[&rate=1.0]:0.018259216752090884,100[&rate=1.0]:0.11454575889537377)[&rate=1.0]:0.001616103484733053,(338[&rate=1.0]:0.0762313290422057,(340[&rate=1.0]:0.05287592468423714,347[&rate=1.0]:0.05287592468423714)[&rate=1.0]:0.02335540435796856)[&rate=1.0]:0.03993053333790113)[&rate=1.0]:0.006825113707021491,(((5[&rate=1.0]:0.05972913664136781,131[&rate=1.0]:0.05972913664136781)[&rate=1.0]:0.03155060950238356,(132[&rate=1.0]:0.055309518914169825,133[&rate=1.0]:0.055309518914169825)[&rate=1.0]:0.03597022722958154)[&rate=1.0]:0.0225549276013656,((((((29[&rate=1.0]:0.054286023285354805,124[&rate=1.0]:0.054286023285354805)[&rate=1.0]:0.00610109010614425,(57[&rate=1.0]:0.04786585201274978,299[&rate=1.0]:0.04786585201274978)[&rate=1.0]:0.012521261378749274)[&rate=1.0]:9.878354478106421E-4,((((((((37[&rate=1.0]:0.0076385444754008755,38[&rate=1.0]:0.0076385444754008755)[&rate=1.0]:0.007703202242913229,43[&rate=1.0]:0.015341746718314104)[&rate=1.0]:8.037280471882655E-4,40[&rate=1.0]:0.01614547476550237)[&rate=1.0]:0.005673493201699697,(47[&rate=1.0]:0.0011810798926021938,60[&rate=1.0]:0.0011810798926021938)[&rate=1.0]:0.02063788807459987)[&rate=1.0]:0.010831160433023918,(44[&rate=1.0]:0.015057675196609298,61[&rate=1.0]:0.015057675196609298)[&rate=1.0]:0.017592453203616687)[&rate=1.0]:0.0017642467891061178,((52[&rate=1.0]:0.01632652931203562,268[&rate=1.0]:0.01632652931203562)[&rate=1.0]:0.015341779844685821,176[&rate=1.0]:0.03166830915672144)[&rate=1.0]:0.0027460660326106626)[&rate=1.0]:0.015094161860625725,54[&rate=1.0]:0.04950853704995783)[&rate=1.0]:0.006565707318127854,136[&rate=1.0]:0.05607424436808568)[&rate=1.0]:0.0053007044712240145)[&rate=1.0]:0.010141202495628797,41[&rate=1.0]:0.0715161513349385)[&rate=1.0]:0.014008580858035913,121[&rate=1.0]:0.0855247321929744)[&rate=1.0]:0.014808402217235506,((((75[&rate=1.0]:0.022540013992371703,((76[&rate=1.0]:0.019946848109386132,84[&rate=1.0]:0.019946848109386132)[&rate=1.0]:0.0020238816555930364,81[&rate=1.0]:0.021970729764979168)[&rate=1.0]:5.692842273925351E-4)[&rate=1.0]:0.009376297256362603,(77[&rate=1.0]:0.019661800916413917,78[&rate=1.0]:0.019661800916413917)[&rate=1.0]:0.01225451033232039)[&rate=1.0]:9.591292410351115E-4,(79[&rate=1.0]:0.032626762269895825,83[&rate=1.0]:0.032626762269895825)[&rate=1.0]:2.4867821987359373E-4)[&rate=1.0]:0.003334706610469973,80[&rate=1.0]:0.03621014710023939)[&rate=1.0]:0.06412298730997051)[&rate=1.0]:0.013501539334907053)[&rate=1.0]:0.00915230234201135)[&rate=1.0]:0.009726604792190494,(99[&rate=1.0]:0.07640105953146166,123[&rate=1.0]:0.07640105953146166)[&rate=1.0]:0.05631252134785715)[&rate=1.0]:0.015207600450706432,(137[&rate=1.0]:0.01828888609037683,(139[&rate=1.0]:0.009542976268968916,141[&rate=1.0]:0.009542976268968916)[&rate=1.0]:0.008745909821407912)[&rate=1.0]:0.12963229523964842)[&rate=1.0]:0.08900501966039942,((32[&rate=1.0]:0.06486935938242107,(126[&rate=1.0]:0.010673997891460042,135[&rate=1.0]:0.010673997891460042)[&rate=1.0]:0.054195361490961026)[&rate=1.0]:0.09548845424729406,337[&rate=1.0]:0.16035781362971513)[&rate=1.0]:0.07656838736070953)[&rate=1.0]:0.05637120039434146)[&rate=1.0]:0.0023138666232701555,(30[&rate=1.0]:0.2505657850871608,(((247[&rate=1.0]:0.029779585365366144,275[&rate=1.0]:0.029779585365366144)[&rate=1.0]:0.07287243167558466,264[&rate=1.0]:0.1026520170409508)[&rate=1.0]:0.0013125595093828601,((262[&rate=1.0]:0.034553008032349924,265[&rate=1.0]:0.034553008032349924)[&rate=1.0]:0.020165589035960767,(266[&rate=1.0]:0.05108967963270274,(270[&rate=1.0]:0.016253017445697304,271[&rate=1.0]:0.016253017445697304)[&rate=1.0]:0.03483666218700544)[&rate=1.0]:0.003628917435607948)[&rate=1.0]:0.049245979482022965)[&rate=1.0]:0.14660120853682718)[&rate=1.0]:0.04504548292087546)[&rate=1.0]:0.003936046935363147,(345[&rate=1.0]:0.06084147452794324,350[&rate=1.0]:0.06084147452794324)[&rate=1.0]:0.23870584041545617)[&rate=1.0]:6.266594065948983E-4,256[&rate=1.0]:0.3001739743499943)[&rate=1.0]:0.013786965389877948,(((339[&rate=1.0]:0.04828704122376095,343[&rate=1.0]:0.04828704122376095)[&rate=1.0]:0.007926969118786945,344[&rate=1.0]:0.056214010342547895)[&rate=1.0]:0.0270606530070333,(348[&rate=1.0]:0.02234469444791593,349[&rate=1.0]:0.02234469444791593)[&rate=1.0]:0.06092996890166527)[&rate=1.0]:0.23068627639029107)[&rate=1.0]:0.002374420216838591,110[&rate=1.0]:0.31633535995671086)[&rate=1.0]:0.03386745728785395)[&rate=1.0]:0.011003533065785387,(51[&rate=1.0]:0.02146495524780315,120[&rate=1.0]:0.02146495524780315)[&rate=1.0]:0.339741395062547)[&rate=1.0]:0.02678955805252231,351[&rate=1.0]:0.3879959083628725)[&rate=1.0]:0.0022111875981289386,((129[&rate=1.0]:0.3892340556593197,(153[&rate=1.0]:0.1299072861662682,(261[&rate=1.0]:0.024753671036053148,267[&rate=1.0]:0.024753671036053148)[&rate=1.0]:0.10515361513021505)[&rate=1.0]:0.25932676949305145)[&rate=1.0]:1.3716710412153832E-4,140[&rate=1.0]:0.3893712227634412)[&rate=1.0]:8.358731975602329E-4)[&rate=1.0]:0.004657915357147158,20[&rate=1.0]:0.3948650113181486)[&rate=1.0]:0.02569775537402913,116[&rate=1.0]:0.42056276669217774)[&rate=1.0]:0.2538182443964744,((161[&rate=1.0]:0.05276108366764964,162[&rate=1.0]:0.05276108366764964)[&rate=1.0]:0.6198622247362581,259[&rate=1.0]:0.6726233084039077)[&rate=1.0]:0.0017577026847444)[&rate=1.0]:0.010613051708084464,(((53[&rate=1.0]:0.01758677439545894,272[&rate=1.0]:0.01758677439545894)[&rate=1.0]:0.03334580109741389,342[&rate=1.0]:0.05093257549287283)[&rate=1.0]:0.003976256566130196,56[&rate=1.0]:0.05490883205900302)[&rate=1.0]:0.6300852307377336)[&rate=1.0]:0.08630741043450607,160[&rate=1.0]:0.7713014732312427)[&rate=1.0]:0.10324715577099897,273[&rate=1.0]:0.8745486290022416)[&rate=1.0]:0.10658359741469614,16[&rate=1.0]:0.9811322264169378)[&rate=1.0]:0.0;
+tree STATE_20000 = ((((((1[&rate=1.0]:0.364547991051467,(((((((10[&rate=1.0]:0.0410748032931067,17[&rate=1.0]:0.0410748032931067)[&rate=1.0]:0.004765961870580343,(14[&rate=1.0]:6.896701940476711E-4,15[&rate=1.0]:6.896701940476711E-4)[&rate=1.0]:0.04515109496963937)[&rate=1.0]:0.08499517664181666,111[&rate=1.0]:0.1308359418055037)[&rate=1.0]:0.1226704987232479,24[&rate=1.0]:0.2535064405287516)[&rate=1.0]:0.08643247163876328,(((((((((((((((((21[&rate=1.0]:0.04028807608112146,48[&rate=1.0]:0.04028807608112146)[&rate=1.0]:0.022133661734613105,((((31[&rate=1.0]:0.02193903926554736,(((58[&rate=1.0]:0.018373572816544646,(59[&rate=1.0]:0.016708100479968117,150[&rate=1.0]:0.016708100479968117)[&rate=1.0]:0.0016654723365765282)[&rate=1.0]:5.290610186911501E-4,60[&rate=1.0]:0.018902633835235796)[&rate=1.0]:2.600114700542812E-4,(64[&rate=1.0]:0.01524741975555302,103[&rate=1.0]:0.01524741975555302)[&rate=1.0]:0.003915225549737058)[&rate=1.0]:0.002776393960257282)[&rate=1.0]:0.0017667701863240265,62[&rate=1.0]:0.023705809451871385)[&rate=1.0]:0.003328061538712297,34[&rate=1.0]:0.027033870990583683)[&rate=1.0]:0.009422320226994203,67[&rate=1.0]:0.036456191217577885)[&rate=1.0]:0.025965546598156683)[&rate=1.0]:0.018925181310953956,308[&rate=1.0]:0.08134691912668852)[&rate=1.0]:0.00879815747703562,68[&rate=1.0]:0.09014507660372414)[&rate=1.0]:0.01076222437543227,((23[&rate=1.0]:0.037139035043545036,41[&rate=1.0]:0.037139035043545036)[&rate=1.0]:0.06095880688764565,(((274[&rate=1.0]:0.010363162378005143,275[&rate=1.0]:0.010363162378005143)[&rate=1.0]:0.005897285993442265,276[&rate=1.0]:0.016260448371447408)[&rate=1.0]:0.01638936834484572,(277[&rate=1.0]:0.0023711282850638407,278[&rate=1.0]:0.0023711282850638407)[&rate=1.0]:0.030278688431229286)[&rate=1.0]:0.06544802521489756)[&rate=1.0]:0.002809459047965729)[&rate=1.0]:0.0030843309086937,61[&rate=1.0]:0.10399163188785011)[&rate=1.0]:0.017272101410902296,155[&rate=1.0]:0.12126373329875241)[&rate=1.0]:0.024781874514843108,143[&rate=1.0]:0.14604560781359552)[&rate=1.0]:0.11113770516270208,208[&rate=1.0]:0.2571833129762976)[&rate=1.0]:0.025077624749794802,151[&rate=1.0]:0.2822609377260924)[&rate=1.0]:6.97940608044012E-4,((82[&rate=1.0]:0.07781089779786343,108[&rate=1.0]:0.07781089779786343)[&rate=1.0]:0.18905900412703625,152[&rate=1.0]:0.2668699019248997)[&rate=1.0]:0.016088976409236733)[&rate=1.0]:0.0031015256284712134,157[&rate=1.0]:0.2860604039626076)[&rate=1.0]:0.006508145935436138,(93[&rate=1.0]:0.21851927073432797,149[&rate=1.0]:0.21851927073432797)[&rate=1.0]:0.07404927916371579)[&rate=1.0]:0.001784919464557888,(((((339[&rate=1.0]:0.020062992494357192,340[&rate=1.0]:0.020062992494357192)[&rate=1.0]:0.022242791564551567,((342[&rate=1.0]:0.008249138996859884,343[&rate=1.0]:0.008249138996859884)[&rate=1.0]:0.008397342120722294,344[&rate=1.0]:0.016646481117582178)[&rate=1.0]:0.02565930294132658)[&rate=1.0]:0.00568582449855233,(345[&rate=1.0]:0.027772638575005823,346[&rate=1.0]:0.027772638575005823)[&rate=1.0]:0.020218969982455266)[&rate=1.0]:0.01650275369113171,347[&rate=1.0]:0.0644943622485928)[&rate=1.0]:0.018174870768099052,((348[&rate=1.0]:0.062142656516183586,(349[&rate=1.0]:0.051737888940273084,350[&rate=1.0]:0.051737888940273084)[&rate=1.0]:0.010404767575910502)[&rate=1.0]:0.015926474580579872,351[&rate=1.0]:0.07806913109676346)[&rate=1.0]:0.004600101919928393)[&rate=1.0]:0.2116842363459098)[&rate=1.0]:0.0241680000204324,(((((238[&rate=1.0]:0.070288901096202,(((((279[&rate=1.0]:0.029579446096683018,285[&rate=1.0]:0.029579446096683018)[&rate=1.0]:0.016863168974880126,291[&rate=1.0]:0.046442615071563144)[&rate=1.0]:0.001296281897719749,(282[&rate=1.0]:0.04724217124815177,((298[&rate=1.0]:9.588582250773047E-4,301[&rate=1.0]:9.588582250773047E-4)[&rate=1.0]:0.01774845067176008,300[&rate=1.0]:0.018707308896837384)[&rate=1.0]:0.028534862351314385)[&rate=1.0]:4.967257211311235E-4)[&rate=1.0]:0.006877493583451626,((280[&rate=1.0]:0.0113682113284273,281[&rate=1.0]:0.0113682113284273)[&rate=1.0]:0.023351690135477485,283[&rate=1.0]:0.03471990146390479)[&rate=1.0]:0.01989648908882973)[&rate=1.0]:0.007470287862016742,((286[&rate=1.0]:0.005759738688395893,287[&rate=1.0]:0.005759738688395893)[&rate=1.0]:0.001620246746469772,288[&rate=1.0]:0.007379985434865665)[&rate=1.0]:0.0547066929798856)[&rate=1.0]:0.008202222681450745)[&rate=1.0]:0.004209708945368346,((289[&rate=1.0]:0.009374621742958358,(290[&rate=1.0]:0.008085831723467161,(295[&rate=1.0]:0.00391093931192495,299[&rate=1.0]:0.00391093931192495)[&rate=1.0]:0.004174892411542211)[&rate=1.0]:0.0012887900194911966)[&rate=1.0]:0.002747276372765532,292[&rate=1.0]:0.01212189811572389)[&rate=1.0]:0.06237671192584646)[&rate=1.0]:0.013630447538895404,((((293[&rate=1.0]:0.006981357051083895,294[&rate=1.0]:0.006981357051083895)[&rate=1.0]:0.017064961926960366,302[&rate=1.0]:0.02404631897804426)[&rate=1.0]:0.0032721185119871515,303[&rate=1.0]:0.027318437490031412)[&rate=1.0]:5.419300430632712E-4,296[&rate=1.0]:0.027860367533094683)[&rate=1.0]:0.06026869004737107)[&rate=1.0]:0.004170182951192342,((304[&rate=1.0]:0.014136827111611665,307[&rate=1.0]:0.014136827111611665)[&rate=1.0]:0.004949582691608577,306[&rate=1.0]:0.019086409803220242)[&rate=1.0]:0.07321283072843786)[&rate=1.0]:0.0011996167135646524,305[&rate=1.0]:0.09349885724522275)[&rate=1.0]:0.2250226121378113)[&rate=1.0]:0.004746889891925954,100[&rate=1.0]:0.32326835927496)[&rate=1.0]:0.005550957413588797,((254[&rate=1.0]:9.821398999097989E-5,255[&rate=1.0]:9.821398999097989E-5)[&rate=1.0]:0.011423474226535741,256[&rate=1.0]:0.01152168821652672)[&rate=1.0]:0.3172976284720221)[&rate=1.0]:0.011119595478966071)[&rate=1.0]:0.011589425511600637,54[&rate=1.0]:0.3515283376791155)[&rate=1.0]:0.0028866169703613553,32[&rate=1.0]:0.35441495464947687)[&rate=1.0]:0.010133036401990148)[&rate=1.0]:0.09112754539948142,(((((((((((((((((((((2[&rate=1.0]:0.004578955264577556,3[&rate=1.0]:0.004578955264577556)[&rate=1.0]:0.059321883475853106,(((4[&rate=1.0]:0.03303965623801078,(6[&rate=1.0]:0.018893200913685352,7[&rate=1.0]:0.018893200913685352)[&rate=1.0]:0.014146455324325426)[&rate=1.0]:0.005401169667403248,((5[&rate=1.0]:0.024643965448987094,8[&rate=1.0]:0.024643965448987094)[&rate=1.0]:0.01039725412076039,9[&rate=1.0]:0.035041219569747484)[&rate=1.0]:0.0033996063356665426)[&rate=1.0]:0.007731825649416643,11[&rate=1.0]:0.04617265155483067)[&rate=1.0]:0.017728187185599993)[&rate=1.0]:0.007569749336558268,(((30[&rate=1.0]:0.022595354493491305,45[&rate=1.0]:0.022595354493491305)[&rate=1.0]:0.02317019601370118,52[&rate=1.0]:0.045765550507192485)[&rate=1.0]:0.003286288276435241,((38[&rate=1.0]:0.027042184617966036,40[&rate=1.0]:0.027042184617966036)[&rate=1.0]:0.021112716134486578,51[&rate=1.0]:0.048154900752452615)[&rate=1.0]:8.96938031175111E-4)[&rate=1.0]:0.022418749293361205)[&rate=1.0]:0.00521094498337768,(((36[&rate=1.0]:0.03985220904448527,37[&rate=1.0]:0.03985220904448527)[&rate=1.0]:0.0072608622319919325,130[&rate=1.0]:0.0471130712764772)[&rate=1.0]:0.01650182361141605,((53[&rate=1.0]:0.04656054803547702,(((120[&rate=1.0]:0.03545332286389012,129[&rate=1.0]:0.03545332286389012)[&rate=1.0]:4.948002654713429E-4,124[&rate=1.0]:0.035948123129361464)[&rate=1.0]:0.009558406606080372,121[&rate=1.0]:0.045506529735441836)[&rate=1.0]:0.001054018300035181)[&rate=1.0]:0.008042957263069306,((116[&rate=1.0]:0.03659644162243293,(127[&rate=1.0]:0.03589134347061969,142[&rate=1.0]:0.03589134347061969)[&rate=1.0]:7.050981518132438E-4)[&rate=1.0]:0.00605058121970594,(123[&rate=1.0]:0.03086030232566803,262[&rate=1.0]:0.03086030232566803)[&rate=1.0]:0.011786720516470842)[&rate=1.0]:0.011956482456407451)[&rate=1.0]:0.009011389589346927)[&rate=1.0]:0.01306663817247336)[&rate=1.0]:0.0024065126137732262,(((((29[&rate=1.0]:0.04470324209779728,(((137[&rate=1.0]:0.021729570414674836,141[&rate=1.0]:0.021729570414674836)[&rate=1.0]:0.021424835180687416,139[&rate=1.0]:0.04315440559536225)[&rate=1.0]:1.882084709853571E-4,145[&rate=1.0]:0.04334261406634761)[&rate=1.0]:0.0013606280314496719)[&rate=1.0]:0.009184724986591786,158[&rate=1.0]:0.05388796708438907)[&rate=1.0]:8.642904428504683E-4,(153[&rate=1.0]:0.023282807036937223,156[&rate=1.0]:0.023282807036937223)[&rate=1.0]:0.03146945049030231)[&rate=1.0]:0.0013711587173602588,(133[&rate=1.0]:0.03964078611524548,136[&rate=1.0]:0.03964078611524548)[&rate=1.0]:0.016482630129354317)[&rate=1.0]:9.464454091461516E-4,118[&rate=1.0]:0.057069861653745946)[&rate=1.0]:0.02201818402039389)[&rate=1.0]:0.01027482582615706,(((18[&rate=1.0]:0.04167134312169465,20[&rate=1.0]:0.04167134312169465)[&rate=1.0]:0.03134947160862949,(132[&rate=1.0]:0.0037546516135985794,138[&rate=1.0]:0.0037546516135985794)[&rate=1.0]:0.06926616311672557)[&rate=1.0]:0.01332268804138842,(56[&rate=1.0]:0.015064019480598892,57[&rate=1.0]:0.015064019480598892)[&rate=1.0]:0.07127948329111367)[&rate=1.0]:0.00301936872858434)[&rate=1.0]:0.013593689794811792,134[&rate=1.0]:0.10295656129510869)[&rate=1.0]:0.006174310077720999,44[&rate=1.0]:0.10913087137282969)[&rate=1.0]:0.008835968570041083,271[&rate=1.0]:0.11796683994287077)[&rate=1.0]:0.035447690520336694,297[&rate=1.0]:0.15341453046320747)[&rate=1.0]:0.0029318433335605576,119[&rate=1.0]:0.15634637379676802)[&rate=1.0]:0.01723386646766087,((69[&rate=1.0]:0.15469780262652788,146[&rate=1.0]:0.15469780262652788)[&rate=1.0]:0.0028097451595701928,84[&rate=1.0]:0.15750754778609807)[&rate=1.0]:0.01607269247833082)[&rate=1.0]:0.02083031213988326,((((((((((16[&rate=1.0]:0.03716876896937277,(((257[&rate=1.0]:0.005044247860733687,260[&rate=1.0]:0.005044247860733687)[&rate=1.0]:0.0011265503242809576,259[&rate=1.0]:0.006170798185014645)[&rate=1.0]:3.228854846792466E-4,258[&rate=1.0]:0.006493683669693892)[&rate=1.0]:0.030675085299678877)[&rate=1.0]:0.028111933871411088,266[&rate=1.0]:0.06528070284078386)[&rate=1.0]:0.0026003806575366634,(47[&rate=1.0]:0.06763352575940806,((261[&rate=1.0]:0.028564419298257662,(263[&rate=1.0]:0.028217522861185142,265[&rate=1.0]:0.028217522861185142)[&rate=1.0]:3.4689643707251985E-4)[&rate=1.0]:0.008848487636342016,264[&rate=1.0]:0.03741290693459968)[&rate=1.0]:0.030220618824808386)[&rate=1.0]:2.4755773891245447E-4)[&rate=1.0]:0.004786938496732895,(94[&rate=1.0]:0.06808716043971522,267[&rate=1.0]:0.06808716043971522)[&rate=1.0]:0.004580861555338198)[&rate=1.0]:0.003654814015310884,268[&rate=1.0]:0.0763228360103643)[&rate=1.0]:7.018131911065706E-4,(269[&rate=1.0]:0.010984625588207397,270[&rate=1.0]:0.010984625588207397)[&rate=1.0]:0.06604002361326347)[&rate=1.0]:0.005834069480826376,273[&rate=1.0]:0.08285871868229724)[&rate=1.0]:0.08980931228392733,328[&rate=1.0]:0.17266803096622457)[&rate=1.0]:0.003527668309516313,(110[&rate=1.0]:0.13522705356964795,272[&rate=1.0]:0.13522705356964795)[&rate=1.0]:0.04096864570609293)[&rate=1.0]:0.007257840089015061,(((19[&rate=1.0]:0.03787984559252574,49[&rate=1.0]:0.03787984559252574)[&rate=1.0]:0.03872990993445521,(((95[&rate=1.0]:0.02513956675031849,112[&rate=1.0]:0.02513956675031849)[&rate=1.0]:0.0024265402429743364,105[&rate=1.0]:0.027566106993292826)[&rate=1.0]:0.004931914420464988,((101[&rate=1.0]:0.031525290887231314,106[&rate=1.0]:0.031525290887231314)[&rate=1.0]:7.85282878938913E-4,107[&rate=1.0]:0.03231057376617023)[&rate=1.0]:1.8744764758758803E-4)[&rate=1.0]:0.04411173411322313)[&rate=1.0]:0.02437860721131127,55[&rate=1.0]:0.10098836273829222)[&rate=1.0]:0.08246517662646373)[&rate=1.0]:0.010957013039556207)[&rate=1.0]:0.008341530020671173,(((((((((12[&rate=1.0]:0.07089048595343506,234[&rate=1.0]:0.07089048595343506)[&rate=1.0]:0.0012306208459057638,((((((((220[&rate=1.0]:0.020066250814305936,225[&rate=1.0]:0.020066250814305936)[&rate=1.0]:0.0010149362373272214,((222[&rate=1.0]:0.006271754717020397,224[&rate=1.0]:0.006271754717020397)[&rate=1.0]:8.182281501716389E-4,223[&rate=1.0]:0.007089982867192036)[&rate=1.0]:0.013991204184441122)[&rate=1.0]:0.016776292715797184,(227[&rate=1.0]:0.013697313844651008,229[&rate=1.0]:0.013697313844651008)[&rate=1.0]:0.024160165922779333)[&rate=1.0]:4.403752444671616E-4,226[&rate=1.0]:0.0382978550118975)[&rate=1.0]:0.01108450502442946,(228[&rate=1.0]:0.030922718909356942,239[&rate=1.0]:0.030922718909356942)[&rate=1.0]:0.01845964112697002)[&rate=1.0]:0.001244089862563455,230[&rate=1.0]:0.05062644989889042)[&rate=1.0]:0.008363813934442382,232[&rate=1.0]:0.0589902638333328)[&rate=1.0]:0.006025192838363884,(236[&rate=1.0]:0.006510583954465742,237[&rate=1.0]:0.006510583954465742)[&rate=1.0]:0.05850487271723094)[&rate=1.0]:0.007105650127644136)[&rate=1.0]:0.05502704819562877,(309[&rate=1.0]:0.014864629321472226,311[&rate=1.0]:0.014864629321472226)[&rate=1.0]:0.11228352567349736)[&rate=1.0]:0.004378877539541887,(131[&rate=1.0]:0.11392380447525846,191[&rate=1.0]:0.11392380447525846)[&rate=1.0]:0.017603228059253018)[&rate=1.0]:0.004749446729476303,(73[&rate=1.0]:0.13012601335630908,207[&rate=1.0]:0.13012601335630908)[&rate=1.0]:0.006150465907678704)[&rate=1.0]:0.02844452806902409,(109[&rate=1.0]:0.14999677023413102,338[&rate=1.0]:0.14999677023413102)[&rate=1.0]:0.014724237098880849)[&rate=1.0]:0.005049093439971952,(99[&rate=1.0]:0.1669187320428098,231[&rate=1.0]:0.1669187320428098)[&rate=1.0]:0.0028513687301740254)[&rate=1.0]:0.01037814012029839,(((28[&rate=1.0]:0.004656432213365642,35[&rate=1.0]:0.004656432213365642)[&rate=1.0]:0.003203338108517418,43[&rate=1.0]:0.00785977032188306)[&rate=1.0]:0.06001672345658822,(33[&rate=1.0]:0.011256493459990557,(39[&rate=1.0]:0.011229927210955771,(42[&rate=1.0]:0.009882318205095535,89[&rate=1.0]:0.009882318205095535)[&rate=1.0]:0.0013476090058602355)[&rate=1.0]:2.6566249034786285E-5)[&rate=1.0]:0.056620000318480725)[&rate=1.0]:0.11227174711481093)[&rate=1.0]:3.1837390076230876E-4,13[&rate=1.0]:0.18046661479404452)[&rate=1.0]:0.022285467630938804)[&rate=1.0]:0.009672648480576002,(70[&rate=1.0]:0.020150641077087084,126[&rate=1.0]:0.020150641077087084)[&rate=1.0]:0.19227408982847224)[&rate=1.0]:0.014190686566307564,(((((((((((((((65[&rate=1.0]:0.0489317029787248,((168[&rate=1.0]:0.009724635185049143,169[&rate=1.0]:0.009724635185049143)[&rate=1.0]:0.031152043343677348,251[&rate=1.0]:0.04087667852872649)[&rate=1.0]:0.00805502444999831)[&rate=1.0]:0.001219320473329108,194[&rate=1.0]:0.05015102345205391)[&rate=1.0]:0.0024806528747615963,((((163[&rate=1.0]:0.030278137416342235,(165[&rate=1.0]:0.014810229597239686,167[&rate=1.0]:0.014810229597239686)[&rate=1.0]:0.01546790781910255)[&rate=1.0]:0.011720964038196217,(164[&rate=1.0]:0.04070584937522382,184[&rate=1.0]:0.04070584937522382)[&rate=1.0]:0.001293252079314633)[&rate=1.0]:0.008091695335471029,233[&rate=1.0]:0.05009079679000948)[&rate=1.0]:0.002506680934065038,171[&rate=1.0]:0.05259747772407452)[&rate=1.0]:3.419860274098824E-5)[&rate=1.0]:9.162734818360385E-5,(172[&rate=1.0]:0.027265089850013864,173[&rate=1.0]:0.027265089850013864)[&rate=1.0]:0.025458213824985247)[&rate=1.0]:3.593126825263554E-4,(170[&rate=1.0]:0.03637578734503126,175[&rate=1.0]:0.03637578734503126)[&rate=1.0]:0.016706829012494206)[&rate=1.0]:1.3735627642751103E-5,((166[&rate=1.0]:0.027022523239957866,174[&rate=1.0]:0.027022523239957866)[&rate=1.0]:0.013627976285546288,176[&rate=1.0]:0.040650499525504154)[&rate=1.0]:0.012445852459664064)[&rate=1.0]:0.010918639927757094,((177[&rate=1.0]:0.011755699384229091,178[&rate=1.0]:0.011755699384229091)[&rate=1.0]:0.0027943751182607605,180[&rate=1.0]:0.014550074502489851)[&rate=1.0]:0.04946491741043546)[&rate=1.0]:0.003090904464845487,(181[&rate=1.0]:0.018582441862979672,((182[&rate=1.0]:0.012621866528568016,185[&rate=1.0]:0.012621866528568016)[&rate=1.0]:0.0036235883601819802,(183[&rate=1.0]:0.010808345130576892,(186[&rate=1.0]:0.0074556444872480926,187[&rate=1.0]:0.0074556444872480926)[&rate=1.0]:0.003352700643328799)[&rate=1.0]:0.005437109758173105)[&rate=1.0]:0.0023369869742296753)[&rate=1.0]:0.04852345451479113)[&rate=1.0]:0.010845823223337991,(192[&rate=1.0]:0.004018197948011603,193[&rate=1.0]:0.004018197948011603)[&rate=1.0]:0.07393352165309719)[&rate=1.0]:0.014347751730492575,((((179[&rate=1.0]:0.01926690211821792,189[&rate=1.0]:0.01926690211821792)[&rate=1.0]:0.03231464490184391,219[&rate=1.0]:0.051581547020061826)[&rate=1.0]:2.170394555273611E-4,(216[&rate=1.0]:0.005114493610475182,217[&rate=1.0]:0.005114493610475182)[&rate=1.0]:0.046684092865114005)[&rate=1.0]:0.01685303474207632,((((((188[&rate=1.0]:0.011513097293381071,190[&rate=1.0]:0.011513097293381071)[&rate=1.0]:0.037222790409028275,(205[&rate=1.0]:0.01877990347248836,206[&rate=1.0]:0.01877990347248836)[&rate=1.0]:0.029955984229920983)[&rate=1.0]:0.006319737858439811,(214[&rate=1.0]:0.01853485542912086,218[&rate=1.0]:0.01853485542912086)[&rate=1.0]:0.036520770131728296)[&rate=1.0]:5.976542026394499E-5,(204[&rate=1.0]:0.032637748815790346,209[&rate=1.0]:0.032637748815790346)[&rate=1.0]:0.022477642165322755)[&rate=1.0]:0.007438888682177562,((((195[&rate=1.0]:0.012813489294960274,196[&rate=1.0]:0.012813489294960274)[&rate=1.0]:0.03866480894352301,(((197[&rate=1.0]:0.022516174926024056,199[&rate=1.0]:0.022516174926024056)[&rate=1.0]:0.028546352087028312,215[&rate=1.0]:0.05106252701305237)[&rate=1.0]:2.6023542337544336E-4,200[&rate=1.0]:0.05132276243642781)[&rate=1.0]:1.555358020554759E-4)[&rate=1.0]:0.003201015942447094,201[&rate=1.0]:0.05467931418093038)[&rate=1.0]:3.305737086578761E-4,(202[&rate=1.0]:0.0011062450851830148,203[&rate=1.0]:0.0011062450851830148)[&rate=1.0]:0.053903642804405245)[&rate=1.0]:0.007544391773702405)[&rate=1.0]:0.0024734051187458306,(((198[&rate=1.0]:0.059369656743674705,(((210[&rate=1.0]:0.007609616830714828,211[&rate=1.0]:0.007609616830714828)[&rate=1.0]:0.007155876690916328,212[&rate=1.0]:0.014765493521631156)[&rate=1.0]:0.0014950376736683098,213[&rate=1.0]:0.016260531195299466)[&rate=1.0]:0.04310912554837524)[&rate=1.0]:0.005139510332357468,317[&rate=1.0]:0.06450916707603217)[&rate=1.0]:2.975229511851668E-4,221[&rate=1.0]:0.06480669002721734)[&rate=1.0]:2.2099475481915376E-4)[&rate=1.0]:0.0036239364356290132)[&rate=1.0]:0.02364785011393586)[&rate=1.0]:0.01751914516440256,310[&rate=1.0]:0.10981861649600393)[&rate=1.0]:0.026295016257693024,235[&rate=1.0]:0.13611363275369695)[&rate=1.0]:0.06912389175377895,(((((144[&rate=1.0]:0.09585633551184018,321[&rate=1.0]:0.09585633551184018)[&rate=1.0]:9.540987076885055E-5,(318[&rate=1.0]:0.01944724485430022,322[&rate=1.0]:0.01944724485430022)[&rate=1.0]:0.07650450052830882)[&rate=1.0]:7.514390655237457E-5,(313[&rate=1.0]:0.0122966701172148,315[&rate=1.0]:0.0122966701172148)[&rate=1.0]:0.0837302191719466)[&rate=1.0]:0.02019429918012107,(((324[&rate=1.0]:0.00999617274109985,325[&rate=1.0]:0.00999617274109985)[&rate=1.0]:0.03718939227914424,((327[&rate=1.0]:0.029787363447683582,(329[&rate=1.0]:0.020747804590367378,(331[&rate=1.0]:0.01560842269299014,(332[&rate=1.0]:0.002774477084750077,333[&rate=1.0]:0.002774477084750077)[&rate=1.0]:0.012833945608240062)[&rate=1.0]:0.005139381897377239)[&rate=1.0]:0.009039558857316204)[&rate=1.0]:0.002977001823128274,330[&rate=1.0]:0.032764365270811856)[&rate=1.0]:0.014421199749432227)[&rate=1.0]:0.045821031051541644,326[&rate=1.0]:0.09300659607178573)[&rate=1.0]:0.02321459239749675)[&rate=1.0]:0.010123584624718213,(((314[&rate=1.0]:0.07275117059956498,(335[&rate=1.0]:0.024998174405566953,337[&rate=1.0]:0.024998174405566953)[&rate=1.0]:0.04775299619399803)[&rate=1.0]:0.016662974417640933,320[&rate=1.0]:0.08941414501720592)[&rate=1.0]:0.01227102904848916,336[&rate=1.0]:0.10168517406569508)[&rate=1.0]:0.024659599028305612)[&rate=1.0]:0.07889275141347521)[&rate=1.0]:0.01484168619006293,154[&rate=1.0]:0.22007921069753883)[&rate=1.0]:1.9427339504426988E-4,(((122[&rate=1.0]:0.15856335541282066,316[&rate=1.0]:0.15856335541282066)[&rate=1.0]:0.030431803550243525,312[&rate=1.0]:0.18899515896306418)[&rate=1.0]:0.008804868540686905,148[&rate=1.0]:0.19780002750375109)[&rate=1.0]:0.022473456588832014)[&rate=1.0]:0.006341933379283793)[&rate=1.0]:0.009369166769709475,245[&rate=1.0]:0.23598458424157637)[&rate=1.0]:0.012373534123681001,((((((((((((((22[&rate=1.0]:0.027562747705275493,((((75[&rate=1.0]:0.010591169928263935,85[&rate=1.0]:0.010591169928263935)[&rate=1.0]:0.013764582589650697,77[&rate=1.0]:0.024355752517914633)[&rate=1.0]:4.4973635782257285E-4,78[&rate=1.0]:0.024805488875737206)[&rate=1.0]:0.0017891550496494935,79[&rate=1.0]:0.0265946439253867)[&rate=1.0]:9.681037798887938E-4)[&rate=1.0]:0.004241924092297431,((((66[&rate=1.0]:0.009633330138387752,92[&rate=1.0]:0.009633330138387752)[&rate=1.0]:0.016142286974635316,(159[&rate=1.0]:0.023494856557709748,284[&rate=1.0]:0.023494856557709748)[&rate=1.0]:0.0022807605553133194)[&rate=1.0]:0.0022882447871380163,((71[&rate=1.0]:0.024135756543432755,72[&rate=1.0]:0.024135756543432755)[&rate=1.0]:0.0027542863884770716,(74[&rate=1.0]:0.014701072500896657,125[&rate=1.0]:0.014701072500896657)[&rate=1.0]:0.01218897043101317)[&rate=1.0]:0.001173818968251257)[&rate=1.0]:0.0015007659030987011,((((76[&rate=1.0]:0.014786838873054283,(81[&rate=1.0]:0.01448845607793402,83[&rate=1.0]:0.01448845607793402)[&rate=1.0]:2.9838279512026285E-4)[&rate=1.0]:0.008998100795477556,135[&rate=1.0]:0.02378493966853184)[&rate=1.0]:0.0015651198121089012,(80[&rate=1.0]:0.02520047343278474,88[&rate=1.0]:0.02520047343278474)[&rate=1.0]:1.4958604785600058E-4)[&rate=1.0]:9.618899066476984E-4,102[&rate=1.0]:0.02631194938728844)[&rate=1.0]:0.003252678415971346)[&rate=1.0]:0.0022400439943131394)[&rate=1.0]:2.0577639716256452E-4,((63[&rate=1.0]:0.011930360189546638,(86[&rate=1.0]:0.005813147514287976,90[&rate=1.0]:0.005813147514287976)[&rate=1.0]:0.006117212675258662)[&rate=1.0]:0.019714675580883842,96[&rate=1.0]:0.03164503577043048)[&rate=1.0]:3.6541242430501025E-4)[&rate=1.0]:0.001528805288028047,97[&rate=1.0]:0.033539253482763536)[&rate=1.0]:0.0014303292601617196,87[&rate=1.0]:0.034969582742925255)[&rate=1.0]:0.005604578077423303,(46[&rate=1.0]:0.026122643778341725,(50[&rate=1.0]:0.02608174340812103,140[&rate=1.0]:0.02608174340812103)[&rate=1.0]:4.090037022069434E-5)[&rate=1.0]:0.014451517042006833)[&rate=1.0]:0.005722624270689376,((113[&rate=1.0]:0.007191553646470344,117[&rate=1.0]:0.007191553646470344)[&rate=1.0]:0.03854668114973118,115[&rate=1.0]:0.045738234796201524)[&rate=1.0]:5.585502948364102E-4)[&rate=1.0]:1.6657987659052242E-4,98[&rate=1.0]:0.04646336496762846)[&rate=1.0]:0.006202060255321579,104[&rate=1.0]:0.052665425222950035)[&rate=1.0]:0.018949522487953188,249[&rate=1.0]:0.07161494771090322)[&rate=1.0]:8.474805417699183E-6,(((240[&rate=1.0]:0.033181860084807786,(242[&rate=1.0]:0.017173482692999616,243[&rate=1.0]:0.017173482692999616)[&rate=1.0]:0.01600837739180817)[&rate=1.0]:0.009102184833346724,(241[&rate=1.0]:0.022302347716166515,244[&rate=1.0]:0.022302347716166515)[&rate=1.0]:0.019981697201987995)[&rate=1.0]:0.006956842295828498,247[&rate=1.0]:0.04924088721398301)[&rate=1.0]:0.022382535302337914)[&rate=1.0]:0.006064322309493803,(246[&rate=1.0]:0.00784563067623619,248[&rate=1.0]:0.00784563067623619)[&rate=1.0]:0.06984211414957854)[&rate=1.0]:2.738801674543462E-4,(91[&rate=1.0]:0.07784535755673286,((250[&rate=1.0]:0.022375921967483083,253[&rate=1.0]:0.022375921967483083)[&rate=1.0]:0.05132098670517708,252[&rate=1.0]:0.07369690867266017)[&rate=1.0]:0.004148448884072689)[&rate=1.0]:1.1626743653621319E-4)[&rate=1.0]:0.11384733567306123,341[&rate=1.0]:0.1918089606663303)[&rate=1.0]:0.05654915769892707)[&rate=1.0]:0.06613373797142222,114[&rate=1.0]:0.3144918563366796)[&rate=1.0]:0.0042439513632934744,128[&rate=1.0]:0.31873580769997306)[&rate=1.0]:0.13453170063775,(319[&rate=1.0]:0.44271339683525507,334[&rate=1.0]:0.44271339683525507)[&rate=1.0]:0.010554111502467989)[&rate=1.0]:0.00240802811322538)[&rate=1.0]:0.00518612494130255,323[&rate=1.0]:0.460861661392251)[&rate=1.0]:0.021195702111963144,((25[&rate=1.0]:0.02280777404550182,26[&rate=1.0]:0.02280777404550182)[&rate=1.0]:6.084986348841026E-4,27[&rate=1.0]:0.023416272680385923)[&rate=1.0]:0.4586410908238282)[&rate=1.0]:0.04375045005026257,147[&rate=1.0]:0.5258078135544767)[&rate=1.0]:0.3703449493102554,((160[&rate=1.0]:0.07965571073245595,161[&rate=1.0]:0.07965571073245595)[&rate=1.0]:0.0703918458613784,162[&rate=1.0]:0.15004755659383434)[&rate=1.0]:0.7461052062708977)[&rate=1.0]:0.0;

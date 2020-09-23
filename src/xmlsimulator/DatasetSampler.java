@@ -161,7 +161,7 @@ public class DatasetSampler extends Alignment implements XMLSample  {
 				Element copy = (Element) root.cloneNode(true);
 				
 				// Replace all occurrences of $(partition) with the partition name
-				XMLUtils.XMLReplace(copy, "$(partition)", pName);
+				if (repeat) XMLUtils.XMLReplace(copy, "$(partition)", pName);
 				
 				// Add this into the XML subtree
 				root.getParentNode().insertBefore(copy, root);
