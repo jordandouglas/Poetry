@@ -1,5 +1,6 @@
 package xmlsimulator;
 
+
 import java.util.List;
 
 import org.w3c.dom.Document;
@@ -25,7 +26,7 @@ public interface XMLSample {
 	 * @param doc
 	 * @param runnable 
 	 */
-	public abstract void tidyXML(Document doc, Element runnable) throws Exception;
+	public abstract void tidyXML(Document doc, Element runnable, List<XMLFunction> functions) throws Exception;
 	
 	
 	

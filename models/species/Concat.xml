@@ -3,9 +3,13 @@
 <fragment>
 
 
+	<append id="mcmc">
+		<init spec="beast.util.ClusterTree" id="NJtree" initial="@tree" clusterType="neighborjoining" taxa="@alignment.$(partition)"/>
+	</append>
 
-
-
+	<append id="tracelog">
+		<log id="TreeDistanceLogger" spec="beast.evolution.tree.TreeDistanceLogger" tree="@tree" alignment="@alignment.$(partition)" />
+	</append>
 
 </fragment>
 	

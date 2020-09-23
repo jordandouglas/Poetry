@@ -30,11 +30,11 @@
 		<operator id="YuleBirthRateScaler.t:tree" spec="ScaleOperator" parameter="@birthRate" scaleFactor="0.75" weight="2.0"/>
 
 
+	</append>
 
-		<logger id="tracelog">
-			<log idref="birthRate"/>
-		</logger>
 
+	<append id="tracelog">
+		<log idref="birthRate"/>
 	</append>
 
 

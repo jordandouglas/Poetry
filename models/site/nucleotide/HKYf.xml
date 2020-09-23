@@ -44,11 +44,11 @@
 		</operator>
 
 
-		<logger id="tracelog">
-			<log idref="kappa.t:$(partition)"/>
-			<log idref="freqParameter.t:$(partition)"/>
-		</logger>
+	</append>
 
+	<append id="tracelog">
+		<log idref="kappa.t:$(partition)"/>
+		<log idref="freqParameter.t:$(partition)"/>
 	</append>
 
 

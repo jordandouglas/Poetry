@@ -34,16 +34,12 @@
 	</append>
 
 	<append id="mcmc">
-
-
 		<operator id="KappaScaler.t:$(partition)" spec="ScaleOperator" parameter="@kappa.t:$(partition)" scaleFactor="0.5" weight="0.2"/>
+	</append>
 
 
-
-		<logger id="tracelog">
-			<log idref="kappa.t:$(partition)"/>
-		</logger>
-
+	<append id="tracelog">
+		<log idref="kappa.t:$(partition)"/>
 	</append>
 
 

@@ -2,37 +2,39 @@ package xmlsimulator;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.List;
 
-import beast.core.BEASTObject;
-import beast.core.Input;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import beast.core.util.Log;
 
-public class Condition extends BEASTObject {
+
+/**
+ * Returns an XML fragment
+ *
+ */
+public class XMLPopulator extends XMLFunction {
 
 	
-	final public Input<BEASTObject> objectInput = new Input<>("obj", "The object to call the function on", Input.Validate.REQUIRED);
-	final public Input<String> methodInput = new Input<>("method", "The boolean-returning method in that class to call", Input.Validate.REQUIRED);
-	
-	
-	BEASTObject obj;
-	Method method;
-	
-	
-	
+
 	@Override
 	public void initAndValidate() {
 		this.obj = objectInput.get();
 		this.method = null;
 		String methodName = methodInput.get();
 		
+		
 		// Find the method with the matching name
 		for (Method meth : obj.getClass().getMethods()) {
 			
 			if (meth.getName().equals(methodName)) {
 				
-				// Check it returns boolean
-				if (meth.getReturnType() != boolean.class) {
-					Log.warning("Found method " + methodName + " in " + this.obj.getID() + " but it does not return boolean");
+				// Check it returns List<Element>
+				if (meth.getReturnType() != List.class){
+					Log.warning("Found method " + methodName + " in " + this.obj.getID() + " but it does not return a NodeList");
 					continue;
 				}
 				
@@ -56,25 +58,26 @@ public class Condition extends BEASTObject {
 		}
 		
 		if (this.method == null) {
-			throw new IllegalArgumentException("Cannot access a boolean-returning method with 0 arguments named '" + methodName + "' in " + this.obj.getID());
+			throw new IllegalArgumentException("Cannot access an XML-returning method with 0 arguments named '" + methodName + "' in " + this.obj.getID());
 		}
 		
 	}
 	
 	
+	
 	/**
 	 * Evaluate this object
-	 * @return
+	 * @return a list of XML Document Elements
 	 */
-	public boolean eval() {
+	public List<Element> eval() {
 		try {
-			return (Boolean) this.method.invoke(this.obj);
+			Object o = this.method.invoke(this.obj);
+			return (ArrayList<Element>) o;
 		} catch (Exception e) {
 			e.printStackTrace();
-			return false;
+			return null;
 		}
 	}
 	
 	
-
 }

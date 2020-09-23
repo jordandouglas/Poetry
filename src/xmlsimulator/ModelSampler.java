@@ -45,16 +45,17 @@ public class ModelSampler extends BEASTObject implements XMLSample {
 	@Override
 	public void reset() {
 		
-
 		// Sample a model according to its prior probability
 		this.sampledFile = this.sampleAFile();
-		
 		
 		System.out.println("Sampling model: " +  this.sampledFile.getFilePath());
 		
 	}
 	
-	
+	/**
+	 * Sample a file. Reset all files first
+	 * @return
+	 */
 	protected WeightedFile sampleAFile() {
 		return WeightedFile.sampleFile(this.filesInput.get());
 	}
@@ -65,7 +66,7 @@ public class ModelSampler extends BEASTObject implements XMLSample {
 
 
 	@Override
-	public void tidyXML(Document doc, Element runnable) throws Exception {
+	public void tidyXML(Document doc, Element runnable, List<XMLFunction> functions) throws Exception {
 		
 		
 		// Load the xml content from the sampled file and put it in the doc xml
@@ -81,7 +82,20 @@ public class ModelSampler extends BEASTObject implements XMLSample {
 		Element fragment = (Element) sampled.getFirstChild();
 		
 		
-		// Append the 'append' tags into the relevant sections
+		// 1) Delete the 'remove' tags
+		List<Node> removes = XMLUtils.nodeListToList(fragment.getElementsByTagName("remove"));
+		for (Node remove : removes) {
+			
+			if (! (remove instanceof Element)) {
+				throw new Exception("remove tag must be an xml element: " + remove.toString());
+			}
+			Element element = (Element) remove;
+			element.getParentNode().removeChild(element);
+			
+		}
+		
+		
+		// 2) Append the 'append' tags into the relevant sections
 		List<Node> appends = XMLUtils.nodeListToList(fragment.getElementsByTagName("append"));
 		for (Node append : appends) {
 			
@@ -118,11 +132,11 @@ public class ModelSampler extends BEASTObject implements XMLSample {
 	        	appendTo.appendChild(importedNode);
 			}
 			
-			
 		}
 		
 		
-		// Replace elements with the 'override' tags
+		
+		// 3) Replace elements with the 'override' tags
 		List<Node> overrides = XMLUtils.nodeListToList(fragment.getElementsByTagName("override"));
 		for (Node override : overrides) {
 					
@@ -136,49 +150,78 @@ public class ModelSampler extends BEASTObject implements XMLSample {
 			// Override what element?
 			String id = element.hasAttribute("id") ? element.getAttribute("id") : null;	
 			Element toOverride = XMLUtils.getElementById(doc, id);
-			if (toOverride == null) throw new Exception("Override error: cannot find element in template xml with id " + id);
+			Element importedNode = (Element) doc.importNode(element, true);
+			
 
+			// If the object does not exist then add it to the head
+			if (toOverride == null) {
+				runnable.getParentNode().insertBefore(importedNode, runnable);
+			}
 			
 			// Replace overridable element in doc
-			Node importedNode = doc.importNode(element, true);
-			toOverride.getParentNode().insertBefore(importedNode, toOverride);
-			toOverride.getParentNode().removeChild(toOverride);
+			else {
+				toOverride.getParentNode().insertBefore(importedNode, toOverride);
+				toOverride.getParentNode().removeChild(toOverride);
+			}
+
+			
+			
+			// Rename the node to its name and remove its name
+			if (importedNode.hasAttribute("name")) {
+				String name = importedNode.getAttribute("name");
+				importedNode.removeAttribute("name");
+				doc.renameNode(importedNode, null, name);
+			}
+			
 
 			
 		}
 		
-		/*
-		// Elements in the <head> section go above the <run> element
-		Node insertAt = runnable.getParentNode();
-		NodeList heads = fragment.getElementsByTagName("head");
-		if (heads.getLength() > 1) throw new Exception("There should only 0 or 1 head tag but there are " + heads.getLength() + " (" + this.sampledFile.getFile().getPath() + ")");
-		if (heads.getLength() == 1) {
-			Element head = (Element) heads.item(0);
-			List<Node> elements = XMLUtils.nodeListToList(head.getChildNodes());
-			for (int i = 0; i < elements.size(); i ++) {
-	        	Node node = elements.get(i);
-	        	Node importedNode = doc.importNode(node, true);
-	        	insertAt.insertBefore(importedNode, runnable);
-			}
-		}
-				
 		
 		
-		// Elements in the <run> section go into the <run> element
-		NodeList runs = fragment.getElementsByTagName("run");
-		if (runs.getLength() > 1) throw new Exception("There should only 0 or 1 run tag but there are " + runs.getLength() + " (" + this.sampledFile.getFile().getPath() + ")");
-		if (runs.getLength() == 1) {
-			Element run = (Element) runs.item(0);
-			List<Node> elements = XMLUtils.nodeListToList(run.getChildNodes());
-			for (int i = 0; i < elements.size(); i ++) {
-	        	Node node = elements.get(i);
-	        	Node importedNode = doc.importNode(node, true);
-	        	runnable.appendChild(importedNode);
+		// 4) Populate sections using the 'populate' tag
+		List<Node> populates = XMLUtils.nodeListToList(fragment.getElementsByTagName("populate"));
+		for (Node populate : populates) {
+					
+					
+			if (! (populate instanceof Element)) {
+				throw new Exception("override tag must be an xml element: " + populate.toString());
 			}
-	
-		}
-		*/
+			Element element = (Element) populate;
+			
+			
+			// Override what element?
+			String id = element.getAttribute("id");	
+			Element toPopulate = XMLUtils.getElementById(doc, id);
+			if (toPopulate == null) throw new Exception("Populate error: cannot find element in template xml with id " + id);
 
+			
+			
+			// Find the XMLPopulator object
+			String functionID = element.getAttribute("function");	
+			if (functionID == null || functionID.isEmpty()) throw new Exception("Populate error: please provide a 'function' id for " + id);
+			XMLPopulator populator = null;
+			for (XMLFunction fn : functions) {
+				if ( !(fn instanceof XMLPopulator)) continue;
+				if (("@" + fn.getID()).equals(functionID)) {
+					populator = (XMLPopulator) fn;
+					break;
+				}
+			}
+			if (populator == null) throw new Exception("Populate error: cannot find element in template xml with id " + id);
+			
+			
+			// Evaluate the function
+			List<Element> elements = populator.eval();
+			
+			
+			// Append elements
+			for (Element ele : elements) {
+				Node importedNode = doc.importNode(ele, true);
+				toPopulate.appendChild(importedNode);
+			}
+			
+		}
 		
 	}
 

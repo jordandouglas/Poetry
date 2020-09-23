@@ -505,6 +505,26 @@ public class XMLUtils {
 		}
 		
 	}
+
+
+	/**
+	 * Returns all child elements which have a matching tagname or a 'name' attribute
+	 * @param runner
+	 * @param string
+	 * @return
+	 */
+	public static List<Element> getElementsByName(Element element, String name) {
+		
+		List<Element> elements = new ArrayList<Element>();
+		for (Node child : XMLUtils.nodeListToList(element.getChildNodes())) {
+			
+			if (!(child instanceof Element)) continue;
+			Element childEle = (Element) child;
+			String childName = childEle.hasAttribute("name") ? childEle.getAttribute("name") : childEle.getNodeName();
+			if (childName.equals(name)) elements.add(childEle);
+		}
+		return elements;
+	}
 	
 	
 

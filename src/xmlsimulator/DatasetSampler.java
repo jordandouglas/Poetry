@@ -19,6 +19,8 @@ import beast.core.util.Log;
 import beast.evolution.alignment.Alignment;
 import beast.evolution.alignment.FilteredAlignment;
 import beast.evolution.alignment.Sequence;
+import beast.evolution.alignment.Taxon;
+import beast.evolution.alignment.TaxonSet;
 import beast.evolution.datatype.Aminoacid;
 import beast.evolution.datatype.DataType;
 import beast.evolution.datatype.Nucleotide;
@@ -102,20 +104,12 @@ public class DatasetSampler extends Alignment implements XMLSample  {
 	 * Coerce the XML into that of an Alignment
 	 */
 	@Override
-	public void tidyXML(Document doc, Element runnable) throws Exception {
+	public void tidyXML(Document doc, Element runnable, List<XMLFunction> functions) throws Exception {
 		
 		
 		Element thisEle = XMLUtils.getElementById(doc, this.getID());
 		
-		
-		// Move the alignment to the head if it is not already
-		Element parent = (Element) thisEle.getParentNode();
-		parent.removeChild(thisEle);
-		runnable.getParentNode().insertBefore(thisEle, runnable);
-		if (!parent.getNodeName().equals("beast")) {
-			parent.setAttribute(thisEle.getNodeName(), "@" + this.getID());
-		}
-		
+
 		
 
 		// Get all input names which are specific to the Alignment superclass
@@ -152,10 +146,6 @@ public class DatasetSampler extends Alignment implements XMLSample  {
 			if (rootID.equals(this.getID())) continue;
 			if (rootID != null && this.norepeats.contains(rootID)) repeat = false;
 			
-			
-			if (rootID.contains("clockRatePrior")) {
-				int x = 5;
-			}
 
 			// The full subtree will be repeated once for each partition
 			for (int pNum = 0; pNum < this.partitions.size(); pNum++) {
@@ -336,20 +326,28 @@ public class DatasetSampler extends Alignment implements XMLSample  {
 	
 	
 	/**
-	 * Return taxon to species mapping for this alignment, according to the string split function specified in the WeightedFile
+	 * Return species to taxon mapping for this alignment, according to the string split function specified in the WeightedFile
 	 * @param alignment
 	 * @param wfile
 	 * @return
 	 */
-	public static HashMap<String, String> getSpeciesMap(Alignment alignment, WeightedFile wfile){
+	public static HashMap<String, List<String>> getSpeciesMap(Alignment alignment, WeightedFile wfile){
 		
-		if (wfile.hasSpeciesMap()) return null;
-		HashMap<String, String> map = new HashMap<String, String>();
+		if (!wfile.hasSpeciesMap()) return null;
+		HashMap<String, List<String>> map = new HashMap<String, List<String>>();
 		
 		// Iterate through taxon names
 		for (String taxon : alignment.getTaxaNames()) {
 			String species = wfile.getSpecies(taxon); 
-			map.put(taxon, species);
+			List<String> mapped;
+			if (map.containsKey(species)) {
+				mapped = map.get(species);
+			}else {
+				mapped = new ArrayList<String>();
+			}
+			mapped.add(taxon);
+			map.put(species, mapped);
+			//map.put(taxon, species);
 		}
 		
 		return map;
@@ -386,6 +384,54 @@ public class DatasetSampler extends Alignment implements XMLSample  {
 	 */
 	public boolean hasSpeciesMap() {
 		return this.sampledFile.hasSpeciesMap();
+	}
+	
+	
+	/**
+	 * Return the taxon to species map as an XML Element
+	 * @return
+	 */
+	public List<Element> getMSCTaxonSet() {
+		
+		
+		if (!this.hasSpeciesMap() || this.partitions.isEmpty()) return null;
+		
+		// Build a TaxonSet using the taxon to species map
+		List<Element> elements = new ArrayList<Element>();
+		HashMap<String, List<String>> speciesMap = DatasetSampler.getSpeciesMap(this.partitions.get(0), this.sampledFile);
+		
+		// Get all individuals within any given species
+		for (String s : speciesMap.keySet()) {
+			
+			// Create taxonset for this species
+			List<String> t = speciesMap.get(s);
+			List<Taxon> taxa = Taxon.createTaxonList(t);
+			TaxonSet taxonSet = new TaxonSet(taxa);
+			
+			// Convert to XML Element
+			XMLSimProducer producer = new XMLSimProducer();
+			String sXML = producer.toXML(taxonSet);
+			try {
+				Document doc = XMLUtils.loadXMLFromString(sXML);
+				Element run = (Element) doc.getElementsByTagName("run").item(0);
+				//Element element = null;
+				//for (Node child : XMLUtils.nodeListToList(run.getChildNodes())) {
+					//if ( !(child instanceof Element)) continue;
+					//element = (Element) child;
+					//break;
+				//}
+				run.setAttribute("id", s);
+				doc.renameNode(run, null, "taxon");
+				elements.add(run);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}
+		
+		return elements;
+		
 	}
 
 

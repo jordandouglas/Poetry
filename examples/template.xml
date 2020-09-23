@@ -15,17 +15,11 @@
 
 
 
-
-	<condition id="dnaOnly" spec="xmlsimulator.Condition" obj="@alignment.$(partition)" method="isDNA" />
-	<condition id="aaOnly" spec="xmlsimulator.Condition" obj="@alignment.$(partition)" method="isAminoAcid" />
-	<condition id="speciesOnly" spec="xmlsimulator.Condition" obj="@alignment.$(partition)" method="hasSpeciesMap" />
-
-
 	<!-- Alignment sampler -->
 	<data id="alignment.$(partition)" spec="xmlsimulator.DatasetSampler">
 
-		<file spec="xmlsimulator.WeightedFile" file="../datasets/Anderson_2013.tar.gz/Anderson_2013/alignment.nex" desc="Benchmark alignment" species="1,2" split="_" />
 		<file spec="xmlsimulator.WeightedFile" file="../datasets/Becker_2016.tar.gz/Becker_2016/alignment.nex" desc="Benchmark alignment"  />
+		<file weight="10000" spec="xmlsimulator.WeightedFile" file="../datasets/Murray_2013.tar.gz/Murray_2013/alignment.nex" desc="Benchmark alignment" species="3,4" split="_" />
 
 		<!--
 		<file spec="xmlsimulator.WeightedFile" file="../datasets/Anderson_2013.tar.gz/Anderson_2013/alignment.nex" desc="Benchmark alignment" />
@@ -116,12 +110,23 @@
 	<run id="XMLSimulator" spec="xmlsimulator.SimulateXML" xml="out.xml" data="@alignment.$(partition)">
 
 
+
+
+		<!-- XML functions -->
+		<function id="dnaOnly" spec="xmlsimulator.XMLCondition" obj="@alignment.$(partition)" method="isDNA" />
+		<function id="aaOnly" spec="xmlsimulator.XMLCondition" obj="@alignment.$(partition)" method="isAminoAcid" />
+		<function id="speciesOnly" spec="xmlsimulator.XMLCondition" obj="@alignment.$(partition)" method="hasSpeciesMap" />
+		<function id="notSpeciesOnly" spec="xmlsimulator.XMLCondition" obj="@alignment.$(partition)" method="hasSpeciesMap" negate="true" />
+		<function id="doingMSCAnalysis" spec="xmlsimulator.XMLCondition" obj="@MSCWeightedFile" method="wasSampled" />
+		<function id="doingConcatAnalysis" spec="xmlsimulator.XMLCondition" obj="@ConcatWeightedFile" method="wasSampled" />
+		<function id="mscTaxonSet" spec="xmlsimulator.XMLPopulator" obj="@alignment.$(partition)" method="getMSCTaxonSet" />
+
+
 		<!-- Species model sampler -->
 		<model id="speciesModelSampler" spec="xmlsimulator.ModelSampler">
-			<file spec="xmlsimulator.WeightedFile" file="../models/species/Concat.xml" desc="Loci are concatenated (as partitions)" />
-			<file weight="1000" spec="xmlsimulator.WeightedFile" file="../models/species/MSC.xml" desc="Loci are treated as gene trees" condition="@speciesOnly" />
+			<file id="ConcatWeightedFile" spec="xmlsimulator.WeightedFile" file="../models/species/Concat.xml" desc="Loci are concatenated (as partitions)" />
+			<file weight="10000" id="MSCWeightedFile" spec="xmlsimulator.WeightedFile" file="../models/species/MSC.xml" desc="Loci are treated as gene trees" condition="@speciesOnly" />
 		</model>
-		
 
 
 		<!-- Site model sampler -->
@@ -143,21 +148,23 @@
 
 		<!-- Clock model sampler -->
 		<model id="clockModelSampler" spec="xmlsimulator.ModelSampler">
-			<file spec="xmlsimulator.WeightedFile" file="../models/clock/Strict.xml" desc="The strict clock" />
-			<file spec="xmlsimulator.WeightedFile" file="../models/clock/RelaxedLN.xml" desc="A relaxed clock with lognormal prior" />
+			<file spec="xmlsimulator.WeightedFile" file="../models/clock/Strict.xml" desc="The strict clock" condition="@doingConcatAnalysis" />
+			<file spec="xmlsimulator.WeightedFile" file="../models/clock/RelaxedLN.xml" desc="A relaxed clock with lognormal prior" condition="@doingConcatAnalysis" />
+			<file spec="xmlsimulator.WeightedFile" file="../models/clock/SB3RelaxedClock.xml" desc="Multispecies coalescent relaxed clock model with lognormal prior" condition="@doingMSCAnalysis" />
 		</model>
 
 
 		<!-- Tree prior sampler -->
 		<model id="treeModelSampler" spec="xmlsimulator.ModelSampler">
 			<file spec="xmlsimulator.WeightedFile" file="../models/tree/Yule.xml" desc="A Yule tree prior" />
-			<file spec="xmlsimulator.WeightedFile" file="../models/tree/Coalescent.xml" desc="A coalescent tree prior" />
+			<file spec="xmlsimulator.WeightedFile" file="../models/tree/Coalescent.xml" desc="A coalescent tree prior" condition="@doingConcatAnalysis" />
 		</model>
+
+
+
+		
 	
 		<runner id="mcmc" spec="beast.core.MCMC"  chainLength="50000000">
-		
-
-			<init spec="beast.util.ClusterTree" id="NJtree" initial="@tree" clusterType="neighborjoining" taxa="@alignment.$(partition)"/>
 		
 
 			<state id="state" spec="State" storeEvery="1000">
@@ -165,8 +172,6 @@
 				<tree id="tree" spec="beast.evolution.tree.Tree" name="stateNode">
 					<taxonset id="tree.taxonset" spec="TaxonSet" alignment="@alignment.$(partition)" />
 				</tree>
-
-				
 				<parameter spec="parameter.RealParameter" id="clockRate.t:$(partition)" name="stateNode">1.0</parameter>
 
 			</state>
@@ -177,15 +182,7 @@
 
 
 				<distribution id="likelihood" spec="util.CompoundDistribution" useThreads="true">
-
-				
-						<distribution id="treeLikelihood.$(partition)" spec="TreeLikelihood" tree="@tree" data="@alignment.$(partition)" siteModel="@siteModel.t:$(partition)" branchRateModel="@ClockModel.t:tree">
-						    <!--<data spec="FilteredAlignment" data="@benchmark" filter="1-649"/>-->
-						    
-
-						  
-						</distribution>
-
+						<distribution id="treeLikelihood.$(partition)" spec="TreeLikelihood" tree="@tree" data="@alignment.$(partition)" siteModel="@siteModel.t:$(partition)" branchRateModel="@ClockModel.t:tree" />
 				</distribution>
 
 
@@ -218,25 +215,31 @@
 
 
 
-
-
 			<operator id="ClockRateExchanger" spec="BactrianDeltaExchangeOperator" delta="0.01" weight="0.4">
 				<kernelDistribution spec="beast.evolution.operators.KernelDistribution$Bactrian" m="0.95" mode="uniform"/>
 				<parameter idref="clockRate.t:$(partition)"/>
 			</operator>
 
 
-			<logger id="screenlog" spec="Logger" logEvery="10000">
+			<logger id="screenlog" spec="Logger" logEvery="1000">
 				<log idref="posterior"/>
 			</logger>
 
 
 
-			<logger id="tracelog" fileName="$(filebase).log" spec="Logger" logEvery="1000">
+		    <logger id="treeLogger" fileName="$(filebase).trees" logEvery="10000" mode="tree">
+		    	<log spec="beast.evolution.tree.TreeWithMetaDataLogger" branchratemodel="@ClockModel.t:tree" tree="@tree"/>
+			</logger>
+
+
+
+			<logger id="tracelog" fileName="$(filebase).log" spec="Logger" logEvery="10000">
 				<log idref="posterior"/>
 				<log idref="likelihood"/>
 				<log idref="prior"/>
-				<log id="TreeHeight.t:benchmark" spec="beast.evolution.tree.TreeStatLogger" tree="@tree"/>
+				<log id="TreeStat.t:tree" spec="beast.evolution.tree.TreeStatLogger" tree="@tree"/>
+				
+				<log idref="clockRate.t:$(partition)"/>
 			</logger>
 
 			

@@ -42,8 +42,8 @@ public class WeightedFile extends BEASTObject {
 			+ "(eg. 1,2,5) where count starts at 1. The taxon names will be split on the 'split' symbol. If this string is not specified, then"
 			+ "there will be no species tree.");
 	final public Input<String> splitInput = new Input<>("split", "Character to split taxon names by to determine string (default '_')", "_");
-	final public Input<List<Condition>> conditionsInput = new Input<>("condition", "Condition which must be met by another class in order for this to be sampled."
-			+ "Conditions are considered as a conjunction", new ArrayList<Condition>());
+	final public Input<List<XMLCondition>> conditionsInput = new Input<>("condition", "Condition which must be met by another class in order for this to be sampled."
+			+ "Conditions are considered as a conjunction", new ArrayList<XMLCondition>());
 	
 	
 	
@@ -51,11 +51,12 @@ public class WeightedFile extends BEASTObject {
 	double weight;
 	String desc;
 	boolean hasSpeciesMap;
+	boolean wasSampled;
 	int[] splitIndices;
 	String splitOn;
 	
 	List<File> createdTmpFiles;
-	List<Condition> conditions;
+	List<XMLCondition> conditions;
 	
 	
 	
@@ -67,6 +68,7 @@ public class WeightedFile extends BEASTObject {
 		this.desc = descInput.get();
 		this.splitOn = splitInput.get();
 		this.hasSpeciesMap = speciesInput.get() != null && !speciesInput.get().isEmpty();
+		this.wasSampled = false;
 		
 		// Get indices to read from split taxon strings
 		if (this.hasSpeciesMap) {
@@ -99,7 +101,7 @@ public class WeightedFile extends BEASTObject {
 	 */
 	public double getWeight() {
 		
-		for (Condition condition : this.conditions) {
+		for (XMLCondition condition : this.conditions) {
 			if (!condition.eval()) return 0;
 		}
 		
@@ -137,6 +139,30 @@ public class WeightedFile extends BEASTObject {
 		return this.desc;
 	}
 	
+	
+	/**
+	 * Flag this as being sampled
+	 */
+	public void flagSampled() {
+		this.wasSampled = true;
+	}
+	
+	/**
+	 * Was this file sampled in this iteration?
+	 * @return
+	 */
+	public boolean wasSampled() {
+		return this.wasSampled;
+	}
+	
+	
+	
+	/**
+	 * Reset in between sampling files
+	 */
+	public void reset() {
+		this.wasSampled = false;
+	}
 	
 
 	/**
@@ -431,10 +457,14 @@ public class WeightedFile extends BEASTObject {
 	
 	/**
 	 * Samples a weighted file from a list of files
+	 * Resets all files first and flags the sampled one as sampled
 	 * @param weightedFiles
 	 * @return
 	 */
 	public static WeightedFile sampleFile(List<WeightedFile> weightedFiles) {
+		
+		// Reset all files
+		for (WeightedFile file : weightedFiles) file.reset();
 		
 
 		// Sum the weights
@@ -460,7 +490,9 @@ public class WeightedFile extends BEASTObject {
 		
 		// Sample a file
 		int fileNum = Randomizer.randomChoice(weights);
-		return weightedFiles.get(fileNum);
+		WeightedFile sampled = weightedFiles.get(fileNum);
+		sampled.flagSampled();
+		return sampled;
 		
 		
 	}
@@ -474,6 +506,7 @@ public class WeightedFile extends BEASTObject {
 	 */
 	public String getSpecies(String taxon) {
 		if (!this.hasSpeciesMap) return null;
+		//System.out.println(taxon);
 		String[] bits = taxon.split(this.splitOn);
 		String species = "";
 		for (int i = 0; i < this.splitIndices.length; i ++) {
@@ -500,7 +533,7 @@ public class WeightedFile extends BEASTObject {
 	}
 	
 	
-	
+
 
 	
 }

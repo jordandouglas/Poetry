@@ -30,16 +30,13 @@
 
 	<append id="mcmc">
 
-		
-
 		<operator id="CoalescentPopSizeScaler.t:tree" spec="ScaleOperator" parameter="@popSize" scaleFactor="0.75" weight="2.0"/>
 
+	</append>
 
 
-		<logger id="tracelog">
-			<log idref="popSize"/>
-		</logger>
-
+	<append id="tracelog">
+		<log idref="popSize"/>
 	</append>
 
 

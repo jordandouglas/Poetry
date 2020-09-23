@@ -88,19 +88,18 @@
 		
 
 
-
-
-
-		<logger id="tracelog">
-			<log idref="rateAC.t:$(partition)"/>
-			<log idref="rateAG.t:$(partition)"/>
-			<log idref="rateAT.t:$(partition)"/>
-			<log idref="rateCG.t:$(partition)"/>
-			<log idref="rateCT.t:$(partition)"/>
-			<log idref="rateGT.t:$(partition)"/>
-		</logger>
-
 	</append>
+
+
+	<append id="tracelog">
+		<log idref="rateAC.t:$(partition)"/>
+		<log idref="rateAG.t:$(partition)"/>
+		<log idref="rateAT.t:$(partition)"/>
+		<log idref="rateCG.t:$(partition)"/>
+		<log idref="rateCT.t:$(partition)"/>
+		<log idref="rateGT.t:$(partition)"/>
+	</append>
+
 
 
 </fragment>
