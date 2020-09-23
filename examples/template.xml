@@ -124,8 +124,8 @@
 
 		<!-- Species model sampler -->
 		<model id="speciesModelSampler" spec="xmlsimulator.ModelSampler">
-			<file id="ConcatWeightedFile" spec="xmlsimulator.WeightedFile" file="../models/species/Concat.xml" desc="Loci are concatenated (as partitions)" />
-			<file weight="10000" id="MSCWeightedFile" spec="xmlsimulator.WeightedFile" file="../models/species/MSC.xml" desc="Loci are treated as gene trees" condition="@speciesOnly" />
+			<file weight="10000" id="ConcatWeightedFile" spec="xmlsimulator.WeightedFile" file="../models/species/Concat.xml" desc="Loci are concatenated (as partitions)" />
+			<file id="MSCWeightedFile" spec="xmlsimulator.WeightedFile" file="../models/species/MSC.xml" desc="Loci are treated as gene trees" condition="@speciesOnly" />
 		</model>
 
 
@@ -182,7 +182,7 @@
 
 
 				<distribution id="likelihood" spec="util.CompoundDistribution" useThreads="true">
-						<distribution id="treeLikelihood.$(partition)" spec="TreeLikelihood" tree="@tree" data="@alignment.$(partition)" siteModel="@siteModel.t:$(partition)" branchRateModel="@ClockModel.t:tree" />
+						<distribution id="treeLikelihood.$(partition)" spec="ThreadedTreeLikelihood" tree="@tree" data="@alignment.$(partition)" siteModel="@siteModel.t:$(partition)" branchRateModel="@ClockModel.t:tree" />
 				</distribution>
 
 

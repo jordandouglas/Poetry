@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!--
-Model fragment sampled from ../models/species/MSC.xml. Description: Loci are treated as gene trees
-Model fragment sampled from ../models/site/nucleotide/JukesCantor.xml. Description: The Jukes-Cantor site model
-Model fragment sampled from ../models/clock/SB3RelaxedClock.xml. Description: Multispecies coalescent relaxed clock model with lognormal prior
-Model fragment sampled from ../models/tree/Yule.xml. Description: A Yule tree prior
-Dataset sampled from ../datasets/Murray_2013.tar.gz/Murray_2013/alignment.nex with 10 partitions. Description: Benchmark alignment
+Using coupled MCMC (i.e. MC3)
+Model fragment sampled from ../models/species/Concat.xml. Description: Loci are concatenated (as partitions)
+Model fragment sampled from ../models/site/nucleotide/GTR.xml. Description: The GTR site model
+Model fragment sampled from ../models/clock/Strict.xml. Description: The strict clock
+Model fragment sampled from ../models/tree/Coalescent.xml. Description: A coalescent tree prior
+Dataset sampled from ../datasets/Murray_2013.tar.gz/Murray_2013/alignment.nex with 2 partitions. Description: Benchmark alignment
 --><beast namespace="beast.core:beast.evolution.alignment:beast.evolution.tree.coalescent:beast.core.util:beast.evolution.nuc:beast.evolution.operators:beast.evolution.sitemodel:beast.evolution.substitutionmodel:beast.evolution.likelihood" required="" version="2.6">
 
 
@@ -33,43 +34,11 @@ Dataset sampled from ../datasets/Murray_2013.tar.gz/Murray_2013/alignment.nex wi
 
 
 
-<data data="@alignment.$(partition)" filter="783-1038\3" id="alignment.COII_3rdpos" spec="FilteredAlignment">
-    
-
-</data>
-<data data="@alignment.$(partition)" filter="782-1037\3" id="alignment.COII_2ndpos" spec="FilteredAlignment">
-    
-
-</data>
-<data data="@alignment.$(partition)" filter="1819-2498" id="alignment.28S_D2" spec="FilteredAlignment">
-    
-
-</data>
-<data data="@alignment.$(partition)" filter="1-780" id="alignment.18S" spec="FilteredAlignment">
-    
-
-</data>
-<data data="@alignment.$(partition)" filter="781-1818" id="alignment.mitochondrial_genome" spec="FilteredAlignment">
-    
-
-</data>
-<data data="@alignment.$(partition)" filter="2499-3111" id="alignment.28S_D3" spec="FilteredAlignment">
-    
-
-</data>
 <data data="@alignment.$(partition)" filter="1041-1818\3" id="alignment.COI_3rdpos" spec="FilteredAlignment">
     
 
 </data>
-<data data="@alignment.$(partition)" filter="781-1036\3" id="alignment.COII_1stpost" spec="FilteredAlignment">
-    
-
-</data>
-<data data="@alignment.$(partition)" filter="1040-1817\3" id="alignment.COI_2ndpos" spec="FilteredAlignment">
-    
-
-</data>
-<data data="@alignment.$(partition)" filter="1-780,1819-3111" id="alignment.nuclear_genome" spec="FilteredAlignment">
+<data data="@alignment.$(partition)" filter="1-780" id="alignment.18S" spec="FilteredAlignment">
     
 
 </data>
@@ -312,1013 +281,64 @@ Dataset sampled from ../datasets/Murray_2013.tar.gz/Murray_2013/alignment.nex wi
 <sequence id="seq_E9_9_Kapala_ivorensis_D26931" spec="Sequence" taxon="E9_9_Kapala_ivorensis_D2693" totalcount="4" value="TAACGATACGGGACTCATCCGAGGCCCCGTAATCGGAATGAGTACACTTTAAATCCTTTAACGAGGATCCATTGGAGGGCAAGTCTGGTGCCAGCAGCCGCGGTAATTCCAGCTCCAATAGCGTATATTAAAGTTGTTGCGGTTAAAAAGCTCGTAGTTGAATCTGTGTGCCACGCTGTCGGTTCATCGCTCGCGATGTTTAACTGACATGATTGTGGGACGTCCTACCGGTGGACTTAGCCTCTATCTCTTCG--GATTTAGGGGCGGTCCAGCTAATATCCCATCGCGGTGCTTTTCATCGAGTGTCGAGGTGGGCCGGTACGTTTACTTTGAACAAATTAGAGTGCTCAAAGCAGGCCATTCT-CGCCTGAATACTGTGTGCATGGAATAATGGAATAGGACCTCGGTTCTATTTTGTTGGTTTTCGGAACCCCGAGGTAATGATTAATAGGGACAGATGGGGGCATTCGTATTGCGACGTTAGAGGTGAAATTCTTGGATCGTCGCAAGACGGACAGAAGCGAAAGCATTTGCCAAAAATGTTTTCATTAATCAAGAACGAAAGTTAGAGGTTCGAAGGCGATCAGATACCGCCCTAGTTCTAACCATAAACGATGCCAGCTAGCGATCCGCCGAAGTTCCTTTGATGACTCGGCGGGCAGCTTCCGGGAAACCAAAGCTTTTGGGTTCCGGGGGAAGTATGGTTGCAAAGCTGAAACTTAAAGGAATTGA?????????????????????????????????????????????TCTTATGAATATAGAGATTTTAAAAATTTAATGTTTGATTCCTTTATAATTAAT---AACATAAAT---------GAATTTCGATTATTAGATGTAGATAATCGAATAATTTTACCTAATCAATTAAATATTCGAATATTAGTAAATTCTTTAGATGTTATTCATTCATTTACTATTCCTTCTTTAGGTTTAAAGGTAGATGCAATTCCTGGGCGAATTAATCAAATATCTGTAATAATTTATCGTTCAGGTTTATAT???????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????ATTAATTTCTCATATGATTAATAATGAAAATTATAAAAAAGAAATTTTTGGATTAATAGGAATAATTTATGCTATAGTATCAATTGGATTATTGGGGTTTATTGTATGAGCTCATCATATATTTACTATTGGTATAGATGTAGATACACGAGCTTATTTTACTTCAGCAACAATAATTATTGCTGTACCTACAGGAATTAAAATTTTTAGATGGTTAGCTTCTATAAATGGAATAAAATTAAAATTTAATACTTCAAATTTATGATTATTAGGATTTATTTTTTTATTTACTGTGGGTGGATTAACTGGAATTATTTTATCAAATTCTTCTATTGATATTGTTCTTCATGATACTTATTATGTAGTAGCTCATTTTCATTATGTATTATCA??????????????????TCTAAGTTGGTGGTAAACTCCATCTAAGGCTAAATACGGCCACGAGACCGATAGCGAACAAGTACCGTGAGGGAAAGTTGAAAAGAACTTTGAAGAGAGAGTTCAAGAGTACGTGAAACCGTTCAGGGGTAAACCTGAGAAATCCGAAAGATCGAATGGGGTGATTCAACGCTGGCTG-CGTCGGATTCCGTGCGG--CACGCGATGCG--CGAGGG---TT-----CG-CTCTT---GTCGCACGCGTCCGCTGCGG--CTAGACCGATTA---TGCCGGTGTGCACTTCTCCCCTGGTAGGACGTCGCGACCCGTTGGGTATCGGTCTACGAT-TCGGCATCATAGACTGTCGC-G-T-CAC-GTGT-ATTCGTG---CACGCGTCAGACTGCCG-TTTTTTACCGGCCGATTGCCCGGCGGTA-A-----TT-TAACA--A-TTCAATT--GAGGTAATGAGTCGCA----TTAAGTGCGTCAAGGCTCGTTGGCAGGCTCGTTTGGCTCGG-TT---A-T-TACGGACTATGTGCCGTTGCCGAG-TTTTT-AACGCGGCTG-TTCGTCAATGATGTCCTCTGACTGGC---TC--AT--ACGTTCGA------ACGG--------------------------ACATACCGGTCGGCGACGCTACTGCTTCGGAT?CTAGCATGTGCGCGAGTCATTGGGAC----TTT-TTTT-CAGGAAAGCCCAGAGGCGCAATGAAAGTGAAG--AT--CGGCCTTT-T---------C--GGCTTGATCGAGGGAGGATGGCT-CATTGTTA-TTTT----------TT-ATAATGACGGGCTCGCACTCCCGGGGCGTCTC-GCGCTC-ATTTCGAGC-GGAGGCGCACCCAGAGCGTACACGCTGGGACCCGAAAGATGGTGAACTATGCCTGGTCAGGACGAAGTCAGGGGAAACCCTGATGGAGGTCCGTAGCGATTCTGACGTGCAAATCGATCGTCGGAACTGGGTATAGGGGCGAAAGACTAATCGAACCATCTAGTAGCTGGTTCCCTCCGAAGTTTCCCTCAGGATAGCTGGCACTCGCTT-AAAGCGAGTCTCATCTGGTAAAGCGAATGATTAGAGGCCTCTTGGGGCCGAAACGACCTCAACCTATTCTCAAACTTTAAATGGGTGAGATCTCTGGCTTGCTTGAAACT-TGAAGCCACGAGAT-T-AATA-------------TCGT--AAAATGGATCAGAGTGCCAAGTGGGCCAATTTTGGTANNNAAACCTNG-G?"/>
 <sequence id="seq_E9_9_Kapala_ivorensis_D27721" spec="Sequence" taxon="E9_9_Kapala_ivorensis_D2772" totalcount="4" value="TAACGATACGGGACTCATCCGAGGCCCCGTAATCGGAAYGAGTACACTTTAAATCCTTNAACGAGGATCCATTGGAGGGCAAGTCTGGTGCCAGCAGCCGCGGTAATTCCAGCTCCAATAGCGTATATTAAAGTTGTTGCGGTTAAAAAGCTCGTAGTTGAATCTGTGTGCCACGCTGTCGGTTCATCGCTCGCGATGTTTAACTGACATGATTGTGGGACGTCCTACCGGTGGACTTAGCCTCTATCTCTTCG--GATTTAGGGGCGGTCCAGCTAATATCCCATCGCGGTGCTTTTCATCGAGTGTCGAGGTGGGCCGGTACGTTTACTTTGAACAAATTAGAGTGCTCAAAGCAGGCCATTCT-CGCCTGAATACTGTGTGCATGGAATAATGGAATAGGACCTCGGTTCTATTTTGTTGGTTTTCGGAACCCCGAGGTAATGATTAATAGGGACAGATGGGGGCATTCGTATTGCGACGTTAGAGGTGAAATTCTTGGATCGTCGCAAGACGGACAGAAGCGAAAGCATTTGCCAAAAATGTTTTCATTAATCAAGAACGAAAGTTAGAGGTTCGAAGGCGATCAGATACCGCCCTAGTTCTAACCATAAACGATGCCAGCTAGCGATCCGCCGAAGTTCCTTTGATGACTCGGCGGGCAGCTTCCGGGAAACCAAAGCTTTTGGGTTCCGGGGGAAGTATGGTTGCAAAGCTGAAACTTAAAGGAATTGA?????????????????????????????????????????????TCTTATGAATATAGAGATTTTAAAAATTTAATGTTTGATTCTTTTATAATTAAT---AACATAAAT---------GAATTTCGATTATTAGATGTAGATAATCGAATAATTTTACCTAATCAATTAAATATTCGAATATTAGTAAATTCTTTAGATGTTATTCATTCATTTACTATTCCTTCTTTAGGTTTAAAAGTAGATGCAATTCCTGGTCGAATTAATCAAATATCTGTAATAATTTATCGTTCAGGTTTATAT???????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????ATTAATTTCCCATATGATTAATAATGAAAATTATAAAAAAGAAATTTTTGGATTAATAGGAATAATTTATGCTATAGTATCAATTGGATTATTGGGATTTATTGTATGAGCTCATCATATATTTACTATTGGTATAGATGTAGATACACGAGCTTATTTTACTTCRGCAACAATAATTATTGCTGTACCTACAGGAATTAAAATTTTTAGAKGATTAGCTTCTATAAATGGAATAAAATTAAAATTTAATWCTTCAAATTTATGATTATTAGGATTTATTTTTTTATTTACTGTGGGNGGTTTAACTGGAATTGTTTTATCAAATTCTTCTATTGATATTRTTCTTCATGATACTTATTATGTAGTAGCTCATTTTCATTATGTATTATCA??????????????????TCTAAGTTGGTGGTAAACTCCATCTAAGGCTAAATACGGCCACGAGACCGATAGCGAACAAGTACCGTGAGGGAAAGTTGAAAAGAACTTTGAAGAGAGAGTTCAAGAGTACGTGAAACCGTTCAGGGGTAAACCTGAGAAATCCGAAAGATCGAATGGGGTGATTCAACGCTGGCTG-CGTCGGATTCCGTGCGG--CACGCGATGCG--CGAGGG---TT-----CG-CTCTT---GTCGCACGCGTCCGCTGCGG--CTAGACCGATTA---TGCCGGTGTGCACTTCTCCCCTGGTAGGACGTCGCGACCCGTTGGGTATCGGTCTACGAT-TCGGCATCATAGACTGTCGC-G-T-CAC-GTGT-ATTCGTG---CACGCGTCAGACTGCCG-TTTTTTACCGGCCGATTGCCCGGCGGTA-A-----TT-TAACA--A-TTCAATT--GAGGTAATGAGTCGCA----TTAAGTGCGTCAAGGCTCGTTGGCAGGCTCGTTTGGCTCGG-TT---A-T-TACGGACTATGTGCCGTTGCCGAG-TTTTT-AACGCGGCTG-TTCGTCAATGATGTCCTCTGACTGGC---TC--AT--ACGTTCGA------ACGG--------------------------ACATACCGGTCGGCGACGCTACTGCTTCGGATTCTAGCATGTGCGCGAGTCATTGGGAC----TTT-TTTT-CAGGAAAGCCCAGAGGCGCAATGAAAGTGAAG--AT--CGGCCTTT-T---------C--GGCTTGATCGAGGGAGGATGGCT-CATTGTTA-TTTT----------TT-ATAATGACGGGCTCGCACTCCCGGGGCGTCTC-GCGCTC-ATTTCGAGC-GGAGGCGCACCCAGAGCGTACACGCTGGGACCCGAAAGATGGTGAACTATGCCTGGTCAGGACGAAGTCAGGGGAAACCCTGATGGAGGTCCGTAGCGATTCTGACGTGCAAATCGATCGTCGGAACTGGGTATAGGGGCGAAAGACTAATCGAACCATCTAGTAGCTGGTTCCCTCCGAAGTTTCCCTCAGGATAGCTGGCACTCGCTT-AAAGCGAGTCTCATCTGGTAAAGCGAATGATTAGAGGCCTCTTGGGGCCGAAACGACCTCAACCTATTCTCAAACTTTAAATGGGTGAGATCTCTGGCTTGCTTGAAACT-TGAAGCCACGAGAT-T-AATA-------------TCGT--AAAATGGATCAGAGTGCCAAGTGGGCCAAT?????????????????????"/>
 </alignment>
-<siteModel gammaCategoryCount="1" id="siteModel.t:COII_3rdpos" mutationRate="@clockRate.t:COII_3rdpos" spec="SiteModel">
-		<parameter estimate="false" name="shape" spec="parameter.RealParameter">1.0</parameter>
-		<substModel spec="JukesCantor"/>
-	</siteModel>
-<siteModel gammaCategoryCount="1" id="siteModel.t:COII_2ndpos" mutationRate="@clockRate.t:COII_2ndpos" spec="SiteModel">
-		<parameter estimate="false" name="shape" spec="parameter.RealParameter">1.0</parameter>
-		<substModel spec="JukesCantor"/>
-	</siteModel>
-<siteModel gammaCategoryCount="1" id="siteModel.t:28S_D2" mutationRate="@clockRate.t:28S_D2" spec="SiteModel">
-		<parameter estimate="false" name="shape" spec="parameter.RealParameter">1.0</parameter>
-		<substModel spec="JukesCantor"/>
-	</siteModel>
-<siteModel gammaCategoryCount="1" id="siteModel.t:18S" mutationRate="@clockRate.t:18S" spec="SiteModel">
-		<parameter estimate="false" name="shape" spec="parameter.RealParameter">1.0</parameter>
-		<substModel spec="JukesCantor"/>
-	</siteModel>
-<siteModel gammaCategoryCount="1" id="siteModel.t:mitochondrial_genome" mutationRate="@clockRate.t:mitochondrial_genome" spec="SiteModel">
-		<parameter estimate="false" name="shape" spec="parameter.RealParameter">1.0</parameter>
-		<substModel spec="JukesCantor"/>
-	</siteModel>
-<siteModel gammaCategoryCount="1" id="siteModel.t:28S_D3" mutationRate="@clockRate.t:28S_D3" spec="SiteModel">
-		<parameter estimate="false" name="shape" spec="parameter.RealParameter">1.0</parameter>
-		<substModel spec="JukesCantor"/>
-	</siteModel>
-<siteModel gammaCategoryCount="1" id="siteModel.t:COI_3rdpos" mutationRate="@clockRate.t:COI_3rdpos" spec="SiteModel">
-		<parameter estimate="false" name="shape" spec="parameter.RealParameter">1.0</parameter>
-		<substModel spec="JukesCantor"/>
-	</siteModel>
-<siteModel gammaCategoryCount="1" id="siteModel.t:COII_1stpost" mutationRate="@clockRate.t:COII_1stpost" spec="SiteModel">
-		<parameter estimate="false" name="shape" spec="parameter.RealParameter">1.0</parameter>
-		<substModel spec="JukesCantor"/>
-	</siteModel>
-<siteModel gammaCategoryCount="1" id="siteModel.t:COI_2ndpos" mutationRate="@clockRate.t:COI_2ndpos" spec="SiteModel">
-		<parameter estimate="false" name="shape" spec="parameter.RealParameter">1.0</parameter>
-		<substModel spec="JukesCantor"/>
-	</siteModel>
-<siteModel gammaCategoryCount="1" id="siteModel.t:nuclear_genome" mutationRate="@clockRate.t:nuclear_genome" spec="SiteModel">
-		<parameter estimate="false" name="shape" spec="parameter.RealParameter">1.0</parameter>
-		<substModel spec="JukesCantor"/>
-	</siteModel>
-<run chainLength="50000000" id="mcmc" spec="MCMC">
+<run chainLength="50000000" chains="4" deltaTemperature="0.05" id="mcmc" resampleEvery="10000" spec="beast.coupledMCMC.CoupledMCMC">
         <state id="state" spec="State" storeEvery="1000">
-            <stateNode id="tree" spec="starbeast3.SpeciesTree">
-		<taxonset id="tree.taxonset" spec="TaxonSet">
-			
-        <taxon id="hesperis_D0050" spec="TaxonSet">
-    <taxon id="P2_Chrysomalla_hesperis_D0050" spec="Taxon"/>
-
-</taxon>
-<taxon id="Obeza_grenadensis" spec="TaxonSet">
-    <taxon id="E5_8_Obeza_grenadensis_D0358" spec="Taxon"/>
-
-</taxon>
-<taxon id="Chalcura_aeginetus" spec="TaxonSet">
-    <taxon id="E6_1_Chalcura_aeginetus_D1010" spec="Taxon"/>
-
-</taxon>
-<taxon id="Orasema_nsp" spec="TaxonSet">
-    <taxon id="E1_4_Orasema_nsp_D0161" spec="Taxon"/>
-
-</taxon>
-<taxon id="canaliculatum_D0709" spec="TaxonSet">
-    <taxon id="P3_Monacon_canaliculatum_D0709" spec="Taxon"/>
-
-</taxon>
-<taxon id="Schizaspidia_aenea" spec="TaxonSet">
-    <taxon id="E7_1_Schizaspidia_aenea_D0168" spec="Taxon"/>
-
-    <taxon id="E7_1_Schizaspidia_aenea_D0655" spec="Taxon"/>
-
-</taxon>
-<taxon id="Chalcura_sp" spec="TaxonSet">
-    <taxon id="E6_1_Chalcura_sp_D1404" spec="Taxon"/>
-
-    <taxon id="E6_1_Chalcura_sp_F_D0647" spec="Taxon"/>
-
-    <taxon id="E6_1_Chalcura_sp_fat_M_D0174" spec="Taxon"/>
-
-</taxon>
-<taxon id="robertsi_D0318" spec="TaxonSet">
-    <taxon id="P3_Monacon_robertsi_D0318" spec="Taxon"/>
-
-</taxon>
-<taxon id="Babcockiella_emaciatus" spec="TaxonSet">
-    <taxon id="E6_3_Babcockiella_emaciatus_D1512" spec="Taxon"/>
-
-</taxon>
-<taxon id="Neolosbanus_purpureoven" spec="TaxonSet">
-    <taxon id="E2_2_Neolosbanus_purpureoven_D0414" spec="Taxon"/>
-
-</taxon>
-<taxon id="sp_D2134" spec="TaxonSet">
-    <taxon id="OG_Ormocerus_sp_D2134" spec="Taxon"/>
-
-</taxon>
-<taxon id="Ancylotropus_ivondroi" spec="TaxonSet">
-    <taxon id="E7_2_Ancylotropus_ivondroi_D0627" spec="Taxon"/>
-
-</taxon>
-<taxon id="Thoracanthoides_sp" spec="TaxonSet">
-    <taxon id="E7_5_Thoracanthoides_sp_D1860" spec="Taxon"/>
-
-</taxon>
-<taxon id="Stilbuloida_doddi" spec="TaxonSet">
-    <taxon id="E5_6_Stilbuloida_doddi_D0660" spec="Taxon"/>
-
-</taxon>
-<taxon id="sp_D1447" spec="TaxonSet">
-    <taxon id="P2_Chrysolampus_sp_D1447" spec="Taxon"/>
-
-</taxon>
-<taxon id="Orasemorpha_tridentata" spec="TaxonSet">
-    <taxon id="E1_1_Orasemorpha_tridentata_D0165" spec="Taxon"/>
-
-</taxon>
-<taxon id="Kapala_iridicolor" spec="TaxonSet">
-    <taxon id="E9_3_Kapala_iridicolor_D0382a" spec="Taxon"/>
-
-</taxon>
-<taxon id="Orasema_communis" spec="TaxonSet">
-    <taxon id="E1_4_Orasema_communis_D0951" spec="Taxon"/>
-
-</taxon>
-<taxon id="Kapala_sp17" spec="TaxonSet">
-    <taxon id="E9_1_Kapala_sp17_D1412" spec="Taxon"/>
-
-</taxon>
-<taxon id="Athairocharis_vannoorti" spec="TaxonSet">
-    <taxon id="E4_6_Athairocharis_vannoorti_D0325" spec="Taxon"/>
-
-</taxon>
-<taxon id="Kapala_sp18" spec="TaxonSet">
-    <taxon id="E9_1_Kapala_sp18_D1272" spec="Taxon"/>
-
-</taxon>
-<taxon id="Lirata_sp" spec="TaxonSet">
-    <taxon id="E8_2_Lirata_sp_D2264" spec="Taxon"/>
-
-</taxon>
-<taxon id="Kapala_sp16" spec="TaxonSet">
-    <taxon id="E9_1_Kapala_sp16_D1141" spec="Taxon"/>
-
-</taxon>
-<taxon id="Kapala_sp13" spec="TaxonSet">
-    <taxon id="E9_1_Kapala_sp13_D1064" spec="Taxon"/>
-
-</taxon>
-<taxon id="sp_D1452" spec="TaxonSet">
-    <taxon id="OG_Cleonymus_sp_D1452" spec="Taxon"/>
-
-</taxon>
-<taxon id="Orasema_sp" spec="TaxonSet">
-    <taxon id="E1_4_Orasema_sp_D0354" spec="Taxon"/>
-
-    <taxon id="E1_4_Orasema_sp_D0908" spec="Taxon"/>
-
-    <taxon id="E1_4_Orasema_sp_D2919" spec="Taxon"/>
-
-</taxon>
-<taxon id="Austeucharis_nr" spec="TaxonSet">
-    <taxon id="E6_4_Austeucharis_nr_kosciuskoi_D0904" spec="Taxon"/>
-
-</taxon>
-<taxon id="Dicoelothorax_sp" spec="TaxonSet">
-    <taxon id="E8_4_Dicoelothorax_sp_D2512" spec="Taxon"/>
-
-</taxon>
-<taxon id="sp_D0643" spec="TaxonSet">
-    <taxon id="P2_Brachyelatus_sp_D0643" spec="Taxon"/>
-
-</taxon>
-<taxon id="Gollumiella_ochreata" spec="TaxonSet">
-    <taxon id="E0_2_Gollumiella_ochreata_D0426" spec="Taxon"/>
-
-    <taxon id="E0_2_Gollumiella_ochreata_D2834" spec="Taxon"/>
-
-</taxon>
-<taxon id="Orasema_valgius" spec="TaxonSet">
-    <taxon id="E1_4_Orasema_valgius_D0171" spec="Taxon"/>
-
-    <taxon id="E1_4_Orasema_valgius_D0363" spec="Taxon"/>
-
-</taxon>
-<taxon id="Ancylotropus_carniscutis" spec="TaxonSet">
-    <taxon id="E7_2_Ancylotropus_carniscutis_D0407" spec="Taxon"/>
-
-</taxon>
-<taxon id="sp_D0649" spec="TaxonSet">
-    <taxon id="P3_Perilampus_sp_D0649" spec="Taxon"/>
-
-</taxon>
-<taxon id="Cherianella_sp" spec="TaxonSet">
-    <taxon id="E4_5_Cherianella_sp_D0906" spec="Taxon"/>
-
-</taxon>
-<taxon id="Orasema_wheeleri" spec="TaxonSet">
-    <taxon id="E1_4_Orasema_wheeleri_D0248" spec="Taxon"/>
-
-</taxon>
-<taxon id="Ancylotropus_sp" spec="TaxonSet">
-    <taxon id="E7_2_Ancylotropus_sp_D0157" spec="Taxon"/>
-
-    <taxon id="E7_2_Ancylotropus_sp_D0637" spec="Taxon"/>
-
-    <taxon id="E7_2_Ancylotropus_sp_D0707" spec="Taxon"/>
-
-</taxon>
-<taxon id="Kapala_mexico" spec="TaxonSet">
-    <taxon id="E9_1_Kapala_mexico_D2925" spec="Taxon"/>
-
-</taxon>
-<taxon id="Stilbuloida_nr" spec="TaxonSet">
-    <taxon id="E5_6_Stilbuloida_nr_doddi_D0642" spec="Taxon"/>
-
-</taxon>
-<taxon id="Gollumiella_bicolor" spec="TaxonSet">
-    <taxon id="E0_2_Gollumiella_bicolor_D0853a" spec="Taxon"/>
-
-</taxon>
-<taxon id="Ancylotropus_cariniscutis" spec="TaxonSet">
-    <taxon id="E7_2_Ancylotropus_cariniscutis_D0701" spec="Taxon"/>
-
-</taxon>
-<taxon id="Schizaspidia_sp" spec="TaxonSet">
-    <taxon id="E7_1_Schizaspidia_sp_D0341" spec="Taxon"/>
-
-    <taxon id="E7_1_Schizaspidia_sp_D0663" spec="Taxon"/>
-
-    <taxon id="E7_1_Schizaspidia_sp_D0684" spec="Taxon"/>
-
-    <taxon id="E7_1_Schizaspidia_sp_D1423" spec="Taxon"/>
-
-</taxon>
-<taxon id="regalis_D0113" spec="TaxonSet">
-    <taxon id="P3_Perilampus_regalis_D0113" spec="Taxon"/>
-
-</taxon>
-<taxon id="Lirata_alta" spec="TaxonSet">
-    <taxon id="E8_2_Lirata_alta_D1101" spec="Taxon"/>
-
-</taxon>
-<taxon id="aus_D1266" spec="TaxonSet">
-    <taxon id="P3_Perilampus_aus_D1266" spec="Taxon"/>
-
-</taxon>
-<taxon id="Kapala_sp1" spec="TaxonSet">
-    <taxon id="E9_2_Kapala_sp1_lumpy_D1388" spec="Taxon"/>
-
-</taxon>
-<taxon id="Indosema_sp" spec="TaxonSet">
-    <taxon id="E1_2_Indosema_sp_D2213" spec="Taxon"/>
-
-</taxon>
-<taxon id="Pseudochalcura_sp2" spec="TaxonSet">
-    <taxon id="E5_7_Pseudochalcura_sp2_D2495" spec="Taxon"/>
-
-</taxon>
-<taxon id="Schizaspidia_murrayi" spec="TaxonSet">
-    <taxon id="E7_1_Schizaspidia_murrayi_D1256" spec="Taxon"/>
-
-</taxon>
-<taxon id="sp_D1269" spec="TaxonSet">
-    <taxon id="P1_Philomides_sp_D1269" spec="Taxon"/>
-
-</taxon>
-<taxon id="Kapala_sp5" spec="TaxonSet">
-    <taxon id="E9_1_Kapala_sp5_D0938c" spec="Taxon"/>
-
-</taxon>
-<taxon id="Kapala_sp4" spec="TaxonSet">
-    <taxon id="E9_1_Kapala_sp4_D0934a" spec="Taxon"/>
-
-</taxon>
-<taxon id="Kapala_sp7" spec="TaxonSet">
-    <taxon id="E9_1_Kapala_sp7_D1173" spec="Taxon"/>
-
-</taxon>
-<taxon id="Zulucharis_sp" spec="TaxonSet">
-    <taxon id="E4_4_Zulucharis_sp_D0186" spec="Taxon"/>
-
-</taxon>
-<taxon id="sp_D2637" spec="TaxonSet">
-    <taxon id="OG_Erixestus_sp_D2637" spec="Taxon"/>
-
-</taxon>
-<taxon id="Isomerala_sp" spec="TaxonSet">
-    <taxon id="E8_9_Isomerala_sp_D0949" spec="Taxon"/>
-
-</taxon>
-<taxon id="Kapala_sp8" spec="TaxonSet">
-    <taxon id="E9_1_Kapala_sp8_D0986" spec="Taxon"/>
-
-</taxon>
-<taxon id="sp_D0854" spec="TaxonSet">
-    <taxon id="P3_Perilampus_sp_D0854" spec="Taxon"/>
-
-</taxon>
-<taxon id="Orasema_simplex" spec="TaxonSet">
-    <taxon id="E1_4_Orasema_simplex_D2256" spec="Taxon"/>
-
-</taxon>
-<taxon id="Hydrorhoa_spB" spec="TaxonSet">
-    <taxon id="E4_2_Hydrorhoa_spB_D0909" spec="Taxon"/>
-
-</taxon>
-<taxon id="Kapala_sp" spec="TaxonSet">
-    <taxon id="E9_1_Kapala_sp_D0626" spec="Taxon"/>
-
-    <taxon id="E9_1_Kapala_sp_D2796" spec="Taxon"/>
-
-    <taxon id="E9_1_Kapala_sp_costarica_D2916" spec="Taxon"/>
-
-    <taxon id="E9_1_Kapala_sp_frgui_D2800" spec="Taxon"/>
-
-    <taxon id="E9_1_Kapala_sp_frgui_D2802" spec="Taxon"/>
-
-    <taxon id="E9_1_Kapala_sp_frqui_D2801" spec="Taxon"/>
-
-    <taxon id="E9_1_Kapala_sp_mex_D2799" spec="Taxon"/>
-
-</taxon>
-<taxon id="fulvicornis_D0713" spec="TaxonSet">
-    <taxon id="P3_Perilampus_fulvicornis_D0713" spec="Taxon"/>
-
-</taxon>
-<taxon id="Gollumiella_minuta" spec="TaxonSet">
-    <taxon id="E0_2_Gollumiella_minuta_D1261" spec="Taxon"/>
-
-</taxon>
-<taxon id="Orasema_glabra" spec="TaxonSet">
-    <taxon id="E1_4_Orasema_glabra_D0183" spec="Taxon"/>
-
-</taxon>
-<taxon id="Schizaspidia_sp1" spec="TaxonSet">
-    <taxon id="E7_1_Schizaspidia_sp1_D0993" spec="Taxon"/>
-
-</taxon>
-<taxon id="Lophyrocera_pretendens" spec="TaxonSet">
-    <taxon id="E5_9_Lophyrocera_pretendens_D0634" spec="Taxon"/>
-
-</taxon>
-<taxon id="Dilocantha_bennetti" spec="TaxonSet">
-    <taxon id="E8_3_Dilocantha_bennetti_D979a" spec="Taxon"/>
-
-</taxon>
-<taxon id="Orasema_minutissima" spec="TaxonSet">
-    <taxon id="E1_4_Orasema_minutissima_D0194" spec="Taxon"/>
-
-</taxon>
-<taxon id="Eucharis_albipennis" spec="TaxonSet">
-    <taxon id="E4_1_Eucharis_albipennis_D0337" spec="Taxon"/>
-
-</taxon>
-<taxon id="Stilbula_sp" spec="TaxonSet">
-    <taxon id="E5_5_Stilbula_sp_D2692" spec="Taxon"/>
-
-    <taxon id="E5_5_Stilbula_sp_D2837" spec="Taxon"/>
-
-</taxon>
-<taxon id="Obeza_sp1" spec="TaxonSet">
-    <taxon id="E5_8_Obeza_sp1_D1074" spec="Taxon"/>
-
-</taxon>
-<taxon id="sp_D0900" spec="TaxonSet">
-    <taxon id="P1_Aperilampus_sp_D0900" spec="Taxon"/>
-
-</taxon>
-<taxon id="Parapsilogastrus_sp" spec="TaxonSet">
-    <taxon id="E6_2_Parapsilogastrus_sp_D1176" spec="Taxon"/>
-
-    <taxon id="E6_2_Parapsilogastrus_sp_D1370" spec="Taxon"/>
-
-    <taxon id="E6_2_Parapsilogastrus_sp_D1378" spec="Taxon"/>
-
-    <taxon id="E6_2_Parapsilogastrus_sp_M_D0988" spec="Taxon"/>
-
-</taxon>
-<taxon id="sp_D0628" spec="TaxonSet">
-    <taxon id="OG_Perilampidea_sp_D0628" spec="Taxon"/>
-
-</taxon>
-<taxon id="Psilocharis_sp" spec="TaxonSet">
-    <taxon id="E2_1_Psilocharis_sp_D2694" spec="Taxon"/>
-
-</taxon>
-<taxon id="Orasema_monomoria" spec="TaxonSet">
-    <taxon id="E1_4_Orasema_monomoria_D0638" spec="Taxon"/>
-
-</taxon>
-<taxon id="Psilocharis_theocles" spec="TaxonSet">
-    <taxon id="E2_1_Psilocharis_theocles_D0170" spec="Taxon"/>
-
-</taxon>
-<taxon id="ablipennis_D0724" spec="TaxonSet">
-    <taxon id="OG_Pteromalus_ablipennis_D0724" spec="Taxon"/>
-
-</taxon>
-<taxon id="ngen_D0903" spec="TaxonSet">
-    <taxon id="P1_Philomidine_ngen_D0903" spec="Taxon"/>
-
-</taxon>
-<taxon id="schwarzii_D0053a" spec="TaxonSet">
-    <taxon id="P2_Chrysolampus_schwarzii_D0053a" spec="Taxon"/>
-
-</taxon>
-<taxon id="Stilbula_quinqueguttata" spec="TaxonSet">
-    <taxon id="E5_5_Stilbula_quinqueguttata_D0644" spec="Taxon"/>
-
-</taxon>
-<taxon id="Galearia_latreillei" spec="TaxonSet">
-    <taxon id="E8_8_Galearia_latreillei_D2251" spec="Taxon"/>
-
-</taxon>
-<taxon id="Kapala_ivorensis" spec="TaxonSet">
-    <taxon id="E9_9_Kapala_ivorensis_D0273" spec="Taxon"/>
-
-    <taxon id="E9_9_Kapala_ivorensis_D2693" spec="Taxon"/>
-
-    <taxon id="E9_9_Kapala_ivorensis_D2772" spec="Taxon"/>
-
-</taxon>
-<taxon id="Chalcura_samoana" spec="TaxonSet">
-    <taxon id="E6_1_Chalcura_samoana_M_D0728" spec="Taxon"/>
-
-</taxon>
-<taxon id="hyalinus_D0972" spec="TaxonSet">
-    <taxon id="P3_Perilampus_hyalinus_D0972" spec="Taxon"/>
-
-</taxon>
-<taxon id="salicetum_D0320" spec="TaxonSet">
-    <taxon id="P3_Steffanolampus_salicetum_D0320" spec="Taxon"/>
-
-</taxon>
-<taxon id="Orasema_synempora" spec="TaxonSet">
-    <taxon id="E1_4_Orasema_synempora_D1803" spec="Taxon"/>
-
-</taxon>
-<taxon id="spinosum_D1014" spec="TaxonSet">
-    <taxon id="P3_Monacon_spinosum_D1014" spec="Taxon"/>
-
-</taxon>
-<taxon id="Orasema_tolteca" spec="TaxonSet">
-    <taxon id="E1_4_Orasema_tolteca_D0286" spec="Taxon"/>
-
-</taxon>
-<taxon id="sp_D0160" spec="TaxonSet">
-    <taxon id="P2_Chrysolampus_sp_D0160" spec="Taxon"/>
-
-</taxon>
-<taxon id="Eucharissa_natalica" spec="TaxonSet">
-    <taxon id="E7_3_Eucharissa_natalica_D1861" spec="Taxon"/>
-
-</taxon>
-<taxon id="Kapala_floridana" spec="TaxonSet">
-    <taxon id="E9_8_Kapala_floridana_D0432b" spec="Taxon"/>
-
-</taxon>
-<taxon id="subcarinauts_D0264" spec="TaxonSet">
-    <taxon id="P3_Perilampus_subcarinauts_D0264" spec="Taxon"/>
-
-</taxon>
-<taxon id="sp_D1362" spec="TaxonSet">
-    <taxon id="P3_Perilampus_sp_D1362" spec="Taxon"/>
-
-</taxon>
-<taxon id="Hydrorhoa_stevensoni" spec="TaxonSet">
-    <taxon id="E4_2_Hydrorhoa_stevensoni_D0155" spec="Taxon"/>
-
-</taxon>
-<taxon id="sp_D1006" spec="TaxonSet">
-    <taxon id="P3_Burksilampus_sp_D1006" spec="Taxon"/>
-
-</taxon>
-<taxon id="Gollumiella_antennata" spec="TaxonSet">
-    <taxon id="E0_2_Gollumiella_antennata_D0351_2" spec="Taxon"/>
-
-</taxon>
-<taxon id="Rhipipalloidea_mira" spec="TaxonSet">
-    <taxon id="E5_4_Rhipipalloidea_mira_D1311" spec="Taxon"/>
-
-</taxon>
-<taxon id="sp_D0316" spec="TaxonSet">
-    <taxon id="P2_Austrotoxeuma_sp_D0316" spec="Taxon"/>
-
-</taxon>
-<taxon id="sp_D1009" spec="TaxonSet">
-    <taxon id="P2_Chrysolampus_sp_D1009" spec="Taxon"/>
-
-</taxon>
-<taxon id="Anorasema_pallidipes" spec="TaxonSet">
-    <taxon id="E0_1_Anorasema_pallidipes_D0408" spec="Taxon"/>
-
-    <taxon id="E0_1_Anorasema_pallidipes_D2840" spec="Taxon"/>
-
-</taxon>
-<taxon id="Orasema_costaricensis" spec="TaxonSet">
-    <taxon id="E1_4_Orasema_costaricensis_D0342" spec="Taxon"/>
-
-</taxon>
-<taxon id="Orasema_occidentalis" spec="TaxonSet">
-    <taxon id="E1_4_Orasema_occidentalis_D0427" spec="Taxon"/>
-
-</taxon>
-<taxon id="Kapala_texas" spec="TaxonSet">
-    <taxon id="E9_1_Kapala_texas_D2266" spec="Taxon"/>
-
-</taxon>
-<taxon id="Pseudochalcura_nigrocyanea" spec="TaxonSet">
-    <taxon id="E5_7_Pseudochalcura_nigrocyanea_D0179" spec="Taxon"/>
-
-</taxon>
-<taxon id="Dicoelothorax_parviceps" spec="TaxonSet">
-    <taxon id="E8_4_Dicoelothorax_parviceps_D0374f" spec="Taxon"/>
-
-</taxon>
-<taxon id="Neolosbanus_palgravei" spec="TaxonSet">
-    <taxon id="E2_2_Neolosbanus_palgravei_D0167" spec="Taxon"/>
-
-    <taxon id="E2_2_Neolosbanus_palgravei_D0406" spec="Taxon"/>
-
-    <taxon id="E2_2_Neolosbanus_palgravei_D2845" spec="Taxon"/>
-
-</taxon>
-<taxon id="Parapsilogastrus_skinny" spec="TaxonSet">
-    <taxon id="E6_2_Parapsilogastrus_skinny_F_D0175" spec="Taxon"/>
-
-</taxon>
-<taxon id="Orasema_rapo" spec="TaxonSet">
-    <taxon id="E1_4_Orasema_rapo_D0997" spec="Taxon"/>
-
-    <taxon id="E1_4_Orasema_rapo_gr_D2517" spec="Taxon"/>
-
-</taxon>
-<taxon id="Orasema_texana" spec="TaxonSet">
-    <taxon id="E1_4_Orasema_texana_D0123" spec="Taxon"/>
-
-</taxon>
-<taxon id="Mateucharis_glabra" spec="TaxonSet">
-    <taxon id="E4_3_Mateucharis_glabra_D0391" spec="Taxon"/>
-
-</taxon>
-<taxon id="Indosema_indica" spec="TaxonSet">
-    <taxon id="E1_2_Indosema_indica_D2212" spec="Taxon"/>
-
-</taxon>
-<taxon id="Galearia_bruchi" spec="TaxonSet">
-    <taxon id="E8_8_Galearia_bruchi_D2491" spec="Taxon"/>
-
-</taxon>
-<taxon id="Orasema_xanthopus" spec="TaxonSet">
-    <taxon id="E1_4_Orasema_xanthopus_D1090" spec="Taxon"/>
-
-</taxon>
-<taxon id="Pseudometagea_bakeri" spec="TaxonSet">
-    <taxon id="E3_1_Pseudometagea_bakeri_D0322" spec="Taxon"/>
-
-</taxon>
-<taxon id="Thoracantha_striata" spec="TaxonSet">
-    <taxon id="E8_7_Thoracantha_striata_D1254" spec="Taxon"/>
-
-</taxon>
-<taxon id="Kapala_terminalis" spec="TaxonSet">
-    <taxon id="E9_4_Kapala_terminalis_D1270" spec="Taxon"/>
-
-</taxon>
-<taxon id="Pseudochalcura_gibbosa" spec="TaxonSet">
-    <taxon id="E5_7_Pseudochalcura_gibbosa_D0910" spec="Taxon"/>
-
-</taxon>
-<taxon id="Kapala_sulcifacies" spec="TaxonSet">
-    <taxon id="E9_1_Kapala_sulcifacies_D0379" spec="Taxon"/>
-
-</taxon>
-<taxon id="Orasemorpha_eribotes" spec="TaxonSet">
-    <taxon id="E1_1_Orasemorpha_eribotes_D0162" spec="Taxon"/>
-
-</taxon>
-<taxon id="rudis_D0360" spec="TaxonSet">
-    <taxon id="P4_Akapala_rudis_D0360" spec="Taxon"/>
-
-</taxon>
-<taxon id="Gollumiella_sp" spec="TaxonSet">
-    <taxon id="E0_2_Gollumiella_sp_D0994c" spec="Taxon"/>
-
-    <taxon id="E0_2_Gollumiella_sp_D2839" spec="Taxon"/>
-
-</taxon>
-<taxon id="Chalcura_sp5" spec="TaxonSet">
-    <taxon id="E6_1_Chalcura_sp5_F_D0178" spec="Taxon"/>
-
-</taxon>
-<taxon id="sp_D0688" spec="TaxonSet">
-    <taxon id="P3_Perilampus_sp_D0688" spec="Taxon"/>
-
-</taxon>
-<taxon id="Lirata_luteogaster" spec="TaxonSet">
-    <taxon id="E8_2_Lirata_luteogaster_D1106" spec="Taxon"/>
-
-</taxon>
-<taxon id="Timioderus_peridentatus" spec="TaxonSet">
-    <taxon id="E1_3_Timioderus_peridentatus_D0116" spec="Taxon"/>
-
-</taxon>
-<taxon id="Colocharis_elongata" spec="TaxonSet">
-    <taxon id="E8_1_Colocharis_elongata_D0421a" spec="Taxon"/>
-
-</taxon>
-<taxon id="elegans_D0723" spec="TaxonSet">
-    <taxon id="P2_Chrysolampus_elegans_D0723" spec="Taxon"/>
-
-</taxon>
-<taxon id="sp_D0967" spec="TaxonSet">
-    <taxon id="P3_Perilampus_sp_D0967" spec="Taxon"/>
-
-</taxon>
-<taxon id="Austeucharis_implexa" spec="TaxonSet">
-    <taxon id="E6_4_Austeucharis_implexa_D0164" spec="Taxon"/>
-
-</taxon>
-<taxon id="sp_D0726" spec="TaxonSet">
-    <taxon id="OG_Thinodytes_sp_D0726" spec="Taxon"/>
-
-</taxon>
-<taxon id="Orasema_coloradensis" spec="TaxonSet">
-    <taxon id="E1_4_Orasema_coloradensis_D0251" spec="Taxon"/>
-
-</taxon>
-<taxon id="Leurocharis_serricornis" spec="TaxonSet">
-    <taxon id="E5_2_Leurocharis_serricornis_D0166" spec="Taxon"/>
-
-</taxon>
-<taxon id="Eucharis_sp" spec="TaxonSet">
-    <taxon id="E4_1_Eucharis_sp_D0729" spec="Taxon"/>
-
-    <taxon id="E4_1_Eucharis_sp_D1843" spec="Taxon"/>
-
-</taxon>
-<taxon id="sisymbrii_D0970" spec="TaxonSet">
-    <taxon id="P2_Chrysolampus_sisymbrii_D0970" spec="Taxon"/>
-
-</taxon>
-<taxon id="Pseudochalcura_americana" spec="TaxonSet">
-    <taxon id="E5_7_Pseudochalcura_americana_D0635" spec="Taxon"/>
-
-</taxon>
-<taxon id="Tricoryna_reticulativentris" spec="TaxonSet">
-    <taxon id="E6_5_Tricoryna_reticulativentris_D0163" spec="Taxon"/>
-
-</taxon>
-<taxon id="Schizaspidia_guttivipennis" spec="TaxonSet">
-    <taxon id="E7_1_Schizaspidia_guttivipennis_D0169" spec="Taxon"/>
-
-</taxon>
-<taxon id="Liratella_sp" spec="TaxonSet">
-    <taxon id="E8_6_Liratella_sp_D0188" spec="Taxon"/>
-
-</taxon>
-<taxon id="Gollumiella_longipetiolata" spec="TaxonSet">
-    <taxon id="E0_2_Gollumiella_longipetiolata_D0405c" spec="Taxon"/>
-
-</taxon>
-<taxon id="Neostilbula_ranomafanae" spec="TaxonSet">
-    <taxon id="E5_1_Neostilbula_ranomafanae_D1446a" spec="Taxon"/>
-
-</taxon>
-<taxon id="Pogonocharis_browni" spec="TaxonSet">
-    <taxon id="E7_6_Pogonocharis_browni_D1317" spec="Taxon"/>
-
-</taxon>
-<taxon id="Laurella_nr" spec="TaxonSet">
-    <taxon id="E8_5_Laurella_nr_guriana_D1073b" spec="Taxon"/>
-
-</taxon>
-<taxon id="ruficornis_D0361" spec="TaxonSet">
-    <taxon id="P3_Perilampus_ruficornis_D0361" spec="Taxon"/>
-
-</taxon>
-<taxon id="Kapala_sp10" spec="TaxonSet">
-    <taxon id="E9_3_Kapala_sp10_D1121" spec="Taxon"/>
-
-</taxon>
-<taxon id="sp_D1500" spec="TaxonSet">
-    <taxon id="P3_Burksilampus_sp_D1500" spec="Taxon"/>
-
-</taxon>
-<taxon id="Psilocharis_nr" spec="TaxonSet">
-    <taxon id="E2_1_Psilocharis_nr_afra_D2273" spec="Taxon"/>
-
-</taxon>
-<taxon id="Colocharis_napoana" spec="TaxonSet">
-    <taxon id="E8_1_Colocharis_napoana_D1102" spec="Taxon"/>
-
-</taxon>
-<taxon id="Isomerala_azteca" spec="TaxonSet">
-    <taxon id="E8_9_Isomerala_azteca_D0278" spec="Taxon"/>
-
-    <taxon id="E8_9_Isomerala_azteca_D1391" spec="Taxon"/>
-
-</taxon>
-<taxon id="Orasema_nr" spec="TaxonSet">
-    <taxon id="E1_4_Orasema_nr_coloradensis_D0433" spec="Taxon"/>
-
-    <taxon id="E1_4_Orasema_nr_costaricensis_D1005" spec="Taxon"/>
-
-    <taxon id="E1_4_Orasema_nr_robertsoni_D0430" spec="Taxon"/>
-
-    <taxon id="E1_4_Orasema_nr_valguis_D0324" spec="Taxon"/>
-
-    <taxon id="E1_4_Orasema_nr_worcesteri_D1093" spec="Taxon"/>
-
-</taxon>
-<taxon id="Dilocantha_sp" spec="TaxonSet">
-    <taxon id="E8_3_Dilocantha_sp_D2265" spec="Taxon"/>
-
-</taxon>
-<taxon id="Parapsilogastrus_nr" spec="TaxonSet">
-    <taxon id="E6_2_Parapsilogastrus_nr_fausta_F_D0658" spec="Taxon"/>
-
-</taxon>
-<taxon id="Orasema_delicatula" spec="TaxonSet">
-    <taxon id="E1_4_Orasema_delicatula_D0632" spec="Taxon"/>
-
-</taxon>
-<taxon id="Chalcura_parachalcura" spec="TaxonSet">
-    <taxon id="E6_1_Chalcura_parachalcura_M_D1255" spec="Taxon"/>
-
-</taxon>
-<taxon id="Kapala_argentina" spec="TaxonSet">
-    <taxon id="E9_5_Kapala_argentina_D1076" spec="Taxon"/>
-
-</taxon>
-<taxon id="Substilbula_pallidiclava" spec="TaxonSet">
-    <taxon id="E5_3_Substilbula_pallidiclava_D0965" spec="Taxon"/>
-
-    <taxon id="E5_3_Substilbula_pallidiclava_D1011" spec="Taxon"/>
-
-</taxon>
-<taxon id="Chalcura_ramosa" spec="TaxonSet">
-    <taxon id="E6_1_Chalcura_ramosa_M_D0630" spec="Taxon"/>
-
-</taxon>
-<taxon id="Orasema_simulatrix" spec="TaxonSet">
-    <taxon id="E1_4_Orasema_simulatrix_D0422" spec="Taxon"/>
-
-</taxon>
-<taxon id="Stilbula_ussuriensis" spec="TaxonSet">
-    <taxon id="E5_5_Stilbula_ussuriensis_D0923a" spec="Taxon"/>
-
-</taxon>
-<taxon id="Psilocharis_pacifica" spec="TaxonSet">
-    <taxon id="E2_1_Psilocharis_pacifica_D1259" spec="Taxon"/>
-
-</taxon>
-<taxon id="Lirata_daguerri" spec="TaxonSet">
-    <taxon id="E8_2_Lirata_daguerri_D1067b" spec="Taxon"/>
-
-</taxon>
-<taxon id="Pseudometagea_montana" spec="TaxonSet">
-    <taxon id="E3_1_Pseudometagea_montana_D0321" spec="Taxon"/>
-
-</taxon>
-<taxon id="Psilocharis_monilicera" spec="TaxonSet">
-    <taxon id="E2_1_Psilocharis_monilicera_D0184" spec="Taxon"/>
-
-</taxon>
-<taxon id="Saccharissa_alcocki" spec="TaxonSet">
-    <taxon id="E7_4_Saccharissa_alcocki_D2032" spec="Taxon"/>
-
-</taxon>
-<taxon id="Laurella_guriana" spec="TaxonSet">
-    <taxon id="E8_5_Laurella_guriana_D1508" spec="Taxon"/>
-
-</taxon>
-<taxon id="sp_D0385" spec="TaxonSet">
-    <taxon id="P3_Euperilampus_sp_D0385" spec="Taxon"/>
-
-</taxon>
-<taxon id="granulosus_D0263" spec="TaxonSet">
-    <taxon id="P3_Perilampus_granulosus_D0263" spec="Taxon"/>
-
-</taxon>
-<taxon id="Neostilbula_sp" spec="TaxonSet">
-    <taxon id="E5_1_Neostilbula_sp_D0954" spec="Taxon"/>
-
-</taxon>
-<taxon id="Saccharissa_sp" spec="TaxonSet">
-    <taxon id="E7_4_Saccharissa_sp_D1592" spec="Taxon"/>
-
-</taxon>
-<taxon id="sp_D0023" spec="TaxonSet">
-    <taxon id="OG_Podagrion_sp_D0023" spec="Taxon"/>
-
-</taxon>
-<taxon id="Chalcura_nr" spec="TaxonSet">
-    <taxon id="E6_1_Chalcura_nr_aeginetus_M_D1257" spec="Taxon"/>
-
-    <taxon id="E6_1_Chalcura_nr_ramosa_D0646a" spec="Taxon"/>
-
-    <taxon id="E6_1_Chalcura_nr_ramosa_F_D0652" spec="Taxon"/>
-
-    <taxon id="E6_1_Chalcura_nr_upeensis_M_D1309" spec="Taxon"/>
-
-</taxon>
-<taxon id="sp_D0027" spec="TaxonSet">
-    <taxon id="OG_Torymus_sp_D0027" spec="Taxon"/>
-
-</taxon>
-<taxon id="behavae_D0963" spec="TaxonSet">
-    <taxon id="P3_Euperilampus_behavae_D0963" spec="Taxon"/>
-
-</taxon>
-<taxon id="Kapala_nr" spec="TaxonSet">
-    <taxon id="E9_1_Kapala_nr_furcata_sp3_D1078" spec="Taxon"/>
-
-    <taxon id="E9_1_Kapala_nr_sulcifacies_D1140" spec="Taxon"/>
-
-    <taxon id="E9_1_Kapala_nr_sulcifacies_D1389" spec="Taxon"/>
-
-    <taxon id="E9_1_Kapala_nr_sulcifacies_D2521" spec="Taxon"/>
-
-    <taxon id="E9_1_Kapala_nr_sulcifacies_sp2_D0927a" spec="Taxon"/>
-
-    <taxon id="E9_1_Kapala_nr_sulcifacies_sp5_D0384e" spec="Taxon"/>
-
-    <taxon id="E9_1_Kapala_nr_sulcifacies_sp7_D0384a" spec="Taxon"/>
-
-    <taxon id="E9_2_Kapala_nr_cuprea_D0938b" spec="Taxon"/>
-
-    <taxon id="E9_2_Kapala_nr_cuprea_D1004" spec="Taxon"/>
-
-    <taxon id="E9_2_Kapala_nr_cuprea_D1068a" spec="Taxon"/>
-
-    <taxon id="E9_2_Kapala_nr_furcata_D0942" spec="Taxon"/>
-
-    <taxon id="E9_2_Kapala_nr_furcata_sp4_D1069" spec="Taxon"/>
-
-    <taxon id="E9_3_Kapala_nr_iridicolor_D0936a" spec="Taxon"/>
-
-    <taxon id="E9_3_Kapala_nr_iridicolor_sp1_D0947" spec="Taxon"/>
-
-    <taxon id="E9_3_Kapala_nr_iridicolor_sp3_D0928a" spec="Taxon"/>
-
-    <taxon id="E9_3_Kapala_nr_iridicolor_sp3_D0938a" spec="Taxon"/>
-
-    <taxon id="E9_3_Kapala_nr_iridicolor_sp3_D0939a" spec="Taxon"/>
-
-    <taxon id="E9_3_Kapala_nr_iridicolor_sp3_D0940" spec="Taxon"/>
-
-    <taxon id="E9_3_Kapala_nr_iridicolor_sp7_D1267" spec="Taxon"/>
-
-    <taxon id="E9_6_Kapala_nr_haplospinosa_D2261" spec="Taxon"/>
-
-</taxon>
-<taxon id="vanharteni_D1598" spec="TaxonSet">
-    <taxon id="P4_Jambiya_vanharteni_D1598" spec="Taxon"/>
-
-</taxon>
-<taxon id="Tricoryna_sp" spec="TaxonSet">
-    <taxon id="E6_5_Tricoryna_sp_D1307" spec="Taxon"/>
-
-    <taxon id="E6_5_Tricoryna_sp_D1313" spec="Taxon"/>
-
-</taxon>
-<taxon id="Pseudometagea_schwarzii" spec="TaxonSet">
-    <taxon id="E3_1_Pseudometagea_schwarzii_D0274" spec="Taxon"/>
-
-</taxon>
-<taxon id="Lophyrocera_variabilis" spec="TaxonSet">
-    <taxon id="E5_9_Lophyrocera_variabilis_D2553" spec="Taxon"/>
-
-</taxon>
-<taxon id="Tricoryna_iello" spec="TaxonSet">
-    <taxon id="E6_5_Tricoryna_iello_D0356" spec="Taxon"/>
-
-</taxon>
-</taxonset>
-	</stateNode>
-            <parameter id="clockRate.t:COII_3rdpos" name="stateNode" spec="parameter.RealParameter">1.0</parameter>
-<parameter id="clockRate.t:COII_2ndpos" name="stateNode" spec="parameter.RealParameter">1.0</parameter>
-<parameter id="clockRate.t:28S_D2" name="stateNode" spec="parameter.RealParameter">1.0</parameter>
+            <tree id="tree" name="stateNode" spec="beast.evolution.tree.Tree">
+                <taxonset alignment="@XMLSimulator" id="tree.taxonset" spec="TaxonSet">
+                    
+                </taxonset>
+            </tree>
+            <parameter id="clockRate.t:COI_3rdpos" name="stateNode" spec="parameter.RealParameter">1.0</parameter>
 <parameter id="clockRate.t:18S" name="stateNode" spec="parameter.RealParameter">1.0</parameter>
-<parameter id="clockRate.t:mitochondrial_genome" name="stateNode" spec="parameter.RealParameter">1.0</parameter>
-<parameter id="clockRate.t:28S_D3" name="stateNode" spec="parameter.RealParameter">1.0</parameter>
-<parameter id="clockRate.t:COI_3rdpos" name="stateNode" spec="parameter.RealParameter">1.0</parameter>
-<parameter id="clockRate.t:COII_1stpost" name="stateNode" spec="parameter.RealParameter">1.0</parameter>
-<parameter id="clockRate.t:COI_2ndpos" name="stateNode" spec="parameter.RealParameter">1.0</parameter>
-<parameter id="clockRate.t:nuclear_genome" name="stateNode" spec="parameter.RealParameter">1.0</parameter>
         
 
-        <tree id="GeneTree.t:COII_3rdpos" name="stateNode">
-            <taxonset alignment="@alignment.COII_3rdpos" spec="TaxonSet"/>
-        </tree>
-<tree id="GeneTree.t:COII_2ndpos" name="stateNode">
-            <taxonset alignment="@alignment.COII_2ndpos" spec="TaxonSet"/>
-        </tree>
-<tree id="GeneTree.t:28S_D2" name="stateNode">
-            <taxonset alignment="@alignment.28S_D2" spec="TaxonSet"/>
-        </tree>
-<tree id="GeneTree.t:18S" name="stateNode">
-            <taxonset alignment="@alignment.18S" spec="TaxonSet"/>
-        </tree>
-<tree id="GeneTree.t:mitochondrial_genome" name="stateNode">
-            <taxonset alignment="@alignment.mitochondrial_genome" spec="TaxonSet"/>
-        </tree>
-<tree id="GeneTree.t:28S_D3" name="stateNode">
-            <taxonset alignment="@alignment.28S_D3" spec="TaxonSet"/>
-        </tree>
-<tree id="GeneTree.t:COI_3rdpos" name="stateNode">
-            <taxonset alignment="@alignment.COI_3rdpos" spec="TaxonSet"/>
-        </tree>
-<tree id="GeneTree.t:COII_1stpost" name="stateNode">
-            <taxonset alignment="@alignment.COII_1stpost" spec="TaxonSet"/>
-        </tree>
-<tree id="GeneTree.t:COI_2ndpos" name="stateNode">
-            <taxonset alignment="@alignment.COI_2ndpos" spec="TaxonSet"/>
-        </tree>
-<tree id="GeneTree.t:nuclear_genome" name="stateNode">
-            <taxonset alignment="@alignment.nuclear_genome" spec="TaxonSet"/>
-        </tree>
 
-
-        <parameter id="popSize" name="stateNode">1.0</parameter>
-        <parameter id="popMean" name="stateNode">1.0</parameter>
+		<parameter id="rateAC.t:COI_3rdpos" lower="0.0" name="stateNode" spec="parameter.RealParameter">2.0</parameter>
+<parameter id="rateAC.t:18S" lower="0.0" name="stateNode" spec="parameter.RealParameter">2.0</parameter>
+		<parameter id="rateAG.t:COI_3rdpos" lower="0.0" name="stateNode" spec="parameter.RealParameter">2.0</parameter>
+<parameter id="rateAG.t:18S" lower="0.0" name="stateNode" spec="parameter.RealParameter">2.0</parameter>
+		<parameter id="rateAT.t:COI_3rdpos" lower="0.0" name="stateNode" spec="parameter.RealParameter">2.0</parameter>
+<parameter id="rateAT.t:18S" lower="0.0" name="stateNode" spec="parameter.RealParameter">2.0</parameter>
+		<parameter id="rateCG.t:COI_3rdpos" lower="0.0" name="stateNode" spec="parameter.RealParameter">2.0</parameter>
+<parameter id="rateCG.t:18S" lower="0.0" name="stateNode" spec="parameter.RealParameter">2.0</parameter>
+		<parameter id="rateCT.t:COI_3rdpos" lower="0.0" name="stateNode" spec="parameter.RealParameter">2.0</parameter>
+<parameter id="rateCT.t:18S" lower="0.0" name="stateNode" spec="parameter.RealParameter">2.0</parameter>
+		<parameter id="rateGT.t:COI_3rdpos" lower="0.0" name="stateNode" spec="parameter.RealParameter">2.0</parameter>
+<parameter id="rateGT.t:18S" lower="0.0" name="stateNode" spec="parameter.RealParameter">2.0</parameter>
+		
 
 	
-		<parameter id="ucldStdev.clock" lower="0.0" name="stateNode" spec="parameter.RealParameter">0.1</parameter>
-		<stateNode id="rates.clock" spec="parameter.RealParameter">1</stateNode>
-	
-		<parameter id="birthRate" name="stateNode" spec="parameter.RealParameter">1.0</parameter>
+		<parameter id="popSize" name="stateNode" spec="parameter.RealParameter">1.0</parameter>
 	</state>
         <distribution id="posterior" spec="util.CompoundDistribution">
             <distribution id="likelihood" spec="util.CompoundDistribution" useThreads="true">
-                <distribution data="@alignment.COII_3rdpos" id="treeLikelihood.COII_3rdpos" siteModel="@siteModel.t:COII_3rdpos" spec="TreeLikelihood" tree="@GeneTree.t:COII_3rdpos">
+                <distribution data="@alignment.COI_3rdpos" id="treeLikelihood.COI_3rdpos" spec="ThreadedTreeLikelihood" tree="@tree">
+                    <siteModel gammaCategoryCount="1" id="siteModel.t:COI_3rdpos" mutationRate="@clockRate.t:COI_3rdpos" spec="SiteModel">
 
+		<parameter estimate="false" name="shape" spec="parameter.RealParameter">1.0</parameter>
+		<substModel rateAC="@rateAC.t:COI_3rdpos" rateAG="@rateAG.t:COI_3rdpos" rateAT="@rateAT.t:COI_3rdpos" rateCG="@rateCG.t:COI_3rdpos" rateCT="@rateCT.t:COI_3rdpos" rateGT="@rateGT.t:COI_3rdpos" spec="GTR">
+			<frequencies data="@alignment.COI_3rdpos" spec="Frequencies"/>
+		</substModel>
 
-		<branchRateModel clock.rate="@clockRate.t:COII_3rdpos" geneTree="@treePrior.t:COII_3rdpos" id="SpeciesTreeRelaxedClock.c:COII_3rdpos" spec="starbeast3.StarBeast3Clock" speciesTreeRates="@branchRatesModel.Species"/>
+	</siteModel>
+                    <branchRateModel id="ClockModel.t:tree" spec="beast.evolution.branchratemodel.StrictClockModel">
+                        <parameter estimate="false" name="clock.rate" spec="parameter.RealParameter">1.0</parameter>
+                    </branchRateModel>
+                </distribution>
+<distribution branchRateModel="@ClockModel.t:tree" data="@alignment.18S" id="treeLikelihood.18S" spec="ThreadedTreeLikelihood" tree="@tree">
+                    <siteModel gammaCategoryCount="1" id="siteModel.t:18S" mutationRate="@clockRate.t:18S" spec="SiteModel">
 
-	</distribution>
-<distribution data="@alignment.COII_2ndpos" id="treeLikelihood.COII_2ndpos" siteModel="@siteModel.t:COII_2ndpos" spec="TreeLikelihood" tree="@GeneTree.t:COII_2ndpos">
+		<parameter estimate="false" name="shape" spec="parameter.RealParameter">1.0</parameter>
+		<substModel rateAC="@rateAC.t:18S" rateAG="@rateAG.t:18S" rateAT="@rateAT.t:18S" rateCG="@rateCG.t:18S" rateCT="@rateCT.t:18S" rateGT="@rateGT.t:18S" spec="GTR">
+			<frequencies data="@alignment.18S" spec="Frequencies"/>
+		</substModel>
 
-
-		<branchRateModel clock.rate="@clockRate.t:COII_2ndpos" geneTree="@treePrior.t:COII_2ndpos" id="SpeciesTreeRelaxedClock.c:COII_2ndpos" spec="starbeast3.StarBeast3Clock" speciesTreeRates="@branchRatesModel.Species"/>
-
-	</distribution>
-<distribution data="@alignment.28S_D2" id="treeLikelihood.28S_D2" siteModel="@siteModel.t:28S_D2" spec="TreeLikelihood" tree="@GeneTree.t:28S_D2">
-
-
-		<branchRateModel clock.rate="@clockRate.t:28S_D2" geneTree="@treePrior.t:28S_D2" id="SpeciesTreeRelaxedClock.c:28S_D2" spec="starbeast3.StarBeast3Clock" speciesTreeRates="@branchRatesModel.Species"/>
-
-	</distribution>
-<distribution data="@alignment.18S" id="treeLikelihood.18S" siteModel="@siteModel.t:18S" spec="TreeLikelihood" tree="@GeneTree.t:18S">
-
-
-		<branchRateModel clock.rate="@clockRate.t:18S" geneTree="@treePrior.t:18S" id="SpeciesTreeRelaxedClock.c:18S" spec="starbeast3.StarBeast3Clock" speciesTreeRates="@branchRatesModel.Species"/>
-
-	</distribution>
-<distribution data="@alignment.mitochondrial_genome" id="treeLikelihood.mitochondrial_genome" siteModel="@siteModel.t:mitochondrial_genome" spec="TreeLikelihood" tree="@GeneTree.t:mitochondrial_genome">
-
-
-		<branchRateModel clock.rate="@clockRate.t:mitochondrial_genome" geneTree="@treePrior.t:mitochondrial_genome" id="SpeciesTreeRelaxedClock.c:mitochondrial_genome" spec="starbeast3.StarBeast3Clock" speciesTreeRates="@branchRatesModel.Species"/>
-
-	</distribution>
-<distribution data="@alignment.28S_D3" id="treeLikelihood.28S_D3" siteModel="@siteModel.t:28S_D3" spec="TreeLikelihood" tree="@GeneTree.t:28S_D3">
-
-
-		<branchRateModel clock.rate="@clockRate.t:28S_D3" geneTree="@treePrior.t:28S_D3" id="SpeciesTreeRelaxedClock.c:28S_D3" spec="starbeast3.StarBeast3Clock" speciesTreeRates="@branchRatesModel.Species"/>
-
-	</distribution>
-<distribution data="@alignment.COI_3rdpos" id="treeLikelihood.COI_3rdpos" siteModel="@siteModel.t:COI_3rdpos" spec="TreeLikelihood" tree="@GeneTree.t:COI_3rdpos">
-
-
-		<branchRateModel clock.rate="@clockRate.t:COI_3rdpos" geneTree="@treePrior.t:COI_3rdpos" id="SpeciesTreeRelaxedClock.c:COI_3rdpos" spec="starbeast3.StarBeast3Clock" speciesTreeRates="@branchRatesModel.Species"/>
-
-	</distribution>
-<distribution data="@alignment.COII_1stpost" id="treeLikelihood.COII_1stpost" siteModel="@siteModel.t:COII_1stpost" spec="TreeLikelihood" tree="@GeneTree.t:COII_1stpost">
-
-
-		<branchRateModel clock.rate="@clockRate.t:COII_1stpost" geneTree="@treePrior.t:COII_1stpost" id="SpeciesTreeRelaxedClock.c:COII_1stpost" spec="starbeast3.StarBeast3Clock" speciesTreeRates="@branchRatesModel.Species"/>
-
-	</distribution>
-<distribution data="@alignment.COI_2ndpos" id="treeLikelihood.COI_2ndpos" siteModel="@siteModel.t:COI_2ndpos" spec="TreeLikelihood" tree="@GeneTree.t:COI_2ndpos">
-
-
-		<branchRateModel clock.rate="@clockRate.t:COI_2ndpos" geneTree="@treePrior.t:COI_2ndpos" id="SpeciesTreeRelaxedClock.c:COI_2ndpos" spec="starbeast3.StarBeast3Clock" speciesTreeRates="@branchRatesModel.Species"/>
-
-	</distribution>
-<distribution data="@alignment.nuclear_genome" id="treeLikelihood.nuclear_genome" siteModel="@siteModel.t:nuclear_genome" spec="TreeLikelihood" tree="@GeneTree.t:nuclear_genome">
-
-
-		<branchRateModel clock.rate="@clockRate.t:nuclear_genome" geneTree="@treePrior.t:nuclear_genome" id="SpeciesTreeRelaxedClock.c:nuclear_genome" spec="starbeast3.StarBeast3Clock" speciesTreeRates="@branchRatesModel.Species"/>
-
-	</distribution>
+	</siteModel>
+                    
+                </distribution>
             </distribution>
             <distribution id="prior" spec="util.CompoundDistribution">
-                <prior id="clockRatePrior.t:COII_3rdpos" name="distribution" x="@clockRate.t:COII_3rdpos">
-                    <LogNormal meanInRealSpace="true" name="distr">
-                        <parameter estimate="false" name="M" spec="parameter.RealParameter">1.0</parameter>
-                        <parameter estimate="false" name="S" spec="parameter.RealParameter">0.6</parameter>
-                    </LogNormal>
-                </prior>
-<prior id="clockRatePrior.t:COII_2ndpos" name="distribution" x="@clockRate.t:COII_2ndpos">
-                    <LogNormal meanInRealSpace="true" name="distr">
-                        <parameter estimate="false" name="M" spec="parameter.RealParameter">1.0</parameter>
-                        <parameter estimate="false" name="S" spec="parameter.RealParameter">0.6</parameter>
-                    </LogNormal>
-                </prior>
-<prior id="clockRatePrior.t:28S_D2" name="distribution" x="@clockRate.t:28S_D2">
+                <prior id="clockRatePrior.t:COI_3rdpos" name="distribution" x="@clockRate.t:COI_3rdpos">
                     <LogNormal meanInRealSpace="true" name="distr">
                         <parameter estimate="false" name="M" spec="parameter.RealParameter">1.0</parameter>
                         <parameter estimate="false" name="S" spec="parameter.RealParameter">0.6</parameter>
@@ -1330,95 +350,102 @@ Dataset sampled from ../datasets/Murray_2013.tar.gz/Murray_2013/alignment.nex wi
                         <parameter estimate="false" name="S" spec="parameter.RealParameter">0.6</parameter>
                     </LogNormal>
                 </prior>
-<prior id="clockRatePrior.t:mitochondrial_genome" name="distribution" x="@clockRate.t:mitochondrial_genome">
-                    <LogNormal meanInRealSpace="true" name="distr">
-                        <parameter estimate="false" name="M" spec="parameter.RealParameter">1.0</parameter>
-                        <parameter estimate="false" name="S" spec="parameter.RealParameter">0.6</parameter>
-                    </LogNormal>
-                </prior>
-<prior id="clockRatePrior.t:28S_D3" name="distribution" x="@clockRate.t:28S_D3">
-                    <LogNormal meanInRealSpace="true" name="distr">
-                        <parameter estimate="false" name="M" spec="parameter.RealParameter">1.0</parameter>
-                        <parameter estimate="false" name="S" spec="parameter.RealParameter">0.6</parameter>
-                    </LogNormal>
-                </prior>
-<prior id="clockRatePrior.t:COI_3rdpos" name="distribution" x="@clockRate.t:COI_3rdpos">
-                    <LogNormal meanInRealSpace="true" name="distr">
-                        <parameter estimate="false" name="M" spec="parameter.RealParameter">1.0</parameter>
-                        <parameter estimate="false" name="S" spec="parameter.RealParameter">0.6</parameter>
-                    </LogNormal>
-                </prior>
-<prior id="clockRatePrior.t:COII_1stpost" name="distribution" x="@clockRate.t:COII_1stpost">
-                    <LogNormal meanInRealSpace="true" name="distr">
-                        <parameter estimate="false" name="M" spec="parameter.RealParameter">1.0</parameter>
-                        <parameter estimate="false" name="S" spec="parameter.RealParameter">0.6</parameter>
-                    </LogNormal>
-                </prior>
-<prior id="clockRatePrior.t:COI_2ndpos" name="distribution" x="@clockRate.t:COI_2ndpos">
-                    <LogNormal meanInRealSpace="true" name="distr">
-                        <parameter estimate="false" name="M" spec="parameter.RealParameter">1.0</parameter>
-                        <parameter estimate="false" name="S" spec="parameter.RealParameter">0.6</parameter>
-                    </LogNormal>
-                </prior>
-<prior id="clockRatePrior.t:nuclear_genome" name="distribution" x="@clockRate.t:nuclear_genome">
-                    <LogNormal meanInRealSpace="true" name="distr">
-                        <parameter estimate="false" name="M" spec="parameter.RealParameter">1.0</parameter>
-                        <parameter estimate="false" name="S" spec="parameter.RealParameter">0.6</parameter>
-                    </LogNormal>
-                </prior>
             
 
-
-        <distribution id="speciescoalescent" spec="util.CompoundDistribution">
-            <distribution idref="SpeciesTreePopSize.Species"/>
-            <distribution id="treePrior.t:COII_3rdpos" populationModel="@speciesTreePopulationModel" spec="starbeast3.GeneTreeForSpeciesTreeDistribution" speciesTree="@tree" speciesTreePrior="@SpeciesTreePopSize.Species" tree="@GeneTree.t:COII_3rdpos"/>
-<distribution id="treePrior.t:COII_2ndpos" populationModel="@speciesTreePopulationModel" spec="starbeast3.GeneTreeForSpeciesTreeDistribution" speciesTree="@tree" speciesTreePrior="@SpeciesTreePopSize.Species" tree="@GeneTree.t:COII_2ndpos"/>
-<distribution id="treePrior.t:28S_D2" populationModel="@speciesTreePopulationModel" spec="starbeast3.GeneTreeForSpeciesTreeDistribution" speciesTree="@tree" speciesTreePrior="@SpeciesTreePopSize.Species" tree="@GeneTree.t:28S_D2"/>
-<distribution id="treePrior.t:18S" populationModel="@speciesTreePopulationModel" spec="starbeast3.GeneTreeForSpeciesTreeDistribution" speciesTree="@tree" speciesTreePrior="@SpeciesTreePopSize.Species" tree="@GeneTree.t:18S"/>
-<distribution id="treePrior.t:mitochondrial_genome" populationModel="@speciesTreePopulationModel" spec="starbeast3.GeneTreeForSpeciesTreeDistribution" speciesTree="@tree" speciesTreePrior="@SpeciesTreePopSize.Species" tree="@GeneTree.t:mitochondrial_genome"/>
-<distribution id="treePrior.t:28S_D3" populationModel="@speciesTreePopulationModel" spec="starbeast3.GeneTreeForSpeciesTreeDistribution" speciesTree="@tree" speciesTreePrior="@SpeciesTreePopSize.Species" tree="@GeneTree.t:28S_D3"/>
-<distribution id="treePrior.t:COI_3rdpos" populationModel="@speciesTreePopulationModel" spec="starbeast3.GeneTreeForSpeciesTreeDistribution" speciesTree="@tree" speciesTreePrior="@SpeciesTreePopSize.Species" tree="@GeneTree.t:COI_3rdpos"/>
-<distribution id="treePrior.t:COII_1stpost" populationModel="@speciesTreePopulationModel" spec="starbeast3.GeneTreeForSpeciesTreeDistribution" speciesTree="@tree" speciesTreePrior="@SpeciesTreePopSize.Species" tree="@GeneTree.t:COII_1stpost"/>
-<distribution id="treePrior.t:COI_2ndpos" populationModel="@speciesTreePopulationModel" spec="starbeast3.GeneTreeForSpeciesTreeDistribution" speciesTree="@tree" speciesTreePrior="@SpeciesTreePopSize.Species" tree="@GeneTree.t:COI_2ndpos"/>
-<distribution id="treePrior.t:nuclear_genome" populationModel="@speciesTreePopulationModel" spec="starbeast3.GeneTreeForSpeciesTreeDistribution" speciesTree="@tree" speciesTreePrior="@SpeciesTreePopSize.Species" tree="@GeneTree.t:nuclear_genome"/>
-        </distribution>
-
-
-        <prior id="popMean.prior" name="distribution" x="@popMean">
-            <LogNormal name="distr">
-                <parameter estimate="false" name="M">-5.0</parameter>
-                <parameter estimate="false" lower="0.0" name="S" upper="5.0">1.25</parameter>
-            </LogNormal>
-        </prior>
-
-         <prior id="constPopSizesPrior.Species" name="distribution" x="@popSize">
-				<distr alpha="2.0" beta="@popMean" id="popPriorDistr" spec="beast.math.distributions.InverseGamma"/>
-         </prior>
-
-
-	
-
-
-		<prior id="ucldStdevPrior.clock" name="distribution" x="@ucldStdev.clock">
-			<Gamma id="Gamma.2" name="distr">
-				<parameter estimate="false" id="RealParameter.10" name="alpha" spec="parameter.RealParameter">0.5396</parameter>
-				<parameter estimate="false" id="RealParameter.11" name="beta" spec="parameter.RealParameter">0.3819</parameter>
-			</Gamma>
-		</prior>
-
-
-		<prior id="FastRatePriorDistrbution.clock" name="distribution" x="@rates.clock">
-			<LogNormal M="1" S="@ucldStdev.clock" id="LogNormalDistributionModel.clock" meanInRealSpace="true" name="distr"/>
-		</prior>
-
-	
-		<distribution birthDiffRate="@birthRate" id="YuleModel.t:tree" spec="beast.evolution.speciation.YuleModel" tree="@tree"/>
-		<prior id="YuleBirthRatePrior.t:tree" name="distribution" x="@birthRate">
+		<prior id="rateACPrior.t:COI_3rdpos" name="distribution" x="@rateAC.t:COI_3rdpos">
 			<LogNormal name="distr">
 				<parameter estimate="false" name="M" spec="parameter.RealParameter">1.0</parameter>
 				<parameter estimate="false" name="S" spec="parameter.RealParameter">1.25</parameter>
 			</LogNormal>
 		</prior>
+<prior id="rateACPrior.t:18S" name="distribution" x="@rateAC.t:18S">
+			<LogNormal name="distr">
+				<parameter estimate="false" name="M" spec="parameter.RealParameter">1.0</parameter>
+				<parameter estimate="false" name="S" spec="parameter.RealParameter">1.25</parameter>
+			</LogNormal>
+		</prior>
+
+		<prior id="rateAGPrior.t:COI_3rdpos" name="distribution" x="@rateAG.t:COI_3rdpos">
+			<LogNormal name="distr">
+				<parameter estimate="false" name="M" spec="parameter.RealParameter">1.0</parameter>
+				<parameter estimate="false" name="S" spec="parameter.RealParameter">1.25</parameter>
+			</LogNormal>
+		</prior>
+<prior id="rateAGPrior.t:18S" name="distribution" x="@rateAG.t:18S">
+			<LogNormal name="distr">
+				<parameter estimate="false" name="M" spec="parameter.RealParameter">1.0</parameter>
+				<parameter estimate="false" name="S" spec="parameter.RealParameter">1.25</parameter>
+			</LogNormal>
+		</prior>
+
+		<prior id="rateATPrior.t:COI_3rdpos" name="distribution" x="@rateAT.t:COI_3rdpos">
+			<LogNormal name="distr">
+				<parameter estimate="false" name="M" spec="parameter.RealParameter">1.0</parameter>
+				<parameter estimate="false" name="S" spec="parameter.RealParameter">1.25</parameter>
+			</LogNormal>
+		</prior>
+<prior id="rateATPrior.t:18S" name="distribution" x="@rateAT.t:18S">
+			<LogNormal name="distr">
+				<parameter estimate="false" name="M" spec="parameter.RealParameter">1.0</parameter>
+				<parameter estimate="false" name="S" spec="parameter.RealParameter">1.25</parameter>
+			</LogNormal>
+		</prior>
+
+		<prior id="rateCGPrior.t:COI_3rdpos" name="distribution" x="@rateCG.t:COI_3rdpos">
+			<LogNormal name="distr">
+				<parameter estimate="false" name="M" spec="parameter.RealParameter">1.0</parameter>
+				<parameter estimate="false" name="S" spec="parameter.RealParameter">1.25</parameter>
+			</LogNormal>
+		</prior>
+<prior id="rateCGPrior.t:18S" name="distribution" x="@rateCG.t:18S">
+			<LogNormal name="distr">
+				<parameter estimate="false" name="M" spec="parameter.RealParameter">1.0</parameter>
+				<parameter estimate="false" name="S" spec="parameter.RealParameter">1.25</parameter>
+			</LogNormal>
+		</prior>
+
+		<prior id="rateCTPrior.t:COI_3rdpos" name="distribution" x="@rateCT.t:COI_3rdpos">
+			<LogNormal name="distr">
+				<parameter estimate="false" name="M" spec="parameter.RealParameter">1.0</parameter>
+				<parameter estimate="false" name="S" spec="parameter.RealParameter">1.25</parameter>
+			</LogNormal>
+		</prior>
+<prior id="rateCTPrior.t:18S" name="distribution" x="@rateCT.t:18S">
+			<LogNormal name="distr">
+				<parameter estimate="false" name="M" spec="parameter.RealParameter">1.0</parameter>
+				<parameter estimate="false" name="S" spec="parameter.RealParameter">1.25</parameter>
+			</LogNormal>
+		</prior>
+
+		<prior id="rateGTPrior.t:COI_3rdpos" name="distribution" x="@rateGT.t:COI_3rdpos">
+			<LogNormal name="distr">
+				<parameter estimate="false" name="M" spec="parameter.RealParameter">1.0</parameter>
+				<parameter estimate="false" name="S" spec="parameter.RealParameter">1.25</parameter>
+			</LogNormal>
+		</prior>
+<prior id="rateGTPrior.t:18S" name="distribution" x="@rateGT.t:18S">
+			<LogNormal name="distr">
+				<parameter estimate="false" name="M" spec="parameter.RealParameter">1.0</parameter>
+				<parameter estimate="false" name="S" spec="parameter.RealParameter">1.25</parameter>
+			</LogNormal>
+		</prior>
+
+
+	
+
+		<distribution id="CoalescentModel.t:tree" spec="beast.evolution.tree.coalescent.Coalescent">
+			<treeIntervals spec="TreeIntervals" tree="@tree"/>
+            <populationModel popSize="@popSize" spec="ConstantPopulation"/>
+		</distribution>
+
+
+		<prior id="PopulationSizesRatePrior.t:tree" name="distribution" x="@popSize">
+			<LogNormal name="distr">
+				<parameter estimate="false" name="M" spec="parameter.RealParameter">-1.0</parameter>
+				<parameter estimate="false" name="S" spec="parameter.RealParameter">1.0</parameter>
+			</LogNormal>
+		</prior>
+
 	</distribution>
         </distribution>
         
@@ -1433,83 +460,23 @@ Dataset sampled from ../datasets/Murray_2013.tar.gz/Murray_2013/alignment.nex wi
         
         
     
-
-	    <init birthRate="@birthRate" estimate="false" id="SBI" initial="@tree" method="point-estimate" popMean="@popMean" spec="starbeast3.StarBeastStartState" speciesTree="@tree">
-	        <gene idref="GeneTree.t:COII_3rdpos"/>
-<gene idref="GeneTree.t:COII_2ndpos"/>
-<gene idref="GeneTree.t:28S_D2"/>
-<gene idref="GeneTree.t:18S"/>
-<gene idref="GeneTree.t:mitochondrial_genome"/>
-<gene idref="GeneTree.t:28S_D3"/>
-<gene idref="GeneTree.t:COI_3rdpos"/>
-<gene idref="GeneTree.t:COII_1stpost"/>
-<gene idref="GeneTree.t:COI_2ndpos"/>
-<gene idref="GeneTree.t:nuclear_genome"/>
-
-	        <speciesTreePrior bottomPopSize="@popSize" gammaParameter="@popMean" id="SpeciesTreePopSize.Species" popFunction="constant" spec="starbeast3.SpeciesTreePrior" taxonset="@tree.taxonset" tree="@tree">
-				 <populationModel id="speciesTreePopulationModel" populationSizes="@popSize" spec="starbeast3.evolution.speciation.ConstantPopulations" speciesTree="@tree"/>
-			</speciesTreePrior>
-
-			<speciesTreeRates estimateRoot="true" id="branchRatesModel.Species" realRates="@rates.clock" spec="starbeast3.evolution.branchratemodel.UCRelaxedClockModelSB3" stdev="@ucldStdev.clock" tree="@tree"/>
-
-	    </init>
-
-
-
-
-		
-
-        
-        
-        
-            
-
-         
-            
-        
-            
-        
-
-
-		
-            
-        
-
-        
-        
-        
-        
-        
-        
-        
-            
-            
-
-
-	    
-
-
-
-	
-
-
-
-
-		
-		
-
-		
-
-
-		
-
-
+		<init clusterType="neighborjoining" id="NJtree" initial="@tree" spec="beast.util.ClusterTree" taxa="@alignment.COI_3rdpos"/>
 	
 
 
 
 		
+		
+		
+		
+		
+		
+		
 
+
+	
+
+		
 
 	<operator id="TreeScaler.t:tree" scaleFactor="0.5" spec="ScaleOperator" tree="@tree" weight="3.0"/>
 <operator id="TreeRootScaler.t:tree" rootOnly="true" scaleFactor="0.5" spec="ScaleOperator" tree="@tree" weight="3.0"/>
@@ -1519,412 +486,54 @@ Dataset sampled from ../datasets/Murray_2013.tar.gz/Murray_2013/alignment.nex wi
 <operator id="Narrow.t:tree" spec="Exchange" tree="@tree" weight="3.0"/>
 <operator id="WilsonBalding.t:tree" spec="WilsonBalding" tree="@tree" weight="3.0"/>
 <operator delta="0.01" id="ClockRateExchanger" spec="BactrianDeltaExchangeOperator" weight="0.4">
-            <parameter idref="clockRate.t:COII_3rdpos"/>
-<parameter idref="clockRate.t:COII_2ndpos"/>
-<parameter idref="clockRate.t:28S_D2"/>
+            <parameter idref="clockRate.t:COI_3rdpos"/>
 <parameter idref="clockRate.t:18S"/>
-<parameter idref="clockRate.t:mitochondrial_genome"/>
-<parameter idref="clockRate.t:28S_D3"/>
-<parameter idref="clockRate.t:COI_3rdpos"/>
-<parameter idref="clockRate.t:COII_1stpost"/>
-<parameter idref="clockRate.t:COI_2ndpos"/>
-<parameter idref="clockRate.t:nuclear_genome"/>
             <kernelDistribution mode="uniform" spec="KernelDistribution$Bactrian"/>
         </operator>
-<operator id="PopSizeGibbsSampler" popSizes="@popSize" spec="starbeast3.operators.PopSizeGibbsSampler" weight="1.0">
-			<gammaprior idref="popPriorDistr"/>
-			<gene idref="treePrior.t:COII_3rdpos"/>
-<gene idref="treePrior.t:COII_2ndpos"/>
-<gene idref="treePrior.t:28S_D2"/>
-<gene idref="treePrior.t:18S"/>
-<gene idref="treePrior.t:mitochondrial_genome"/>
-<gene idref="treePrior.t:28S_D3"/>
-<gene idref="treePrior.t:COI_3rdpos"/>
-<gene idref="treePrior.t:COII_1stpost"/>
-<gene idref="treePrior.t:COI_2ndpos"/>
-<gene idref="treePrior.t:nuclear_genome"/>
-		</operator>
-<operator id="constPopSizesSwap.Species" k="2" optimise="false" parameter="@popSize" spec="starbeast3.operators.RealCycle" weight="3.0"/>
-<operator id="constPopSizesScale.Species" parameter="@popSize" scaleFactor="0.5" spec="ScaleOperator" weight="3.0"/>
-<operator id="constPopMeanScale.Species" parameter="@popMean" scaleFactor="0.75" spec="ScaleOperator" weight="1.0"/>
-<operator id="Reheight.t:Species" spec="starbeast3.operators.NodeReheight2" taxonset="@tree.taxonset" tree="@tree" weight="5.0">
-			<gene idref="treePrior.t:COII_3rdpos"/>
-<gene idref="treePrior.t:COII_2ndpos"/>
-<gene idref="treePrior.t:28S_D2"/>
-<gene idref="treePrior.t:18S"/>
-<gene idref="treePrior.t:mitochondrial_genome"/>
-<gene idref="treePrior.t:28S_D3"/>
-<gene idref="treePrior.t:COI_3rdpos"/>
-<gene idref="treePrior.t:COII_1stpost"/>
-<gene idref="treePrior.t:COI_2ndpos"/>
-<gene idref="treePrior.t:nuclear_genome"/>
-        </operator>
-<operator id="coordinatedUniform.t:Species" spec="starbeast3.operators.CoordinatedUniform" speciesTree="@tree" weight="5.0">
-			<gene idref="treePrior.t:COII_3rdpos"/>
-<gene idref="treePrior.t:COII_2ndpos"/>
-<gene idref="treePrior.t:28S_D2"/>
-<gene idref="treePrior.t:18S"/>
-<gene idref="treePrior.t:mitochondrial_genome"/>
-<gene idref="treePrior.t:28S_D3"/>
-<gene idref="treePrior.t:COI_3rdpos"/>
-<gene idref="treePrior.t:COII_1stpost"/>
-<gene idref="treePrior.t:COI_2ndpos"/>
-<gene idref="treePrior.t:nuclear_genome"/>
-        </operator>
-<operator id="coordinatedExponential.t:Species" spec="starbeast3.operators.CoordinatedExponential" speciesTree="@tree" weight="5.0">
-			<gene idref="treePrior.t:COII_3rdpos"/>
-<gene idref="treePrior.t:COII_2ndpos"/>
-<gene idref="treePrior.t:28S_D2"/>
-<gene idref="treePrior.t:18S"/>
-<gene idref="treePrior.t:mitochondrial_genome"/>
-<gene idref="treePrior.t:28S_D3"/>
-<gene idref="treePrior.t:COI_3rdpos"/>
-<gene idref="treePrior.t:COII_1stpost"/>
-<gene idref="treePrior.t:COI_2ndpos"/>
-<gene idref="treePrior.t:nuclear_genome"/>
-		</operator>
-<operator id="updownAll:Species" scaleFactor="0.75" spec="UpDownOperator" weight="5.0">
-            <up idref="birthRate"/>
-            <down idref="tree"/>
-            <down idref="GeneTree.t:COII_3rdpos"/>
-<down idref="GeneTree.t:COII_2ndpos"/>
-<down idref="GeneTree.t:28S_D2"/>
-<down idref="GeneTree.t:18S"/>
-<down idref="GeneTree.t:mitochondrial_genome"/>
-<down idref="GeneTree.t:28S_D3"/>
-<down idref="GeneTree.t:COI_3rdpos"/>
-<down idref="GeneTree.t:COII_1stpost"/>
-<down idref="GeneTree.t:COI_2ndpos"/>
-<down idref="GeneTree.t:nuclear_genome"/>
-            <down idref="popSize"/>
-            <down idref="popMean"/>
-        </operator>
-<operator id="clockUpDownOperator.t:COII_3rdpos" scaleFactor="0.95" spec="UpDownOperator" weight="3.0">
-            <down idref="GeneTree.t:COII_3rdpos"/>
-        </operator>
-<operator id="clockUpDownOperator.t:COII_2ndpos" scaleFactor="0.95" spec="UpDownOperator" weight="3.0">
-            <down idref="GeneTree.t:COII_2ndpos"/>
-        </operator>
-<operator id="clockUpDownOperator.t:28S_D2" scaleFactor="0.95" spec="UpDownOperator" weight="3.0">
-            <down idref="GeneTree.t:28S_D2"/>
-        </operator>
-<operator id="clockUpDownOperator.t:18S" scaleFactor="0.95" spec="UpDownOperator" weight="3.0">
-            <down idref="GeneTree.t:18S"/>
-        </operator>
-<operator id="clockUpDownOperator.t:mitochondrial_genome" scaleFactor="0.95" spec="UpDownOperator" weight="3.0">
-            <down idref="GeneTree.t:mitochondrial_genome"/>
-        </operator>
-<operator id="clockUpDownOperator.t:28S_D3" scaleFactor="0.95" spec="UpDownOperator" weight="3.0">
-            <down idref="GeneTree.t:28S_D3"/>
-        </operator>
-<operator id="clockUpDownOperator.t:COI_3rdpos" scaleFactor="0.95" spec="UpDownOperator" weight="3.0">
-            <down idref="GeneTree.t:COI_3rdpos"/>
-        </operator>
-<operator id="clockUpDownOperator.t:COII_1stpost" scaleFactor="0.95" spec="UpDownOperator" weight="3.0">
-            <down idref="GeneTree.t:COII_1stpost"/>
-        </operator>
-<operator id="clockUpDownOperator.t:COI_2ndpos" scaleFactor="0.95" spec="UpDownOperator" weight="3.0">
-            <down idref="GeneTree.t:COI_2ndpos"/>
-        </operator>
-<operator id="clockUpDownOperator.t:nuclear_genome" scaleFactor="0.95" spec="UpDownOperator" weight="3.0">
-            <down idref="GeneTree.t:nuclear_genome"/>
-        </operator>
-<operator id="TreeScaler.t:COII_3rdpos" scaleFactor="0.95" spec="ScaleOperator" tree="@GeneTree.t:COII_3rdpos" weight="3.0"/>
-<operator id="TreeScaler.t:COII_2ndpos" scaleFactor="0.95" spec="ScaleOperator" tree="@GeneTree.t:COII_2ndpos" weight="3.0"/>
-<operator id="TreeScaler.t:28S_D2" scaleFactor="0.95" spec="ScaleOperator" tree="@GeneTree.t:28S_D2" weight="3.0"/>
-<operator id="TreeScaler.t:18S" scaleFactor="0.95" spec="ScaleOperator" tree="@GeneTree.t:18S" weight="3.0"/>
-<operator id="TreeScaler.t:mitochondrial_genome" scaleFactor="0.95" spec="ScaleOperator" tree="@GeneTree.t:mitochondrial_genome" weight="3.0"/>
-<operator id="TreeScaler.t:28S_D3" scaleFactor="0.95" spec="ScaleOperator" tree="@GeneTree.t:28S_D3" weight="3.0"/>
-<operator id="TreeScaler.t:COI_3rdpos" scaleFactor="0.95" spec="ScaleOperator" tree="@GeneTree.t:COI_3rdpos" weight="3.0"/>
-<operator id="TreeScaler.t:COII_1stpost" scaleFactor="0.95" spec="ScaleOperator" tree="@GeneTree.t:COII_1stpost" weight="3.0"/>
-<operator id="TreeScaler.t:COI_2ndpos" scaleFactor="0.95" spec="ScaleOperator" tree="@GeneTree.t:COI_2ndpos" weight="3.0"/>
-<operator id="TreeScaler.t:nuclear_genome" scaleFactor="0.95" spec="ScaleOperator" tree="@GeneTree.t:nuclear_genome" weight="3.0"/>
-<operator id="TreeRootScaler.t:COII_3rdpos" rootOnly="true" scaleFactor="0.7" spec="ScaleOperator" tree="@GeneTree.t:COII_3rdpos" weight="3.0"/>
-<operator id="TreeRootScaler.t:COII_2ndpos" rootOnly="true" scaleFactor="0.7" spec="ScaleOperator" tree="@GeneTree.t:COII_2ndpos" weight="3.0"/>
-<operator id="TreeRootScaler.t:28S_D2" rootOnly="true" scaleFactor="0.7" spec="ScaleOperator" tree="@GeneTree.t:28S_D2" weight="3.0"/>
-<operator id="TreeRootScaler.t:18S" rootOnly="true" scaleFactor="0.7" spec="ScaleOperator" tree="@GeneTree.t:18S" weight="3.0"/>
-<operator id="TreeRootScaler.t:mitochondrial_genome" rootOnly="true" scaleFactor="0.7" spec="ScaleOperator" tree="@GeneTree.t:mitochondrial_genome" weight="3.0"/>
-<operator id="TreeRootScaler.t:28S_D3" rootOnly="true" scaleFactor="0.7" spec="ScaleOperator" tree="@GeneTree.t:28S_D3" weight="3.0"/>
-<operator id="TreeRootScaler.t:COI_3rdpos" rootOnly="true" scaleFactor="0.7" spec="ScaleOperator" tree="@GeneTree.t:COI_3rdpos" weight="3.0"/>
-<operator id="TreeRootScaler.t:COII_1stpost" rootOnly="true" scaleFactor="0.7" spec="ScaleOperator" tree="@GeneTree.t:COII_1stpost" weight="3.0"/>
-<operator id="TreeRootScaler.t:COI_2ndpos" rootOnly="true" scaleFactor="0.7" spec="ScaleOperator" tree="@GeneTree.t:COI_2ndpos" weight="3.0"/>
-<operator id="TreeRootScaler.t:nuclear_genome" rootOnly="true" scaleFactor="0.7" spec="ScaleOperator" tree="@GeneTree.t:nuclear_genome" weight="3.0"/>
-<operator id="UniformOperator.t:COII_3rdpos" spec="Uniform" tree="@GeneTree.t:COII_3rdpos" weight="15.0"/>
-<operator id="UniformOperator.t:COII_2ndpos" spec="Uniform" tree="@GeneTree.t:COII_2ndpos" weight="15.0"/>
-<operator id="UniformOperator.t:28S_D2" spec="Uniform" tree="@GeneTree.t:28S_D2" weight="15.0"/>
-<operator id="UniformOperator.t:18S" spec="Uniform" tree="@GeneTree.t:18S" weight="15.0"/>
-<operator id="UniformOperator.t:mitochondrial_genome" spec="Uniform" tree="@GeneTree.t:mitochondrial_genome" weight="15.0"/>
-<operator id="UniformOperator.t:28S_D3" spec="Uniform" tree="@GeneTree.t:28S_D3" weight="15.0"/>
-<operator id="UniformOperator.t:COI_3rdpos" spec="Uniform" tree="@GeneTree.t:COI_3rdpos" weight="15.0"/>
-<operator id="UniformOperator.t:COII_1stpost" spec="Uniform" tree="@GeneTree.t:COII_1stpost" weight="15.0"/>
-<operator id="UniformOperator.t:COI_2ndpos" spec="Uniform" tree="@GeneTree.t:COI_2ndpos" weight="15.0"/>
-<operator id="UniformOperator.t:nuclear_genome" spec="Uniform" tree="@GeneTree.t:nuclear_genome" weight="15.0"/>
-<operator id="SubtreeSlide.t:COII_3rdpos" size="0.002" spec="SubtreeSlide" tree="@GeneTree.t:COII_3rdpos" weight="15.0"/>
-<operator id="SubtreeSlide.t:COII_2ndpos" size="0.002" spec="SubtreeSlide" tree="@GeneTree.t:COII_2ndpos" weight="15.0"/>
-<operator id="SubtreeSlide.t:28S_D2" size="0.002" spec="SubtreeSlide" tree="@GeneTree.t:28S_D2" weight="15.0"/>
-<operator id="SubtreeSlide.t:18S" size="0.002" spec="SubtreeSlide" tree="@GeneTree.t:18S" weight="15.0"/>
-<operator id="SubtreeSlide.t:mitochondrial_genome" size="0.002" spec="SubtreeSlide" tree="@GeneTree.t:mitochondrial_genome" weight="15.0"/>
-<operator id="SubtreeSlide.t:28S_D3" size="0.002" spec="SubtreeSlide" tree="@GeneTree.t:28S_D3" weight="15.0"/>
-<operator id="SubtreeSlide.t:COI_3rdpos" size="0.002" spec="SubtreeSlide" tree="@GeneTree.t:COI_3rdpos" weight="15.0"/>
-<operator id="SubtreeSlide.t:COII_1stpost" size="0.002" spec="SubtreeSlide" tree="@GeneTree.t:COII_1stpost" weight="15.0"/>
-<operator id="SubtreeSlide.t:COI_2ndpos" size="0.002" spec="SubtreeSlide" tree="@GeneTree.t:COI_2ndpos" weight="15.0"/>
-<operator id="SubtreeSlide.t:nuclear_genome" size="0.002" spec="SubtreeSlide" tree="@GeneTree.t:nuclear_genome" weight="15.0"/>
-<operator id="Narrow.t:COII_3rdpos" spec="Exchange" tree="@GeneTree.t:COII_3rdpos" weight="15.0"/>
-<operator id="Narrow.t:COII_2ndpos" spec="Exchange" tree="@GeneTree.t:COII_2ndpos" weight="15.0"/>
-<operator id="Narrow.t:28S_D2" spec="Exchange" tree="@GeneTree.t:28S_D2" weight="15.0"/>
-<operator id="Narrow.t:18S" spec="Exchange" tree="@GeneTree.t:18S" weight="15.0"/>
-<operator id="Narrow.t:mitochondrial_genome" spec="Exchange" tree="@GeneTree.t:mitochondrial_genome" weight="15.0"/>
-<operator id="Narrow.t:28S_D3" spec="Exchange" tree="@GeneTree.t:28S_D3" weight="15.0"/>
-<operator id="Narrow.t:COI_3rdpos" spec="Exchange" tree="@GeneTree.t:COI_3rdpos" weight="15.0"/>
-<operator id="Narrow.t:COII_1stpost" spec="Exchange" tree="@GeneTree.t:COII_1stpost" weight="15.0"/>
-<operator id="Narrow.t:COI_2ndpos" spec="Exchange" tree="@GeneTree.t:COI_2ndpos" weight="15.0"/>
-<operator id="Narrow.t:nuclear_genome" spec="Exchange" tree="@GeneTree.t:nuclear_genome" weight="15.0"/>
-<operator id="Wide.t:COII_3rdpos" isNarrow="false" spec="Exchange" tree="@GeneTree.t:COII_3rdpos" weight="15.0"/>
-<operator id="Wide.t:COII_2ndpos" isNarrow="false" spec="Exchange" tree="@GeneTree.t:COII_2ndpos" weight="15.0"/>
-<operator id="Wide.t:28S_D2" isNarrow="false" spec="Exchange" tree="@GeneTree.t:28S_D2" weight="15.0"/>
-<operator id="Wide.t:18S" isNarrow="false" spec="Exchange" tree="@GeneTree.t:18S" weight="15.0"/>
-<operator id="Wide.t:mitochondrial_genome" isNarrow="false" spec="Exchange" tree="@GeneTree.t:mitochondrial_genome" weight="15.0"/>
-<operator id="Wide.t:28S_D3" isNarrow="false" spec="Exchange" tree="@GeneTree.t:28S_D3" weight="15.0"/>
-<operator id="Wide.t:COI_3rdpos" isNarrow="false" spec="Exchange" tree="@GeneTree.t:COI_3rdpos" weight="15.0"/>
-<operator id="Wide.t:COII_1stpost" isNarrow="false" spec="Exchange" tree="@GeneTree.t:COII_1stpost" weight="15.0"/>
-<operator id="Wide.t:COI_2ndpos" isNarrow="false" spec="Exchange" tree="@GeneTree.t:COI_2ndpos" weight="15.0"/>
-<operator id="Wide.t:nuclear_genome" isNarrow="false" spec="Exchange" tree="@GeneTree.t:nuclear_genome" weight="15.0"/>
-<operator id="WilsonBalding.t:COII_3rdpos" spec="WilsonBalding" tree="@GeneTree.t:COII_3rdpos" weight="15.0"/>
-<operator id="WilsonBalding.t:COII_2ndpos" spec="WilsonBalding" tree="@GeneTree.t:COII_2ndpos" weight="15.0"/>
-<operator id="WilsonBalding.t:28S_D2" spec="WilsonBalding" tree="@GeneTree.t:28S_D2" weight="15.0"/>
-<operator id="WilsonBalding.t:18S" spec="WilsonBalding" tree="@GeneTree.t:18S" weight="15.0"/>
-<operator id="WilsonBalding.t:mitochondrial_genome" spec="WilsonBalding" tree="@GeneTree.t:mitochondrial_genome" weight="15.0"/>
-<operator id="WilsonBalding.t:28S_D3" spec="WilsonBalding" tree="@GeneTree.t:28S_D3" weight="15.0"/>
-<operator id="WilsonBalding.t:COI_3rdpos" spec="WilsonBalding" tree="@GeneTree.t:COI_3rdpos" weight="15.0"/>
-<operator id="WilsonBalding.t:COII_1stpost" spec="WilsonBalding" tree="@GeneTree.t:COII_1stpost" weight="15.0"/>
-<operator id="WilsonBalding.t:COI_2ndpos" spec="WilsonBalding" tree="@GeneTree.t:COI_2ndpos" weight="15.0"/>
-<operator id="WilsonBalding.t:nuclear_genome" spec="WilsonBalding" tree="@GeneTree.t:nuclear_genome" weight="15.0"/>
-<operator id="orc.operators.AdaptableOperatorSampler.ucldStdev" spec="orc.operators.AdaptableOperatorSampler" weight="10.0">
-
-			<parameter idref="ucldStdev.clock"/>
-
-			<operator distr="@LogNormalDistributionModel.clock" id="fastUcldStdevScaler.clock" rates="@rates.clock" scaleFactor="0.5" spec="consoperators.UcldScalerOperator" stdev="@ucldStdev.clock" weight="1.0">
-				<kernel m="0.95" mode="bactrian_normal" spec="beast.evolution.operators.KernelDistribution$Bactrian"/>
-			</operator>
-			<operator id="UcldStdevRandomWalk.clock" parameter="@ucldStdev.clock" scaleFactor="0.1" spec="BactrianRandomWalkOperator" weight="1">
-				<kernelDistribution m="0.95" mode="bactrian_normal" spec="beast.evolution.operators.KernelDistribution$Bactrian"/>
-			</operator>
-			<operator id="UcldStdevScale.clock" parameter="@ucldStdev.clock" scaleFactor="0.5" spec="BactrianScaleOperator" weight="1">
-				<kernelDistribution m="0.95" mode="bactrian_normal" spec="beast.evolution.operators.KernelDistribution$Bactrian"/>
-			</operator>
-
-
-			<operator id="orc.operators.SampleFromPriorOperator.c:ucldStdev" parameter="@ucldStdev.clock" prior="@Gamma.2" spec="orc.operators.SampleFromPriorOperator" weight="1"/>
-
-		</operator>
-<operator id="orc.operators.AdaptableOperatorSampler.rates" parameter="@rates.clock" spec="orc.operators.AdaptableOperatorSampler" tree="@tree" weight="10">
-
-
-
-			<operator clock="@branchRatesModel.Species" id="ConstantDistanceOperatorSpeciesTree" popsizes="@popSize" proportionalToBranchLength="true" spec="starbeast3.operators.ConstantDistanceOperatorSpeciesTree" tree="@tree" twindowSize="0.01" weight="2.0">
-				<gene idref="treePrior.t:COII_3rdpos"/>
-<gene idref="treePrior.t:COII_2ndpos"/>
-<gene idref="treePrior.t:28S_D2"/>
-<gene idref="treePrior.t:18S"/>
-<gene idref="treePrior.t:mitochondrial_genome"/>
-<gene idref="treePrior.t:28S_D3"/>
-<gene idref="treePrior.t:COI_3rdpos"/>
-<gene idref="treePrior.t:COII_1stpost"/>
-<gene idref="treePrior.t:COI_2ndpos"/>
-<gene idref="treePrior.t:nuclear_genome"/>
-				<kernelDistribution m="0.95" mode="bactrian_normal" spec="beast.evolution.operators.KernelDistribution$Bactrian"/>
-			</operator>
-
-			<operator id="RatesRandomWalk.clock" parameter="@rates.clock" scaleFactor="0.1" spec="BactrianRandomWalkOperator" weight="1">
-				<kernelDistribution m="0.95" mode="bactrian_normal" spec="beast.evolution.operators.KernelDistribution$Bactrian"/>
-			</operator>
-			
-			<operator id="RatesScale.clock" parameter="@rates.clock" scaleFactor="0.5" spec="BactrianScaleOperator" weight="1">
-				<kernelDistribution m="0.95" mode="bactrian_normal" spec="beast.evolution.operators.KernelDistribution$Bactrian"/>
-			</operator>
-
-			<operator id="orc.operators.SampleFromPriorOperator.clock" np="1" parameter="@rates.clock" prior="@LogNormalDistributionModel.clock" spec="orc.operators.SampleFromPriorOperator" weight="1"/>
-
-
-		</operator>
-<operator id="orc.operators.AdaptableOperatorSampler.NER" spec="orc.operators.AdaptableOperatorSampler" tree="@tree" weight="5">
-
-			<metric spec="beast.evolution.tree.RobinsonsFouldMetric" taxonset="@tree.taxonset"/>
-			<operator id="YuleModelNarrow.t:dummy" spec="Exchange" tree="@tree" weight="1"/>
-			<operator id="NEROperator_nowalk_dAE_dBE_dCE" rates="@rates.clock" spec="orc.ner.NEROperator_dAE_dBE_dCE" tree="@tree" weight="1"/>
-			
-		</operator>
-<operator id="YuleBirthRateScaler.t:tree" parameter="@birthRate" scaleFactor="0.75" spec="ScaleOperator" weight="2.0"/>
+<operator id="rateACScaler.t:COI_3rdpos" parameter="@rateAC.t:COI_3rdpos" scaleFactor="0.5" spec="ScaleOperator" weight="0.2"/>
+<operator id="rateACScaler.t:18S" parameter="@rateAC.t:18S" scaleFactor="0.5" spec="ScaleOperator" weight="0.2"/>
+<operator id="rateAGScaler.t:COI_3rdpos" parameter="@rateAG.t:COI_3rdpos" scaleFactor="0.5" spec="ScaleOperator" weight="0.2"/>
+<operator id="rateAGScaler.t:18S" parameter="@rateAG.t:18S" scaleFactor="0.5" spec="ScaleOperator" weight="0.2"/>
+<operator id="rateATScaler.t:COI_3rdpos" parameter="@rateAT.t:COI_3rdpos" scaleFactor="0.5" spec="ScaleOperator" weight="0.2"/>
+<operator id="rateATScaler.t:18S" parameter="@rateAT.t:18S" scaleFactor="0.5" spec="ScaleOperator" weight="0.2"/>
+<operator id="rateCGScaler.t:COI_3rdpos" parameter="@rateCG.t:COI_3rdpos" scaleFactor="0.5" spec="ScaleOperator" weight="0.2"/>
+<operator id="rateCGScaler.t:18S" parameter="@rateCG.t:18S" scaleFactor="0.5" spec="ScaleOperator" weight="0.2"/>
+<operator id="rateCTScaler.t:COI_3rdpos" parameter="@rateCT.t:COI_3rdpos" scaleFactor="0.5" spec="ScaleOperator" weight="0.2"/>
+<operator id="rateCTScaler.t:18S" parameter="@rateCT.t:18S" scaleFactor="0.5" spec="ScaleOperator" weight="0.2"/>
+<operator id="rateGTScaler.t:COI_3rdpos" parameter="@rateGT.t:COI_3rdpos" scaleFactor="0.5" spec="ScaleOperator" weight="0.2"/>
+<operator id="rateGTScaler.t:18S" parameter="@rateGT.t:18S" scaleFactor="0.5" spec="ScaleOperator" weight="0.2"/>
+<operator id="CoalescentPopSizeScaler.t:tree" parameter="@popSize" scaleFactor="0.75" spec="ScaleOperator" weight="2.0"/>
 <logger id="screenlog" logEvery="1000" spec="Logger">
             <log idref="posterior"/>
-        
-		<log id="d.species" spec="beast.evolution.tree.TreeDistanceLogger" tree="@tree"/>
-		<log id="d.t:COII_3rdpos" spec="beast.evolution.tree.TreeDistanceLogger" tree="@GeneTree.t:COII_3rdpos"/>
-<log id="d.t:COII_2ndpos" spec="beast.evolution.tree.TreeDistanceLogger" tree="@GeneTree.t:COII_2ndpos"/>
-<log id="d.t:28S_D2" spec="beast.evolution.tree.TreeDistanceLogger" tree="@GeneTree.t:28S_D2"/>
-<log id="d.t:18S" spec="beast.evolution.tree.TreeDistanceLogger" tree="@GeneTree.t:18S"/>
-<log id="d.t:mitochondrial_genome" spec="beast.evolution.tree.TreeDistanceLogger" tree="@GeneTree.t:mitochondrial_genome"/>
-<log id="d.t:28S_D3" spec="beast.evolution.tree.TreeDistanceLogger" tree="@GeneTree.t:28S_D3"/>
-<log id="d.t:COI_3rdpos" spec="beast.evolution.tree.TreeDistanceLogger" tree="@GeneTree.t:COI_3rdpos"/>
-<log id="d.t:COII_1stpost" spec="beast.evolution.tree.TreeDistanceLogger" tree="@GeneTree.t:COII_1stpost"/>
-<log id="d.t:COI_2ndpos" spec="beast.evolution.tree.TreeDistanceLogger" tree="@GeneTree.t:COI_2ndpos"/>
-<log id="d.t:nuclear_genome" spec="beast.evolution.tree.TreeDistanceLogger" tree="@GeneTree.t:nuclear_genome"/>
-	</logger>
-<logger fileName="$(filebase).trees" id="treeLogger" logEvery="10000" mode="tree">
-        <log metadata="@rates.clock" popSize="@popSize" spec="starbeast3.SpeciesTreeLogger" speciesTreePrior="@SpeciesTreePopSize.Species" tree="@tree">
-            <treetop id="treeTopFinder" spec="beast.evolution.speciation.TreeTopFinder">
-                <tree idref="GeneTree.t:COII_3rdpos"/>
-<tree idref="GeneTree.t:COII_2ndpos"/>
-<tree idref="GeneTree.t:28S_D2"/>
-<tree idref="GeneTree.t:18S"/>
-<tree idref="GeneTree.t:mitochondrial_genome"/>
-<tree idref="GeneTree.t:28S_D3"/>
-<tree idref="GeneTree.t:COI_3rdpos"/>
-<tree idref="GeneTree.t:COII_1stpost"/>
-<tree idref="GeneTree.t:COI_2ndpos"/>
-<tree idref="GeneTree.t:nuclear_genome"/>
-            </treetop>
-    	</log>
-	</logger>
-<logger fileName="template.log" id="tracelog" logEvery="10000" spec="Logger">
+        </logger>
+<logger fileName="template.trees" id="treeLogger" logEvery="10000" mode="tree" spec="Logger">
+            <log branchratemodel="@ClockModel.t:tree" spec="beast.evolution.tree.TreeWithMetaDataLogger" tree="@tree"/>
+        </logger>
+<logger fileName="template.log" id="tracelog" log="@TreeDistanceLogger" logEvery="10000" spec="Logger">
             <log idref="posterior"/>
             <log idref="likelihood"/>
             <log idref="prior"/>
             <log id="TreeStat.t:tree" spec="beast.evolution.tree.TreeStatLogger" tree="@tree"/>
-            <log idref="clockRate.t:COII_3rdpos"/>
-<log idref="clockRate.t:COII_2ndpos"/>
-<log idref="clockRate.t:28S_D2"/>
+            <log idref="clockRate.t:COI_3rdpos"/>
 <log idref="clockRate.t:18S"/>
-<log idref="clockRate.t:mitochondrial_genome"/>
-<log idref="clockRate.t:28S_D3"/>
-<log idref="clockRate.t:COI_3rdpos"/>
-<log idref="clockRate.t:COII_1stpost"/>
-<log idref="clockRate.t:COI_2ndpos"/>
-<log idref="clockRate.t:nuclear_genome"/>
         
-		<log id="TreeStat.t:GeneTree.COII_3rdpos" spec="beast.evolution.tree.TreeStatLogger" tree="@GeneTree.t:COII_3rdpos"/>
-<log id="TreeStat.t:GeneTree.COII_2ndpos" spec="beast.evolution.tree.TreeStatLogger" tree="@GeneTree.t:COII_2ndpos"/>
-<log id="TreeStat.t:GeneTree.28S_D2" spec="beast.evolution.tree.TreeStatLogger" tree="@GeneTree.t:28S_D2"/>
-<log id="TreeStat.t:GeneTree.18S" spec="beast.evolution.tree.TreeStatLogger" tree="@GeneTree.t:18S"/>
-<log id="TreeStat.t:GeneTree.mitochondrial_genome" spec="beast.evolution.tree.TreeStatLogger" tree="@GeneTree.t:mitochondrial_genome"/>
-<log id="TreeStat.t:GeneTree.28S_D3" spec="beast.evolution.tree.TreeStatLogger" tree="@GeneTree.t:28S_D3"/>
-<log id="TreeStat.t:GeneTree.COI_3rdpos" spec="beast.evolution.tree.TreeStatLogger" tree="@GeneTree.t:COI_3rdpos"/>
-<log id="TreeStat.t:GeneTree.COII_1stpost" spec="beast.evolution.tree.TreeStatLogger" tree="@GeneTree.t:COII_1stpost"/>
-<log id="TreeStat.t:GeneTree.COI_2ndpos" spec="beast.evolution.tree.TreeStatLogger" tree="@GeneTree.t:COI_2ndpos"/>
-<log id="TreeStat.t:GeneTree.nuclear_genome" spec="beast.evolution.tree.TreeStatLogger" tree="@GeneTree.t:nuclear_genome"/>
-		
-		<log id="TreeDistanceLogger.species" spec="beast.evolution.tree.TreeDistanceLogger" tree="@tree"/>
-		<log id="TreeDistanceInit.t:COII_3rdpos" spec="beast.evolution.tree.TreeDistanceLogger" tree="@GeneTree.t:COII_3rdpos"/>
-<log id="TreeDistanceInit.t:COII_2ndpos" spec="beast.evolution.tree.TreeDistanceLogger" tree="@GeneTree.t:COII_2ndpos"/>
-<log id="TreeDistanceInit.t:28S_D2" spec="beast.evolution.tree.TreeDistanceLogger" tree="@GeneTree.t:28S_D2"/>
-<log id="TreeDistanceInit.t:18S" spec="beast.evolution.tree.TreeDistanceLogger" tree="@GeneTree.t:18S"/>
-<log id="TreeDistanceInit.t:mitochondrial_genome" spec="beast.evolution.tree.TreeDistanceLogger" tree="@GeneTree.t:mitochondrial_genome"/>
-<log id="TreeDistanceInit.t:28S_D3" spec="beast.evolution.tree.TreeDistanceLogger" tree="@GeneTree.t:28S_D3"/>
-<log id="TreeDistanceInit.t:COI_3rdpos" spec="beast.evolution.tree.TreeDistanceLogger" tree="@GeneTree.t:COI_3rdpos"/>
-<log id="TreeDistanceInit.t:COII_1stpost" spec="beast.evolution.tree.TreeDistanceLogger" tree="@GeneTree.t:COII_1stpost"/>
-<log id="TreeDistanceInit.t:COI_2ndpos" spec="beast.evolution.tree.TreeDistanceLogger" tree="@GeneTree.t:COI_2ndpos"/>
-<log id="TreeDistanceInit.t:nuclear_genome" spec="beast.evolution.tree.TreeDistanceLogger" tree="@GeneTree.t:nuclear_genome"/>
-		<log id="TreeDistanceNJ.t:COII_3rdpos" spec="beast.evolution.tree.TreeDistanceLogger" tree="@GeneTree.t:COII_3rdpos">
-			<ref clusterType="neighborjoining" initial="@GeneTree.t:COII_3rdpos" spec="beast.util.ClusterTree" taxa="@alignment.COII_3rdpos"/>
-		</log>
-<log id="TreeDistanceNJ.t:COII_2ndpos" spec="beast.evolution.tree.TreeDistanceLogger" tree="@GeneTree.t:COII_2ndpos">
-			<ref clusterType="neighborjoining" initial="@GeneTree.t:COII_2ndpos" spec="beast.util.ClusterTree" taxa="@alignment.COII_2ndpos"/>
-		</log>
-<log id="TreeDistanceNJ.t:28S_D2" spec="beast.evolution.tree.TreeDistanceLogger" tree="@GeneTree.t:28S_D2">
-			<ref clusterType="neighborjoining" initial="@GeneTree.t:28S_D2" spec="beast.util.ClusterTree" taxa="@alignment.28S_D2"/>
-		</log>
-<log id="TreeDistanceNJ.t:18S" spec="beast.evolution.tree.TreeDistanceLogger" tree="@GeneTree.t:18S">
-			<ref clusterType="neighborjoining" initial="@GeneTree.t:18S" spec="beast.util.ClusterTree" taxa="@alignment.18S"/>
-		</log>
-<log id="TreeDistanceNJ.t:mitochondrial_genome" spec="beast.evolution.tree.TreeDistanceLogger" tree="@GeneTree.t:mitochondrial_genome">
-			<ref clusterType="neighborjoining" initial="@GeneTree.t:mitochondrial_genome" spec="beast.util.ClusterTree" taxa="@alignment.mitochondrial_genome"/>
-		</log>
-<log id="TreeDistanceNJ.t:28S_D3" spec="beast.evolution.tree.TreeDistanceLogger" tree="@GeneTree.t:28S_D3">
-			<ref clusterType="neighborjoining" initial="@GeneTree.t:28S_D3" spec="beast.util.ClusterTree" taxa="@alignment.28S_D3"/>
-		</log>
-<log id="TreeDistanceNJ.t:COI_3rdpos" spec="beast.evolution.tree.TreeDistanceLogger" tree="@GeneTree.t:COI_3rdpos">
-			<ref clusterType="neighborjoining" initial="@GeneTree.t:COI_3rdpos" spec="beast.util.ClusterTree" taxa="@alignment.COI_3rdpos"/>
-		</log>
-<log id="TreeDistanceNJ.t:COII_1stpost" spec="beast.evolution.tree.TreeDistanceLogger" tree="@GeneTree.t:COII_1stpost">
-			<ref clusterType="neighborjoining" initial="@GeneTree.t:COII_1stpost" spec="beast.util.ClusterTree" taxa="@alignment.COII_1stpost"/>
-		</log>
-<log id="TreeDistanceNJ.t:COI_2ndpos" spec="beast.evolution.tree.TreeDistanceLogger" tree="@GeneTree.t:COI_2ndpos">
-			<ref clusterType="neighborjoining" initial="@GeneTree.t:COI_2ndpos" spec="beast.util.ClusterTree" taxa="@alignment.COI_2ndpos"/>
-		</log>
-<log id="TreeDistanceNJ.t:nuclear_genome" spec="beast.evolution.tree.TreeDistanceLogger" tree="@GeneTree.t:nuclear_genome">
-			<ref clusterType="neighborjoining" initial="@GeneTree.t:nuclear_genome" spec="beast.util.ClusterTree" taxa="@alignment.nuclear_genome"/>
-		</log>
-		<log id="TreeDistanceUPGMA.t:COII_3rdpos" spec="beast.evolution.tree.TreeDistanceLogger" tree="@GeneTree.t:COII_3rdpos">
-			<ref clusterType="upgma" initial="@GeneTree.t:COII_3rdpos" spec="beast.util.ClusterTree" taxa="@alignment.COII_3rdpos"/>
-		</log>
-<log id="TreeDistanceUPGMA.t:COII_2ndpos" spec="beast.evolution.tree.TreeDistanceLogger" tree="@GeneTree.t:COII_2ndpos">
-			<ref clusterType="upgma" initial="@GeneTree.t:COII_2ndpos" spec="beast.util.ClusterTree" taxa="@alignment.COII_2ndpos"/>
-		</log>
-<log id="TreeDistanceUPGMA.t:28S_D2" spec="beast.evolution.tree.TreeDistanceLogger" tree="@GeneTree.t:28S_D2">
-			<ref clusterType="upgma" initial="@GeneTree.t:28S_D2" spec="beast.util.ClusterTree" taxa="@alignment.28S_D2"/>
-		</log>
-<log id="TreeDistanceUPGMA.t:18S" spec="beast.evolution.tree.TreeDistanceLogger" tree="@GeneTree.t:18S">
-			<ref clusterType="upgma" initial="@GeneTree.t:18S" spec="beast.util.ClusterTree" taxa="@alignment.18S"/>
-		</log>
-<log id="TreeDistanceUPGMA.t:mitochondrial_genome" spec="beast.evolution.tree.TreeDistanceLogger" tree="@GeneTree.t:mitochondrial_genome">
-			<ref clusterType="upgma" initial="@GeneTree.t:mitochondrial_genome" spec="beast.util.ClusterTree" taxa="@alignment.mitochondrial_genome"/>
-		</log>
-<log id="TreeDistanceUPGMA.t:28S_D3" spec="beast.evolution.tree.TreeDistanceLogger" tree="@GeneTree.t:28S_D3">
-			<ref clusterType="upgma" initial="@GeneTree.t:28S_D3" spec="beast.util.ClusterTree" taxa="@alignment.28S_D3"/>
-		</log>
-<log id="TreeDistanceUPGMA.t:COI_3rdpos" spec="beast.evolution.tree.TreeDistanceLogger" tree="@GeneTree.t:COI_3rdpos">
-			<ref clusterType="upgma" initial="@GeneTree.t:COI_3rdpos" spec="beast.util.ClusterTree" taxa="@alignment.COI_3rdpos"/>
-		</log>
-<log id="TreeDistanceUPGMA.t:COII_1stpost" spec="beast.evolution.tree.TreeDistanceLogger" tree="@GeneTree.t:COII_1stpost">
-			<ref clusterType="upgma" initial="@GeneTree.t:COII_1stpost" spec="beast.util.ClusterTree" taxa="@alignment.COII_1stpost"/>
-		</log>
-<log id="TreeDistanceUPGMA.t:COI_2ndpos" spec="beast.evolution.tree.TreeDistanceLogger" tree="@GeneTree.t:COI_2ndpos">
-			<ref clusterType="upgma" initial="@GeneTree.t:COI_2ndpos" spec="beast.util.ClusterTree" taxa="@alignment.COI_2ndpos"/>
-		</log>
-<log id="TreeDistanceUPGMA.t:nuclear_genome" spec="beast.evolution.tree.TreeDistanceLogger" tree="@GeneTree.t:nuclear_genome">
-			<ref clusterType="upgma" initial="@GeneTree.t:nuclear_genome" spec="beast.util.ClusterTree" taxa="@alignment.nuclear_genome"/>
-		</log>
-
-		<log idref="popMean"/>
+		<log alignment="@alignment.COI_3rdpos" id="TreeDistanceLogger" spec="beast.evolution.tree.TreeDistanceLogger" tree="@tree"/>
+	
+		<log idref="rateAC.t:COI_3rdpos"/>
+<log idref="rateAC.t:18S"/>
+		<log idref="rateAG.t:COI_3rdpos"/>
+<log idref="rateAG.t:18S"/>
+		<log idref="rateAT.t:COI_3rdpos"/>
+<log idref="rateAT.t:18S"/>
+		<log idref="rateCG.t:COI_3rdpos"/>
+<log idref="rateCG.t:18S"/>
+		<log idref="rateCT.t:COI_3rdpos"/>
+<log idref="rateCT.t:18S"/>
+		<log idref="rateGT.t:COI_3rdpos"/>
+<log idref="rateGT.t:18S"/>
+	
 		<log idref="popSize"/>
-		
-
-	
-			<log idref="ucldStdev.clock"/>
-			<log branchratemodel="@branchRatesModel.Species" id="RateStatLogger" spec="beast.evolution.branchratemodel.RateStatistic" tree="@tree"/>
-	
-		<log idref="birthRate"/>
 	</logger>
-<logger fileName="$(filebase).COII_3rdpos.trees" logEvery="10000" mode="tree">
-			<log clockModel="@SpeciesTreeRelaxedClock.c:COII_3rdpos" spec="starbeast3.GeneTreeLogger" tree="@GeneTree.t:COII_3rdpos"/>
-		</logger>
-<logger fileName="$(filebase).COII_2ndpos.trees" logEvery="10000" mode="tree">
-			<log clockModel="@SpeciesTreeRelaxedClock.c:COII_2ndpos" spec="starbeast3.GeneTreeLogger" tree="@GeneTree.t:COII_2ndpos"/>
-		</logger>
-<logger fileName="$(filebase).28S_D2.trees" logEvery="10000" mode="tree">
-			<log clockModel="@SpeciesTreeRelaxedClock.c:28S_D2" spec="starbeast3.GeneTreeLogger" tree="@GeneTree.t:28S_D2"/>
-		</logger>
-<logger fileName="$(filebase).18S.trees" logEvery="10000" mode="tree">
-			<log clockModel="@SpeciesTreeRelaxedClock.c:18S" spec="starbeast3.GeneTreeLogger" tree="@GeneTree.t:18S"/>
-		</logger>
-<logger fileName="$(filebase).mitochondrial_genome.trees" logEvery="10000" mode="tree">
-			<log clockModel="@SpeciesTreeRelaxedClock.c:mitochondrial_genome" spec="starbeast3.GeneTreeLogger" tree="@GeneTree.t:mitochondrial_genome"/>
-		</logger>
-<logger fileName="$(filebase).28S_D3.trees" logEvery="10000" mode="tree">
-			<log clockModel="@SpeciesTreeRelaxedClock.c:28S_D3" spec="starbeast3.GeneTreeLogger" tree="@GeneTree.t:28S_D3"/>
-		</logger>
-<logger fileName="$(filebase).COI_3rdpos.trees" logEvery="10000" mode="tree">
-			<log clockModel="@SpeciesTreeRelaxedClock.c:COI_3rdpos" spec="starbeast3.GeneTreeLogger" tree="@GeneTree.t:COI_3rdpos"/>
-		</logger>
-<logger fileName="$(filebase).COII_1stpost.trees" logEvery="10000" mode="tree">
-			<log clockModel="@SpeciesTreeRelaxedClock.c:COII_1stpost" spec="starbeast3.GeneTreeLogger" tree="@GeneTree.t:COII_1stpost"/>
-		</logger>
-<logger fileName="$(filebase).COI_2ndpos.trees" logEvery="10000" mode="tree">
-			<log clockModel="@SpeciesTreeRelaxedClock.c:COI_2ndpos" spec="starbeast3.GeneTreeLogger" tree="@GeneTree.t:COI_2ndpos"/>
-		</logger>
-<logger fileName="$(filebase).nuclear_genome.trees" logEvery="10000" mode="tree">
-			<log clockModel="@SpeciesTreeRelaxedClock.c:nuclear_genome" spec="starbeast3.GeneTreeLogger" tree="@GeneTree.t:nuclear_genome"/>
-		</logger>
 </run>
 </beast>
 

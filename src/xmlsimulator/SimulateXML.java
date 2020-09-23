@@ -16,6 +16,7 @@ import beast.core.Input;
 import beast.core.Runnable;
 import beast.core.util.Log;
 import beast.evolution.alignment.Alignment;
+import beast.util.Randomizer;
 import beast.util.XMLParser;
 
 
@@ -93,8 +94,15 @@ public class SimulateXML extends Runnable {
 				model.reset();
 			}
 			
+			
+			// Sample operator weights
+			
+			
+			// MCMC or MC3?
+			boolean useMC3 = Randomizer.nextBoolean();
+			
 			// Print the new xml
-			String sXML = this.toXML();
+			String sXML = this.toXML(useMC3);
 			PrintStream out = new PrintStream(this.xmlOutput);
 			out.println(sXML);
 			out.close();
@@ -112,7 +120,7 @@ public class SimulateXML extends Runnable {
 	 * @return
 	 * @throws Exception 
 	 */
-	protected String toXML() throws Exception {
+	protected String toXML(boolean useMC3) throws Exception {
 		
 		
 		XMLSimProducer producer = new XMLSimProducer();
@@ -137,6 +145,18 @@ public class SimulateXML extends Runnable {
         Element parent = (Element) run.getParentNode();
         parent.removeChild(run);
         parent.appendChild(runner);
+        
+        
+        // MC3?
+        if (useMC3) {
+        	comments += "Using coupled MCMC (i.e. MC3)\n";
+        	runner.setAttribute("spec", "beast.coupledMCMC.CoupledMCMC");
+        	runner.setAttribute("deltaTemperature", "0.05");
+        	runner.setAttribute("chains", "4");
+        	runner.setAttribute("resampleEvery", "10000");
+        }else {
+        	comments += "Using standard MCMC (i.e. MC2)\n";
+        }
         
         
 
