@@ -233,6 +233,13 @@ public class ModelSampler extends BEASTObject implements XMLSample {
 	}
 
 
+
+	public String getSampledID() {
+		if (this.sampledFile == null) return "NA";
+		return this.sampledFile.getID();
+	}
+
+
 	
 	
 	

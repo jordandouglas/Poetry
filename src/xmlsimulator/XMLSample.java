@@ -14,6 +14,10 @@ import org.w3c.dom.Element;
  */
 public interface XMLSample {
 
+	
+	
+	
+	
 	/**
 	 * Samples the next element
 	 */

@@ -24,6 +24,7 @@ import beast.evolution.alignment.TaxonSet;
 import beast.evolution.datatype.Aminoacid;
 import beast.evolution.datatype.DataType;
 import beast.evolution.datatype.Nucleotide;
+import beast.util.ClusterTree;
 import beast.util.NexusParser;
 import beast.util.Randomizer;
 import beast.util.XMLProducer;
@@ -35,7 +36,7 @@ public class DatasetSampler extends Alignment implements XMLSample  {
 	
 	final public Input<List<WeightedFile>> filesInput = new Input<>("file", "The location of a dataset file in .nexus format (can be zipped)", new ArrayList<>());
 	final public Input<Integer> maxNumPartitionsInput = new Input<>("partitions", 
-			"The maximum number of partitions to use, or set to zero to concatenate all into a single partition (default: all)", Integer.MAX_VALUE);
+			"The maximum number of partitions to use, or set to zero to concatenate all into a single partition (default: all)", 100);
 	final public Input<List<String>> norepeatsInput = new Input<>("norepeat", "ids of elements that should not be repeated 1x for each partition", new ArrayList<>());
 	
 	//protected String newID; // A new unique identifier for this element in output xmls
@@ -45,6 +46,7 @@ public class DatasetSampler extends Alignment implements XMLSample  {
 	protected List<Alignment> partitions;
 	protected List<String> norepeats;
 	protected DataType datatype;
+	protected boolean hasBegun;
 	
 	@Override
 	public void initAndValidate() {
@@ -71,6 +73,7 @@ public class DatasetSampler extends Alignment implements XMLSample  {
 		//this.newID = this.getID().replace("$(partition)", "*") + Randomizer.nextInt(100000000);
 		
 		this.reset();
+		this.hasBegun = false;
 		
 	}
 	
@@ -83,7 +86,11 @@ public class DatasetSampler extends Alignment implements XMLSample  {
 	@Override
 	public void reset() {
 		
+		
+		this.hasBegun = true;
+		
 		// Sample an alignment and set this object's inputs accordingly
+		this.sequenceInput.get().clear();
 		NexusParser parser = this.sampleAlignment();
 		Alignment aln = parser.m_alignment;
 		this.datatype = aln.getDataType();
@@ -93,6 +100,7 @@ public class DatasetSampler extends Alignment implements XMLSample  {
 		this.initAlignment(aln.sequenceInput.get(), aln.dataTypeInput.get());
 		
 		// Subsample partitions from the alignment
+		this.partitions = null; // Clear some memory
 		this.partitions = this.samplePartitions(parser);
 		System.out.println("Subsampling " + this.partitions.size() + " partitions from the alignment");
 		
@@ -429,7 +437,7 @@ public class DatasetSampler extends Alignment implements XMLSample  {
 					//element = (Element) child;
 					//break;
 				//}
-				run.setAttribute("id", s);
+				run.setAttribute("id", XMLUtils.getUniqueID(doc, s));
 				doc.renameNode(run, null, "taxon");
 				elements.add(run);
 			} catch (Exception e) {
@@ -441,6 +449,107 @@ public class DatasetSampler extends Alignment implements XMLSample  {
 		
 		return elements;
 		
+	}
+	
+	@Override
+	public int getSiteCount() {
+		
+		if (this.partitions == null || !hasBegun) return super.getSiteCount();
+		
+		int numSites = 0;
+		for (Alignment aln : this.partitions) {
+			numSites += aln.getSiteCount();
+		}
+		
+		return numSites;
+		
+	}
+	
+	
+	@Override
+	public int getPatternCount() {
+		
+		if (this.partitions == null || !hasBegun) return super.getPatternCount();
+		
+		int numPatterns = 0;
+		for (Alignment aln : this.partitions) {
+			FilteredAlignment partition = (FilteredAlignment) aln;
+			numPatterns += partition.getPatternCount();
+		}
+		
+		return numPatterns;
+		
+	}
+
+
+
+	/**
+	 * Number of partitions
+	 * @return
+	 */
+	public int getNumPartitions() {
+		if (this.partitions == null) return 0;
+		return this.partitions.size();
+	}
+	
+	
+	/**
+	 * Proportion of sites which are gaps
+	 * @return
+	 */
+	public double getProportionGaps() {
+		if (this.partitions == null) return 0;
+		
+		int numGaps = 0;
+		int nsites = 0;
+		for (Alignment aln : this.partitions) {
+			for (String taxon : aln.getTaxaNames()) {
+				String seq = aln.getSequenceAsString(taxon);
+				numGaps += seq.length() - seq.replace("-", "").length();
+				nsites += seq.length();
+			}
+		}
+		
+		double proportion = 1.0 * numGaps / nsites;
+		return proportion;
+	}
+
+
+
+	/**
+	 * Get the sampled file path
+	 * @return
+	 */
+	public String getFilePath() {
+		if (this.sampledFile == null) return "NA";
+		return this.sampledFile.getFilePath();
+	}
+
+
+
+	/**
+	 * Build a neighbour joining tree and return its height
+	 * If there are multiple partitions then one tree per partition is computed and the weighted-mean (proportional to nsites) is returned
+	 * @return
+	 */
+	public double getEstimatedTreeHeight() {
+		
+		if (this.partitions == null) return 0;
+		
+		// Take the weighted-mean height across all partitions
+		double weightedMeanHeight = 0;
+		int nsitesTotal = 0;
+		ClusterTree tree = new ClusterTree();
+		
+		for (Alignment aln : this.partitions) {
+			tree.initByName("clusterType", "neighborjoining", "taxa", aln);
+			double height = tree.getRoot().getHeight();
+			double nsites = aln.getSiteCount();
+			weightedMeanHeight += height * nsites;
+			nsitesTotal += nsites;
+		}
+		
+		return weightedMeanHeight / nsitesTotal;
 	}
 
 
