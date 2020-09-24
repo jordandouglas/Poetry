@@ -18,12 +18,23 @@
 	<!-- Alignment sampler -->
 	<data id="alignment.$(partition)" spec="xmlsimulator.DatasetSampler">
 
+		
 		<file spec="xmlsimulator.WeightedFile" file="../datasets/Becker_2016.tar.gz/Becker_2016/alignment.nex" desc="Benchmark alignment"  />
 		<file spec="xmlsimulator.WeightedFile" file="../datasets/Murray_2013.tar.gz/Murray_2013/alignment.nex" desc="Benchmark alignment" species="3,4" speciessplit="_" />
 		<file spec="xmlsimulator.WeightedFile" file="../datasets/Worobey_2014h.tar.gz/Worobey_2014h/alignment.nex" desc="Benchmark alignment" />
-		<file spec="xmlsimulator.WeightedFile" file="../datasets/DouglasMendes_2020.tar.gz/DouglasMendes_2020/alignment.nex" date="2" datesplit="|" desc="SARS-CoV-2 alignment" />
+		<file spec="xmlsimulator.WeightedFile" file="../datasets/GiarlaEsselstyn_2015.tar.gz/GiarlaEsselstyn_2015/alignment.nex" desc="MSC alignment" species="1,2" speciessplit="-" />
 
 		<!--
+		<file spec="xmlsimulator.WeightedFile" file="../datasets/Bryson_et_al.2017.tar.gz/Bryson_et_al.2017/alignment.nex" desc="MSC alignment" species="1" speciessplit="_" />
+		
+		-->
+
+
+		<!--
+		<file spec="xmlsimulator.WeightedFile" file="../datasets/Bryson_et_al.2017.tar.gz/Bryson_et_al.2017/alignment.nex" desc="MSC alignment" species="1" speciessplit="_" />
+		<file spec="xmlsimulator.WeightedFile" file="../datasets/GiarlaEsselstyn_2015.tar.gz/GiarlaEsselstyn_2015/alignment.nex" desc="MSC alignment" species="1,2" speciessplit="-" />
+
+
 		<file spec="xmlsimulator.WeightedFile" file="../datasets/Anderson_2013.tar.gz/Anderson_2013/alignment.nex" desc="Benchmark alignment" />
 		<file spec="xmlsimulator.WeightedFile" file="../datasets/Ballesteros_2019.tar.gz/Ballesteros_2019/alignment.nex" desc="Benchmark alignment" />
 		<file spec="xmlsimulator.WeightedFile" file="../datasets/Becker_2016.tar.gz/Becker_2016/alignment.nex" desc="Benchmark alignment" />
@@ -40,7 +51,7 @@
 		<file spec="xmlsimulator.WeightedFile" file="../datasets/Day_2013.tar.gz/Day_2013/alignment.nex" desc="Benchmark alignment" />
 		<file spec="xmlsimulator.WeightedFile" file="../datasets/Devitt_2013.tar.gz/Devitt_2013/alignment.nex" desc="Benchmark alignment" />
 		<file spec="xmlsimulator.WeightedFile" file="../datasets/Dornburg_2012.tar.gz/Dornburg_2012/alignment.nex" desc="Benchmark alignment" />
-		<file spec="xmlsimulator.WeightedFile" file="../datasets/DouglasMendes_2020.tar.gz/DouglasMendes_2020/alignment.nex" desc="SARS-CoV-2 alignment" />
+		<file spec="xmlsimulator.WeightedFile" file="../datasets/DouglasMendes_2020.tar.gz/DouglasMendes_2020/alignment.nex" date="2" datesplit="|" desc="SARS-CoV-2 alignment" />
 		<file spec="xmlsimulator.WeightedFile" file="../datasets/Faircloth_2013.tar.gz/Faircloth_2013/alignment.nex" desc="Benchmark alignment" />
 		<file spec="xmlsimulator.WeightedFile" file="../datasets/Fong_2012.tar.gz/Fong_2012/alignment.nex" desc="Benchmark alignment" />
 		<file spec="xmlsimulator.WeightedFile" file="../datasets/Horn_2014.tar.gz/Horn_2014/alignment.nex" desc="Benchmark alignment" />
@@ -110,9 +121,33 @@
     </branchRateModel>
 
 
-	<run id="XMLSimulator" spec="xmlsimulator.SimulateXML" xml="out.xml" data="@alignment.$(partition)">
+	<run id="XMLSimulator" spec="xmlsimulator.SimulateXML" data="@alignment.$(partition)" out="out" nsamples="10">
 
 
+
+
+		<!-- Parameter-operator-ESS mappings -->
+		<poem id="TopologyPOEM" spec="xmlsimulator.POEM">
+			<operator idref="AdaptableTopologyOperator.tree" />
+		</poem>
+
+		<poem id="NodeHeightPOEM" spec="xmlsimulator.POEM">
+			<log idref="TreeStat.t:tree" />
+			<operator idref="AdaptableNodeHeightOperator.tree" />
+		</poem>
+
+
+		<poem id="SiteModelPOEM" spec="xmlsimulator.POEM">
+			<operator idref="site.model.AVMVN" />
+		</poem>
+
+		<!--
+		<poem id="TopologyPOEM.$(partition)" spec="xmlsimulator.POEM">
+			
+		</poem>
+		-->
+
+		
 
 
 		<!-- XML functions -->
@@ -120,8 +155,8 @@
 		<function id="aaOnly" spec="xmlsimulator.XMLCondition" obj="@alignment.$(partition)" method="isAminoAcid" />
 		<function id="speciesOnly" spec="xmlsimulator.XMLCondition" obj="@alignment.$(partition)" method="hasSpeciesMap" />
 		<function id="notSpeciesOnly" spec="xmlsimulator.XMLCondition" obj="@alignment.$(partition)" method="hasSpeciesMap" negate="true" />
-		<function id="doingMSCAnalysis" spec="xmlsimulator.XMLCondition" obj="@MSCWeightedFile" method="wasSampled" />
-		<function id="doingConcatAnalysis" spec="xmlsimulator.XMLCondition" obj="@ConcatWeightedFile" method="wasSampled" />
+		<function id="doingMSCAnalysis" spec="xmlsimulator.XMLCondition" obj="@MSC.model" method="wasSampled" />
+		<function id="doingConcatAnalysis" spec="xmlsimulator.XMLCondition" obj="@Concat.model" method="wasSampled" />
 		<function id="tipsAreDated" spec="xmlsimulator.XMLCondition" obj="@alignment.$(partition)" method="tipsAreDated" />
 
 
@@ -129,41 +164,41 @@
 
 
 		<!-- Species model sampler -->
-		<model id="speciesModelSampler" spec="xmlsimulator.ModelSampler">
-			<file id="ConcatWeightedFile" spec="xmlsimulator.WeightedFile" file="../models/species/Concat.xml" desc="Loci are concatenated (as partitions)" />
-			<file id="MSCWeightedFile" spec="xmlsimulator.WeightedFile" file="../models/species/MSC.xml" desc="Loci are treated as gene trees" condition="@speciesOnly" />
+		<model id="partition.model" spec="xmlsimulator.ModelSampler">
+			<file id="Concat.model" spec="xmlsimulator.WeightedFile" file="../models/species/Concat.xml" desc="Loci are concatenated (as partitions)" />
+			<file weight="10000" id="MSC.model" spec="xmlsimulator.WeightedFile" file="../models/species/MSC.xml" desc="Loci are treated as gene trees" condition="@speciesOnly" />
 		</model>
 
 
 		<!-- Site model sampler -->
-		<model id="siteModelSampler" spec="xmlsimulator.ModelSampler">
+		<model id="site.model" spec="xmlsimulator.ModelSampler">
 
 			<!-- Nucleotide -->
-			<file spec="xmlsimulator.WeightedFile" file="../models/site/nucleotide/JukesCantor.xml" desc="The Jukes-Cantor site model" condition="@dnaOnly" />
-			<file spec="xmlsimulator.WeightedFile" file="../models/site/nucleotide/HKY.xml" desc="The HKY site model" condition="@dnaOnly" />
-			<file spec="xmlsimulator.WeightedFile" file="../models/site/nucleotide/HKYf.xml" desc="The HKY site model with estimated frequencies" condition="@dnaOnly" />
-			<file spec="xmlsimulator.WeightedFile" file="../models/site/nucleotide/GTR.xml" desc="The GTR site model" condition="@dnaOnly" />
+			<file id="JukesCantor.model" spec="xmlsimulator.WeightedFile" file="../models/site/nucleotide/JukesCantor.xml" desc="The Jukes-Cantor site model" condition="@dnaOnly" />
+			<file id="HKY.model" spec="xmlsimulator.WeightedFile" file="../models/site/nucleotide/HKY.xml" desc="The HKY site model" condition="@dnaOnly" />
+			<file id="HKYf.model" spec="xmlsimulator.WeightedFile" file="../models/site/nucleotide/HKYf.xml" desc="The HKY site model with estimated frequencies" condition="@dnaOnly" />
+			<file id="GTR.model" spec="xmlsimulator.WeightedFile" file="../models/site/nucleotide/GTR.xml" desc="The GTR site model" condition="@dnaOnly" />
 
 			<!-- Amino acid -->
-			<file spec="xmlsimulator.WeightedFile" file="../models/site/aminoacid/WAG.xml" desc="The WAG site model" condition="@aaOnly" />
-			<file spec="xmlsimulator.WeightedFile" file="../models/site/aminoacid/Blosum62.xml" desc="The Blosum62 site model" condition="@aaOnly" />
-			<file spec="xmlsimulator.WeightedFile" file="../models/site/aminoacid/MTREV.xml" desc="The MTREV site model" condition="@aaOnly" />
+			<file id="WAG.model" spec="xmlsimulator.WeightedFile" file="../models/site/aminoacid/WAG.xml" desc="The WAG site model" condition="@aaOnly" />
+			<file id="Blosum62.model" spec="xmlsimulator.WeightedFile" file="../models/site/aminoacid/Blosum62.xml" desc="The Blosum62 site model" condition="@aaOnly" />
+			<file id="MTREV.model" spec="xmlsimulator.WeightedFile" file="../models/site/aminoacid/MTREV.xml" desc="The MTREV site model" condition="@aaOnly" />
 			
 		</model>
 		
 
 		<!-- Branch rate model sampler -->
-		<model id="clockModelSampler" spec="xmlsimulator.ModelSampler">
-			<file spec="xmlsimulator.WeightedFile" file="../models/branch/Strict.xml" desc="The strict clock" condition="@doingConcatAnalysis" />
-			<file spec="xmlsimulator.WeightedFile" file="../models/branch/RelaxedLN.xml" desc="A relaxed clock with lognormal prior" condition="@doingConcatAnalysis" />
-			<file spec="xmlsimulator.WeightedFile" file="../models/branch/SB3RelaxedClock.xml" desc="Multispecies coalescent relaxed clock model with lognormal prior" condition="@doingMSCAnalysis" />
+		<model id="branch.model" spec="xmlsimulator.ModelSampler">
+			<file id="Strict.model" spec="xmlsimulator.WeightedFile" file="../models/branch/Strict.xml" desc="The strict clock" condition="@doingConcatAnalysis" />
+			<file id="RelaxedLN.model" spec="xmlsimulator.WeightedFile" file="../models/branch/RelaxedLN.xml" desc="A relaxed clock with lognormal prior" condition="@doingConcatAnalysis" />
+			<file id="RelaxedLNSB3.model" spec="xmlsimulator.WeightedFile" file="../models/branch/SB3RelaxedClock.xml" desc="Multispecies coalescent relaxed clock model with lognormal prior" condition="@doingMSCAnalysis" />
 		</model>
 
 
 		<!-- Tree prior sampler -->
-		<model id="treeModelSampler" spec="xmlsimulator.ModelSampler">
-			<file spec="xmlsimulator.WeightedFile" file="../models/tree/Yule.xml" desc="A Yule tree prior" />
-			<file spec="xmlsimulator.WeightedFile" file="../models/tree/Coalescent.xml" desc="A coalescent tree prior" condition="@doingConcatAnalysis" />
+		<model id="tree.model" spec="xmlsimulator.ModelSampler">
+			<file id="Yule.model" spec="xmlsimulator.WeightedFile" file="../models/tree/Yule.xml" desc="A Yule tree prior" />
+			<file id="Coalescent.model" spec="xmlsimulator.WeightedFile" file="../models/tree/Coalescent.xml" desc="A coalescent tree prior" condition="@doingConcatAnalysis" />
 		</model>
 
 
@@ -209,14 +244,48 @@
 			</distribution>
 
 
-			
-			<operator id="TreeScaler.t:tree" spec="ScaleOperator" scaleFactor="0.5" tree="@tree" weight="3.0"/>
-			<operator id="TreeRootScaler.t:tree" spec="ScaleOperator" rootOnly="true" scaleFactor="0.5" tree="@tree" weight="3.0"/>
-			<operator id="UniformOperator.t:tree" spec="Uniform" tree="@tree" weight="30.0"/>
-			<operator id="SubtreeSlide.t:tree" spec="SubtreeSlide" tree="@tree" weight="15.0"/>
-			<operator id="Wide.t:tree" spec="Exchange" isNarrow="false" tree="@tree" weight="3.0"/>
-			<operator id="Narrow.t:tree" spec="Exchange" isNarrow="true" tree="@tree" weight="3.0"/>
-			<operator id="WilsonBalding.t:tree" spec="WilsonBalding" tree="@tree" weight="3.0"/>
+			<!-- Tree topology -->
+			<operator id="AdaptableTopologyOperator.tree" spec="orc.operators.AdaptableOperatorSampler" tree="@tree" weight="1.0">
+				<metric spec="beast.evolution.tree.RobinsonsFouldMetric" taxonset="@tree.taxonset"/>
+
+				<operator id="SubtreeSlide.t:tree" spec="SubtreeSlide" tree="@tree" weight="1.0"/>
+				<operator id="Wide.t:tree" spec="Exchange" isNarrow="false" tree="@tree" weight="13.0"/>
+				<operator id="Narrow.t:tree" spec="Exchange" isNarrow="true" tree="@tree" weight="1.0"/>
+				<operator id="WilsonBalding.t:tree" spec="WilsonBalding" tree="@tree" weight="1.0"/>
+			</operator>
+
+
+
+			<!-- Tree node heights -->
+			<operator id="AdaptableNodeHeightOperator.tree" spec="orc.operators.AdaptableOperatorSampler" tree="@tree" weight="1.0">
+				<operator id="TreeScaler.t:tree" spec="ScaleOperator" scaleFactor="0.5" tree="@tree" weight="1.0"/>
+				<operator id="TreeRootScaler.t:tree" spec="ScaleOperator" rootOnly="true" scaleFactor="0.5" tree="@tree" weight="1.0"/>
+				<operator id="UniformOperator.t:tree" spec="Uniform" tree="@tree" weight="1.0"/>
+				<operator idref="SubtreeSlide.t:tree"/>
+			</operator>
+
+
+
+
+			<operator id="site.model.AVMVN" spec="beast.evolution.operators.AdaptableVarianceMultivariateNormalOperator" 
+                weight="1"
+                coefficient="1"
+                scaleFactor="1"
+                beta="0.05"
+                initial="1000"
+                burnin="500"
+                every="1">
+
+				<transformations id="site.model.logtransform" spec="beast.util.Transform$LogTransform">
+					<f idref="tree" />
+				</transformations>
+				<!--
+				<transformations id="site.model.logittransform" spec="beast.util.Transform$LogitTransform">
+					
+				</transformations>
+			-->
+			</operator>
+
 
 
 
@@ -227,7 +296,7 @@
 			</operator>
 
 
-			<logger id="screenlog" spec="Logger" logEvery="1000">
+			<logger id="screenlog" spec="Logger" logEvery="10000">
 				<log idref="posterior"/>
 			</logger>
 
@@ -264,8 +333,7 @@
 		</distribution>
 		-->
 		
-		
-		<logger spec="xmlsimulator.XMLSimulatorLogger" fileName="xmlsimulator.log" />
+
 
 
 	</run>
