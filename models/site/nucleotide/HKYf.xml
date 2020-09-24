@@ -35,15 +35,22 @@
 	</override>
 
 
-	<append id="mcmc">
+
+	<append id="site.model.logtransform">
+		<f idref="kappa.t:$(partition)"/>
+		<f idref="freqParameter.t:$(partition)"/>
+	</append>
 
 
-		<operator id="KappaScaler.t:$(partition)" spec="ScaleOperator" parameter="@kappa.t:$(partition)" scaleFactor="0.5" weight="0.2"/>
-		<operator id="FreqExchanger.t:$(partition)" spec="DeltaExchangeOperator" delta="0.01" weight="0.2">
-			<parameter idref="freqParameter.t:$(partition)"/>
-		</operator>
+	<!--
+	<append id="site.model.logittransform">
+		<f idref="freqParameter.t:$(partition)"/>
+	</append>
+	-->
 
-
+	<append id="SiteModelPOEM">
+		<log idref="kappa.t:$(partition)"/>
+		<log idref="freqParameter.t:$(partition)"/>
 	</append>
 
 	<append id="tracelog">

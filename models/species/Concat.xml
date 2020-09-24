@@ -18,6 +18,12 @@
 
 	</append>
 
+
+	<append id="TopologyPOEM">
+		<log idref="NJ_Distance" />
+		<log idref="UPGMA_Distance" />
+	</append>
+
 </fragment>
 	
 

@@ -33,8 +33,14 @@
 		<parameter spec="parameter.RealParameter" id="kappa.t:$(partition)" lower="0.0" name="stateNode">2.0</parameter>
 	</append>
 
-	<append id="mcmc">
-		<operator id="KappaScaler.t:$(partition)" spec="ScaleOperator" parameter="@kappa.t:$(partition)" scaleFactor="0.5" weight="0.2"/>
+
+
+	<append id="site.model.logtransform">
+		<f idref="kappa.t:$(partition)"/>
+	</append>
+
+	<append id="SiteModelPOEM">
+		<log idref="kappa.t:$(partition)"/>
 	</append>
 
 

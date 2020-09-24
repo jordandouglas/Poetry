@@ -79,15 +79,27 @@
 
 
 
-		<operator id="rateACScaler.t:$(partition)" spec="ScaleOperator" parameter="@rateAC.t:$(partition)" scaleFactor="0.5" weight="0.2"/>
-		<operator id="rateAGScaler.t:$(partition)" spec="ScaleOperator" parameter="@rateAG.t:$(partition)" scaleFactor="0.5" weight="0.2"/>
-		<operator id="rateATScaler.t:$(partition)" spec="ScaleOperator" parameter="@rateAT.t:$(partition)" scaleFactor="0.5" weight="0.2"/>
-		<operator id="rateCGScaler.t:$(partition)" spec="ScaleOperator" parameter="@rateCG.t:$(partition)" scaleFactor="0.5" weight="0.2"/>
-		<operator id="rateCTScaler.t:$(partition)" spec="ScaleOperator" parameter="@rateCT.t:$(partition)" scaleFactor="0.5" weight="0.2"/>
-		<operator id="rateGTScaler.t:$(partition)" spec="ScaleOperator" parameter="@rateGT.t:$(partition)" scaleFactor="0.5" weight="0.2"/>
-		
+
+	</append>
 
 
+	<append id="site.model.logtransform">
+		<f idref="rateAC.t:$(partition)"/>
+		<f idref="rateAG.t:$(partition)"/>
+		<f idref="rateAT.t:$(partition)"/>
+		<f idref="rateCG.t:$(partition)"/>
+		<f idref="rateCT.t:$(partition)"/>
+		<f idref="rateGT.t:$(partition)"/>
+	</append>
+
+
+	<append id="SiteModelPOEM">
+		<log idref="rateAC.t:$(partition)"/>
+		<log idref="rateAG.t:$(partition)"/>
+		<log idref="rateAT.t:$(partition)"/>
+		<log idref="rateCG.t:$(partition)"/>
+		<log idref="rateCT.t:$(partition)"/>
+		<log idref="rateGT.t:$(partition)"/>
 	</append>
 
 
