@@ -9,6 +9,9 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
 import org.w3c.dom.Comment;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -22,6 +25,13 @@ import beast.core.Runnable;
 import beast.core.util.Log;
 import beast.evolution.alignment.Alignment;
 import beast.util.Randomizer;
+import xmlsimulator.functions.XMLFunction;
+import xmlsimulator.functions.XMLInputSetter;
+import xmlsimulator.sampler.DatasetSampler;
+import xmlsimulator.sampler.ModelSampler;
+import xmlsimulator.sampler.POEM;
+import xmlsimulator.sampler.RunnableSampler;
+import xmlsimulator.sampler.XMLSampler;
 
 
 
@@ -30,6 +40,8 @@ public class SimulateXML extends Runnable {
 	
 
 	
+	private static final String DATABASE_FILENAME = "database.tsv";
+
 	final public Input<Runnable> runnableInput = new Input<>("runner", "A runnable object (eg. mcmc)", Input.Validate.REQUIRED);
 	
 	final public Input<List<ModelSampler>> modelInput = new Input<>("model", "A component of the model. All of its data will be dumped into this xml.", new ArrayList<>());
@@ -62,6 +74,8 @@ public class SimulateXML extends Runnable {
 	PrintStream dbOut;
 	List<POEM> poems;
 	
+	Document poetry;
+	
 	
 	
 	@Override
@@ -74,6 +88,7 @@ public class SimulateXML extends Runnable {
 		this.functions = functionsInput.get();
 		this.outFolder = outFolderInput.get();
 		this.poems = poemsInput.get();
+		this.poetry = null;
 		
 		// Ensure that runner already has an ID
 		if (this.runner.getID() == null || this.runner.getID().isEmpty()) {
@@ -103,7 +118,7 @@ public class SimulateXML extends Runnable {
 		
 		
 		// Prepare database file
-		this.dbFile = Paths.get(this.outFolder.getPath(), "database.tsv").toFile();
+		this.dbFile = Paths.get(this.outFolder.getPath(), DATABASE_FILENAME).toFile();
 		try {
 			this.dbOut = new PrintStream(this.dbFile);
 		} catch (FileNotFoundException e) {
@@ -127,7 +142,7 @@ public class SimulateXML extends Runnable {
 			Log.warning("--------------------------------------------------\n");
 			
 			// Sample alignments
-			if (this.data != null && this.data instanceof XMLSample) {
+			if (this.data != null && this.data instanceof XMLSampler) {
 				DatasetSampler d = (DatasetSampler) this.data;
 				d.reset();
 			}
@@ -142,16 +157,17 @@ public class SimulateXML extends Runnable {
 			this.sampleOperatorWeights();
 			
 			
-			// MCMC or MC3?
-			boolean useMC3 = Randomizer.nextBoolean();
+			// Sample a search algorithm
+			if (this.runner instanceof RunnableSampler) ((RunnableSampler)this.runner).reset();
+			
 			
 			// Print the new xml
-			String sXML = this.toXML(useMC3);
+			String sXML = this.toXML(sample);
 			this.writeXMLFile(sXML, sample);
 			
 			
 			// Update database
-			this.appendToDatabase(sample, useMC3);
+			this.appendToDatabase(sample);
 			
 		
 		}
@@ -209,6 +225,13 @@ public class SimulateXML extends Runnable {
 		out.println(xml);
 		out.close();
 		
+		
+		// Write the poem file
+		Path poemPath = Paths.get(folder.getPath(), "poems.xml");
+		out = new PrintStream(poemPath.toFile());
+		out.println(XMLUtils.getXMLStringFromDocument(this.poetry));
+		out.close();
+		
 	}
 	
 	
@@ -218,7 +241,7 @@ public class SimulateXML extends Runnable {
 	 * @return
 	 * @throws Exception 
 	 */
-	protected String toXML(boolean useMC3) throws Exception {
+	protected String toXML(int sampleNum) throws Exception {
 		
 		
 		XMLSimProducer producer = new XMLSimProducer();
@@ -226,70 +249,75 @@ public class SimulateXML extends Runnable {
 		
 		
 		// xml comments
-		String comments = "\n";
+		String comments = "\nXML sample " + sampleNum + "\n";
 		
 		
-		/*  Rename the 'run' to 'runner'
-		 *  The reason why it is named runner in the first place is to prevent
-		 *  XMLParser from throwing an exception upon detecting two 'run' elements */
+		// Parse the xml and get the runner element
         Document doc = XMLUtils.loadXMLFromString(sXML);
         Element runner = XMLUtils.getElementById(doc, this.runner.getID());
-        doc.renameNode(runner, runner.getNamespaceURI(), "run");
-  
+        Element run = XMLUtils.getElementById(doc, this.getID());
         
-        
-        // MC3?
-        if (useMC3) {
-        	comments += "Using coupled MCMC (i.e. MC3)\n";
-        	runner.setAttribute("spec", "beast.coupledMCMC.CoupledMCMC");
-        	runner.setAttribute("deltaTemperature", "0.05");
-        	runner.setAttribute("chains", "4");
-        	runner.setAttribute("resampleEvery", "10000");
-        }else {
-        	comments += "Using standard MCMC (i.e. MC2)\n";
-        }
-        
-
 
 		// Move the alignment to the head if it is not already
         if (this.data != null) {
         	Element dataset = XMLUtils.getElementById(doc, this.data.getID());
 			Element datasetParent = (Element) dataset.getParentNode();
 			datasetParent.removeChild(dataset);
-			runner.getParentNode().insertBefore(dataset, runner);
+			run.getParentNode().insertBefore(dataset, run);
 			if (!datasetParent.getNodeName().equals("beast")) {
 				datasetParent.setAttribute(dataset.getNodeName(), "@" + this.data.getID());
 			}
         }
 
+        
+        // Search mode
+        if (this.runner instanceof RunnableSampler) {
+        	RunnableSampler sampler = (RunnableSampler) this.runner;
+        	sampler.tidyXML(doc, runner, this.functions);
+        	comments += sampler.getComments() + "\n";
+        	runner = XMLUtils.getElementById(doc, this.runner.getID());
+        }
+        
 
- 
+
+
         // Tidy the XML of all XMLSampler models (and get some comments)
 		for (ModelSampler model : this.modelElements) {
-			model.tidyXML(doc, runner, this.functions);
+			model.tidyXML(doc, run, this.functions);
 			comments += model.getComments() + "\n";
 		}
 		
 		
+		// Call any input setter functions
+		for (XMLFunction function : this.functions) {
+			if (function instanceof XMLInputSetter) {
+				((XMLInputSetter)function).tidyXML(doc);
+			}
+		}
+		
+		
+
 		 // Tidy the XML of all XMLSampler datasets (and get some comments)
-        if (this.data != null && this.data instanceof XMLSample) {
+        if (this.data != null && this.data instanceof XMLSampler) {
 			DatasetSampler d = (DatasetSampler) this.data;
-			d.tidyXML(doc, runner, this.functions);
+			d.tidyXML(doc, run, this.functions);
 			comments += d.getComments() + "\n";
 		}
         
-        
+ 
         
         // Operator weights
         for (POEM poem : this.poems) {
-        	poem.tidyXML(doc, runner, this.functions);
+        	poem.tidyXML(doc, run, this.functions);
         	comments += poem.getComments() + "\n";
         }
       
-        
+		
+		// Generate poem document
+		this.writePoems(sampleNum, doc, run);
+		
         
         // Replace this runnable element (and all of its children) with its runnable child
-        Element run = XMLUtils.getElementById(doc, this.getID());
         Element parent = (Element) run.getParentNode();
         parent.removeChild(run);
         parent.appendChild(runner);
@@ -301,8 +329,14 @@ public class SimulateXML extends Runnable {
 		element.getParentNode().insertBefore(comment, element);
 		
 		
+
+		
+		
 		// Merge elements which share an id
 		XMLUtils.mergeElementsWhichShareID(doc);
+		
+
+
 		
 		
 		// Sort elements by putting operators and loggers at the bottom of runnable
@@ -317,13 +351,80 @@ public class SimulateXML extends Runnable {
 			runner.appendChild(logger);
 		}
 		
+		
+		
+		
+		// Final check: ensure there are no operators which are not affiliated with poems
+		for (Element operator : operators) {
+			
+			int numPoems = 0;
+			for (POEM poem : this.poems) {
+				if (poem.getOperatorID().equals(operator.getAttribute("id"))) {
+					numPoems ++;
+				}
+			}
+			
+			if (numPoems != 1) throw new Exception("Operator " + operator.getAttribute("id") + " must have exactly 1 POEMS but it has " + numPoems);
+		}
+		
+		
+		
         sXML = XMLUtils.getXMLStringFromDocument(doc);
 		return sXML;
 		
 	}
 	
 	
-	
+	/**
+	 * Generate an XMK Document contains all POEM objectswritePoems
+	 * @param doc
+	 */
+	private void writePoems(int sampleNum, Document doc, Element runner) throws Exception {
+		
+		// Create new document
+		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+	    DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+	    this.poetry = dBuilder.newDocument();
+	    Element beast = (Element) this.poetry.importNode(XMLUtils.getElementsByName(doc, "beast").get(0), false);
+	    
+	    // Create the PoetryAnalyser runnable element and populate its inputs
+	    Element poemRunner = this.poetry.createElement("run");
+	    poemRunner.setAttribute("spec", PoetryAnalyser.class.getCanonicalName());
+	    poemRunner.setAttribute("database", "../" + DATABASE_FILENAME);
+	    poemRunner.setAttribute("number", "" + sampleNum);
+	    poemRunner.setAttribute("log", "template.log"); // TEMP HACK
+	    this.poetry.appendChild(beast);
+	    beast.appendChild(poemRunner);
+		
+	    // Copy poems over from main doc
+	    for (Element poem : XMLUtils.getElementsByName(runner, "poem")) {
+	    	Element imported =  (Element)this.poetry.importNode(poem, true);
+	    	
+	    	// Remove idrefs using hack so it initialises on load
+	    	if (imported.hasAttribute("operator")){
+	    		imported.setAttribute("operatorID", imported.getAttribute("operator").substring(1));
+	    		imported.removeAttribute("operator");
+	    	}
+	    	if (imported.hasAttribute("log")){
+	    		imported.setAttribute("logID", imported.getAttribute("log").substring(1));
+	    		imported.removeAttribute("log");
+	    	}
+	    	for (Node child : XMLUtils.nodeListToList(imported.getChildNodes())) {
+	    		if (!(child instanceof Element)) continue;
+	    		Element childEle = (Element)child;
+	    		if (childEle.hasAttribute("idref")) {
+	    			String idref = childEle.getAttribute("idref");
+	    			childEle.removeAttribute("idref");
+	    			childEle.setTextContent(idref);
+	    			this.poetry.renameNode(childEle, null, childEle.getNodeName() + "ID");
+	    		}
+	    	}
+	    	poemRunner.appendChild(imported);
+	    }
+		
+	}
+
+
 	/**
 	 * Prepare header for the database
 	 */
@@ -348,7 +449,6 @@ public class SimulateXML extends Runnable {
 			this.dbOut.print(model.getID() + "\t");
 		}
 		
-
 		
 		// Operator weight summary
 		this.dbOut.print("search.mode\t");
@@ -361,6 +461,12 @@ public class SimulateXML extends Runnable {
 		for (POEM poem : this.poems) {
 			this.dbOut.print(poem.getESSColname() + "\t");
 		}
+		
+		
+		// Job start / finish / error
+		this.dbOut.print("job.start.time\t");
+		this.dbOut.print("job.finish.time\t");
+		this.dbOut.print("exception.thrown\t");
 		
 		
 		// Runtime (million states per hr)
@@ -376,7 +482,7 @@ public class SimulateXML extends Runnable {
 	/**
 	 * Prepare header for the database
 	 */
-	protected void appendToDatabase(int sampleNum, boolean isMC3) {
+	protected void appendToDatabase(int sampleNum) {
 	
 		String dataset = this.data == null ? "NA" : !(this.data instanceof DatasetSampler) ? "NA" : ((DatasetSampler)this.data).getFilePath();
 		int npartitions = this.data == null ? 0 : !(this.data instanceof DatasetSampler) ? 1 : ((DatasetSampler)this.data).getNumPartitions();
@@ -404,7 +510,13 @@ public class SimulateXML extends Runnable {
 		}
 		
 		// Operator weight summary
-		this.dbOut.print((isMC3 ? "MC3" : "MC2") + "\t");
+		if (this.runner instanceof RunnableSampler) {
+			String id = ((RunnableSampler)this.runner).getSampledID();
+			this.dbOut.print(id + "\t");
+		}else {
+			this.dbOut.print("NA\t");
+		}
+		
 		for (POEM poem : this.poems) {
 			this.dbOut.print(poem.getWeight() + "\t");
 		}
@@ -414,6 +526,12 @@ public class SimulateXML extends Runnable {
 		for (POEM poem : this.poems) {
 			this.dbOut.print("?\t");
 		}
+		
+		
+		// Job start / finish / error
+		this.dbOut.print("NA\t");
+		this.dbOut.print("NA\t");
+		this.dbOut.print("false\t");
 		
 		
 		// Runtime (million states per hr)

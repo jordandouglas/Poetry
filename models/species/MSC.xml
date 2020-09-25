@@ -56,19 +56,8 @@
 
 
 
-		<operator id="PopSizeGibbsSampler" spec='starbeast3.operators.PopSizeGibbsSampler' weight="1.0" popSizes="@popSize">
-			<gammaprior idref="popPriorDistr"/>
-			<gene idref="treePrior.t:$(partition)"/>
-		</operator>
 
-        <operator id="constPopSizesSwap.Species" spec="starbeast3.operators.RealCycle" k="2" optimise="false" parameter="@popSize" weight="3.0"/>
-        <operator id="constPopSizesScale.Species" spec="ScaleOperator" parameter="@popSize" scaleFactor="0.5" weight="3.0"/>
-        <operator id="constPopMeanScale.Species" spec="ScaleOperator" parameter="@popMean" scaleFactor="0.75" weight="1.0"/>
-            
-
-
-
-
+	    <!-- TODO
 		<operator id="updownAll:Species" spec="UpDownOperator" scaleFactor="0.75" weight="5.0">
             <up idref="birthRate"/>
             <down idref="tree"/>
@@ -76,13 +65,13 @@
             <down idref="popSize"/>
             <down idref="popMean"/>
         </operator>
-            
+         -->
 
       
             
             
 
-        <!-- Gene tree topology -->
+        <!-- Gene tree topology TODO
         <operator id="AdaptableTopologyOperator.$(partition)" spec="orc.operators.AdaptableOperatorSampler" tree="@GeneTree.t:$(partition)" weight="1.0">
         	<metric spec="beast.evolution.tree.RobinsonsFouldMetric" taxonset="@tree.taxonset"/>
 
@@ -92,9 +81,9 @@
 	        <operator id="WilsonBalding.t:$(partition)" spec="WilsonBalding" tree="@GeneTree.t:$(partition)" weight="1.0"/>
 
         </operator>
+		 -->
 
-
-     	<!-- Gene tree node heights -->
+     	<!-- Gene tree node heights TODO
         <operator id="AdaptableNodeHeightOperator.$(partition)" spec="orc.operators.AdaptableOperatorSampler" tree="@GeneTree.t:$(partition)" weight="1.0">
 
 	  		<operator id="TreeScaler.t:$(partition)" spec="ScaleOperator" scaleFactor="0.95" tree="@GeneTree.t:$(partition)" weight="1.0"/>
@@ -115,13 +104,14 @@
 				<gene idref="treePrior.t:$(partition)"/>
 			</operator>
 
-	        <!--
+	        
             <operator id="clockUpDownOperator.t:$(partition)" spec="UpDownOperator" scaleFactor="0.95" weight="3.0">
             	<down idref="GeneTree.t:$(partition)"/>
         	</operator>
-			-->
+			
 
         </operator>
+         -->
 
 
 	    <logger fileName="$(filebase).$(partition).trees" logEvery="10000" mode="tree">
@@ -161,6 +151,60 @@
 
 
 
+    <override name="logger" id="treeLogger" fileName="$(filebase).trees" logEvery="10000" mode="tree">
+        <log spec="starbeast3.SpeciesTreeLogger" metadata="@rates.clock" popSize="@popSize" speciesTreePrior="@SpeciesTreePopSize.Species" tree="@tree">
+            <treetop id="treeTopFinder" spec="beast.evolution.speciation.TreeTopFinder">
+                <tree idref="GeneTree.t:$(partition)"/>
+            </treetop>
+    	</log>
+	</override>
+
+
+
+	<append id="tree.prior.model.operator">
+
+
+		<operator id="PopSizeGibbsSampler" spec='starbeast3.operators.PopSizeGibbsSampler' weight="1.0" popSizes="@popSize">
+			<gammaprior idref="popPriorDistr"/>
+			<gene idref="treePrior.t:$(partition)"/>
+		</operator>
+
+        <operator id="constPopSizesSwap.Species" spec="starbeast3.operators.RealCycle" k="2" optimise="false" parameter="@popSize" weight="1.0"/>
+        <operator id="constPopSizesScale.Species" spec="ScaleOperator" parameter="@popSize" scaleFactor="0.5" weight="1.0"/>
+        <operator id="constPopMeanScale.Species" spec="ScaleOperator" parameter="@popMean" scaleFactor="0.75" weight="1.0"/>
+		
+	</append>
+
+
+	<append id="TreePriorPOEM">
+		<log idref="popMean"/>
+		<log idref="popSize"/>
+	</append>
+
+
+	<append id="TopologyPOEM">
+		<log idref="TreeDistanceLogger.species" />
+	</append>
+
+
+	<!--
+	<append id="TopologyPOEM.$(partition)">
+		<log idref="TreeDistanceInit.t:$(partition)" />
+		<log idref="TreeDistanceNJ.t:$(partition)" />
+		<log idref="TreeDistanceUPGMA.t:$(partition)" />
+		<operator idref="" />
+	</append>
+	-->
+
+
+	<append id="screenlog">
+		<log id="d.species" spec="beast.evolution.tree.TreeDistanceLogger" tree="@tree" />
+		<log id="d.t:$(partition)" spec="beast.evolution.tree.TreeDistanceLogger" tree="@GeneTree.t:$(partition)" />
+	</append>
+
+
+
+
 	<append id="tracelog">
 		<log id="TreeStat.t:GeneTree.$(partition)" spec="beast.evolution.tree.TreeStatLogger" tree="@GeneTree.t:$(partition)"/>
 		
@@ -181,35 +225,7 @@
 
 
 
-	<append id="screenlog">
-		<log id="d.species" spec="beast.evolution.tree.TreeDistanceLogger" tree="@tree" />
-		<log id="d.t:$(partition)" spec="beast.evolution.tree.TreeDistanceLogger" tree="@GeneTree.t:$(partition)" />
-	</append>
 
-
-    <override name="logger" id="treeLogger" fileName="$(filebase).trees" logEvery="10000" mode="tree">
-        <log spec="starbeast3.SpeciesTreeLogger" metadata="@rates.clock" popSize="@popSize" speciesTreePrior="@SpeciesTreePopSize.Species" tree="@tree">
-            <treetop id="treeTopFinder" spec="beast.evolution.speciation.TreeTopFinder">
-                <tree idref="GeneTree.t:$(partition)"/>
-            </treetop>
-    	</log>
-	</override>
-
-
-
-	<append id="TopologyPOEM">
-		<log idref="TreeDistanceLogger.species" />
-	</append>
-
-
-	<!--
-	<append id="TopologyPOEM.$(partition)">
-		<log idref="TreeDistanceInit.t:$(partition)" />
-		<log idref="TreeDistanceNJ.t:$(partition)" />
-		<log idref="TreeDistanceUPGMA.t:$(partition)" />
-		<operator idref="" />
-	</append>
-	-->
 
 </fragment>
 	

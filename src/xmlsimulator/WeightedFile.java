@@ -30,6 +30,7 @@ import beast.core.BEASTObject;
 import beast.core.Input;
 import beast.core.util.Log;
 import beast.util.Randomizer;
+import xmlsimulator.functions.XMLCondition;
 
 public class WeightedFile extends BEASTObject {
 

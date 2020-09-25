@@ -1,8 +1,6 @@
-
 package xmlsimulator;
 
 
-import javax.xml.transform.TransformerException;
 
 import beast.util.XMLProducer;
 
@@ -22,3 +20,4 @@ public class XMLSimProducer extends XMLProducer {
 	
 	
 }
+

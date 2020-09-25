@@ -28,10 +28,13 @@
 
 
 
-	<append id="mcmc">
+	<append id="tree.prior.model.operator">
+		<operator id="CoalescentPopSizeScaler.t:tree" spec="ScaleOperator" parameter="@popSize" scaleFactor="0.75" weight="1.0"/>
+	</append>
 
-		<operator id="CoalescentPopSizeScaler.t:tree" spec="ScaleOperator" parameter="@popSize" scaleFactor="0.75" weight="2.0"/>
 
+	<append id="TreePriorPOEM">
+		<log idref="popSize"/>
 	</append>
 
 

@@ -513,7 +513,7 @@ public class XMLUtils {
 	 * @param string
 	 * @return
 	 */
-	public static List<Element> getElementsByName(Element element, String name) {
+	public static List<Element> getElementsByName(Node element, String name) {
 		
 		List<Element> elements = new ArrayList<Element>();
 		for (Node child : XMLUtils.nodeListToList(element.getChildNodes())) {

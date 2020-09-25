@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<fragment>
+
+
+	
+	<append id="state" spec="State" storeEvery="1000">
+		<parameter id="ucldStdev.clock" spec="parameter.RealParameter" lower="0.0" name="stateNode">0.1</parameter>
+		<stateNode id="rates.clock" spec="parameter.RealParameter">1</stateNode>
+	</append>
+
+	<append id="prior">
+
+
+		<prior id="ucldStdevPrior.clock" name="distribution" x="@ucldStdev.clock">
+			<Gamma id="Gamma.2" name="distr">
+				<parameter id="RealParameter.10" spec="parameter.RealParameter" estimate="false" name="alpha">0.5396</parameter>
+				<parameter id="RealParameter.11" spec="parameter.RealParameter" estimate="false" name="beta">0.3819</parameter>
+			</Gamma>
+		</prior>
+
+
+		<prior id="FastRatePriorDistrbution.clock" name="distribution" x="@rates.clock">
+			<LogNormal id="LogNormalDistributionModel.clock" S="@ucldStdev.clock" M="1" meanInRealSpace="true" name="distr"/>
+		</prior>
+
+	</append>
+
+
+	<override name="branchRateModel" id="ClockModel.t:tree" spec="beast.evolution.branchratemodel.UCRelaxedClockModel" rates="@rates.clock" tree="@tree">
+
+
+			<parameter estimate="false" name="clock.rate">1.0</parameter>
+			
+			<LogNormal id="LogNormalDistributionModel.clock" S="@ucldStdev.clock" meanInRealSpace="true" name="distr">
+				<parameter spec="parameter.RealParameter" estimate="false" lower="0.0" name="M" upper="1.0">1.0</parameter>
+			</LogNormal>
+			
+
+	</override>
+
+
+	<append id="clock.model.operator">
+
+
+
+
+		<operator id="orc.operators.AdaptableOperatorSampler.ucldStdev" spec="orc.operators.AdaptableOperatorSampler" weight="10.0">
+
+			<parameter idref="ucldStdev.clock" />
+
+			<operator id="fastUcldStdevScaler.clock" spec="consoperators.UcldScalerOperator" distr="@LogNormalDistributionModel.clock" rates="@rates.clock" scaleFactor="0.5" stdev="@ucldStdev.clock" weight="1.0">
+				<kernel spec="beast.evolution.operators.KernelDistribution$Bactrian" m="0.95" mode="bactrian_normal"/>
+			</operator>
+			<operator id="UcldStdevRandomWalk.clock" spec="BactrianRandomWalkOperator" parameter="@ucldStdev.clock" weight="1" scaleFactor="0.1">
+				<kernelDistribution spec="beast.evolution.operators.KernelDistribution$Bactrian" m="0.95" mode="bactrian_normal"/>
+			</operator>
+			<operator id="UcldStdevScale.clock" spec="BactrianScaleOperator" scaleFactor="0.5" parameter="@ucldStdev.clock" weight="1">
+				<kernelDistribution spec="beast.evolution.operators.KernelDistribution$Bactrian" m="0.95" mode="bactrian_normal"/>
+			</operator>
+
+
+			<operator id="orc.operators.SampleFromPriorOperator.c:ucldStdev" spec="orc.operators.SampleFromPriorOperator" parameter="@ucldStdev.clock" prior="@Gamma.2" weight="1"/>
+
+		</operator>
+		
+
+		<operator id="orc.operators.AdaptableOperatorSampler.rates.root" spec="orc.operators.AdaptableOperatorSampler" parameter="@rates.clock" tree="@tree" weight="1">
+
+			<operator id="RootOperator1.c:dna" spec="consoperators.SimpleDistance" twindowSize="0.005" tree="@tree" clockModel="@ClockModel.t:tree" rates="@rates.clock"  weight="1">
+				<kernel spec="beast.evolution.operators.KernelDistribution$Bactrian" m="0.95" mode="bactrian_normal"/>
+			</operator>
+
+			<operator id="RootOperator2.c:dna" spec="consoperators.SmallPulley" dwindowSize="0.005" tree="@tree" clockModel="@ClockModel.t:tree" rates="@rates.clock"  weight="1">
+				<kernel spec="beast.evolution.operators.KernelDistribution$Bactrian" m="0.95" mode="bactrian_normal"/>
+			</operator>
+
+
+		</operator>
+
+
+
+		<operator id="orc.operators.AdaptableOperatorSampler.rates.internal" spec="orc.operators.AdaptableOperatorSampler" parameter="@rates.clock" tree="@tree" weight="19">
+
+
+			<operator id="InternalnodesOperator.c:dna" spec="consoperators.InConstantDistanceOperator" twindowSize="0.005"  tree="@tree" clockModel="@ClockModel.t:tree" rates="@rates.clock"  weight="1">
+				<kernel spec="beast.evolution.operators.KernelDistribution$Bactrian" m="0.95" mode="bactrian_normal"/>
+			</operator>
+
+			<operator id="RatesRandomWalk.clock" spec="BactrianRandomWalkOperator" parameter="@rates.clock" weight="1" scaleFactor="0.1">
+				<kernelDistribution spec="beast.evolution.operators.KernelDistribution$Bactrian" m="0.95" mode="bactrian_normal"/>
+			</operator>
+			
+			<operator id="RatesScale.clock" spec="BactrianScaleOperator" scaleFactor="0.5" parameter="@rates.clock" weight="1">
+				<kernelDistribution spec="beast.evolution.operators.KernelDistribution$Bactrian" m="0.95" mode="bactrian_normal"/>
+			</operator>
+
+			<operator id="orc.operators.SampleFromPriorOperator.clock" spec="orc.operators.SampleFromPriorOperator" parameter="@rates.clock" np="1" prior="@LogNormalDistributionModel.clock" weight="1"/>
+
+		</operator>
+
+
+		<operator id="orc.operators.AdaptableOperatorSampler.NER" spec="orc.operators.AdaptableOperatorSampler" tree="@tree" weight="5">
+
+			<metric spec="beast.evolution.tree.RobinsonsFouldMetric" taxonset="@tree.taxonset"/>
+			<operator id="YuleModelNarrow.t:dummy" spec="Exchange" tree="@tree" weight="1"/>
+			<operator id="NEROperator_nowalk_dAE_dBE_dCE" spec="orc.ner.NEROperator_dAE_dBE_dCE" tree="@tree" rates="@rates.clock" weight="1"/>
+			
+		</operator>
+
+
+	</append>
+
+
+
+
+	<append id="ClockModelPOEM">
+		<log idref="ucldStdev.clock"/>
+		<log idref="RateStatLogger" />
+	</append>
+
+
+
+	<append id="tracelog">
+		<log idref="ucldStdev.clock"/>
+		<log id="RateStatLogger" spec="beast.evolution.branchratemodel.RateStatistic" branchratemodel="@ClockModel.t:tree" tree="@tree"/>
+	</append>
+
+
+</fragment>
+	
+
+
