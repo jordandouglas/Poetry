@@ -1,4 +1,4 @@
-package poetry;
+package poetry.util;
 
 import java.io.ByteArrayInputStream;
 import java.io.StringWriter;

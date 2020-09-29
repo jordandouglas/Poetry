@@ -15,9 +15,9 @@ import beast.evolution.alignment.Alignment;
 import beast.evolution.alignment.FilteredAlignment;
 import beast.math.distributions.Dirichlet;
 import beast.util.Randomizer;
-import poetry.XMLUtils;
 import poetry.functions.XMLFunction;
 import poetry.operators.MetaOperator;
+import poetry.util.XMLUtils;
 
 
 /**

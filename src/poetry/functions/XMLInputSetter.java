@@ -7,7 +7,7 @@ import org.w3c.dom.Element;
 import beast.core.BEASTObject;
 import beast.core.Input;
 import beast.core.Input.Validate;
-import poetry.XMLUtils;
+import poetry.util.XMLUtils;
 
 public class XMLInputSetter  extends XMLFunction {
 

@@ -28,10 +28,10 @@ import beast.util.ClusterTree;
 import beast.util.NexusParser;
 import beast.util.Randomizer;
 import beast.util.XMLProducer;
-import poetry.WeightedFile;
 import poetry.XMLSimProducer;
-import poetry.XMLUtils;
 import poetry.functions.XMLFunction;
+import poetry.util.WeightedFile;
+import poetry.util.XMLUtils;
 
 
 public class DatasetSampler extends Alignment implements XMLSampler  {

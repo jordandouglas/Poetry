@@ -31,6 +31,7 @@ import poetry.sampler.ModelSampler;
 import poetry.sampler.POEM;
 import poetry.sampler.RunnableSampler;
 import poetry.sampler.XMLSampler;
+import poetry.util.XMLUtils;
 
 
 

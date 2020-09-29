@@ -13,9 +13,9 @@ import beast.core.Input;
 import beast.core.MCMC;
 import beast.core.util.Log;
 import beast.evolution.alignment.Alignment;
-import poetry.WeightedFile;
-import poetry.XMLUtils;
 import poetry.functions.XMLFunction;
+import poetry.util.WeightedFile;
+import poetry.util.XMLUtils;
 
 public class RunnableSampler extends MCMC implements XMLSampler {
 

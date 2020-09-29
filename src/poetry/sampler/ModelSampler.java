@@ -13,10 +13,10 @@ import beast.core.BEASTObject;
 import beast.core.Input;
 import beast.core.util.Log;
 import beast.util.Randomizer;
-import poetry.WeightedFile;
-import poetry.XMLUtils;
 import poetry.functions.XMLFunction;
 import poetry.functions.XMLPopulator;
+import poetry.util.WeightedFile;
+import poetry.util.XMLUtils;
 
 public class ModelSampler extends BEASTObject implements XMLSampler {
 

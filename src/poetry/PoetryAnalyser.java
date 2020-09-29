@@ -20,6 +20,7 @@ import beast.core.util.ESS;
 import beast.core.util.Log;
 import beast.util.LogAnalyser;
 import poetry.sampler.POEM;
+import poetry.util.Lock;
 
 
 /**
@@ -67,13 +68,12 @@ public class PoetryAnalyser extends Runnable {
 	@Override
 	public void run() throws Exception {
 		
-
-
+		
+	
 		
 		// Open logfile using loganalyser
 		Log.warning("Computing ESSes...");
-		
-		//analyser.getESS(label);
+
 		
 		
 		// Calculate ESS for each POEM
@@ -117,93 +117,38 @@ public class PoetryAnalyser extends Runnable {
 		
 		
 		
-		RandomAccessFile raf = new RandomAccessFile(this.database, "rw");
-		FileChannel channel = raf.getChannel();
-		//FileLock lock = channel.tryLock();
-		
-
-		// Open database and find the right line
-		this.db = this.openDatabase();
-		this.rowNum = this.getRowNum(this.sampleNum);
-		if (this.rowNum < 0) throw new Exception("Cannot locate sample number " + this.sampleNum + " in the 'xml' column of the database");
-		
-		
-		
-		// Write ESSes
-		for (POEM poem : poems) {
-			this.setValueAtRow(poem.getESSColname(), "" + poem.getMinESS());
-		}
-		
-		// Set all POEM ESSes and compute coefficient of variation
 		double cov = POEM.getCoefficientOfVariation(this.poems);
 		System.out.println("ESS coefficient of variation is " + cov);
-		this.setValueAtRow(POEM.getCoefficientOfVariationColumnName(), "" + cov);
 		
 		
-		// Get database string
-		String out = "";
-		for (String colname : this.db.keySet()) out += colname + "\t";
-		out += "\n";
-		int nrow = this.db.get("xml").length;
-		for (int rowNum = 0; rowNum < nrow; rowNum ++) {
-			for (String colname : this.db.keySet()) {
-				out += this.db.get(colname)[rowNum] + "\t";
-			}
-			out += "\n";
-		}
+		// Lock the database
+		Lock lock = new Lock(this.sampleNum, this.database);
+		lock.lock();
 		
-		
-		// Clear the file and rewrite it 
-		channel.truncate(0);
-		raf.write(out.getBytes());
-		//lock.close();
-		
-		
-		/*
-		
-		// Sleep until the file can be written to
-		RandomAccessFile raf = new RandomAccessFile(this.database, "rw");
-		FileChannel channel = raf.getChannel();
-		FileLock lock = channel.tryLock();
-		int numSleeps = 0;
-		while (lock == null) {
-			Thread.sleep(100);
-			numSleeps ++;
-			if (numSleeps == 1 || numSleeps % 100 == 0) {
-				Log.warning("Database is locked, waiting for it to unlock...");
-			}
-			lock = channel.tryLock();
-		}
-		
-		lock = channel.lock();
-		
-		
-		
-		// Lock the file
-		//try (RandomAccessFile fileOutputStream = new RandomAccessFile(this.database, "rw");
-			//     FileChannel channel = fileOutputStream.getChannel();
-			    // FileLock lock = channel.lock()) { 
-			    
+		try {
 			
-		
-		
+			RandomAccessFile raf = new RandomAccessFile(this.database, "rw");
+			FileChannel channel = raf.getChannel();
+			//FileLock lock = channel.tryLock();
+			
+	
 			// Open database and find the right line
 			this.db = this.openDatabase();
 			this.rowNum = this.getRowNum(this.sampleNum);
 			if (this.rowNum < 0) throw new Exception("Cannot locate sample number " + this.sampleNum + " in the 'xml' column of the database");
 			
 			
+			Thread.sleep(2000);
 			
-			// Set all POEM ESSes
-			for (POEM poem : this.poems) {
+			
+			// Write ESSes
+			for (POEM poem : poems) {
 				this.setValueAtRow(poem.getESSColname(), "" + poem.getMinESS());
 			}
 			
-		
+			// Compute coefficient of variation
+			this.setValueAtRow(POEM.getCoefficientOfVariationColumnName(), "" + cov);
 			
-		
-			Log.warning("File locked. Sleeping now");
-			Thread.sleep(1000000);
 			
 			// Get database string
 			String out = "";
@@ -221,12 +166,18 @@ public class PoetryAnalyser extends Runnable {
 			// Clear the file and rewrite it 
 			channel.truncate(0);
 			raf.write(out.getBytes());
-			lock.close();
+			//lock.close();
+			
+			
+		} catch(Exception e) {
+			lock.unlock();
+			throw e;
+		}
 		
-	//}
-	 * 
-	 * */
-	 
+		
+		// Unlock the database
+		lock.unlock();
+		
 		
 		
 	}
