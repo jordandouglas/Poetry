@@ -12,6 +12,7 @@
 	<append id="prior">
 
 
+
 		<prior id="ucldStdevPrior.clock" name="distribution" x="@ucldStdev.clock">
 			<Gamma id="Gamma.2" name="distr">
 				<parameter id="RealParameter.10" spec="parameter.RealParameter" estimate="false" name="alpha">0.5396</parameter>
@@ -32,10 +33,7 @@
 
 
 
-	<append id="clock.model.operator">
-
-
-
+	<append id="clock.model.sd.operator">
 
 		<operator id="orc.operators.AdaptableOperatorSampler.ucldStdev" spec="orc.operators.AdaptableOperatorSampler" weight="10.0">
 
@@ -55,7 +53,13 @@
 			<operator id="orc.operators.SampleFromPriorOperator.c:ucldStdev" spec="orc.operators.SampleFromPriorOperator" parameter="@ucldStdev.clock" prior="@Gamma.2" weight="1"/>
 
 		</operator>
-		
+
+	</append>
+
+
+
+	<append id="clock.model.rate.operator">
+
 
 		<operator id="orc.operators.AdaptableOperatorSampler.rates" spec="orc.operators.AdaptableOperatorSampler" parameter="@rates.clock" tree="@tree" weight="10">
 
@@ -93,9 +97,14 @@
 
 
 
-	<append id="ClockModelPOEM">
-		<log idref="ucldStdev.clock"/>
+	<append id="ClockModelRatePOEM">
+		<log idref="FastRatePriorDistrbution.clock" />
 		<log idref="RateStatLogger" />
+	</append>
+
+	<append id="ClockModelSDPOEM">
+		<log idref="ucldStdevPrior.clock" />
+		<log idref="ucldStdev.clock"/>
 	</append>
 
 

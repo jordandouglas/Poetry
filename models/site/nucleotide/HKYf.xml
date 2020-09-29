@@ -38,15 +38,15 @@
 
 	<append id="site.model.logtransform">
 		<f idref="kappa.t:$(partition)"/>
-		<f idref="freqParameter.t:$(partition)"/>
 	</append>
 
-
-	<!--
-	<append id="site.model.logittransform">
-		<f idref="freqParameter.t:$(partition)"/>
+	<append id="site.model.AVMVN">
+		<transformations id="site.model.logconstrain.freq:$(partition)" spec="beast.util.Transform$LogConstrainedSumTransform" sum="1.0">
+			<f idref="freqParameter.t:$(partition)"/>
+		</transformations>
 	</append>
-	-->
+
+	
 
 	<append id="SiteModelPOEM">
 		<log idref="kappa.t:$(partition)"/>

@@ -152,10 +152,7 @@ public class SimulateXML extends Runnable {
 				model.reset();
 			}
 			
-			
-			// Sample operator weights
-			this.sampleOperatorWeights();
-			
+
 			
 			// Sample a search algorithm
 			if (this.runner instanceof RunnableSampler) ((RunnableSampler)this.runner).reset();
@@ -180,24 +177,15 @@ public class SimulateXML extends Runnable {
 	/**
 	 * Sample weights for each operator
 	 */
-	protected void sampleOperatorWeights() {
+	protected void sampleOperatorWeights(Document doc) throws Exception {
 		
-		double[] weights = new double[this.poems.size()];
-		double weightSum = 0;
-		for (int i = 0; i < weights.length; i ++) {
-			weights[i] = Randomizer.nextDouble();
-			weightSum += weights[i];
-		}
-		
-		// Normalise so they sum to 1
-		for (int i = 0; i < weights.length; i ++) weights[i] = weights[i] / weightSum;
-		
+		// Sample using a Dirichlet distribution
+		double[] weights = POEM.sampleWeights(this.poems, doc);
 		
 		// Set the weight of each poem
 		for (int i = 0; i < weights.length; i ++) {
 			this.poems.get(i).setWeight(weights[i]);
 		}
-		
 		
 	}
 	
@@ -304,11 +292,16 @@ public class SimulateXML extends Runnable {
 			comments += d.getComments() + "\n";
 		}
         
+        
+		
+		// Sample operator weights
+		this.sampleOperatorWeights(doc);
+		
  
         
         // Operator weights
         for (POEM poem : this.poems) {
-        	poem.tidyXML(doc, run, this.functions);
+        	poem.tidyXML(doc, runner, this.functions);
         	comments += poem.getComments() + "\n";
         }
       
@@ -392,12 +385,24 @@ public class SimulateXML extends Runnable {
 	    poemRunner.setAttribute("spec", PoetryAnalyser.class.getCanonicalName());
 	    poemRunner.setAttribute("database", "../" + DATABASE_FILENAME);
 	    poemRunner.setAttribute("number", "" + sampleNum);
-	    poemRunner.setAttribute("log", "template.log"); // TEMP HACK
 	    this.poetry.appendChild(beast);
 	    beast.appendChild(poemRunner);
 		
 	    // Copy poems over from main doc
 	    for (Element poem : XMLUtils.getElementsByName(runner, "poem")) {
+	    	
+	    	// Only consider poems which have non-zero weight
+	    	POEM poemObj = null;
+	    	for (POEM p : this.poems) {
+	    		if (p.getID().equals(poem.getAttribute("id"))){
+	    			poemObj = p;
+	    			break;
+	    		}
+	    	}
+	    	if (poemObj.getWeight() == 0) {
+	    		continue;
+	    	}
+	    	
 	    	Element imported =  (Element)this.poetry.importNode(poem, true);
 	    	
 	    	// Remove idrefs using hack so it initialises on load
@@ -461,6 +466,7 @@ public class SimulateXML extends Runnable {
 		for (POEM poem : this.poems) {
 			this.dbOut.print(poem.getESSColname() + "\t");
 		}
+		this.dbOut.print(POEM.getCoefficientOfVariationColumnName() + "\t");
 		
 		
 		// Job start / finish / error
@@ -526,6 +532,7 @@ public class SimulateXML extends Runnable {
 		for (POEM poem : this.poems) {
 			this.dbOut.print("?\t");
 		}
+		this.dbOut.print("?\t");
 		
 		
 		// Job start / finish / error

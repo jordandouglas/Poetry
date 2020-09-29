@@ -36,6 +36,10 @@ public class MetaOperator extends Operator {
 	@Override
 	public void initAndValidate() {
 		this.operators = operatorsInput.get();
+		
+		if (this.operators.isEmpty()) {
+			this.m_pWeight.set(0.0);
+		}
 	}
 
 	@Override

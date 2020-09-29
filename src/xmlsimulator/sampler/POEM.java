@@ -9,9 +9,15 @@ import org.w3c.dom.Element;
 import beast.core.BEASTObject;
 import beast.core.Function;
 import beast.core.Input;
+import beast.core.Logger;
 import beast.core.Operator;
+import beast.evolution.alignment.Alignment;
+import beast.evolution.alignment.FilteredAlignment;
+import beast.math.distributions.Dirichlet;
+import beast.util.Randomizer;
 import xmlsimulator.XMLUtils;
 import xmlsimulator.functions.XMLFunction;
+import xmlsimulator.operators.MetaOperator;
 
 
 /**
@@ -22,8 +28,10 @@ import xmlsimulator.functions.XMLFunction;
 public class POEM extends BEASTObject implements XMLSampler {
 
 	
-	final public Input<Operator> operatorInput = new Input<>("operator", "An operator");
+	final public Input<MetaOperator> operatorInput = new Input<>("operator", "An operator");
 	final public Input<List<Function>> logInput = new Input<>("log", "A parameter/logger to report", new ArrayList<>());
+	final public Input<Double> alphaInput = new Input<>("alpha", "The Dirichlet alpha term for the prior probability of this operator", 1.0);
+	final public Input<Integer> logEveryInput = new Input<>("logEvery", "How often to log", Input.Validate.REQUIRED);
 	
 	
 	final public Input<String> operatorIDInput = new Input<>("operatorID", "The id of an operator. Use this when the operator is in a different xml file");
@@ -34,6 +42,7 @@ public class POEM extends BEASTObject implements XMLSampler {
 	double weight;
 	String operatorID;
 	double minESS;
+	double alpha;
 	
 	@Override
 	public void initAndValidate() {
@@ -49,6 +58,7 @@ public class POEM extends BEASTObject implements XMLSampler {
 		
 		this.weight = 1;
 		this.minESS = 0;
+		this.alpha = alphaInput.get();
 	}
 	
 	
@@ -91,6 +101,13 @@ public class POEM extends BEASTObject implements XMLSampler {
 	}
 	
 	
+	/**
+	 * The log file name where all terms in this poem are printed to
+	 * @return
+	 */
+	public String getLoggerFileName() {
+		return this.getID() + ".log";
+	}
 	
 	
 	/**
@@ -110,6 +127,77 @@ public class POEM extends BEASTObject implements XMLSampler {
 		return this.weight;
 	}
 	
+	
+	/**
+	 * Get the Dirichlet alpha of this POEM
+	 * Used for sampling a weight
+	 * @return
+	 */
+	public double getAlpha() {
+		
+		double a = this.alpha;
+		//if (timesNInput.get()) a = a * aln.getTaxonCount();
+		//if (timesPInput.get() && aln instanceof DatasetSampler) {
+			//a = a * ((DatasetSampler) aln).getNumPartitions();
+		//}
+		return a;
+	}
+	
+	
+	/**
+	 * Returns alpha, but if there are no sub-operators in the operator then returns zero
+	 * @param doc
+	 * @return
+	 * @throws Exception
+	 */
+	private double getAlphaConditionalOnModel(Document doc) throws Exception {
+		
+		Element operator = this.getOperatorEle(doc);
+		this.operatorID =  operator.getAttribute("id");
+		List<Element> subOperators = XMLUtils.getElementsByName(operator, "operator");
+		if (subOperators.isEmpty()) {
+			return 0;
+		}else {
+			return this.getAlpha();
+		}
+		
+	}
+	
+	
+	
+	/**
+	 * Sample weights using a dirichlet distribution
+	 * @param poems - list of poems
+	 * @return
+	 * @throws Exception 
+	 */
+	public static double[] sampleWeights(List<POEM> poems, Document doc) throws Exception {
+		
+		
+		int dim = poems.size();
+		double[] weights = new double[dim];
+		
+		
+		// Sample a dirichlet
+		double sum = 0.0;
+		for (int j = 0; j < dim; j++) {
+			POEM poem = poems.get(j);
+			double a = poem.getAlphaConditionalOnModel(doc);
+			if (a == 0) {
+				weights[j] = a;
+			}else {
+				weights[j] = Randomizer.nextGamma(a, 1.0);
+			}
+			sum += weights[j];
+		}
+		for (int j = 0; j < dim; j++) {
+			weights[j] = weights[j] / sum;
+		}
+
+		
+		return weights;
+		
+	}
 
 
 	@Override
@@ -117,10 +205,15 @@ public class POEM extends BEASTObject implements XMLSampler {
 		this.weight = 1;
 	}
 
-
-	@Override
-	public void tidyXML(Document doc, Element runnable, List<XMLFunction> functions) throws Exception {
-		
+	
+	
+	/**
+	 * Find the operator element in an xml document
+	 * @param doc
+	 * @return
+	 * @throws Exception
+	 */
+	protected Element getOperatorEle(Document doc) throws Exception {
 		
 
 		// Get the operator ID of this POEM (may have been added to the doc)
@@ -136,15 +229,102 @@ public class POEM extends BEASTObject implements XMLSampler {
 		}else {
 			throw new Exception("Error: " + this.getID() + " does not have an operator");
 		}
-		
-		
-		// Set the weight of that operator in the XML to the appropriate weight
 		Element operator = XMLUtils.getElementById(doc, operatorID);
+		
 		if (operator == null) {
 			throw new IllegalArgumentException("Error: cannot locate operator " + operatorID);
 		}
-		operator.setAttribute("weight", "" + this.getWeight());
-		this.operatorID = operatorID;
+		
+		return operator;
+		
+		
+		
+	}
+	
+	
+
+	@Override
+	public void tidyXML(Document doc, Element runnable, List<XMLFunction> functions) throws Exception {
+		
+		
+		Element thisEle = XMLUtils.getElementById(doc, this.getID());
+		if (thisEle == null) throw new Exception("Error: cannot locate " + this.getID());
+		
+
+		// Set the weight of that operator in the XML to the appropriate weight, or remove if the operator has no target
+		Element operator = this.getOperatorEle(doc);
+		this.operatorID =  operator.getAttribute("id");
+		if (this.getWeight() == 0) {
+			operator.getParentNode().removeChild(operator);
+			return;
+		}else {
+			operator.setAttribute("weight", "" + this.getWeight());
+		}
+		
+		
+		
+		// Create a logger if applicable
+		Element logger = doc.createElement("logger");
+		logger.setAttribute("id", this.getID() + "Logger");
+		logger.setAttribute("fileName", this.getLoggerFileName());
+		logger.setAttribute("logEvery", "" + this.logEveryInput.get());
+		runnable.appendChild(logger);
+		
+		// Add all this elements loggables into the logger
+		List<Element> logs = XMLUtils.getElementsByName(thisEle, "log");
+		for (Element log : logs) {
+			logger.appendChild(log.cloneNode(true));
+		}
+		
+		/*
+		Element operator = this.getOperatorEle(doc);
+		this.operatorID =  operator.getAttribute("id");
+		List<Element> subOperators = XMLUtils.getElementsByName(operator, "operator");
+		if (subOperators.isEmpty()) {
+			operator.getParentNode().removeChild(operator);
+			//this.setWeight(0);
+		}else {
+			operator.setAttribute("weight", "" + this.getWeight());
+		}
+		*/
+		
+		
+		/*
+		
+		// Ensure that all logged terms in this operator are also part of the logger
+		Element logger = XMLUtils.getElementById(doc, this.logger.getID());
+		
+		for (Element log : logs) {
+			
+			// Is this thing being logged?
+			boolean foundMatch = false;
+			if (log.hasAttribute("id")){
+				if (XMLUtils.getElementById(logger, log.getAttribute("idref")) != null) {
+					foundMatch = true;
+				}
+			}
+			
+			
+			else if (log.hasAttribute("idref")) {
+				if (XMLUtils.getElementById(logger, log.getAttribute("idref")) != null) {
+					foundMatch = true;
+				}
+				else if (XMLUtils.getElementByAttrValue(logger, "idref", log.getAttribute("idref")).size() > 0) {
+					foundMatch = true;
+				}
+			}
+			
+			
+			// Add it to the log
+			if (!foundMatch) {
+				logger.appendChild(log.cloneNode(true));
+			}
+			
+			
+		}
+		
+		*/
+		
 		
 	}
 
@@ -181,6 +361,54 @@ public class POEM extends BEASTObject implements XMLSampler {
 	public double getMinESS() {
 		return this.minESS;
 	}
+
+
+	/**
+	 * Name of c.o.v. column
+	 * @return
+	 */
+	public static String getCoefficientOfVariationColumnName() {
+		return "c.o.v";
+	}
+	
+	
+	/**
+	 * Compute the coefficient of variation of the minimum ESSes
+	 * @param poems
+	 * @return
+	 */
+	public static double getCoefficientOfVariation(List<POEM> poems) {
+		
+		
+		// Calculate mean (but exclude non infinities)
+		int numNonInf = 0;
+		double meanESS = 0;
+		for (POEM poem : poems) {
+			double ESS = poem.getMinESS();
+			if (ESS != Double.POSITIVE_INFINITY) {
+				meanESS += ESS;
+				numNonInf ++;
+			}
+		}
+		meanESS /= numNonInf;
+		
+		
+		// Calculate SD
+		double sdESS = 0;
+		for (POEM poem : poems) {
+			double ESS = poem.getMinESS();
+			if (ESS != Double.POSITIVE_INFINITY) {
+				sdESS += Math.sqrt(Math.pow(ESS - meanESS, 2)) / numNonInf;
+			}
+		}
+		
+		
+		// Coefficient of variation
+		return sdESS / meanESS;
+	}
+	
+	
+	
 	
 	
 

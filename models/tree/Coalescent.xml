@@ -8,7 +8,8 @@
 	</append>
 
 
-	<append id="prior">
+	<append id="treePrior">
+
 
 		<distribution id="CoalescentModel.t:tree" spec="beast.evolution.tree.coalescent.Coalescent">
 			<treeIntervals spec="TreeIntervals" tree="@tree" />
@@ -27,13 +28,14 @@
 
 
 
-
-	<append id="tree.prior.model.operator">
+	<append id="species.tree.prior.model.operator">
 		<operator id="CoalescentPopSizeScaler.t:tree" spec="ScaleOperator" parameter="@popSize" scaleFactor="0.75" weight="1.0"/>
 	</append>
 
 
-	<append id="TreePriorPOEM">
+
+
+	<append id="SpeciesTreePriorPOEM">
 		<log idref="popSize"/>
 	</append>
 

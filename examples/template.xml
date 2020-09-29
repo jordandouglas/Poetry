@@ -16,7 +16,7 @@
 
 
 	<!-- Alignment sampler -->
-	<data id="alignment.$(partition)" spec="xmlsimulator.DatasetSampler">
+	<data id="alignment.$(partition)" spec="xmlsimulator.sampler.DatasetSampler">
 
 		
 		<file spec="xmlsimulator.WeightedFile" file="../datasets/Becker_2016.tar.gz/Becker_2016/alignment.nex" desc="Benchmark alignment"  />
@@ -127,19 +127,56 @@
 
 
 		<!-- Parameter-operator-ESS mappings -->
-		<poem id="TopologyPOEM" spec="xmlsimulator.POEM">
-			<operator idref="AdaptableTopologyOperator.tree" />
+		<poem id="TopologyPOEM" spec="xmlsimulator.sampler.POEM" alpha="2.0" logEvery="10000">
+			<operator idref="species.tree.topology.operator" />
+			<log idref="treePrior" />
 		</poem>
 
-		<poem id="NodeHeightPOEM" spec="xmlsimulator.POEM">
+		<poem id="NodeHeightPOEM" spec="xmlsimulator.sampler.POEM" alpha="2.0" logEvery="10000">
+			<operator idref="species.tree.height.operator" />
+			<log idref="treePrior" />
 			<log idref="TreeStat.t:tree" />
-			<operator idref="AdaptableNodeHeightOperator.tree" />
 		</poem>
 
 
-		<poem id="SiteModelPOEM" spec="xmlsimulator.POEM">
-			<operator idref="site.model.AVMVN" />
+
+		<poem id="GeneTreeTopologyPOEM" spec="xmlsimulator.sampler.POEM" alpha="2.0" logEvery="10000">
+			<operator idref="gene.tree.topology.operator" />
 		</poem>
+
+		<poem id="GeneTreeNodeHeightPOEM" spec="xmlsimulator.sampler.POEM" alpha="2.0" logEvery="10000">
+			<operator idref="gene.tree.height.operator" />
+		</poem>
+
+		<poem id="SiteModelPOEM" spec="xmlsimulator.sampler.POEM" alpha="0.5" logEvery="10000">
+			<operator idref="site.model.operator" />
+			<log idref="clockRate.t:$(partition)" />
+		</poem>
+
+
+		<poem id="ClockModelRatePOEM" spec="xmlsimulator.sampler.POEM" alpha="1.0" logEvery="10000">
+			<operator idref="clock.model.rate.operator" />
+		</poem>
+
+
+		<poem id="ClockModelSDPOEM" spec="xmlsimulator.sampler.POEM" alpha="1.0" logEvery="10000">
+			<operator idref="clock.model.sd.operator" />
+
+		</poem>
+
+
+		
+		<poem id="SpeciesTreePriorPOEM" spec="xmlsimulator.sampler.POEM" alpha="1.0" logEvery="10000">
+			<operator idref="species.tree.prior.model.operator" />
+			<log idref="treePrior" />
+		</poem>
+
+
+		<poem id="GeneTreePriorPOEM" spec="xmlsimulator.sampler.POEM" alpha="1.0" logEvery="10000">
+			<operator idref="gene.tree.prior.model.operator" />
+
+		</poem>
+		
 
 		<!--
 		<poem id="TopologyPOEM.$(partition)" spec="xmlsimulator.POEM">
@@ -151,27 +188,29 @@
 
 
 		<!-- XML functions -->
-		<function id="dnaOnly" spec="xmlsimulator.XMLCondition" obj="@alignment.$(partition)" method="isDNA" />
-		<function id="aaOnly" spec="xmlsimulator.XMLCondition" obj="@alignment.$(partition)" method="isAminoAcid" />
-		<function id="speciesOnly" spec="xmlsimulator.XMLCondition" obj="@alignment.$(partition)" method="hasSpeciesMap" />
-		<function id="notSpeciesOnly" spec="xmlsimulator.XMLCondition" obj="@alignment.$(partition)" method="hasSpeciesMap" negate="true" />
-		<function id="doingMSCAnalysis" spec="xmlsimulator.XMLCondition" obj="@MSC.model" method="wasSampled" />
-		<function id="doingConcatAnalysis" spec="xmlsimulator.XMLCondition" obj="@Concat.model" method="wasSampled" />
-		<function id="tipsAreDated" spec="xmlsimulator.XMLCondition" obj="@alignment.$(partition)" method="tipsAreDated" />
+		<function id="dnaOnly" spec="xmlsimulator.functions.XMLCondition" obj="@alignment.$(partition)" method="isDNA" />
+		<function id="aaOnly" spec="xmlsimulator.functions.XMLCondition" obj="@alignment.$(partition)" method="isAminoAcid" />
+		<function id="speciesOnly" spec="xmlsimulator.functions.XMLCondition" obj="@alignment.$(partition)" method="hasSpeciesMap" />
+		<function id="notSpeciesOnly" spec="xmlsimulator.functions.XMLCondition" obj="@alignment.$(partition)" method="hasSpeciesMap" negate="true" />
+		<function id="doingMSCAnalysis" spec="xmlsimulator.functions.XMLCondition" obj="@MSC.model" method="wasSampled" />
+		<function id="doingConcatAnalysis" spec="xmlsimulator.functions.XMLCondition" obj="@Concat.model" method="wasSampled" />
+		<function id="tipsAreDated" spec="xmlsimulator.functions.XMLCondition" obj="@alignment.$(partition)" method="tipsAreDated" />
 
+		<function spec="xmlsimulator.functions.XMLInputSetter" obj="@alignment.$(partition)" method="getNumPartitionsDouble" target="@site.model.logconstrain" input="sum" />
+		<function spec="xmlsimulator.functions.XMLInputSetter" target="@site.model.AVMVN" input="allowNonsense" value="true" />
 
-		<function id="mscTaxonSet" spec="xmlsimulator.XMLPopulator" obj="@alignment.$(partition)" method="getMSCTaxonSet" />
+		<function id="mscTaxonSet" spec="xmlsimulator.functions.XMLPopulator" obj="@alignment.$(partition)" method="getMSCTaxonSet" />
 
 
 		<!-- Species model sampler -->
-		<model id="partition.model" spec="xmlsimulator.ModelSampler">
+		<model id="partition.model" spec="xmlsimulator.sampler.ModelSampler">
 			<file id="Concat.model" spec="xmlsimulator.WeightedFile" file="../models/species/Concat.xml" desc="Loci are concatenated (as partitions)" />
 			<file weight="10000" id="MSC.model" spec="xmlsimulator.WeightedFile" file="../models/species/MSC.xml" desc="Loci are treated as gene trees" condition="@speciesOnly" />
 		</model>
 
 
 		<!-- Site model sampler -->
-		<model id="site.model" spec="xmlsimulator.ModelSampler">
+		<model id="site.model" spec="xmlsimulator.sampler.ModelSampler">
 
 			<!-- Nucleotide -->
 			<file id="JukesCantor.model" spec="xmlsimulator.WeightedFile" file="../models/site/nucleotide/JukesCantor.xml" desc="The Jukes-Cantor site model" condition="@dnaOnly" />
@@ -188,15 +227,15 @@
 		
 
 		<!-- Branch rate model sampler -->
-		<model id="branch.model" spec="xmlsimulator.ModelSampler">
-			<file id="Strict.model" spec="xmlsimulator.WeightedFile" file="../models/branch/Strict.xml" desc="The strict clock" condition="@doingConcatAnalysis" />
-			<file id="RelaxedLN.model" spec="xmlsimulator.WeightedFile" file="../models/branch/RelaxedLN.xml" desc="A relaxed clock with lognormal prior" condition="@doingConcatAnalysis" />
-			<file id="RelaxedLNSB3.model" spec="xmlsimulator.WeightedFile" file="../models/branch/SB3RelaxedClock.xml" desc="Multispecies coalescent relaxed clock model with lognormal prior" condition="@doingMSCAnalysis" />
+		<model id="branch.model" spec="xmlsimulator.sampler.ModelSampler">
+			<file id="Strict.model" spec="xmlsimulator.WeightedFile" file="../models/clock/Strict.xml" desc="The strict clock" condition="@doingConcatAnalysis" />
+			<file id="RelaxedLN.model" spec="xmlsimulator.WeightedFile" file="../models/clock/RelaxedLN.xml" desc="A relaxed clock with lognormal prior" condition="@doingConcatAnalysis" />
+			<file id="RelaxedLNSB3.model" spec="xmlsimulator.WeightedFile" file="../models/clock/SB3RelaxedClock.xml" desc="Multispecies coalescent relaxed clock model with lognormal prior" condition="@doingMSCAnalysis" />
 		</model>
 
 
 		<!-- Tree prior sampler -->
-		<model id="tree.model" spec="xmlsimulator.ModelSampler">
+		<model id="tree.model" spec="xmlsimulator.sampler.ModelSampler">
 			<file id="Yule.model" spec="xmlsimulator.WeightedFile" file="../models/tree/Yule.xml" desc="A Yule tree prior" />
 			<file id="Coalescent.model" spec="xmlsimulator.WeightedFile" file="../models/tree/Coalescent.xml" desc="A coalescent tree prior" condition="@doingConcatAnalysis" />
 		</model>
@@ -205,7 +244,12 @@
 
 		
 	
-		<runner id="mcmc" spec="beast.core.MCMC"  chainLength="50000000">
+		<runner id="mcmc" spec="xmlsimulator.sampler.RunnableSampler" chainLength="100000000">
+
+
+
+			<file id="MCMC.search" spec="xmlsimulator.WeightedFile" file="../models/search/MCMC.xml" desc="Standard MCMC (i.e. MC2)" />
+			<file id="MCMCMC.search" spec="xmlsimulator.WeightedFile" file="../models/search/MCMCMC.xml" desc="Coupled MCMC (i.e. MC3)" />
 		
 
 			<state id="state" spec="State" storeEvery="1000">
@@ -229,6 +273,10 @@
 
 				<distribution id="prior" spec="util.CompoundDistribution">
 
+					<distribution  id="treePrior" spec="beast.core.util.CompoundDistribution">
+
+					</distribution>
+
 
 
 					<prior id="clockRatePrior.t:$(partition)" name="distribution" x="@clockRate.t:$(partition)">
@@ -244,56 +292,140 @@
 			</distribution>
 
 
-			<!-- Tree topology -->
-			<operator id="AdaptableTopologyOperator.tree" spec="orc.operators.AdaptableOperatorSampler" tree="@tree" weight="1.0">
-				<metric spec="beast.evolution.tree.RobinsonsFouldMetric" taxonset="@tree.taxonset"/>
 
-				<operator id="SubtreeSlide.t:tree" spec="SubtreeSlide" tree="@tree" weight="1.0"/>
-				<operator id="Wide.t:tree" spec="Exchange" isNarrow="false" tree="@tree" weight="13.0"/>
-				<operator id="Narrow.t:tree" spec="Exchange" isNarrow="true" tree="@tree" weight="1.0"/>
-				<operator id="WilsonBalding.t:tree" spec="WilsonBalding" tree="@tree" weight="1.0"/>
+
+
+
+			<!-- Species tree node height operator -->
+			<operator id="species.tree.height.operator" spec="xmlsimulator.operators.MetaOperator"  weight="1.0">
+
+				<operator id="AdaptableNodeHeightOperator.tree" spec="orc.operators.AdaptableOperatorSampler" tree="@tree" weight="1.0">
+					<operator id="TreeScaler.t:tree" spec="ScaleOperator" scaleFactor="0.5" tree="@tree" weight="1.0"/>
+					<operator id="TreeRootScaler.t:tree" spec="ScaleOperator" rootOnly="true" scaleFactor="0.5" tree="@tree" weight="1.0"/>
+					<operator id="UniformOperator.t:tree" spec="Uniform" tree="@tree" weight="1.0"/>
+					<operator idref="SubtreeSlide.t:tree"/>
+				</operator>
+
 			</operator>
 
 
 
-			<!-- Tree node heights -->
-			<operator id="AdaptableNodeHeightOperator.tree" spec="orc.operators.AdaptableOperatorSampler" tree="@tree" weight="1.0">
-				<operator id="TreeScaler.t:tree" spec="ScaleOperator" scaleFactor="0.5" tree="@tree" weight="1.0"/>
-				<operator id="TreeRootScaler.t:tree" spec="ScaleOperator" rootOnly="true" scaleFactor="0.5" tree="@tree" weight="1.0"/>
-				<operator id="UniformOperator.t:tree" spec="Uniform" tree="@tree" weight="1.0"/>
-				<operator idref="SubtreeSlide.t:tree"/>
+			<!-- Species tree topology operator -->
+			<operator id="species.tree.topology.operator" spec="xmlsimulator.operators.MetaOperator"  weight="1.0">
+
+				<operator id="AdaptableTopologyOperator.tree" spec="orc.operators.AdaptableOperatorSampler" tree="@tree" weight="1.0">
+					<metric spec="beast.evolution.tree.RobinsonsFouldMetric" taxonset="@tree.taxonset"/>
+
+					<operator id="SubtreeSlide.t:tree" spec="SubtreeSlide" tree="@tree" weight="1.0"/>
+					<operator id="Wide.t:tree" spec="Exchange" isNarrow="false" tree="@tree" weight="13.0"/>
+					<operator id="Narrow.t:tree" spec="Exchange" isNarrow="true" tree="@tree" weight="1.0"/>
+					<operator id="WilsonBalding.t:tree" spec="WilsonBalding" tree="@tree" weight="1.0"/>
+				</operator>
+
 			</operator>
 
 
 
 
-			<operator id="site.model.AVMVN" spec="beast.evolution.operators.AdaptableVarianceMultivariateNormalOperator" 
-                weight="1"
-                coefficient="1"
-                scaleFactor="1"
-                beta="0.05"
-                initial="1000"
-                burnin="500"
-                every="1">
+			<!-- Gene Tree node height operator -->
+			<operator id="gene.tree.height.operator" spec="xmlsimulator.operators.MetaOperator"  weight="1.0">
 
-				<transformations id="site.model.logtransform" spec="beast.util.Transform$LogTransform">
-					<f idref="tree" />
-				</transformations>
-				<!--
-				<transformations id="site.model.logittransform" spec="beast.util.Transform$LogitTransform">
+
+			</operator>
+
+
+
+
+			<!-- Gene tree topology operator -->
+			<operator id="gene.tree.topology.operator" spec="xmlsimulator.operators.MetaOperator"  weight="1.0">
+
+
+			</operator>
+
+
+			<!-- Site model operator -->
+			<operator id="site.model.operator" spec="xmlsimulator.operators.MetaOperator" weight="1.0">
+
+				<operator id="site.model.AVMVN" spec="beast.evolution.operators.AdaptableVarianceMultivariateNormalOperator" 
+	                weight="1"
+	                coefficient="1"
+	                scaleFactor="1"
+	                beta="0.05"
+	                initial="1000"
+	                burnin="500"
+	                every="1"
+	                allowNonsense="false">
+
+					<transformations id="site.model.logtransform" spec="beast.util.Transform$LogTransform">
+						<f idref="tree" />
+					</transformations>
+					<!--
+					<transformations id="site.model.logittransform" spec="beast.util.Transform$LogitTransform">
+						
+					</transformations>
+					-->
+
+
+
 					
-				</transformations>
+					<transformations id="site.model.logconstrain" spec="beast.util.Transform$LogConstrainedSumTransform" >
+						<f idref="clockRate.t:$(partition)" />
+					</transformations>
+					
+
+				
+				</operator>
+
+			</operator>
+
+
+
+			<!-- Species tree prior model operator -->
+			<operator id="species.tree.prior.model.operator" spec="xmlsimulator.operators.MetaOperator"  weight="1.0">
+
+
+			</operator>
+
+
+			<!-- Gene tree(s) prior model operator -->
+			<operator id="gene.tree.prior.model.operator" spec="xmlsimulator.operators.MetaOperator"  weight="1.0">
+
+
+			</operator>
+			
+
+
+			<!-- Clock model rate operator -->
+			<operator id="clock.model.rate.operator" spec="xmlsimulator.operators.MetaOperator" weight="1.0">
+
+
+			</operator>
+			
+
+
+
+
+			<!-- Clock model sd operator -->
+			<operator id="clock.model.sd.operator" spec="xmlsimulator.operators.MetaOperator" weight="1.0">
+
+
+			</operator>
+			
+
+
+
+
+			<!-- Clock model operator 
+			<operator id="clock.model.operator" spec="xmlsimulator.operators.MetaOperator">
+
+				<operator id="ClockRateExchanger" spec="BactrianDeltaExchangeOperator" delta="0.01" weight="0.4">
+					<kernelDistribution spec="beast.evolution.operators.KernelDistribution$Bactrian" m="0.95" mode="uniform"/>
+					<parameter idref="clockRate.t:$(partition)"/>
+				</operator>
+
+			</operator>
 			-->
-			</operator>
-
-
-
-
-
-			<operator id="ClockRateExchanger" spec="BactrianDeltaExchangeOperator" delta="0.01" weight="0.4">
-				<kernelDistribution spec="beast.evolution.operators.KernelDistribution$Bactrian" m="0.95" mode="uniform"/>
-				<parameter idref="clockRate.t:$(partition)"/>
-			</operator>
+			
 
 
 			<logger id="screenlog" spec="Logger" logEvery="10000">
@@ -308,10 +440,11 @@
 
 
 
-			<logger id="tracelog" fileName="$(filebase).log" spec="Logger" logEvery="10000">
+			<logger id="tracelog" fileName="$(filebase).log" spec="Logger" logEvery="1000">
 				<log idref="posterior"/>
 				<log idref="likelihood"/>
 				<log idref="prior"/>
+				<log idref="treePrior" />
 				<log id="TreeStat.t:tree" spec="beast.evolution.tree.TreeStatLogger" tree="@tree"/>
 				
 				<log idref="clockRate.t:$(partition)"/>

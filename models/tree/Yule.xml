@@ -11,7 +11,11 @@
 
 
 
-	<append id="prior">
+	<append id="treePrior">
+
+		
+
+
 		<distribution id="YuleModel.t:tree" spec="beast.evolution.speciation.YuleModel" birthDiffRate="@birthRate" tree="@tree"/>
 		<prior id="YuleBirthRatePrior.t:tree" name="distribution" x="@birthRate">
 			<LogNormal name="distr">
@@ -19,16 +23,20 @@
 				<parameter spec="parameter.RealParameter" estimate="false" name="S">1.25</parameter>
 			</LogNormal>
 		</prior>
+
+
 	</append>
 
 
 
-	<append id="tree.prior.model.operator">
+	<append id="species.tree.prior.model.operator">
 		<operator id="YuleBirthRateScaler.t:tree" spec="ScaleOperator" parameter="@birthRate" scaleFactor="0.75" weight="1.0"/>
 	</append>
 
 
-	<append id="TreePriorPOEM">
+
+
+	<append id="SpeciesTreePriorPOEM">
 		<log idref="birthRate"/>
 	</append>
 

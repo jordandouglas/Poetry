@@ -3,10 +3,13 @@ package xmlsimulator;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Scanner;
 
@@ -29,7 +32,6 @@ import xmlsimulator.sampler.POEM;
 public class PoetryAnalyser extends Runnable {
 
 	
-	final public Input<File> logfileInput = new Input<>("log", "The location of a log file", Input.Validate.REQUIRED);
 	final public Input<File> databaseFileInput = new Input<>("database", "The location of a the database (tsv)", Input.Validate.REQUIRED);
 	final public Input<Integer> sampleNumInput = new Input<>("number", "The row number in the database of this sample", Input.Validate.REQUIRED);
 	final public Input<List<POEM>> poemsInput = new Input<>("poem", "A map between operators and log outputs", new ArrayList<>());
@@ -40,7 +42,6 @@ public class PoetryAnalyser extends Runnable {
 	
 	int sampleNum;
 	int rowNum;
-	File logFile;
 	File database;
 	List<POEM> poems;
 	HashMap<String, String[]> db;
@@ -49,7 +50,6 @@ public class PoetryAnalyser extends Runnable {
 	public void initAndValidate() {
 		
 		this.sampleNum = sampleNumInput.get();
-		this.logFile = logfileInput.get();
 		this.database = databaseFileInput.get();
 		this.poems = poemsInput.get();
 		this.rowNum = -1;
@@ -57,8 +57,8 @@ public class PoetryAnalyser extends Runnable {
 		if (this.poems.isEmpty()) throw new IllegalArgumentException("Please provide at least 1 poem");
 		
 		// File validation
-		if (!this.logFile.exists() || !this.logFile.canRead()) throw new IllegalArgumentException("Could not locate/read logfile " + this.logFile.getPath());
-		if (!this.database.exists() || !this.database.canRead()) throw new IllegalArgumentException("Could not locate database " + this.database.getPath());
+		
+		if (!(this.database.exists())) throw new IllegalArgumentException("Could not locate database " + this.database.getPath());
 		
 		
 		
@@ -72,26 +72,27 @@ public class PoetryAnalyser extends Runnable {
 		
 		// Open logfile using loganalyser
 		Log.warning("Computing ESSes...");
-		LogAnalyser analyser = new LogAnalyser(this.logFile.getAbsolutePath(), this.burninInput.get(), true, null);
+		
 		//analyser.getESS(label);
 		
 		
 		// Calculate ESS for each POEM
-		Log.warning("Reading poems...");
 		for (POEM poem : this.poems) {
+			
+			File logFile = new File(poem.getLoggerFileName());
+			if (!logFile.exists() || !logFile.canRead()) throw new IllegalArgumentException("Could not locate/read logfile " + logFile.getPath());
+			LogAnalyser analyser = new LogAnalyser(logFile.getAbsolutePath(), this.burninInput.get(), true, null);
+			
 			
 			// Get minimum ESS across all relevant column names
 			double minESS = Double.POSITIVE_INFINITY;
-			for (String colname : poem.getLogIDs()) {
-				
-				// Temp HACK until I can get column names matching
-				if (!colname.equals("posterior") && !colname.equals("likelihood") && !colname.equals("prior")) continue;
-				
+			for (String colname : analyser.getLabels()) {
+
 				double ESS = analyser.getESS(colname);
 				if (ESS < 0 || Double.isNaN(ESS)) continue;
 				minESS = Math.min(minESS, ESS);
 			}
-			System.out.println(poem.getID() + " has a minimum ESS of " + minESS);
+			System.out.println(poem.getID() + " has a minimum ESS of " + (int) minESS);
 			poem.setMinESS(minESS);
 			
 			
@@ -115,81 +116,122 @@ public class PoetryAnalyser extends Runnable {
 	private void updateDatabase() throws Exception {
 		
 		
+		
+		RandomAccessFile raf = new RandomAccessFile(this.database, "rw");
+		FileChannel channel = raf.getChannel();
+		//FileLock lock = channel.tryLock();
+		
+
+		// Open database and find the right line
+		this.db = this.openDatabase();
+		this.rowNum = this.getRowNum(this.sampleNum);
+		if (this.rowNum < 0) throw new Exception("Cannot locate sample number " + this.sampleNum + " in the 'xml' column of the database");
+		
+		
+		
+		// Write ESSes
+		for (POEM poem : poems) {
+			this.setValueAtRow(poem.getESSColname(), "" + poem.getMinESS());
+		}
+		
+		// Set all POEM ESSes and compute coefficient of variation
+		double cov = POEM.getCoefficientOfVariation(this.poems);
+		System.out.println("ESS coefficient of variation is " + cov);
+		this.setValueAtRow(POEM.getCoefficientOfVariationColumnName(), "" + cov);
+		
+		
+		// Get database string
+		String out = "";
+		for (String colname : this.db.keySet()) out += colname + "\t";
+		out += "\n";
+		int nrow = this.db.get("xml").length;
+		for (int rowNum = 0; rowNum < nrow; rowNum ++) {
+			for (String colname : this.db.keySet()) {
+				out += this.db.get(colname)[rowNum] + "\t";
+			}
+			out += "\n";
+		}
+		
+		
+		// Clear the file and rewrite it 
+		channel.truncate(0);
+		raf.write(out.getBytes());
+		//lock.close();
+		
+		
+		/*
+		
 		// Sleep until the file can be written to
+		RandomAccessFile raf = new RandomAccessFile(this.database, "rw");
+		FileChannel channel = raf.getChannel();
+		FileLock lock = channel.tryLock();
 		int numSleeps = 0;
-		while (!this.database.canWrite()) {
+		while (lock == null) {
 			Thread.sleep(100);
 			numSleeps ++;
 			if (numSleeps == 1 || numSleeps % 100 == 0) {
 				Log.warning("Database is locked, waiting for it to unlock...");
 			}
+			lock = channel.tryLock();
 		}
+		
+		lock = channel.lock();
+		
 		
 		
 		// Lock the file
-		try (FileOutputStream fileOutputStream = new FileOutputStream(this.database);
-			     FileChannel channel = fileOutputStream.getChannel();
-			     FileLock lock = channel.lock()) { 
+		//try (RandomAccessFile fileOutputStream = new RandomAccessFile(this.database, "rw");
+			//     FileChannel channel = fileOutputStream.getChannel();
+			    // FileLock lock = channel.lock()) { 
 			    
 			
-				// Open database and find the right line
-				this.db = this.openDatabase();
-				this.rowNum = this.getRowNum(this.sampleNum);
-				if (this.rowNum < 0) throw new Exception("Cannot locate sample number " + this.sampleNum + " in the 'xml' column of the database");
-				
-				// Set all POEM ESSes
-				for (POEM poem : this.poems) {
-					this.setValueAtRow(poem.getESSColname(), "" + poem.getMinESS());
+		
+		
+			// Open database and find the right line
+			this.db = this.openDatabase();
+			this.rowNum = this.getRowNum(this.sampleNum);
+			if (this.rowNum < 0) throw new Exception("Cannot locate sample number " + this.sampleNum + " in the 'xml' column of the database");
+			
+			
+			
+			// Set all POEM ESSes
+			for (POEM poem : this.poems) {
+				this.setValueAtRow(poem.getESSColname(), "" + poem.getMinESS());
+			}
+			
+		
+			
+		
+			Log.warning("File locked. Sleeping now");
+			Thread.sleep(1000000);
+			
+			// Get database string
+			String out = "";
+			for (String colname : this.db.keySet()) out += colname + "\t";
+			out += "\n";
+			int nrow = this.db.get("xml").length;
+			for (int rowNum = 0; rowNum < nrow; rowNum ++) {
+				for (String colname : this.db.keySet()) {
+					out += this.db.get(colname)[rowNum] + "\t";
 				}
-				
-				// Get database string
-				String out = "";
-				for (String colname : this.db.keySet()) out += colname + "\t";
 				out += "\n";
-				int nrow = this.db.get("xml").length;
-				for (int rowNum = 0; rowNum < nrow; rowNum ++) {
-					for (String colname : this.db.keySet()) {
-						out += this.db.get(colname)[rowNum] + "\t";
-					}
-					out += "\n";
-				}
-				
-				
-				// Write to file
-				fileOutputStream.write(out.getBytes());
-				fileOutputStream.close();
+			}
 			
-				/*
-				// Find which line this line is on
-				Scanner scanner = new Scanner(this.database);
-				String[] headers = scanner.nextLine().split("\t");
-				int xmlIndex = -1;
-				for (int i = 0; i < headers.length; i++) {
-					if (headers[i].equals("xml")) {
-						xmlIndex = i;
-						break;
-					}
-				}
-				int lineNum = 0;
-				while(scanner.hasNextLine()) {
-					lineNum++;
-					String line = scanner.nextLine();
-					if (line.isEmpty()) continue;
-					String[] bits = line.split("\t");
-					String index = bits[xmlIndex];
-					if (index.equals("" + this.sampleNum)) {
-						break;
-					}
-				}
-				scanner.close();
-				*/
-				
-				
 			
-		}
+			// Clear the file and rewrite it 
+			channel.truncate(0);
+			raf.write(out.getBytes());
+			lock.close();
+		
+	//}
+	 * 
+	 * */
+	 
 		
 		
 	}
+
+	
 
 	/**
 	 * Gets the value at the specified column for this sampleNum in the database
@@ -246,9 +288,9 @@ public class PoetryAnalyser extends Runnable {
 	 * @return
 	 * @throws Exception
 	 */
-	public HashMap<String, String[]> openDatabase() throws Exception {
+	public LinkedHashMap<String, String[]> openDatabase() throws Exception {
 		
-		HashMap<String, String[]> map = new HashMap<String, String[]>();
+		LinkedHashMap<String, String[]> map = new LinkedHashMap<String, String[]>();
 		
 		// Read headers
 		Scanner scanner = new Scanner(this.database);

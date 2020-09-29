@@ -56,6 +56,12 @@ public class XMLUtils {
 	}
 	
 	
+	
+
+
+	
+	
+	
 	/**
 	 * Removes all children which do not have a 'name' on the list of names
 	 * If an element does not have a name, then the tagname is used instead, in standard BEAST fashion
@@ -110,11 +116,20 @@ public class XMLUtils {
 	 * @return
 	 * @throws Exception 
 	 */
-	public static Element getElementById(Document doc, String targetID) throws Exception {
+	public static Element getElementById(Node doc, String targetID) throws Exception {
 		
 		if (targetID == null || targetID.isEmpty()) return null;
 		
-        NodeList elements = doc.getElementsByTagName("*");
+		
+		NodeList elements;
+		if (doc instanceof Element) {
+			elements = ((Element)doc).getElementsByTagName("*");
+		}else if (doc instanceof Document) {
+			elements = ((Document)doc).getElementsByTagName("*");
+		}else {
+			return null;
+		}
+		
         for (int i = 0; i < elements.getLength(); i ++) {
         	Element element = (Element) elements.item(i);
         	if (!element.hasAttribute("id")) continue;
@@ -127,6 +142,45 @@ public class XMLUtils {
         return null;
 		
 	}
+	
+	
+	/**
+	 * Returns a list of elements which have attr=val
+	 * @param ele
+	 * @param attr
+	 * @param val
+	 * @return
+	 */
+	public static List<Element> getElementByAttrValue(Element ele, String attr, String val) {
+		
+		if (attr == null || attr.isEmpty()) return null;
+		if (val == null || val.isEmpty()) return null;
+		
+		
+		NodeList elements;
+		if (ele instanceof Element) {
+			elements = ((Element)ele).getElementsByTagName("*");
+		}else if (ele instanceof Document) {
+			elements = ((Document)ele).getElementsByTagName("*");
+		}else {
+			return null;
+		}
+		
+		
+		List<Element> matches = new ArrayList<Element>();
+        for (int i = 0; i < elements.getLength(); i ++) {
+        	Element element = (Element) elements.item(i);
+        	if (!element.hasAttribute(attr)) continue;
+        	String val2 = element.getAttribute(attr);
+        	if (val.equals(val2)) {
+        		matches.add(element);
+        	}
+        }
+        
+        return matches;
+
+	}
+	
 	
 	
 	/**
@@ -525,7 +579,6 @@ public class XMLUtils {
 		}
 		return elements;
 	}
-	
-	
+
 
 }
