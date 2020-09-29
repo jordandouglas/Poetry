@@ -1,19 +1,19 @@
-<!-- Build XMLSimulator. It is also used by Hudson XMLSimulator project. JUnit test is available for this build. -->
-<project basedir="." default="build_jar_all_XMLSimulator" name="BUILD_XMLSimulator">
+<!-- Build Poetry -->
+<project basedir="." default="build_jar_all_Poetry" name="BUILD_Poetry">
 	<description>
-	    Build XMLSimulator. 
+	    Build Poetry. 
 	    JUnit test is available for this build.
-	    $Id: build_XMLSimulator.xml $
+	    $Id: build_Poetry.xml $
 	</description>
 
 	<!-- set global properties for this build -->
-	<property name="versionXMLSimulator" value="0.0.1" />
-	<property name="srcXMLSimulator" location="src" />
-	<property name="docXMLSimulator" location="doc" />
-	<property name="buildXMLSimulator" location="build" />
-	<property name="libXMLSimulator" location="../XMLSimulator/lib" />
+	<property name="versionPoetry" value="0.0.1" />
+	<property name="srcPoetry" location="src" />
+	<property name="docPoetry" location="doc" />
+	<property name="buildPoetry" location="build" />
+	<property name="libPoetry" location="../Poetry/lib" />
 	<property name="release_dir" value="release" />
-	<property name="distXMLSimulator" location="${buildXMLSimulator}/dist" />
+	<property name="distPoetry" location="${buildPoetry}/dist" />
 	<property name="beast2path" location="../beast2"/>
 	<property name="libBeast2" location="${beast2path}/lib" />
 	<property name="srcBeast2" location="${beast2path}/src" />
@@ -22,12 +22,12 @@
 
     <import file="${beast2path}/build.xml" />
 
-	<property name="main_class_CladeAge" value="beast.app.ca.XMLSimulatorPanel" />
-	<property name="report" value="${buildXMLSimulator}/junitreport"/>
+	<property name="main_class_CladeAge" value="beast.app.ca.PoetryPanel" />
+	<property name="report" value="${buildPoetry}/junitreport"/>
 
 	<path id="classpath">
-        <pathelement path="${buildXMLSimulator}"/>
-        <fileset dir="${libXMLSimulator}" includes="commons-compress-1.20.jar"/>
+        <pathelement path="${buildPoetry}"/>
+        <fileset dir="${libPoetry}" includes="commons-compress-1.20.jar"/>
 		<fileset dir="${libBeast2}" includes="junit-4.8.2.jar"/>
 		<fileset dir="${libBeast2}" includes="jam.jar"/>
 		<fileset dir="${libBeast2}" includes="commons-math3-3.1.1.jar"/>
@@ -43,32 +43,32 @@
 
 
 	<!-- start -->
-	<target name="initXMLSimulator">
+	<target name="initPoetry">
 		<echo message="${ant.project.name}: ${ant.file}" />
 	</target>
 
-	<target name="cleanXMLSimulator">
-    	<delete dir="${buildXMLSimulator}" />
+	<target name="cleanPoetry">
+    	<delete dir="${buildPoetry}" />
 	</target>
 
 	<!-- clean previous build, and then compile Java source code, and Juint test -->
-	<target name="build_all_XMLSimulator" depends="cleanXMLSimulator,compile-allXMLSimulator,junitXMLSimulator"
+	<target name="build_all_Poetry" depends="cleanPoetry,compile-allPoetry,junitPoetry"
         description="Clean and Build all run-time stuff">
 	</target>
 
 	<!-- clean previous build, compile Java source code, and Junit test, and make the beast.jar and beauti.jar -->
-	<target name="build_jar_all_XMLSimulator" depends="cleanXMLSimulator,compile-allXMLSimulator,junitXMLSimulator,dist_all_XMLSimulator"
+	<target name="build_jar_all_Poetry" depends="cleanPoetry,compile-allPoetry,junitPoetry,dist_all_Poetry"
         description="Clean and Build all run-time stuff">
 	</target>
 
 
-	<!-- No JUnit Test, clean previous build, compile Java source code, and make the XMLSimulator.jar and beauti.jar -->
-	<target name="build_jar_all_XMLSimulator_NoJUnitTest" depends="cleanXMLSimulator,compile-allXMLSimulator,dist_all_XMLSimulator"
+	<!-- No JUnit Test, clean previous build, compile Java source code, and make the Poetry.jar and beauti.jar -->
+	<target name="build_jar_all_Poetry_NoJUnitTest" depends="cleanPoetry,compile-allPoetry,dist_all_Poetry"
         description="Clean and Build all run-time stuff">
 	</target>
 
 	<!-- compile Java source code -->
-	<target name="compile-allXMLSimulator" depends="initXMLSimulator,compile-all">
+	<target name="compile-allPoetry" depends="initPoetry,compile-all">
 
 
 	    <!-- Capture the path as a delimited property using the refid attribute -->
@@ -76,10 +76,10 @@
 	    <!-- Emit the property to the ant console -->
 	    <echo message="Classpath = ${myclasspath}"/>
 
-		<mkdir dir="${buildXMLSimulator}" />
+		<mkdir dir="${buildPoetry}" />
 
-		<!-- Compile the java code from ${srcXMLSimulator} into ${buildXMLSimulator} /bin -->
-		<javac srcdir="${srcXMLSimulator}" destdir="${buildXMLSimulator}" classpathref="classpath" 
+		<!-- Compile the java code from ${srcPoetry} into ${buildPoetry} /bin -->
+		<javac srcdir="${srcPoetry}" destdir="${buildPoetry}" classpathref="classpath" 
 		       fork="true"
 		       memoryinitialsize="256m"
 		       memorymaximumsize="256m"
@@ -89,24 +89,24 @@
 			<!-- compile JUnit test classes -->
 			<include name="test/beast/**" />
 		</javac>
-		<copy todir="${buildXMLSimulator}">
-			<fileset dir="${srcXMLSimulator}" includes="**/*.png" />
+		<copy todir="${buildPoetry}">
+			<fileset dir="${srcPoetry}" includes="**/*.png" />
 		</copy>
 		<echo message="Successfully compiled." />
 	</target>
 
 	<!-- make the beast.jar and beauti.jar -->
-	<target name="dist_all_XMLSimulator" depends="compile-allXMLSimulator" description="create XMLSimulator jar">
+	<target name="dist_all_Poetry" depends="compile-allPoetry" description="create Poetry jar">
 		<!-- Create the distribution directory -->
-		<mkdir dir="${distXMLSimulator}" />
+		<mkdir dir="${distPoetry}" />
 
-		<!-- Put everything in ${buildXMLSimulator} into the beast.jar file -->
-		<jar jarfile="${distXMLSimulator}/XMLSimulator.jar">
+		<!-- Put everything in ${buildPoetry} into the beast.jar file -->
+		<jar jarfile="${distPoetry}/Poetry.jar">
 			<manifest>
 				<attribute name="Built-By" value="${user.name}" />
 				<attribute name="Main-Class" value="${main_class_CladeAge}" />
 			</manifest>
-			<fileset dir="${buildXMLSimulator}">
+			<fileset dir="${buildPoetry}">
 				<include name="**/*.class" />
 				<include name="**/*.png" />
 			</fileset>
@@ -121,18 +121,18 @@
 			<zipgroupfileset dir="${libBeast2}" includes="commons-math3-3.1.1.jar" />
 			<zipgroupfileset dir="${libBeast2}" includes="antlr-runtime-4.7.jar" />
 		</jar>
-		<jar jarfile="${distXMLSimulator}/XMLSimulator.src.jar">
-			<fileset dir="${srcXMLSimulator}">
+		<jar jarfile="${distPoetry}/Poetry.src.jar">
+			<fileset dir="${srcPoetry}">
 				<include name="**/*.java" />
 				<include name="**/*.png" />
 				<include name="**/*.xsl" />
 			</fileset>
         </jar>
-		<jar jarfile="${distXMLSimulator}/XMLSimulator.addon.jar">
+		<jar jarfile="${distPoetry}/Poetry.addon.jar">
 			<manifest>
 				<attribute name="Built-By" value="${user.name}" />
 			</manifest>
-			<fileset dir="${buildXMLSimulator}">
+			<fileset dir="${buildPoetry}">
 				<include name="**/*.png" />
 				<include name="**/*.class" />
 				<include name="**/*.class" />
@@ -142,24 +142,24 @@
 	</target>
 
 	<!-- run beast.jar -->
-	<target name="run_XMLSimulator">
-		<java jar="${distXMLSimulator}/XMLSimulator.jar" fork="true" />
+	<target name="run_Poetry">
+		<java jar="${distPoetry}/Poetry.jar" fork="true" />
 	</target>
 
 	
 	<!-- JUnit test -->
-	<target name="junitXMLSimulator">
+	<target name="junitPoetry">
 		<mkdir dir="${report}" />
 		<junit printsummary="yes"> <!--showoutput='yes'-->
 			<classpath>
 				<path refid="classpath" />
-				<path location="${buildXMLSimulator}" />
+				<path location="${buildPoetry}" />
 			</classpath>
 
 			<formatter type="xml" />
 
 			<batchtest fork="yes" todir="${report}">
-				<fileset dir="${srcXMLSimulator}">
+				<fileset dir="${srcPoetry}">
                     <include name="test/**/*Test.java"/>                                         
 				</fileset>
 				<fileset dir="${srcBeast2}">
@@ -181,8 +181,8 @@
 
 
 	<target name="addon"
-	        depends="build_jar_all_XMLSimulator_NoJUnitTest"
-	        description="release BEAST 2 add-on version of XMLSimulator">
+	        depends="build_jar_all_Poetry_NoJUnitTest"
+	        description="release BEAST 2 add-on version of Poetry">
 
 		<delete dir="${Add_on_dir}" />
 		<!-- Create the release directory -->
@@ -200,18 +200,18 @@
 		</copy>
 
 		<copy todir="${Add_on_dir}/lib">
-			<fileset dir="${libXMLSimulator}" includes="commons-compress-1.20.jar" />
+			<fileset dir="${libPoetry}" includes="commons-compress-1.20.jar" />
 		</copy>
 		<!--
 		<copy todir="${Add_on_dir}/doc">
-			<fileset dir="doc" includes="XMLSimulator.pdf"/>
+			<fileset dir="doc" includes="Poetry.pdf"/>
 		</copy>
 		-->
 		<copy todir="${Add_on_dir}/lib">
-			<fileset dir="${distXMLSimulator}" includes="XMLSimulator.addon.jar" />
+			<fileset dir="${distPoetry}" includes="Poetry.addon.jar" />
 		</copy>
 		<copy todir="${Add_on_dir}">
-			<fileset dir="${distXMLSimulator}" includes="XMLSimulator.src.jar" />
+			<fileset dir="${distPoetry}" includes="Poetry.src.jar" />
 		</copy>
 		
 		
@@ -220,12 +220,12 @@
 		</copy>
 		
 		
-		<jar jarfile="${distXMLSimulator}/XMLSimulator.addon.v${versionXMLSimulator}.zip">
+		<jar jarfile="${distPoetry}/Poetry.addon.v${versionPoetry}.zip">
 			<fileset dir="${Add_on_dir}">
 				<include name="**/*" />
 			</fileset>
         </jar>
-		<echo message="Add-on version v${versionXMLSimulator} release is finished." />
+		<echo message="Add-on version v${versionPoetry} release is finished." />
 	</target>
 
 
@@ -234,80 +234,80 @@
 
 	<!-- Release -->
 	<property name="version" value="1.0.0" />
-	<property name="version_number" value="${versionXMLSimulator}" />
-	<property name="release_dirXMLSimulator" value="release" />
+	<property name="version_number" value="${versionPoetry}" />
+	<property name="release_dirPoetry" value="release" />
 	<property name="copyright" value="CladeAge development team 2013" />
 
 	<property name="CladeAge_name" value="CladeAge" />
 
-	<property name="common_dirXMLSimulator" value="${release_dirXMLSimulator}/common" />
-	<property name="Mac_dirXMLSimulator" value="${release_dirXMLSimulator}/Mac" />
-	<property name="Linux_dirXMLSimulator" value="${release_dirXMLSimulator}/Linux" />
-	<property name="Windows_dirXMLSimulator" value="${release_dirXMLSimulator}/Windows" />
+	<property name="common_dirPoetry" value="${release_dirPoetry}/common" />
+	<property name="Mac_dirPoetry" value="${release_dirPoetry}/Mac" />
+	<property name="Linux_dirPoetry" value="${release_dirPoetry}/Linux" />
+	<property name="Windows_dirPoetry" value="${release_dirPoetry}/Windows" />
 
-	<property name="Mac_package_dirXMLSimulator" value="${Mac_dirXMLSimulator}/${CladeAge_name}" />
-	<property name="Linux_package_dirXMLSimulator" value="${Linux_dirXMLSimulator}/${CladeAge_name}" />
-	<property name="Windows_package_dirXMLSimulator" value="${Windows_dirXMLSimulator}/${CladeAge_name}" />
+	<property name="Mac_package_dirPoetry" value="${Mac_dirPoetry}/${CladeAge_name}" />
+	<property name="Linux_package_dirPoetry" value="${Linux_dirPoetry}/${CladeAge_name}" />
+	<property name="Windows_package_dirPoetry" value="${Windows_dirPoetry}/${CladeAge_name}" />
 
 	<!-- Need to either install Launch4j under {CladeAge workspace}/${release}
                  or install it in the default directory and change the location of launch4j.dir -->
 	<target name="windows"
-	        depends="build_jar_all_XMLSimulator_NoJUnitTest"
+	        depends="build_jar_all_Poetry_NoJUnitTest"
 	        description="release Windows version of CladeAge">
 
-		<delete dir="${Windows_package_dirXMLSimulator}" />
+		<delete dir="${Windows_package_dirPoetry}" />
 		<!-- Create the release directory -->
-		<mkdir dir="${Windows_package_dirXMLSimulator}" />
+		<mkdir dir="${Windows_package_dirPoetry}" />
 
 		<property name="launch4j.dir" location="../../launch4j" />
 		<taskdef name="launch4j"
 		         classname="net.sf.launch4j.ant.Launch4jTask"
 		         classpath="${launch4j.dir}/launch4j.jar :${launch4j.dir}/lib/xstream.jar" />
 
-		<copy file="${distXMLSimulator}/XMLSimulator.src.jar" todir="${Windows_package_dirXMLSimulator}/lib" />
-		<copy file="${common_dirXMLSimulator}/VERSION HISTORY.txt" todir="${Windows_package_dirXMLSimulator}" />
-		<copy file="${common_dirXMLSimulator}/README.txt" todir="${Windows_package_dirXMLSimulator}" />
-		<copy file="${common_dirXMLSimulator}/LICENSE.txt" todir="${Windows_package_dirXMLSimulator}" />
+		<copy file="${distPoetry}/Poetry.src.jar" todir="${Windows_package_dirPoetry}/lib" />
+		<copy file="${common_dirPoetry}/VERSION HISTORY.txt" todir="${Windows_package_dirPoetry}" />
+		<copy file="${common_dirPoetry}/README.txt" todir="${Windows_package_dirPoetry}" />
+		<copy file="${common_dirPoetry}/LICENSE.txt" todir="${Windows_package_dirPoetry}" />
 
 		<!-- CladeAge v?.?.?.exe -->
-		<launch4j configFile="${Windows_dirXMLSimulator}/CladeAge_launch4j.xml"
-		          jar="${distXMLSimulator}/XMLSimulator.jar"
-		          outfile="${Windows_package_dirXMLSimulator}/${CladeAge_name}.exe"
+		<launch4j configFile="${Windows_dirPoetry}/CladeAge_launch4j.xml"
+		          jar="${distPoetry}/Poetry.jar"
+		          outfile="${Windows_package_dirPoetry}/${CladeAge_name}.exe"
 		          fileVersion="${version_number}.0"
-		          txtFileVersion="${versionXMLSimulator}"
+		          txtFileVersion="${versionPoetry}"
 		          productVersion="${version_number}.0"
-		          txtProductVersion="${versionXMLSimulator}" />
+		          txtProductVersion="${versionPoetry}" />
 
-		<copy todir="${Windows_package_dirXMLSimulator}/templates/">
+		<copy todir="${Windows_package_dirPoetry}/templates/">
 			<fileset dir="templates/" />
 		</copy>
 
-		<zip destfile="${Windows_dirXMLSimulator}/${CladeAge_name} v${versionXMLSimulator}.zip">
-			<zipfileset dir="${Windows_package_dirXMLSimulator}" prefix="${CladeAge_name}" />
+		<zip destfile="${Windows_dirPoetry}/${CladeAge_name} v${versionPoetry}.zip">
+			<zipfileset dir="${Windows_package_dirPoetry}" prefix="${CladeAge_name}" />
 		</zip>
 
 		<echo message="Windows version release is finished." />
 	</target>
 
 	<target name="linux"
-	        depends="build_jar_all_XMLSimulator_NoJUnitTest"
+	        depends="build_jar_all_Poetry_NoJUnitTest"
 	        description="release Linux/Unix version of CladeAge">
-		<delete dir="${Linux_package_dirXMLSimulator}" />
+		<delete dir="${Linux_package_dirPoetry}" />
 		<!-- Create the release directory -->
-		<mkdir dir="${Linux_package_dirXMLSimulator}" />
+		<mkdir dir="${Linux_package_dirPoetry}" />
 
-		<copy todir="${Linux_package_dirXMLSimulator}/bin">
-			<fileset dir="${Linux_dirXMLSimulator}/bin" />
+		<copy todir="${Linux_package_dirPoetry}/bin">
+			<fileset dir="${Linux_dirPoetry}/bin" />
 		</copy>
-		<chmod dir="${Linux_package_dirXMLSimulator}/bin" perm="755" includes="**/**" />
+		<chmod dir="${Linux_package_dirPoetry}/bin" perm="755" includes="**/**" />
 
-		<copy file="${distXMLSimulator}/XMLSimulator.jar" todir="${Linux_package_dirXMLSimulator}/lib" />
-		<copy file="${distXMLSimulator}/XMLSimulator.src.jar" todir="${Linux_package_dirXMLSimulator}/lib" />
-		<copy file="${common_dirXMLSimulator}/icons/XMLSimulator.png" todir="${Linux_package_dirXMLSimulator}/images" />
+		<copy file="${distPoetry}/Poetry.jar" todir="${Linux_package_dirPoetry}/lib" />
+		<copy file="${distPoetry}/Poetry.src.jar" todir="${Linux_package_dirPoetry}/lib" />
+		<copy file="${common_dirPoetry}/icons/Poetry.png" todir="${Linux_package_dirPoetry}/images" />
 
-		<copy file="${common_dirXMLSimulator}/VERSION HISTORY.txt" todir="${Linux_package_dirXMLSimulator}" />
-		<copy file="${common_dirXMLSimulator}/README.txt" todir="${Linux_package_dirXMLSimulator}" />
-		<copy file="${common_dirXMLSimulator}/LICENSE.txt" todir="${Linux_package_dirXMLSimulator}" />
+		<copy file="${common_dirPoetry}/VERSION HISTORY.txt" todir="${Linux_package_dirPoetry}" />
+		<copy file="${common_dirPoetry}/README.txt" todir="${Linux_package_dirPoetry}" />
+		<copy file="${common_dirPoetry}/LICENSE.txt" todir="${Linux_package_dirPoetry}" />
 
 		<echo message="Have to tar manaully, because [ANT Bug 550] the tar task change the mode of the executables files." />
 		<echo message="Linux/Unix version release is finished." />
@@ -315,43 +315,43 @@
 
 	<property name="jarbundler_dir" value="/Applications/eclipse/plugins/org.apache.ant_1.8.3.v201301120609/lib" />
 	<target name="mac"
-	        depends="build_jar_all_XMLSimulator_NoJUnitTest"
+	        depends="build_jar_all_Poetry_NoJUnitTest"
 	        description="release Mac version of CladeAge">
-		<delete dir="${Mac_package_dirXMLSimulator}" />
-		<delete file="${Mac_dirXMLSimulator}/pack.temp.dmg"/>
-		<delete file="${Mac_dirXMLSimulator}/CladeAge v${versionXMLSimulator}.dmg"/>
+		<delete dir="${Mac_package_dirPoetry}" />
+		<delete file="${Mac_dirPoetry}/pack.temp.dmg"/>
+		<delete file="${Mac_dirPoetry}/CladeAge v${versionPoetry}.dmg"/>
 		<!-- Create the release directory -->
-		<mkdir dir="${Mac_package_dirXMLSimulator}" />
+		<mkdir dir="${Mac_package_dirPoetry}" />
 
-		<copy todir="${Mac_package_dirXMLSimulator}/bin">
-			<fileset dir="${Linux_dirXMLSimulator}/bin" />
+		<copy todir="${Mac_package_dirPoetry}/bin">
+			<fileset dir="${Linux_dirPoetry}/bin" />
 		</copy>
-		<chmod dir="${Mac_package_dirXMLSimulator}/bin" perm="755" includes="**/**" />
+		<chmod dir="${Mac_package_dirPoetry}/bin" perm="755" includes="**/**" />
 
-		<copy file="${distXMLSimulator}/XMLSimulator.jar" todir="${Mac_package_dirXMLSimulator}/lib" />
-		<copy file="${distXMLSimulator}/XMLSimulator.src.jar" todir="${Mac_package_dirXMLSimulator}/lib" />
+		<copy file="${distPoetry}/Poetry.jar" todir="${Mac_package_dirPoetry}/lib" />
+		<copy file="${distPoetry}/Poetry.src.jar" todir="${Mac_package_dirPoetry}/lib" />
 
-		<copy file="${common_dirXMLSimulator}/VERSION HISTORY.txt" todir="${Mac_package_dirXMLSimulator}" />
-		<copy file="${common_dirXMLSimulator}/README.txt" todir="${Mac_package_dirXMLSimulator}" />
-		<copy file="${common_dirXMLSimulator}/LICENSE.txt" todir="${Mac_package_dirXMLSimulator}" />
+		<copy file="${common_dirPoetry}/VERSION HISTORY.txt" todir="${Mac_package_dirPoetry}" />
+		<copy file="${common_dirPoetry}/README.txt" todir="${Mac_package_dirPoetry}" />
+		<copy file="${common_dirPoetry}/LICENSE.txt" todir="${Mac_package_dirPoetry}" />
 
 		<taskdef name="jarbundler"
 		         classname="net.sourceforge.jarbundler.JarBundler"
 		         classpath="${jarbundler_dir}/jarbundler-2.2.0.jar" />
 
 		<!-- create a jar bundle for the mac -->
-		<jarbundler dir="${Mac_package_dirXMLSimulator}"
+		<jarbundler dir="${Mac_package_dirPoetry}"
 		            name="${CladeAge_name}"
 		            mainclass="${main_class_CladeAge}"
-		            icon="${common_dirXMLSimulator}/icons/XMLSimulator.icns"
+		            icon="${common_dirPoetry}/icons/Poetry.icns"
 		            jvmversion="1.8+"
 		            vmoptions="-Xmx1024M"
 		            arguments="-window -working -options"
-		            version="${versionXMLSimulator}"
+		            version="${versionPoetry}"
 		            infostring="${CladeAge_name}, ${copyright}"
 		            bundleid="${main_class_CladeAge}">
-			<jarfileset dir="${Mac_package_dirXMLSimulator}/lib">
-				<include name="**/XMLSimulator.jar" />
+			<jarfileset dir="${Mac_package_dirPoetry}/lib">
+				<include name="**/Poetry.jar" />
 			</jarfileset>
 			<javaproperty name="apple.laf.useScreenMenuBar" value="true" />
 			<javaproperty name="java.library.path" value="$JAVAROOT:/usr/local/lib" />
