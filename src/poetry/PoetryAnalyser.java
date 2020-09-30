@@ -21,6 +21,7 @@ import beast.core.util.Log;
 import beast.util.LogAnalyser;
 import poetry.sampler.POEM;
 import poetry.util.Lock;
+import poetry.util.RuntimeLoggable;
 
 
 /**
@@ -36,14 +37,16 @@ public class PoetryAnalyser extends Runnable {
 	final public Input<File> databaseFileInput = new Input<>("database", "The location of a the database (tsv)", Input.Validate.REQUIRED);
 	final public Input<Integer> sampleNumInput = new Input<>("number", "The row number in the database of this sample", Input.Validate.REQUIRED);
 	final public Input<List<POEM>> poemsInput = new Input<>("poem", "A map between operators and log outputs", new ArrayList<>());
-	
+	final public Input<File> runtimeLoggerInput = new Input<>("runtime", "Lof file containing runtimes");
 	final public Input<Integer> burninInput = new Input<>("burnin", "Burnin percentage for ESS computation (default 10)", 10);
 
+	
 	
 	
 	int sampleNum;
 	int rowNum;
 	File database;
+	File runtimeLogfile;
 	List<POEM> poems;
 	HashMap<String, String[]> db;
 	
@@ -53,13 +56,16 @@ public class PoetryAnalyser extends Runnable {
 		this.sampleNum = sampleNumInput.get();
 		this.database = databaseFileInput.get();
 		this.poems = poemsInput.get();
+		this.runtimeLogfile = runtimeLoggerInput.get();
 		this.rowNum = -1;
 		
-		if (this.poems.isEmpty()) throw new IllegalArgumentException("Please provide at least 1 poem");
+		//if (this.poems.isEmpty()) throw new IllegalArgumentException("Please provide at least 1 poem");
 		
 		// File validation
+		if (!this.database.exists()) throw new IllegalArgumentException("Could not locate database " + this.database.getPath());
+		if (this.runtimeLogfile != null && !this.runtimeLogfile.exists()) throw new IllegalArgumentException("Could not locate runtime log " + this.runtimeLogfile.getPath());
 		
-		if (!(this.database.exists())) throw new IllegalArgumentException("Could not locate database " + this.database.getPath());
+		
 		
 		
 		
@@ -69,12 +75,22 @@ public class PoetryAnalyser extends Runnable {
 	public void run() throws Exception {
 		
 		
+		
+		// Runtime
+		
+		double runtime = 1;
+		if (this.runtimeLogfile != null) {
+			Log.warning("Computing runtime...");
+			LogAnalyser analyser = new LogAnalyser(this.runtimeLogfile.getAbsolutePath(), this.burninInput.get(), true, null); 
+			Double[] cumulative = analyser.getTrace(RuntimeLoggable.getCumulativeColname());
+			runtime = cumulative[cumulative.length-1]  / 3600;
+			System.out.println("Total runtime is " + runtime + " hr");
+		}
+		
 	
 		
 		// Open logfile using loganalyser
 		Log.warning("Computing ESSes...");
-
-		
 		
 		// Calculate ESS for each POEM
 		for (POEM poem : this.poems) {
@@ -92,7 +108,10 @@ public class PoetryAnalyser extends Runnable {
 				if (ESS < 0 || Double.isNaN(ESS)) continue;
 				minESS = Math.min(minESS, ESS);
 			}
-			System.out.println(poem.getID() + " has a minimum ESS of " + (int) minESS);
+			String perHr = this.runtimeLogfile == null ? "ESS" : "ESS/hr";
+			minESS = minESS / runtime;
+			System.out.println(poem.getID() + " has a minimum " + perHr + " of " + (int) minESS);
+			
 			poem.setMinESS(minESS);
 			
 			
@@ -101,10 +120,14 @@ public class PoetryAnalyser extends Runnable {
 			
 		}
 		
+		double[] ESSstats = POEM.getESSStats(this.poems);
+		System.out.println("ESS coefficient of variation is " + ESSstats[2]);
+		
+		
 		
 		// Save the new row to the database. This will lock the database file to avoid conflicts
 		Log.warning("Saving to database...");
-		this.updateDatabase();
+		this.updateDatabase(ESSstats, runtime);
 		
 		
 		Log.warning("Done!");
@@ -113,12 +136,9 @@ public class PoetryAnalyser extends Runnable {
 	
 	
 	
-	private void updateDatabase() throws Exception {
+	private void updateDatabase(double[] ESSstats, double runtime) throws Exception {
 		
 		
-		
-		double cov = POEM.getCoefficientOfVariation(this.poems);
-		System.out.println("ESS coefficient of variation is " + cov);
 		
 		
 		// Lock the database
@@ -146,8 +166,14 @@ public class PoetryAnalyser extends Runnable {
 				this.setValueAtRow(poem.getESSColname(), "" + poem.getMinESS());
 			}
 			
-			// Compute coefficient of variation
-			this.setValueAtRow(POEM.getCoefficientOfVariationColumnName(), "" + cov);
+			// Save coefficient of variation
+			this.setValueAtRow(POEM.getMeanColumnName(), "" + ESSstats[0]);
+			this.setValueAtRow(POEM.getStddevColumnName(), "" + ESSstats[1]);
+			this.setValueAtRow(POEM.getCoefficientOfVariationColumnName(), "" + ESSstats[2]);
+			
+			
+			// Save runtime
+			this.setValueAtRow(SimulateXML.RUNTIME_COLUMN, "" + runtime);
 			
 			
 			// Get database string

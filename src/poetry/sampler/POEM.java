@@ -368,16 +368,33 @@ public class POEM extends BEASTObject implements XMLSampler {
 	 * @return
 	 */
 	public static String getCoefficientOfVariationColumnName() {
-		return "c.o.v";
+		return "ESS.hr.cov";
+	}
+	
+	/**
+	 * Name of mean ESS column
+	 * @return
+	 */
+	public static String getMeanColumnName() {
+		return "ESS.hr.mean";
+	}
+
+
+	/**
+	 * Name of standard deviation column
+	 * @return
+	 */
+	public static String getStddevColumnName() {
+		return "ESS.hr.sd";
 	}
 	
 	
 	/**
-	 * Compute the coefficient of variation of the minimum ESSes
+	 * Compute the mean, sd, and coefficient of variation of the minimum ESSes
 	 * @param poems
-	 * @return
+	 * @return a double[] containing [mean, sd, cov]
 	 */
-	public static double getCoefficientOfVariation(List<POEM> poems) {
+	public static double[] getESSStats (List<POEM> poems) {
 		
 		
 		// Calculate mean (but exclude non infinities)
@@ -403,10 +420,12 @@ public class POEM extends BEASTObject implements XMLSampler {
 		}
 		
 		
-		// Coefficient of variation
-		return sdESS / meanESS;
+		// Mean, sd, coefficient of variation
+		return new double[] {meanESS, sdESS, sdESS / meanESS};
 	}
-	
+
+
+
 	
 	
 	

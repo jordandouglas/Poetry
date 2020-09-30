@@ -31,6 +31,7 @@ import poetry.sampler.ModelSampler;
 import poetry.sampler.POEM;
 import poetry.sampler.RunnableSampler;
 import poetry.sampler.XMLSampler;
+import poetry.util.RuntimeLoggable;
 import poetry.util.XMLUtils;
 
 
@@ -40,6 +41,9 @@ public class SimulateXML extends Runnable {
 
 	
 	private static final String DATABASE_FILENAME = "database.tsv";
+	private static final String RUNTIME_LOGNAME = "runtime.log";
+	public static final String RUNTIME_COLUMN = "runtime.hr";
+	
 
 	final public Input<Runnable> runnableInput = new Input<>("runner", "A runnable object (eg. mcmc)", Input.Validate.REQUIRED);
 	
@@ -330,6 +334,20 @@ public class SimulateXML extends Runnable {
 
 
 		
+		// Create a temporal logger
+		Element runtimeLogger = doc.createElement("logger");
+		runner.appendChild(runtimeLogger);
+		runtimeLogger.setAttribute("id", XMLUtils.getUniqueID(doc, "RuntimeLogger"));
+		runtimeLogger.setAttribute("fileName", RUNTIME_LOGNAME);
+		runtimeLogger.setAttribute("logEvery", "" + 10000);
+		runtimeLogger.setAttribute("spec", Logger.class.getCanonicalName());
+		Element runtimeLoggable = doc.createElement("log");
+		runtimeLogger.appendChild(runtimeLoggable);
+		runtimeLoggable.setAttribute("spec", RuntimeLoggable.class.getCanonicalName());
+		runtimeLoggable.setAttribute("static", "true");
+		runtimeLoggable.setAttribute("id", XMLUtils.getUniqueID(doc, "runtime"));
+		
+		
 		
 		// Sort elements by putting operators and loggers at the bottom of runnable
 		List<Element> operators = XMLUtils.getElementsByName(runner, "operator");
@@ -383,6 +401,7 @@ public class SimulateXML extends Runnable {
 	    Element poemRunner = this.poetry.createElement("run");
 	    poemRunner.setAttribute("spec", PoetryAnalyser.class.getCanonicalName());
 	    poemRunner.setAttribute("database", "../" + DATABASE_FILENAME);
+	    poemRunner.setAttribute("runtime", RUNTIME_LOGNAME);
 	    poemRunner.setAttribute("number", "" + sampleNum);
 	    this.poetry.appendChild(beast);
 	    beast.appendChild(poemRunner);
@@ -465,17 +484,13 @@ public class SimulateXML extends Runnable {
 		for (POEM poem : this.poems) {
 			this.dbOut.print(poem.getESSColname() + "\t");
 		}
+		this.dbOut.print(POEM.getMeanColumnName() + "\t");
+		this.dbOut.print(POEM.getStddevColumnName() + "\t");
 		this.dbOut.print(POEM.getCoefficientOfVariationColumnName() + "\t");
 		
 		
-		// Job start / finish / error
-		this.dbOut.print("job.start.time\t");
-		this.dbOut.print("job.finish.time\t");
-		this.dbOut.print("exception.thrown\t");
-		
-		
 		// Runtime (million states per hr)
-		this.dbOut.print("runtime.M.hr\t");
+		this.dbOut.print(RUNTIME_COLUMN + "\t");
 		this.dbOut.println();
 	
 		
@@ -532,12 +547,9 @@ public class SimulateXML extends Runnable {
 			this.dbOut.print("?\t");
 		}
 		this.dbOut.print("?\t");
+		this.dbOut.print("?\t");
+		this.dbOut.print("?\t");
 		
-		
-		// Job start / finish / error
-		this.dbOut.print("NA\t");
-		this.dbOut.print("NA\t");
-		this.dbOut.print("false\t");
 		
 		
 		// Runtime (million states per hr)
