@@ -15,7 +15,6 @@ import beast.core.Operator;
 import beast.core.OperatorSchedule;
 import beast.core.StateNode;
 import beast.core.parameter.CompoundRealParameter;
-import beast.core.parameter.RealParameter;
 import beast.util.Randomizer;
 
 
@@ -45,12 +44,12 @@ public class MetaOperator extends Operator {
 	@Override
 	public double proposal() {
 		
-		if (this.operators.size() == 0) return 0;
+		if (this.operators.size() == 0) return Double.NEGATIVE_INFINITY;
 		
 		// Sample according to weights
 		double[] cumulativeWeights = this.getCumulativeWeights();
 		int i = Randomizer.binarySearchSampling(cumulativeWeights);
-		if (i < 0) return 0;
+		if (i < 0) return Double.NEGATIVE_INFINITY;
 		this.lastOperator = this.operators.get(i);
 		return this.lastOperator.proposal();
 	}
@@ -66,6 +65,22 @@ public class MetaOperator extends Operator {
     	for (int i = 0; i < this.operators.size(); i ++) this.operators.get(i).setOperatorSchedule(operatorSchedule);
 	}
 	 
+	
+	@Override 
+	public void accept() {
+		this.lastOperator.accept();
+	}
+	
+	@Override
+	public void reject(int reason) {
+		this.lastOperator.reject(reason);
+	}
+	
+	
+	@Override
+	public void reject() {
+		this.lastOperator.reject();
+	}
 
     @Override
     public List<StateNode> listStateNodes() {

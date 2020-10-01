@@ -42,7 +42,7 @@ public class SimulateXML extends Runnable {
 	
 	private static final String DATABASE_FILENAME = "database.tsv";
 	private static final String RUNTIME_LOGNAME = "runtime.log";
-	public static final String RUNTIME_COLUMN = "runtime.hr";
+
 	
 
 	final public Input<Runnable> runnableInput = new Input<>("runner", "A runnable object (eg. mcmc)", Input.Validate.REQUIRED);
@@ -487,10 +487,12 @@ public class SimulateXML extends Runnable {
 		this.dbOut.print(POEM.getMeanColumnName() + "\t");
 		this.dbOut.print(POEM.getStddevColumnName() + "\t");
 		this.dbOut.print(POEM.getCoefficientOfVariationColumnName() + "\t");
+		this.dbOut.print(POEM.getNumberOfStatesColumnName() + "\t");
 		
 		
 		// Runtime (million states per hr)
-		this.dbOut.print(RUNTIME_COLUMN + "\t");
+		this.dbOut.print(POEM.getRuntimeSmoothColumn() + "\t");
+		this.dbOut.print(POEM.getRuntimeRawColumn());
 		this.dbOut.println();
 	
 		
@@ -544,16 +546,18 @@ public class SimulateXML extends Runnable {
 		
 		// ESS summary
 		for (POEM poem : this.poems) {
-			this.dbOut.print("?\t");
+			this.dbOut.print("NA\t");
 		}
-		this.dbOut.print("?\t");
-		this.dbOut.print("?\t");
-		this.dbOut.print("?\t");
+		this.dbOut.print("NA\t");
+		this.dbOut.print("NA\t");
+		this.dbOut.print("NA\t");
+		this.dbOut.print("NA\t");
 		
 		
 		
-		// Runtime (million states per hr)
-		this.dbOut.print("?\t");
+		// Runtime (num hr)
+		this.dbOut.print("NA\t");
+		this.dbOut.print("NA");
 
 		this.dbOut.println();
 		

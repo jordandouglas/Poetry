@@ -23,6 +23,15 @@
 		<file spec="poetry.util.WeightedFile" file="../datasets/Murray_2013.tar.gz/Murray_2013/alignment.nex" desc="Benchmark alignment" species="3,4" speciessplit="_" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Worobey_2014h.tar.gz/Worobey_2014h/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/GiarlaEsselstyn_2015.tar.gz/GiarlaEsselstyn_2015/alignment.nex" desc="MSC alignment" species="1,2" speciessplit="-" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Brown_2012.tar.gz/Brown_2012/alignment.nex" desc="Benchmark alignment" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Cannon_2016_aa.tar.gz/Cannon_2016_aa/alignment.nex" desc="Benchmark alignment" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Cannon_2016_dna.tar.gz/Cannon_2016_dna/alignment.nex" desc="Benchmark alignment" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Chen_2015.tar.gz/Chen_2015/alignment.nex" desc="Benchmark alignment" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Cognato_2001.tar.gz/Cognato_2001/alignment.nex" desc="Benchmark alignment" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Crawford_2012.tar.gz/Crawford_2012/alignment.nex" desc="Benchmark alignment" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Day_2013.tar.gz/Day_2013/alignment.nex" desc="Benchmark alignment" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Devitt_2013.tar.gz/Devitt_2013/alignment.nex" desc="Benchmark alignment" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Dornburg_2012.tar.gz/Dornburg_2012/alignment.nex" desc="Benchmark alignment" />
 
 		<!--
 		<file spec="poetry.util.WeightedFile" file="../datasets/Bryson_et_al.2017.tar.gz/Bryson_et_al.2017/alignment.nex" desc="MSC alignment" species="1" speciessplit="_" />
@@ -121,7 +130,7 @@
     </branchRateModel>
 
 
-	<run id="XMLSimulator" spec="poetry.SimulateXML" data="@alignment.$(partition)" out="out" nsamples="10">
+	<run id="XMLSimulator" spec="poetry.SimulateXML" data="@alignment.$(partition)" out="out" nsamples="200">
 
 
 
@@ -440,7 +449,7 @@
 
 
 
-			<logger id="tracelog" fileName="$(filebase).log" spec="Logger" logEvery="1000">
+			<logger id="tracelog" fileName="$(filebase).log" spec="Logger" logEvery="10000">
 				<log idref="posterior"/>
 				<log idref="likelihood"/>
 				<log idref="prior"/>

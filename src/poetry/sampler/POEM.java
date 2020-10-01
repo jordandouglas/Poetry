@@ -89,7 +89,7 @@ public class POEM extends BEASTObject implements XMLSampler {
 	 * @return
 	 */
 	public String getESSColname() {
-		return this.getID() + ".min.ESS.M";
+		return this.getID() + ".min.ESS";
 	}
 	
 	/**
@@ -390,6 +390,32 @@ public class POEM extends BEASTObject implements XMLSampler {
 	
 	
 	/**
+	 * Number of states
+	 * @return
+	 */
+	public static String getNumberOfStatesColumnName() {
+		return "nstates";
+	}
+	
+	
+	/**
+	 * Runtime after being smoothed
+	 * @return
+	 */
+	public static String getRuntimeSmoothColumn() {
+		return "runtime.smooth.hr";
+	}
+	
+	
+	/**
+	 * Actual runtime
+	 * @return
+	 */
+	public static String getRuntimeRawColumn() {
+		return "runtime.raw.hr";
+	}
+	
+	/**
 	 * Compute the mean, sd, and coefficient of variation of the minimum ESSes
 	 * @param poems
 	 * @return a double[] containing [mean, sd, cov]
@@ -423,6 +449,9 @@ public class POEM extends BEASTObject implements XMLSampler {
 		// Mean, sd, coefficient of variation
 		return new double[] {meanESS, sdESS, sdESS / meanESS};
 	}
+
+
+
 
 
 

@@ -13,6 +13,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Scanner;
 
+import org.apache.commons.math3.random.EmpiricalDistribution;
+
 import beast.core.Input;
 import beast.core.Runnable;
 import beast.core.parameter.Map;
@@ -66,25 +68,36 @@ public class PoetryAnalyser extends Runnable {
 		if (this.runtimeLogfile != null && !this.runtimeLogfile.exists()) throw new IllegalArgumentException("Could not locate runtime log " + this.runtimeLogfile.getPath());
 		
 		
-		
-		
-		
 	}
 
 	@Override
 	public void run() throws Exception {
 		
+		//smoothRuntime, double rawRuntime
 		
-		
-		// Runtime
-		
-		double runtime = 1;
+		// Runtime 
+		int nstates = 0;
+		double smoothRuntime = 0, rawRuntime = 0;
 		if (this.runtimeLogfile != null) {
 			Log.warning("Computing runtime...");
-			LogAnalyser analyser = new LogAnalyser(this.runtimeLogfile.getAbsolutePath(), this.burninInput.get(), true, null); 
+			LogAnalyser analyser = new LogAnalyser(this.runtimeLogfile.getAbsolutePath(), burninInput.get(), true, null); 
+			
+			// nstates
+			Double[] sampled = analyser.getTrace("Sample");
+			nstates = (int) Math.floor(sampled[sampled.length-1]);
+			int nsamples = nstates / (int) (sampled[sampled.length-1] - sampled[sampled.length-2]);
+			System.out.println("There are " + nstates + " states and " + nsamples + " samples");
+			
+			
+			// Actual runtime
 			Double[] cumulative = analyser.getTrace(RuntimeLoggable.getCumulativeColname());
-			runtime = cumulative[cumulative.length-1]  / 3600;
-			System.out.println("Total runtime is " + runtime + " hr");
+			rawRuntime = cumulative[cumulative.length-1] / 3600;
+			
+			// Smooth runtime
+			smoothRuntime = getSmoothRuntime(analyser.getTrace(RuntimeLoggable.getIncrementalColname()), nsamples); //cumulative[cumulative.length-1]  / 3600;
+			smoothRuntime = smoothRuntime / 3600000;
+			Log.warning("Total runtime (raw) is " + rawRuntime + "hr and runtime (smoothed) is " + smoothRuntime + "hr");
+			
 		}
 		
 	
@@ -108,9 +121,7 @@ public class PoetryAnalyser extends Runnable {
 				if (ESS < 0 || Double.isNaN(ESS)) continue;
 				minESS = Math.min(minESS, ESS);
 			}
-			String perHr = this.runtimeLogfile == null ? "ESS" : "ESS/hr";
-			minESS = minESS / runtime;
-			System.out.println(poem.getID() + " has a minimum " + perHr + " of " + (int) minESS);
+			System.out.println(poem.getID() + " has a minimum ESS of " + (int) minESS);
 			
 			poem.setMinESS(minESS);
 			
@@ -127,7 +138,7 @@ public class PoetryAnalyser extends Runnable {
 		
 		// Save the new row to the database. This will lock the database file to avoid conflicts
 		Log.warning("Saving to database...");
-		this.updateDatabase(ESSstats, runtime);
+		this.updateDatabase(ESSstats, smoothRuntime, rawRuntime, nstates);
 		
 		
 		Log.warning("Done!");
@@ -135,8 +146,83 @@ public class PoetryAnalyser extends Runnable {
 	}
 	
 	
+	/**
+	 * Same as getSmoothRuntime(double[] incrTrace) except this works on Double[])
+	 * @param incrTrace - a Double array with capital D
+	 * @param nsamples - number of time samples (including burnin)
+	 * @return
+	 */
+	public static double getSmoothRuntime(Double[] incrTrace, int nsamples) {
+		
+		// Convert Double[] to double[]
+		double[] arr = new double[incrTrace.length];
+		for (int i = 0; i < arr.length; i ++) {
+			arr[i] = (double) incrTrace[i];
+		}
+		return getSmoothRuntime(arr, nsamples);
+	}
 	
-	private void updateDatabase(double[] ESSstats, double runtime) throws Exception {
+	/**
+	 * Calculates the total runtime of this system by multiplying the 
+	 * mode incremental runtime by the number of reported times.
+	 * This can help when a cluster is used and thread interrupting is common
+	 * @param incrTrace - a double array with little d
+	 * @param nsamples - number of time samples (including burnin)
+	 * @return
+	 */
+	public static double getSmoothRuntime(double[] incrTrace, int nsamples) {
+		
+		
+		if (incrTrace == null || incrTrace.length == 0) return 0;
+		final int nbins = 1 + (int) Math.sqrt(incrTrace.length); // incrTrace.length / 2;
+
+		
+		// Build kernel density estimation
+		EmpiricalDistribution kde = new EmpiricalDistribution(nbins);
+		kde.load(incrTrace);
+		
+		
+		double y = kde.density(4500.0);
+		
+		double xMax = 0; // x-value of mode
+		double pMax = 0; // density of mode
+		
+		// Find the mode by iterating through quantiles
+		final int nquant = 1000;
+		for (int i = 1; i < nquant; i++) {
+			
+			
+			
+			double quantile = 1.0 * i/nquant;
+			try {
+				
+				double x = kde.inverseCumulativeProbability(quantile);
+				double p = kde.density(x);
+			
+			//	System.out.println(quantile + "\t" + x + "\t" + p);
+				
+				// Found the mode?
+				if (p > pMax) {
+					pMax = p;
+					xMax = x;
+				}
+				
+			} catch (Exception e) {
+				
+			}
+			
+		}
+		
+		
+		// Assume that the incremental runtime of the mode is the true mean 
+		// if there were no interruptions
+		//System.out.println("Modal time per sample: " + xMax);
+		return xMax * nsamples;
+		
+	}
+	
+	
+	private void updateDatabase(double[] ESSstats, double smoothRuntime, double rawRuntime, int nstates) throws Exception {
 		
 		
 		
@@ -158,7 +244,7 @@ public class PoetryAnalyser extends Runnable {
 			if (this.rowNum < 0) throw new Exception("Cannot locate sample number " + this.sampleNum + " in the 'xml' column of the database");
 			
 			
-			Thread.sleep(2000);
+			//Thread.sleep(2000);
 			
 			
 			// Write ESSes
@@ -171,9 +257,12 @@ public class PoetryAnalyser extends Runnable {
 			this.setValueAtRow(POEM.getStddevColumnName(), "" + ESSstats[1]);
 			this.setValueAtRow(POEM.getCoefficientOfVariationColumnName(), "" + ESSstats[2]);
 			
+			// Number of states
+			this.setValueAtRow(POEM.getNumberOfStatesColumnName(), "" + nstates);
 			
 			// Save runtime
-			this.setValueAtRow(SimulateXML.RUNTIME_COLUMN, "" + runtime);
+			this.setValueAtRow(POEM.getRuntimeSmoothColumn(), "" + smoothRuntime);
+			this.setValueAtRow(POEM.getRuntimeRawColumn(), "" + rawRuntime);
 			
 			
 			// Get database string
