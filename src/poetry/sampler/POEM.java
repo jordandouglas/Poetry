@@ -7,13 +7,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import beast.core.BEASTObject;
+import beast.core.Description;
 import beast.core.Function;
 import beast.core.Input;
-import beast.core.Logger;
-import beast.core.Operator;
-import beast.evolution.alignment.Alignment;
-import beast.evolution.alignment.FilteredAlignment;
-import beast.math.distributions.Dirichlet;
+
 import beast.util.Randomizer;
 import poetry.functions.XMLFunction;
 import poetry.operators.MetaOperator;
@@ -25,6 +22,7 @@ import poetry.util.XMLUtils;
  * @author jdou557
  *
  */
+@Description("A Mapping between Parameters, Operators, and ESSes (a POEM)")
 public class POEM extends BEASTObject implements XMLSampler {
 
 	
@@ -34,32 +32,26 @@ public class POEM extends BEASTObject implements XMLSampler {
 	final public Input<Integer> logEveryInput = new Input<>("logEvery", "How often to log", Input.Validate.REQUIRED);
 	
 	
-	final public Input<String> operatorIDInput = new Input<>("operatorID", "The id of an operator. Use this when the operator is in a different xml file");
-	final public Input<List<String>> logIDInput = new Input<>("logID", "The id of a function to log. Use this when the function is in a different xml file", new ArrayList<>());
 	
 	
-	boolean useRealObjects;
 	double weight;
+	MetaOperator operator;
 	String operatorID;
 	double minESS;
 	double alpha;
+	boolean applicableToModel;
 	
 	@Override
 	public void initAndValidate() {
-		
-		this.useRealObjects = operatorInput.get() == null;
-		if (this.useRealObjects) {
-			if (this.operatorIDInput.get() == null || this.operatorIDInput.get().isEmpty()) {
-				throw new IllegalArgumentException("Please provide either an operator or an operator ID");
-			}
-		}else {
-			this.operatorID = this.operatorInput.get().getID();
-		}
-		
 		this.weight = 1;
 		this.minESS = 0;
 		this.alpha = alphaInput.get();
+		this.operator = operatorInput.get();
+		this.applicableToModel = true;
 	}
+	
+	
+	
 	
 	
 	/**
@@ -69,17 +61,9 @@ public class POEM extends BEASTObject implements XMLSampler {
 	public List<String> getLogIDs(){
 		
 		List<String> ids = new ArrayList<String>();
-		if (this.useRealObjects){
-			for (String id: this.logIDInput.get()) {
-				ids.add(id);
-			}
-		}else {
-			for (Function fun : this.logInput.get()) {
-				ids.add(((BEASTObject)fun).getID());
-			}
+		for (Function fun : this.logInput.get()) {
+			ids.add(((BEASTObject)fun).getID());
 		}
-		
-		
 		return ids;
 	}
 	
@@ -127,6 +111,14 @@ public class POEM extends BEASTObject implements XMLSampler {
 		return this.weight;
 	}
 	
+	/**
+	 * Is this POEM applicable to the current model?
+	 * @return
+	 */
+	public boolean isApplicableToModel() {
+		return this.applicableToModel;
+	}
+	
 	
 	/**
 	 * Get the Dirichlet alpha of this POEM
@@ -134,71 +126,13 @@ public class POEM extends BEASTObject implements XMLSampler {
 	 * @return
 	 */
 	public double getAlpha() {
-		
 		double a = this.alpha;
-		//if (timesNInput.get()) a = a * aln.getTaxonCount();
-		//if (timesPInput.get() && aln instanceof DatasetSampler) {
-			//a = a * ((DatasetSampler) aln).getNumPartitions();
-		//}
 		return a;
 	}
 	
-	
-	/**
-	 * Returns alpha, but if there are no sub-operators in the operator then returns zero
-	 * @param doc
-	 * @return
-	 * @throws Exception
-	 */
-	private double getAlphaConditionalOnModel(Document doc) throws Exception {
-		
-		Element operator = this.getOperatorEle(doc);
-		this.operatorID =  operator.getAttribute("id");
-		List<Element> subOperators = XMLUtils.getElementsByName(operator, "operator");
-		if (subOperators.isEmpty()) {
-			return 0;
-		}else {
-			return this.getAlpha();
-		}
-		
-	}
-	
-	
-	
-	/**
-	 * Sample weights using a dirichlet distribution
-	 * @param poems - list of poems
-	 * @return
-	 * @throws Exception 
-	 */
-	public static double[] sampleWeights(List<POEM> poems, Document doc) throws Exception {
-		
-		
-		int dim = poems.size();
-		double[] weights = new double[dim];
-		
-		
-		// Sample a dirichlet
-		double sum = 0.0;
-		for (int j = 0; j < dim; j++) {
-			POEM poem = poems.get(j);
-			double a = poem.getAlphaConditionalOnModel(doc);
-			if (a == 0) {
-				weights[j] = a;
-			}else {
-				weights[j] = Randomizer.nextGamma(a, 1.0);
-			}
-			sum += weights[j];
-		}
-		for (int j = 0; j < dim; j++) {
-			weights[j] = weights[j] / sum;
-		}
 
-		
-		return weights;
-		
-	}
-
+	
+	
 
 	@Override
 	public void reset() {
@@ -253,15 +187,15 @@ public class POEM extends BEASTObject implements XMLSampler {
 
 		// Set the weight of that operator in the XML to the appropriate weight, or remove if the operator has no target
 		Element operator = this.getOperatorEle(doc);
-		this.operatorID =  operator.getAttribute("id");
-		if (this.getWeight() == 0) {
+		this.operatorID = operator.getAttribute("id");
+		List<Element> subOperators = XMLUtils.getElementsByName(operator, "operator");
+		if (subOperators.isEmpty()) {
 			operator.getParentNode().removeChild(operator);
+			operator.setAttribute("weight", "0");
+			this.applicableToModel = false;
 			return;
-		}else {
-			operator.setAttribute("weight", "" + this.getWeight());
 		}
-		
-		
+		this.applicableToModel = true;
 		
 		// Create a logger if applicable
 		Element logger = doc.createElement("logger");
@@ -331,14 +265,20 @@ public class POEM extends BEASTObject implements XMLSampler {
 
 	@Override
 	public String getComments() {
-		return "The operator weight (prob) for " + this.getID() + " is " + this.getWeight();
+		if (this.applicableToModel) return "The operator weight (prob) for " + this.getID() + " will be sampled using a Dirichlet with alpha " + this.getAlpha();
+		return this.getID() + " is not applicable to this model";
 	}
 
 
 	public String getOperatorID() {
+		if (this.operator != null) return this.operator.getID();
 		return this.operatorID;
 	}
 
+	
+	public MetaOperator getOperator() {
+		return this.operator;
+	}
 
 	@Override
 	public String getSampledID() {

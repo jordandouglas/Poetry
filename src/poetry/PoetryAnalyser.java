@@ -47,10 +47,31 @@ public class PoetryAnalyser extends Runnable {
 	
 	int sampleNum;
 	int rowNum;
+	int burnin;
 	File database;
 	File runtimeLogfile;
 	List<POEM> poems;
 	HashMap<String, String[]> db;
+	
+	
+	public PoetryAnalyser(int sampleNum, File database, List<POEM> poems, File runtimeLogfile) {
+		this(sampleNum, database, poems, runtimeLogfile, 10);
+	}
+	
+	public PoetryAnalyser(int sampleNum, File database, List<POEM> poems, File runtimeLogfile, int burnin) {
+		this.sampleNum = sampleNum;
+		this.database = database;
+		this.poems = poems;
+		this.runtimeLogfile = runtimeLogfile;
+		this.burnin = burnin;
+		
+		// File validation
+		if (!this.database.exists()) throw new IllegalArgumentException("Could not locate database " + this.database.getPath());
+		
+		
+	}
+	
+	
 	
 	@Override
 	public void initAndValidate() {
@@ -59,13 +80,13 @@ public class PoetryAnalyser extends Runnable {
 		this.database = databaseFileInput.get();
 		this.poems = poemsInput.get();
 		this.runtimeLogfile = runtimeLoggerInput.get();
+		this.burnin = burninInput.get();
 		this.rowNum = -1;
 		
 		//if (this.poems.isEmpty()) throw new IllegalArgumentException("Please provide at least 1 poem");
 		
 		// File validation
 		if (!this.database.exists()) throw new IllegalArgumentException("Could not locate database " + this.database.getPath());
-		if (this.runtimeLogfile != null && !this.runtimeLogfile.exists()) throw new IllegalArgumentException("Could not locate runtime log " + this.runtimeLogfile.getPath());
 		
 		
 	}
@@ -73,14 +94,18 @@ public class PoetryAnalyser extends Runnable {
 	@Override
 	public void run() throws Exception {
 		
-		//smoothRuntime, double rawRuntime
+		
+		// File validation
+		if (this.runtimeLogfile != null && !this.runtimeLogfile.exists()) throw new IllegalArgumentException("Could not locate runtime log " + this.runtimeLogfile.getPath());
+		
+		
 		
 		// Runtime 
 		int nstates = 0;
 		double smoothRuntime = 0, rawRuntime = 0;
 		if (this.runtimeLogfile != null) {
 			Log.warning("Computing runtime...");
-			LogAnalyser analyser = new LogAnalyser(this.runtimeLogfile.getAbsolutePath(), burninInput.get(), true, null); 
+			LogAnalyser analyser = new LogAnalyser(this.runtimeLogfile.getAbsolutePath(), this.burnin, true, null); 
 			
 			// nstates
 			Double[] sampled = analyser.getTrace("Sample");
@@ -110,7 +135,7 @@ public class PoetryAnalyser extends Runnable {
 			
 			File logFile = new File(poem.getLoggerFileName());
 			if (!logFile.exists() || !logFile.canRead()) throw new IllegalArgumentException("Could not locate/read logfile " + logFile.getPath());
-			LogAnalyser analyser = new LogAnalyser(logFile.getAbsolutePath(), this.burninInput.get(), true, null);
+			LogAnalyser analyser = new LogAnalyser(logFile.getAbsolutePath(), this.burnin, true, null);
 			
 			
 			// Get minimum ESS across all relevant column names

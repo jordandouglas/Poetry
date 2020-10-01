@@ -26,11 +26,14 @@ import beast.core.util.Log;
 import beast.evolution.alignment.Alignment;
 import poetry.functions.XMLFunction;
 import poetry.functions.XMLInputSetter;
+import poetry.learning.DirichletSampler;
+import poetry.operators.PoetryScheduler;
 import poetry.sampler.DatasetSampler;
 import poetry.sampler.ModelSampler;
 import poetry.sampler.POEM;
 import poetry.sampler.RunnableSampler;
 import poetry.sampler.XMLSampler;
+import poetry.util.Lock;
 import poetry.util.RuntimeLoggable;
 import poetry.util.XMLUtils;
 
@@ -77,7 +80,7 @@ public class SimulateXML extends Runnable {
 	PrintStream dbOut;
 	List<POEM> poems;
 	
-	Document poetry;
+	//Document poetry;
 	
 	
 	
@@ -91,7 +94,7 @@ public class SimulateXML extends Runnable {
 		this.functions = functionsInput.get();
 		this.outFolder = outFolderInput.get();
 		this.poems = poemsInput.get();
-		this.poetry = null;
+		//this.poetry = null;
 		
 		// Ensure that runner already has an ID
 		if (this.runner.getID() == null || this.runner.getID().isEmpty()) {
@@ -177,20 +180,6 @@ public class SimulateXML extends Runnable {
 	}
 	
 	
-	/**
-	 * Sample weights for each operator
-	 */
-	protected void sampleOperatorWeights(Document doc) throws Exception {
-		
-		// Sample using a Dirichlet distribution
-		double[] weights = POEM.sampleWeights(this.poems, doc);
-		
-		// Set the weight of each poem
-		for (int i = 0; i < weights.length; i ++) {
-			this.poems.get(i).setWeight(weights[i]);
-		}
-		
-	}
 	
 	
 	/**
@@ -218,10 +207,10 @@ public class SimulateXML extends Runnable {
 		
 		
 		// Write the poem file
-		Path poemPath = Paths.get(folder.getPath(), "poems.xml");
-		out = new PrintStream(poemPath.toFile());
-		out.println(XMLUtils.getXMLStringFromDocument(this.poetry));
-		out.close();
+		//Path poemPath = Paths.get(folder.getPath(), "poems.xml");
+		//out = new PrintStream(poemPath.toFile());
+		//out.println(XMLUtils.getXMLStringFromDocument(this.poetry));
+		//out.close();
 		
 	}
 	
@@ -295,11 +284,7 @@ public class SimulateXML extends Runnable {
 			comments += d.getComments() + "\n";
 		}
         
-        
-		
-		// Sample operator weights
-		this.sampleOperatorWeights(doc);
-		
+
  
         
         // Operator weights
@@ -309,8 +294,8 @@ public class SimulateXML extends Runnable {
         }
       
 		
-		// Generate poem document
-		this.writePoems(sampleNum, doc, run);
+    	// Generate poem operator schedule
+		this.writePoems(sampleNum, doc, runner, run);
 		
         
         // Replace this runnable element (and all of its children) with its runnable child
@@ -325,7 +310,7 @@ public class SimulateXML extends Runnable {
 		element.getParentNode().insertBefore(comment, element);
 		
 		
-
+	
 		
 		
 		// Merge elements which share an id
@@ -386,28 +371,38 @@ public class SimulateXML extends Runnable {
 	
 	
 	/**
-	 * Generate an XMK Document contains all POEM objectswritePoems
+	 * Write xml for a poetry scheduler
 	 * @param doc
 	 */
-	private void writePoems(int sampleNum, Document doc, Element runner) throws Exception {
+	private void writePoems(int sampleNum, Document doc, Element runner, Element run) throws Exception {
 		
 		// Create new document
-		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-	    DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-	    this.poetry = dBuilder.newDocument();
-	    Element beast = (Element) this.poetry.importNode(XMLUtils.getElementsByName(doc, "beast").get(0), false);
+		//DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+	   //DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+	    //this.poetry = dBuilder.newDocument();
+	   // Element beast = (Element) this.poetry.importNode(XMLUtils.getElementsByName(doc, "beast").get(0), false);
 	    
+		
+		
+		
 	    // Create the PoetryAnalyser runnable element and populate its inputs
-	    Element poemRunner = this.poetry.createElement("run");
-	    poemRunner.setAttribute("spec", PoetryAnalyser.class.getCanonicalName());
-	    poemRunner.setAttribute("database", "../" + DATABASE_FILENAME);
-	    poemRunner.setAttribute("runtime", RUNTIME_LOGNAME);
-	    poemRunner.setAttribute("number", "" + sampleNum);
-	    this.poetry.appendChild(beast);
-	    beast.appendChild(poemRunner);
+	    Element scheduler = doc.createElement("operatorschedule");
+	    scheduler.setAttribute("spec", PoetryScheduler.class.getCanonicalName());
+	    scheduler.setAttribute("database", "../" + DATABASE_FILENAME);
+	    scheduler.setAttribute("runtime", RUNTIME_LOGNAME);
+	    scheduler.setAttribute("number", "" + sampleNum);
+	    scheduler.setAttribute("updateEvery", runner.getAttribute("chainLength"));
+	    runner.appendChild(scheduler);
+	    
+	    
+	    // Use a dirichlet sampler initially
+	    Element sampler = doc.createElement("sampler");
+	    sampler.setAttribute("spec", DirichletSampler.class.getCanonicalName());
+	    scheduler.appendChild(sampler);
+	    
 		
 	    // Copy poems over from main doc
-	    for (Element poem : XMLUtils.getElementsByName(runner, "poem")) {
+	    for (Element poem : XMLUtils.getElementsByName(run, "poem")) {
 	    	
 	    	// Only consider poems which have non-zero weight
 	    	POEM poemObj = null;
@@ -417,32 +412,35 @@ public class SimulateXML extends Runnable {
 	    			break;
 	    		}
 	    	}
-	    	if (poemObj.getWeight() == 0) {
+	    	if (!poemObj.isApplicableToModel()) {
 	    		continue;
 	    	}
 	    	
-	    	Element imported =  (Element)this.poetry.importNode(poem, true);
+	    	Element imported =  (Element) doc.importNode(poem, true);
 	    	
 	    	// Remove idrefs using hack so it initialises on load
-	    	if (imported.hasAttribute("operator")){
-	    		imported.setAttribute("operatorID", imported.getAttribute("operator").substring(1));
-	    		imported.removeAttribute("operator");
-	    	}
-	    	if (imported.hasAttribute("log")){
-	    		imported.setAttribute("logID", imported.getAttribute("log").substring(1));
-	    		imported.removeAttribute("log");
-	    	}
+	    	//if (imported.hasAttribute("operator")){
+	    		//imported.setAttribute("operatorID", imported.getAttribute("operator").substring(1));
+	    		//imported.removeAttribute("operator");
+	    	//}
+	    	//if (imported.hasAttribute("log")){
+	    	//	imported.setAttribute("logID", imported.getAttribute("log").substring(1));
+	    	//	imported.removeAttribute("log");
+	    	//}
 	    	for (Node child : XMLUtils.nodeListToList(imported.getChildNodes())) {
 	    		if (!(child instanceof Element)) continue;
 	    		Element childEle = (Element)child;
-	    		if (childEle.hasAttribute("idref")) {
-	    			String idref = childEle.getAttribute("idref");
-	    			childEle.removeAttribute("idref");
-	    			childEle.setTextContent(idref);
-	    			this.poetry.renameNode(childEle, null, childEle.getNodeName() + "ID");
+	    		if (childEle.getNodeName().equals("log")) {
+	    			imported.removeChild(childEle);
 	    		}
+	    		//else if (childEle.hasAttribute("idref")) {
+	    			//String idref = childEle.getAttribute("idref");
+	    			//childEle.removeAttribute("idref");
+	    			//childEle.setTextContent(idref);
+	    			//doc.renameNode(childEle, null, childEle.getNodeName() + "ID");
+	    		//}
 	    	}
-	    	poemRunner.appendChild(imported);
+	    	scheduler.appendChild(imported);
 	    }
 		
 	}
@@ -452,7 +450,7 @@ public class SimulateXML extends Runnable {
 	 * Prepare header for the database
 	 */
 	protected void initDatabase() {
-	
+
 		
 		// Data summary
 		this.dbOut.print("xml\t");
@@ -540,7 +538,7 @@ public class SimulateXML extends Runnable {
 		}
 		
 		for (POEM poem : this.poems) {
-			this.dbOut.print(poem.getWeight() + "\t");
+			this.dbOut.print("NA\t");
 		}
 		
 		

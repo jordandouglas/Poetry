@@ -130,7 +130,7 @@
     </branchRateModel>
 
 
-	<run id="XMLSimulator" spec="poetry.SimulateXML" data="@alignment.$(partition)" out="out" nsamples="200">
+	<run id="XMLSimulator" spec="poetry.SimulateXML" data="@alignment.$(partition)" out="out" nsamples="10">
 
 
 
@@ -253,7 +253,7 @@
 
 		
 	
-		<runner id="mcmc" spec="poetry.sampler.RunnableSampler" chainLength="100000000">
+		<runner id="mcmc" spec="poetry.sampler.RunnableSampler" chainLength="50000">
 
 
 
