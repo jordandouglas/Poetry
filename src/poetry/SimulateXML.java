@@ -58,6 +58,9 @@ public class SimulateXML extends Runnable {
 	final public Input<List<POEM>> poemsInput = new Input<>("poem", "A map between operators and log outputs", new ArrayList<>());
 	
 	
+	final public Input<Integer> updateEveryInput = new Input<>("updateEvery", "How often to update the database with weights/ESSes "
+			+ "(default: only at the end of the chain)", 0);
+	
 	
 	final public Input<List<BEASTObject>> nodesInput = new Input<>("object", "Any beast object to be added into the main file "
 			+ "(eg. StateNode, CalculationNode, Distribution, Operator)", new ArrayList<>());
@@ -79,6 +82,7 @@ public class SimulateXML extends Runnable {
 	File dbFile;
 	PrintStream dbOut;
 	List<POEM> poems;
+	int updateEvery;
 	
 	//Document poetry;
 	
@@ -94,6 +98,7 @@ public class SimulateXML extends Runnable {
 		this.functions = functionsInput.get();
 		this.outFolder = outFolderInput.get();
 		this.poems = poemsInput.get();
+		this.updateEvery = updateEveryInput.get();
 		//this.poetry = null;
 		
 		// Ensure that runner already has an ID
@@ -385,19 +390,29 @@ public class SimulateXML extends Runnable {
 		
 		
 		
+		// How often to update the database?
+		String updateEvery2 = "" + this.updateEvery;
+		if (this.updateEvery <= 0) {
+			if (runner.hasAttribute("chainLength")) updateEvery2 = runner.getAttribute("chainLength");
+			else updateEvery2 = "1000000";
+		}
+		
+		
+		
 	    // Create the PoetryAnalyser runnable element and populate its inputs
 	    Element scheduler = doc.createElement("operatorschedule");
 	    scheduler.setAttribute("spec", PoetryScheduler.class.getCanonicalName());
 	    scheduler.setAttribute("database", "../" + DATABASE_FILENAME);
 	    scheduler.setAttribute("runtime", RUNTIME_LOGNAME);
 	    scheduler.setAttribute("number", "" + sampleNum);
-	    scheduler.setAttribute("updateEvery", runner.getAttribute("chainLength"));
+	    scheduler.setAttribute("updateEvery", updateEvery2);
 	    runner.appendChild(scheduler);
 	    
 	    
 	    // Use a dirichlet sampler initially
 	    Element sampler = doc.createElement("sampler");
 	    sampler.setAttribute("spec", DirichletSampler.class.getCanonicalName());
+	    sampler.setAttribute("static", "true");
 	    scheduler.appendChild(sampler);
 	    
 		

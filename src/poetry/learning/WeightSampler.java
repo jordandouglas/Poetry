@@ -6,6 +6,7 @@ import java.util.List;
 
 import beast.core.BEASTObject;
 import beast.core.Description;
+import beast.core.Input;
 import beast.core.Operator;
 import beast.core.util.Log;
 import poetry.sampler.POEM;
@@ -15,11 +16,24 @@ import poetry.sampler.POEM;
 public abstract class WeightSampler extends BEASTObject {
 	
 	
+	
+	final public Input<Boolean> staticInput = new Input<>("static", "Use static weights? The sampled weights apply to all instances "
+			+ "of this class. This will enable the same operator weights to apply across parallel chains in coupled MCMC for example. Default: false", false);
+	
 	List<POEM> poems;
 	List<Operator> poeticOperators;
 	List<Operator> unpoeticOperators;
 	File database;
+	boolean isStatic;
 	private double poeticSumInit;
+	
+	
+	// Non-static operator weights
+	double[] poeticWeights_local;
+	
+	// Static weights
+	static double[] poeticWeights_static;
+	
 
 	/**
 	 * Initialise the weight sampler
@@ -27,20 +41,26 @@ public abstract class WeightSampler extends BEASTObject {
 	 * @param operators
 	 * @param database
 	 */
-	public void initialise(List<POEM> poems, List<Operator> operators, File database) {
-		
+	public void initialise(List<POEM> poems,  File database) {
 		
 		this.poems = poems;
 		this.database = database;
-		this.poeticOperators = new ArrayList<Operator>();
-		this.unpoeticOperators = new ArrayList<Operator>();
+		this.poeticOperators = null;
+		this.unpoeticOperators = null;
+		this.isStatic = staticInput.get();
+		this.poeticSumInit = 0;
 		
-		if (operators == null || this.poems == null) return;
-		//if (!this.database.exists() || !this.database .canRead()) {
-			//throw new IllegalArgumentException("Cannot read from the database");
-		//}
-		
-		
+	}
+	
+	
+
+
+	/**
+	 * Add operators and validate
+	 * @param operators
+	 */
+	public void setOperators(List<Operator> operators) {
+
 		// Check that every poem corresponds to an operator in the list
 		for (POEM poem : this.poems) {
 			
@@ -57,6 +77,8 @@ public abstract class WeightSampler extends BEASTObject {
 		
 		
 		// Determine which operators do and do not have poems
+		this.poeticOperators = new ArrayList<Operator>();
+		this.unpoeticOperators = new ArrayList<Operator>();
 		for (Operator op : operators) {
 			
 			boolean foundPoem = false;
@@ -90,7 +112,9 @@ public abstract class WeightSampler extends BEASTObject {
 		
 		
 	}
+
 	
+
 	
 	
 	/**
@@ -115,10 +139,62 @@ public abstract class WeightSampler extends BEASTObject {
 	}
 	
 	
+	
 	/**
-	 * Assign weights to the list of operators
+	 * Set the sampled weights
+	 * @param poemWeights
 	 */
-	public abstract void assignWeights();
+	protected void setWeights(double[] poemWeights) {
+		if (this.isStatic) {
+			poeticWeights_static = poemWeights;
+		}else {
+			this.poeticWeights_local = poemWeights;
+		}
+	}
+	
+	
+	
+	/**
+	 * Get the sampled weight vector
+	 * First normalise by multiplying by the weight max
+	 * @return
+	 */
+	public double[] getWeights() {
+		double[] weights;
+		if (this.isStatic) {
+			weights = poeticWeights_static;
+		}else {
+			weights = this.poeticWeights_local;
+		}
+		
+		double[] weightsNorm = new double[weights.length];
+		for (int i = 0; i < weights.length; i ++) {
+			weightsNorm[i] = weights[i] * this.poeticSumInit;
+		}
+		
+		return weightsNorm;
+	}
+	
+	
+	/**
+	 * Sample operator weights but don't set them
+	 */
+	public abstract void sampleWeights();
+	
+	
+	/**
+	 * Assign the pre-set weights to the list of operators
+	 */
+	public void applyWeights() {
+		double[] weights = this.getWeights();
+		for (int j = 0; j < weights.length; j++) {
+			Operator op = this.poeticOperators.get(j);
+			POEM poem = this.poems.get(j);
+			op.m_pWeight.set(weights[j]);
+			poem.setWeight(weights[j]);
+		}
+		
+	}
 
 
 	
@@ -138,6 +214,8 @@ public abstract class WeightSampler extends BEASTObject {
 		
 		
 	}
+
+
 
 	
 	

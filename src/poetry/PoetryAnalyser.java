@@ -44,7 +44,7 @@ public class PoetryAnalyser extends Runnable {
 
 	
 	
-	
+	boolean verbose;
 	int sampleNum;
 	int rowNum;
 	int burnin;
@@ -64,6 +64,7 @@ public class PoetryAnalyser extends Runnable {
 		this.poems = poems;
 		this.runtimeLogfile = runtimeLogfile;
 		this.burnin = burnin;
+		this.verbose = false;
 		
 		// File validation
 		if (!this.database.exists()) throw new IllegalArgumentException("Could not locate database " + this.database.getPath());
@@ -82,6 +83,7 @@ public class PoetryAnalyser extends Runnable {
 		this.runtimeLogfile = runtimeLoggerInput.get();
 		this.burnin = burninInput.get();
 		this.rowNum = -1;
+		this.verbose = true;
 		
 		//if (this.poems.isEmpty()) throw new IllegalArgumentException("Please provide at least 1 poem");
 		
@@ -104,7 +106,7 @@ public class PoetryAnalyser extends Runnable {
 		int nstates = 0;
 		double smoothRuntime = 0, rawRuntime = 0;
 		if (this.runtimeLogfile != null) {
-			Log.warning("Computing runtime...");
+			if (this.verbose) Log.warning("Computing runtime...");
 			LogAnalyser analyser = new LogAnalyser(this.runtimeLogfile.getAbsolutePath(), this.burnin, true, null); 
 			
 			// nstates
@@ -121,14 +123,14 @@ public class PoetryAnalyser extends Runnable {
 			// Smooth runtime
 			smoothRuntime = getSmoothRuntime(analyser.getTrace(RuntimeLoggable.getIncrementalColname()), nsamples); //cumulative[cumulative.length-1]  / 3600;
 			smoothRuntime = smoothRuntime / 3600000;
-			Log.warning("Total runtime (raw) is " + rawRuntime + "hr and runtime (smoothed) is " + smoothRuntime + "hr");
+			if(this.verbose) Log.warning("Total runtime (raw) is " + rawRuntime + "hr and runtime (smoothed) is " + smoothRuntime + "hr");
 			
 		}
 		
 	
 		
 		// Open logfile using loganalyser
-		Log.warning("Computing ESSes...");
+		if(this.verbose) Log.warning("Computing ESSes...");
 		
 		// Calculate ESS for each POEM
 		for (POEM poem : this.poems) {
@@ -162,11 +164,11 @@ public class PoetryAnalyser extends Runnable {
 		
 		
 		// Save the new row to the database. This will lock the database file to avoid conflicts
-		Log.warning("Saving to database...");
+		if(this.verbose) Log.warning("Saving to database...");
 		this.updateDatabase(ESSstats, smoothRuntime, rawRuntime, nstates);
 		
 		
-		Log.warning("Done!");
+		if(this.verbose) Log.warning("Done!");
 		
 	}
 	
@@ -253,7 +255,7 @@ public class PoetryAnalyser extends Runnable {
 		
 		
 		// Lock the database
-		Lock lock = new Lock(this.sampleNum, this.database);
+		Lock lock = new Lock(this.sampleNum, this.database, this.verbose);
 		lock.lock();
 		
 		try {
@@ -272,9 +274,10 @@ public class PoetryAnalyser extends Runnable {
 			//Thread.sleep(2000);
 			
 			
-			// Write ESSes
+			// Write ESSes and weights
 			for (POEM poem : poems) {
 				this.setValueAtRow(poem.getESSColname(), "" + poem.getMinESS());
+				this.setValueAtRow(poem.getWeightColname(), "" + poem.getWeight());
 			}
 			
 			// Save coefficient of variation

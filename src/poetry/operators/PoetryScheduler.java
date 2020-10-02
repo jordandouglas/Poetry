@@ -62,8 +62,8 @@ public class PoetryScheduler extends OperatorSchedule {
 		 this.poetry = new PoetryAnalyser(this.sampleNumInput.get(),  this.database, this.poemsInput.get(), runtimeLog, this.burninInput.get());
 		
 		
-		// Update the database and then exit
-		if (noMCMC.get()) {
+		 // Update the database and then exit
+		 if (noMCMC.get()) {
 			try {
 				this.poetry.run();
 				Log.warning("PoetryScheduler: " +  this.database.getPath() + " has been updated. Exiting now.");
@@ -75,7 +75,16 @@ public class PoetryScheduler extends OperatorSchedule {
 			}
 			System.exit(1);
 			
-		}
+		 }
+		 
+		 
+		 // Sample the weights but don't set them just yet
+		 // If this is static mode, the sampled weights will override each other between chains
+		 if (this.sampler != null) {
+			 sampler.initialise(poemsInput.get(), this.database);
+			 sampler.sampleWeights();
+		 }
+		 
 		 
 	 }
 	
@@ -85,16 +94,17 @@ public class PoetryScheduler extends OperatorSchedule {
 	 @Override
 	 public Operator selectOperator() {
 		 
-		 
 		 // Set the weights
-		 if (numCalls == 0 && this.sampler != null) {
-			 sampler.initialise(poemsInput.get(), this.operators,  this.database);
-			 sampler.assignWeights();
+		 if (this.numCalls == 0 && this.sampler != null) {
+			 sampler.setOperators(this.operators);
+			 sampler.applyWeights();
 			 sampler.report();
 			 this.reweightOperators();
 		 }
 		 
+		 
 		 this.numCalls ++;
+		
 		 
 		 // Update the database
 		 if (this.numCalls % updateEvery == 0) {

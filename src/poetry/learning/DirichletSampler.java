@@ -22,7 +22,7 @@ public class DirichletSampler extends WeightSampler {
 	 * The alpha of each operator is specified in the poem
 	 */
 	@Override
-	public void assignWeights() {
+	public void sampleWeights() {
 		
 		
 		if (this.poems == null || this.poems.isEmpty()) return;
@@ -45,18 +45,19 @@ public class DirichletSampler extends WeightSampler {
 			sum += weights[j];
 		}
 		
-		// Normalise so that weights sum to their upper limit (<= 1)
-		sum = sum * this.getInitialPoeticProb();
+		// Normalise
 		for (int j = 0; j < dim; j++) {
 			weights[j] = weights[j] / sum;
-			Operator op = this.poeticOperators.get(j);
-			op.m_pWeight.set(weights[j]);
 		}
-
-		
+		this.setWeights(weights);
 		
 		
 	}
+
+
+
+
+
 	
 
 
