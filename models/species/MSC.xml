@@ -11,7 +11,7 @@
 	</override>
 
 
-	<override id="treeLikelihood.$(partition)" tree="@GeneTree.t:$(partition)" name="distribution" spec="ThreadedTreeLikelihood" data="@alignment.$(partition)" siteModel="@siteModel.t:$(partition)">
+	<override id="treeLikelihood.$(partition)" tree="@GeneTree.t:$(partition)" name="distribution" spec="ThreadedTreeLikelihood" data="@alignment.$(partition)" siteModel="@siteModel.s:$(partition)">
 
 
 		<branchRateModel id="SpeciesTreeRelaxedClock.c:$(partition)" spec="starbeast3.StarBeast3Clock" clock.rate="@clockRate.t:$(partition)" geneTree="@treePrior.t:$(partition)" speciesTreeRates="@branchRatesModel.Species"/>

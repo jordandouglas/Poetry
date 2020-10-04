@@ -25,7 +25,7 @@
 	</append>
 
 
-	<override id="siteModel.t:$(partition)" name="siteModel" spec="SiteModel" gammaCategoryCount="1" mutationRate="@clockRate.t:$(partition)">
+	<override id="siteModel.s:$(partition)" name="siteModel" spec="SiteModel" gammaCategoryCount="1" mutationRate="@clockRate.t:$(partition)">
 
 		<parameter spec="parameter.RealParameter" estimate="false" name="shape">1.0</parameter>
 		<substModel spec="HKY" kappa="@kappa.t:$(partition)">

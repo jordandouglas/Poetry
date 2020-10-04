@@ -1,3 +1,5 @@
 <package name='Poetry' version='0.0.1'>
 	<depends on='beast2' atleast='2.6.0' atmost="2.6.9"/> 
+	<depends on='BEASTLabs' atleast='1.9.5'/>
+	<depends on='CoupledMCMC' atleast='1.0.2'/>
 </package>

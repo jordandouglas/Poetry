@@ -22,7 +22,7 @@ public class Lock {
 	// Time to sleep between checking for file unlocks
     private final static int sleepTime = 100;
     
-    // If another process has locked the database for more than this long, it is assumed to have crashed
+    // If another process has locked the database for more than this long, it is assumed to have crashed and the file is automatically unlocked
     private final static int timeOut = 60000; 
     
     // This process number
@@ -86,12 +86,17 @@ public class Lock {
 		            	break;
 		            }
 		            
+		            
 		            // Check it again
 		            br = new BufferedReader(new FileReader(file));
 		            String line = br.readLine();
-		            if (line == null) break;
-		            int processNum2 = Integer.parseInt(line);
 		            br.close();
+		            
+		            
+		            // Parse line in file
+		            if (line == null || line.isEmpty()) continue;
+		            int processNum2 = Integer.parseInt(line);
+		           
 		            
 		            
 		            // Same number? The other program may have crashed

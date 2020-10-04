@@ -1,8 +1,11 @@
 package poetry;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.LineNumberReader;
 import java.io.PrintWriter;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
@@ -105,7 +108,8 @@ public class PoetryAnalyser extends Runnable {
 		// Runtime 
 		int nstates = 0;
 		double smoothRuntime = 0, rawRuntime = 0;
-		if (this.runtimeLogfile != null) {
+		if (this.runtimeLogfile != null && getNumLineInFile(this.runtimeLogfile) > 5) {
+	
 			if (this.verbose) Log.warning("Computing runtime...");
 			LogAnalyser analyser = new LogAnalyser(this.runtimeLogfile.getAbsolutePath(), this.burnin, true, null); 
 			
@@ -113,7 +117,7 @@ public class PoetryAnalyser extends Runnable {
 			Double[] sampled = analyser.getTrace("Sample");
 			nstates = (int) Math.floor(sampled[sampled.length-1]);
 			int nsamples = nstates / (int) (sampled[sampled.length-1] - sampled[sampled.length-2]);
-			System.out.println("There are " + nstates + " states and " + nsamples + " samples");
+			if (this.verbose) System.out.println("There are " + nstates + " states and " + nsamples + " samples");
 			
 			
 			// Actual runtime
@@ -123,7 +127,7 @@ public class PoetryAnalyser extends Runnable {
 			// Smooth runtime
 			smoothRuntime = getSmoothRuntime(analyser.getTrace(RuntimeLoggable.getIncrementalColname()), nsamples); //cumulative[cumulative.length-1]  / 3600;
 			smoothRuntime = smoothRuntime / 3600000;
-			if(this.verbose) Log.warning("Total runtime (raw) is " + rawRuntime + "hr and runtime (smoothed) is " + smoothRuntime + "hr");
+			if (this.verbose) Log.warning("Total runtime (raw) is " + rawRuntime + "hr and runtime (smoothed) is " + smoothRuntime + "hr");
 			
 		}
 		
@@ -136,6 +140,9 @@ public class PoetryAnalyser extends Runnable {
 		for (POEM poem : this.poems) {
 			
 			File logFile = new File(poem.getLoggerFileName());
+			
+			if (getNumLineInFile(logFile) <= 5) continue;
+			
 			if (!logFile.exists() || !logFile.canRead()) throw new IllegalArgumentException("Could not locate/read logfile " + logFile.getPath());
 			LogAnalyser analyser = new LogAnalyser(logFile.getAbsolutePath(), this.burnin, true, null);
 			
@@ -148,7 +155,7 @@ public class PoetryAnalyser extends Runnable {
 				if (ESS < 0 || Double.isNaN(ESS)) continue;
 				minESS = Math.min(minESS, ESS);
 			}
-			System.out.println(poem.getID() + " has a minimum ESS of " + (int) minESS);
+			if (this.verbose) System.out.println(poem.getID() + " has a minimum ESS of " + (int) minESS);
 			
 			poem.setMinESS(minESS);
 			
@@ -159,7 +166,7 @@ public class PoetryAnalyser extends Runnable {
 		}
 		
 		double[] ESSstats = POEM.getESSStats(this.poems);
-		System.out.println("ESS coefficient of variation is " + ESSstats[2]);
+		if (this.verbose) System.out.println("ESS coefficient of variation is " + ESSstats[2]);
 		
 		
 		
@@ -209,7 +216,7 @@ public class PoetryAnalyser extends Runnable {
 		kde.load(incrTrace);
 		
 		
-		double y = kde.density(4500.0);
+		//double y = kde.density(4500.0);
 		
 		double xMax = 0; // x-value of mode
 		double pMax = 0; // density of mode
@@ -245,6 +252,34 @@ public class PoetryAnalyser extends Runnable {
 		// if there were no interruptions
 		//System.out.println("Modal time per sample: " + xMax);
 		return xMax * nsamples;
+		
+	}
+	
+	
+	/**
+	 * Number of lines in a file
+	 * @param file
+	 * @return
+	 * @throws Exception
+	 */
+	public static long getNumLineInFile(File file) throws Exception {
+		
+		
+		try(
+		   FileReader fr = new FileReader(file);
+		   LineNumberReader count = new LineNumberReader(fr);
+		)
+		{
+		   while (count.skip(Long.MAX_VALUE) > 0)
+		   {
+		      // Loop just in case the file is > Long.MAX_VALUE or skip() decides to not read the entire file
+		   }
+		   
+		   fr.close();
+		   
+		   //System.out.println(file.getAbsolutePath() + " has " + (count.getLineNumber() + 1) + "lines");
+		   return count.getLineNumber() + 1;  // +1 because line index starts at 0
+		}
 		
 	}
 	
@@ -309,12 +344,10 @@ public class PoetryAnalyser extends Runnable {
 			// Clear the file and rewrite it 
 			channel.truncate(0);
 			raf.write(out.getBytes());
-			//lock.close();
 			
 			
 		} catch(Exception e) {
-			lock.unlock();
-			throw e;
+			e.printStackTrace();
 		}
 		
 		

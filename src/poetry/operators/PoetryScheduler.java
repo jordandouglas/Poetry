@@ -4,11 +4,16 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import beast.core.BEASTInterface;
+import beast.core.BEASTObject;
 import beast.core.Description;
 import beast.core.Input;
+import beast.core.MCMC;
 import beast.core.Operator;
 import beast.core.OperatorSchedule;
 import beast.core.util.Log;
+import beast.coupledMCMC.CoupledMCMC;
+import beast.coupledMCMC.HeatedChain;
 import poetry.PoetryAnalyser;
 import poetry.learning.WeightSampler;
 import poetry.sampler.POEM;
@@ -30,7 +35,7 @@ public class PoetryScheduler extends OperatorSchedule {
 	final public Input<String> databaseFileInput = new Input<>("database", "The location of a the database (tsv)", Input.Validate.REQUIRED);
 	final public Input<Integer> sampleNumInput = new Input<>("number", "The row number in the database of this sample", Input.Validate.REQUIRED);
 	final public Input<List<POEM>> poemsInput = new Input<>("poem", "A map between operators and log outputs", new ArrayList<>());
-	final public Input<String> runtimeLoggerInput = new Input<>("runtime", "Lof file containing runtimes");
+	final public Input<String> runtimeLoggerInput = new Input<>("runtime", "Log file containing runtimes");
 	final public Input<Integer> burninInput = new Input<>("burnin", "Burnin percentage for ESS computation (default 10)", 10);
 	
 	final public Input<Boolean> noMCMC = new Input<>("noMCMC", "Set to true to only run the poetry analyser (and update the database) without"
@@ -46,8 +51,9 @@ public class PoetryScheduler extends OperatorSchedule {
 	
 	 @Override
      public void initAndValidate() {
-		 super.initAndValidate();
 		 
+		 super.initAndValidate(); 
+
 		 this.sampler = weightSamplerInput.get();
 		 this.numCalls = 0;
 		 this.updateEvery = updateEveryInput.get();
@@ -82,7 +88,7 @@ public class PoetryScheduler extends OperatorSchedule {
 		 // If this is static mode, the sampled weights will override each other between chains
 		 if (this.sampler != null) {
 			 sampler.initialise(poemsInput.get(), this.database);
-			 sampler.sampleWeights();
+			 if (this.isColdChain()) sampler.sampleWeights();
 		 }
 		 
 		 
@@ -90,12 +96,37 @@ public class PoetryScheduler extends OperatorSchedule {
 	
 	 
 	 
+	 /**
+	  * Is this chain a cold chain? 
+	  * If using MCMC then this is true
+	  * If using MCMCMC, then check if the chain associated with this schedule has temperature of 0
+	  * @return
+	  */
+	 public boolean isColdChain() {
+		 
+		 for (BEASTInterface obj : this.getOutputs()) {
+			 
+			 if (obj instanceof MCMC) {
+				 if (obj instanceof HeatedChain) {
+					 HeatedChain mc3 = (HeatedChain) obj;
+					 return mc3.isColdChain();
+				 }else {
+					 return true;
+				 }
+			 }
+		 }
+		 
+		 return true;
+		 
+	 }
+	 
+	 
 	 
 	 @Override
 	 public Operator selectOperator() {
 		 
 		 // Set the weights
-		 if (this.numCalls == 0 && this.sampler != null) {
+		 if (this.numCalls == 0 && this.sampler != null ) {
 			 sampler.setOperators(this.operators);
 			 sampler.applyWeights();
 			 sampler.report();
@@ -106,8 +137,8 @@ public class PoetryScheduler extends OperatorSchedule {
 		 this.numCalls ++;
 		
 		 
-		 // Update the database
-		 if (this.numCalls % updateEvery == 0) {
+		 // Update the database if this is the cold chain
+		 if (this.numCalls % updateEvery == 0 && this.isColdChain() ) {
 			 try {
 				this.poetry.run();
 			} catch (Exception e) {
@@ -120,13 +151,11 @@ public class PoetryScheduler extends OperatorSchedule {
 	 }
 	 
 	 
-	 
-	 
-	 
-	 
-	 
-	 
+	
 	
 	
 	
 }
+
+
+

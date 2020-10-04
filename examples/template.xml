@@ -24,9 +24,6 @@
 		<file spec="poetry.util.WeightedFile" file="../datasets/Worobey_2014h.tar.gz/Worobey_2014h/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/GiarlaEsselstyn_2015.tar.gz/GiarlaEsselstyn_2015/alignment.nex" desc="MSC alignment" species="1,2" speciessplit="-" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Brown_2012.tar.gz/Brown_2012/alignment.nex" desc="Benchmark alignment" />
-		<file spec="poetry.util.WeightedFile" file="../datasets/Cannon_2016_aa.tar.gz/Cannon_2016_aa/alignment.nex" desc="Benchmark alignment" />
-		<file spec="poetry.util.WeightedFile" file="../datasets/Cannon_2016_dna.tar.gz/Cannon_2016_dna/alignment.nex" desc="Benchmark alignment" />
-		<file spec="poetry.util.WeightedFile" file="../datasets/Chen_2015.tar.gz/Chen_2015/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Cognato_2001.tar.gz/Cognato_2001/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Crawford_2012.tar.gz/Crawford_2012/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Day_2013.tar.gz/Day_2013/alignment.nex" desc="Benchmark alignment" />
@@ -117,7 +114,7 @@
 
 
 	<!-- Placeholder site model -->
-	<siteModel id="siteModel.t:$(partition)" spec="SiteModel" gammaCategoryCount="1">
+	<siteModel id="siteModel.s:$(partition)" spec="SiteModel" gammaCategoryCount="1">
 		<parameter spec="parameter.RealParameter" estimate="false" name="mutationRate">1.0</parameter>
 		<parameter spec="parameter.RealParameter" estimate="false" name="shape">1.0</parameter>
 		<substModel spec="JukesCantor" />
@@ -130,7 +127,7 @@
     </branchRateModel>
 
 
-	<run id="XMLSimulator" spec="poetry.SimulateXML" data="@alignment.$(partition)" out="out" nsamples="10" updateEvery="100000">
+	<run id="XMLSimulator" spec="poetry.SimulateXML" data="@alignment.$(partition)" out="out" nsamples="100" updateEvery="10000000">
 
 
 
@@ -276,7 +273,7 @@
 
 
 				<distribution id="likelihood" spec="util.CompoundDistribution" useThreads="true">
-						<distribution id="treeLikelihood.$(partition)" spec="ThreadedTreeLikelihood" tree="@tree" data="@alignment.$(partition)" siteModel="@siteModel.t:$(partition)" branchRateModel="@ClockModel.t:tree" />
+						<distribution id="treeLikelihood.$(partition)" spec="ThreadedTreeLikelihood" tree="@tree" data="@alignment.$(partition)" siteModel="@siteModel.s:$(partition)" branchRateModel="@ClockModel.t:tree" />
 				</distribution>
 
 

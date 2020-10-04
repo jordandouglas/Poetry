@@ -308,7 +308,7 @@ public class POEM extends BEASTObject implements XMLSampler {
 	 * @return
 	 */
 	public static String getCoefficientOfVariationColumnName() {
-		return "ESS.hr.cov";
+		return "ESS.cov";
 	}
 	
 	/**
@@ -316,7 +316,7 @@ public class POEM extends BEASTObject implements XMLSampler {
 	 * @return
 	 */
 	public static String getMeanColumnName() {
-		return "ESS.hr.mean";
+		return "ESS.mean";
 	}
 
 
@@ -325,7 +325,7 @@ public class POEM extends BEASTObject implements XMLSampler {
 	 * @return
 	 */
 	public static String getStddevColumnName() {
-		return "ESS.hr.sd";
+		return "ESS.sd";
 	}
 	
 	
