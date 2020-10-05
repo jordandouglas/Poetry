@@ -17,12 +17,9 @@ public class ESSDerivative extends ESS {
 	 final public Input<Integer> windowSizeInput = new Input<>("window", "number of most-recently logged values to compute ESS for", 50);
 
 	 
-	 
  
  
 	 protected List<List<Double>> traces;
-	 protected double[] sums;
-	 protected List<List<Double>> squareLaggedSumss;
 
 	 
 	 
@@ -38,13 +35,9 @@ public class ESSDerivative extends ESS {
 		 this.ndim = functionInput.get().getDimension();
 
 		 this.traces = new ArrayList<>();
-		 this.sums = new double[ndim];
-		 this.squareLaggedSumss = new ArrayList<>();
 		 for (int i = 0; i < ndim; i ++) {
 			 List<Double> arr = new ArrayList<>();
 			 this.traces.add(arr);
-			 arr = new ArrayList<>();
-			 this.squareLaggedSumss.add(arr);
 		 }
 		 
 		 
@@ -67,8 +60,6 @@ public class ESSDerivative extends ESS {
 		 for (int i = 0; i < this.ndim; i ++) {
 		 
 			 List<Double> trace = this.traces.get(i);
-			 //List<Double> squareLaggedSums = this.squareLaggedSumss.get(i);
-			 
 			 
 			 final Double newValue = functionInput.get().getArrayValue(i);
 			 trace.add(newValue);
@@ -79,9 +70,7 @@ public class ESSDerivative extends ESS {
 			 }
 			 
 			 
-			 
-			 
-			 
+			 // Calculate ESS of the trace
 			 double ess = calcESS(trace);
 			 String str;
 			 if (Double.isNaN(ess)) {
