@@ -406,6 +406,17 @@ public class DatasetSampler extends Alignment implements XMLSampler  {
 	}
 	
 	
+	
+	/**
+	 * Number of species (if MSC analysis)
+	 * @return
+	 */
+	public int getNumSpecies() {
+		if (!this.hasSpeciesMap() || this.partitions.isEmpty()) return 1;
+		return DatasetSampler.getSpeciesMap(this.partitions.get(0), this.sampledFile).size();
+	}
+	
+	
 	/**
 	 * Return the taxon to species map as an XML Element
 	 * @return
@@ -571,6 +582,10 @@ public class DatasetSampler extends Alignment implements XMLSampler  {
 		if (this.sampledFile == null) return "NA";
 		return this.sampledFile.getID();
 	}
+
+
+
+
 
 
 }

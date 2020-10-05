@@ -474,6 +474,7 @@ public class SimulateXML extends Runnable {
 		this.dbOut.print("nsites\t");
 		this.dbOut.print("npatterns\t");
 		this.dbOut.print("npartitions\t");
+		this.dbOut.print("nspecies\t");
 		this.dbOut.print("pgaps\t");
 		this.dbOut.print("nchar\t");
 		this.dbOut.print("dated\t");
@@ -524,6 +525,8 @@ public class SimulateXML extends Runnable {
 		double pgaps = this.data == null ? 0 : !(this.data instanceof DatasetSampler) ? 0 : ((DatasetSampler)this.data).getProportionGaps();
 		String datedTips = this.data == null ? "false" : !(this.data instanceof DatasetSampler) ? "NA" : "" + ((DatasetSampler)this.data).tipsAreDated();
 		String treeHeight = this.data == null ? "0" : !(this.data instanceof DatasetSampler) ? "NA" : "" + ((DatasetSampler)this.data).getEstimatedTreeHeight();
+		int nspecies = this.data == null ? 1 :  !(this.data instanceof DatasetSampler) ? 0 : ((DatasetSampler)this.data).getNumSpecies();
+		
 		
 		
 		// Dataset summary
@@ -533,6 +536,7 @@ public class SimulateXML extends Runnable {
 		this.dbOut.print((this.data == null ? 0 : this.data.getSiteCount()) + "\t"); // Site count
 		this.dbOut.print((this.data == null ? 0 : this.data.getPatternCount()) + "\t"); // Pattern count
 		this.dbOut.print(npartitions + "\t"); // Number of partitions
+		this.dbOut.print(nspecies + "\t");
 		this.dbOut.print(pgaps + "\t"); // Proportion of sites which are gaps
 		this.dbOut.print((this.data == null ? 0 : this.data.getDataType().getStateCount()) + "\t"); // Number of characters (4 for nt, 20 for aa etc)
 		this.dbOut.print(datedTips + "\t"); // Are the tips dated?

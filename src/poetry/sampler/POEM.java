@@ -14,6 +14,7 @@ import beast.core.Input;
 import beast.util.Randomizer;
 import poetry.functions.XMLFunction;
 import poetry.operators.MetaOperator;
+import poetry.util.ESSDerivative;
 import poetry.util.XMLUtils;
 
 
@@ -208,6 +209,15 @@ public class POEM extends BEASTObject implements XMLSampler {
 		List<Element> logs = XMLUtils.getElementsByName(thisEle, "log");
 		for (Element log : logs) {
 			logger.appendChild(log.cloneNode(true));
+			
+			// ESS derivative logger
+			if (log.hasAttribute("idref")) {
+				Element dESS = doc.createElement("log");
+				dESS.setAttribute("arg", "@" + log.getAttribute("idref"));
+				dESS.setAttribute("spec", ESSDerivative.class.getCanonicalName());
+				logger.appendChild(dESS);
+			}
+			
 		}
 		
 		/*
