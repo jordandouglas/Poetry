@@ -232,7 +232,6 @@ public class SimulateXML extends Runnable {
 		XMLSimProducer producer = new XMLSimProducer();
 		String sXML = producer.toXML(this);
 		
-		
 		// xml comments
 		String comments = "\nXML sample " + sampleNum + "\n";
 		
@@ -309,7 +308,7 @@ public class SimulateXML extends Runnable {
         parent.appendChild(runner);
   
 		
-		// Add a comment citing the dataset
+		// Add a comment describing the dataset/model etc
         Node element = doc.getFirstChild();
 		Comment comment = doc.createComment(comments);
 		element.getParentNode().insertBefore(comment, element);

@@ -433,6 +433,7 @@ public class PoetryAnalyser extends Runnable {
 			String line = scanner.nextLine();
 			if (line.isEmpty()) continue;
 			String[] spl = line.split("\t");
+			if (spl.length == 0) continue;
 			if (spl.length != ncol) throw new IllegalArgumentException("Database has " + spl.length + " elements on file line " + lineNum + " but there should be " + ncol);
 			values.add(line.split("\t"));
 			

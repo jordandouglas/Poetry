@@ -212,7 +212,6 @@ public class WeightedFile extends BEASTObject {
 				File archive = new File(cumulativePath + ele);
 				if (!archive.isDirectory()){
 					
-					
 					// Found the file
 					if (WeightedFile.isTextFile(archive)) {
 						
@@ -224,6 +223,9 @@ public class WeightedFile extends BEASTObject {
 						
 						String path = archive.getPath();
 						while (!(new File(path).isDirectory()) && !WeightedFile.isTextFile(new File(path))) {
+							
+							
+							
 							InputStream stream = WeightedFile.getStream(path);
 							File newTmpFile = new File(WeightedFile.getTmpFileDir(cumulativePath));
 							
@@ -233,7 +235,11 @@ public class WeightedFile extends BEASTObject {
 							
 							this.createdTmpFiles.add(newTmpFile);
 							path = newTmpFile.getPath();
+							
+							
 							stream.close();
+							
+							System.out.println(path);
 						}
 						
 						
@@ -315,6 +321,7 @@ public class WeightedFile extends BEASTObject {
 	public static InputStream getStream(String filePath) throws Exception {
 		
 		String type = Files.probeContentType(Paths.get(filePath));
+		System.out.println(filePath + " is a " + type);
 		switch (type) {
 		
 		
@@ -323,6 +330,13 @@ public class WeightedFile extends BEASTObject {
 				InputStream stream = new GZIPInputStream(new FileInputStream(filePath));
 				return stream;
 				
+			}
+			
+			
+			// Also gunzip 
+			case "application/gzip":{
+				InputStream stream = new GZIPInputStream(new FileInputStream(filePath));
+				return stream;
 			}
 			
 			
@@ -377,8 +391,10 @@ public class WeightedFile extends BEASTObject {
 	 * @throws IOException
 	 */
 	public static boolean isTextFile(File file) throws IOException {
+		//System.out.println("Probing " + Paths.get(file.getPath()).toString() + " exists:" + file.exists());
 		String type = Files.probeContentType(Paths.get(file.getPath()));
-		return type.equals("text/plain") || type.equals("application/xml");
+		//System.out.println("it is a  " + type);
+		return type == null || type.equals("text/plain") || type.equals("application/xml");
 	}
 	
 	
@@ -395,6 +411,11 @@ public class WeightedFile extends BEASTObject {
 		if (zipIn instanceof GZIPInputStream) gunzip((GZIPInputStream)zipIn, outFile);
 		//else if (zipIn instanceof ZipInputStream) unzip((ZipInputStream)zipIn, outFile);
 		else if (zipIn instanceof TarArchiveInputStream) untar((TarArchiveInputStream)zipIn, outFile);
+		
+		else {
+			System.out.println("Unknown compression format");
+			System.exit(1);
+		}
 		
 	}
 	

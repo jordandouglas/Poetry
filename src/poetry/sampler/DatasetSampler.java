@@ -5,7 +5,10 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 
@@ -13,8 +16,12 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
 
+import beast.core.BEASTInterface;
 import beast.core.Input;
+import beast.core.Input.Validate;
+import beast.core.parameter.RealParameter;
 import beast.core.util.Log;
 import beast.evolution.alignment.Alignment;
 import beast.evolution.alignment.FilteredAlignment;
@@ -24,6 +31,11 @@ import beast.evolution.alignment.TaxonSet;
 import beast.evolution.datatype.Aminoacid;
 import beast.evolution.datatype.DataType;
 import beast.evolution.datatype.Nucleotide;
+import beast.evolution.tree.Tree;
+import beast.evolution.tree.TreeInterface;
+import beast.evolution.tree.TreeUtils;
+import beast.math.distributions.MRCAPrior;
+import beast.math.distributions.ParametricDistribution;
 import beast.util.ClusterTree;
 import beast.util.NexusParser;
 import beast.util.Randomizer;
@@ -43,6 +55,9 @@ public class DatasetSampler extends Alignment implements XMLSampler  {
 			"The maximum number of partitions to use, or set to zero to concatenate all into a single partition (default: all)", 100);
 	final public Input<List<String>> norepeatsInput = new Input<>("norepeat", "ids of elements that should not be repeated 1x for each partition", new ArrayList<>());
 	
+	final public Input<RealParameter> clockRateInput = new Input<>("clock.rate", "The clock rate parameter. If there are MRCA priors, this will create a clock rate prior.");
+	
+	
 	//protected String newID; // A new unique identifier for this element in output xmls
 	protected int numFiles;
 	protected int maxNumPartitions;
@@ -51,6 +66,16 @@ public class DatasetSampler extends Alignment implements XMLSampler  {
 	protected List<String> norepeats;
 	protected DataType datatype;
 	protected boolean hasBegun;
+	
+	TreeInterface tree;
+	
+	// Clock rate lognormal priors
+	protected RealParameter clockRate;
+	protected double clockPriorMean;
+	protected double clockPriorSD;
+	protected List<MRCAPrior> calibrations;
+	
+	
 	
 	@Override
 	public void initAndValidate() {
@@ -71,13 +96,51 @@ public class DatasetSampler extends Alignment implements XMLSampler  {
 		this.norepeats = norepeatsInput.get();
 		this.datatype = null;
 		
+		this.clockRate = clockRateInput.get();
 		
-		
-		// New ID
-		//this.newID = this.getID().replace("$(partition)", "*") + Randomizer.nextInt(100000000);
+		this.tree = this.getTree();
+		if (this.tree == null) Log.warning("Warning: cannot find a tree pointing to " + this.getID());
 		
 		this.reset();
 		this.hasBegun = false;
+		
+	}
+	
+	
+	/**
+	 * Find the tree pointing to this alignment
+	 * @return
+	 */
+	private TreeInterface getTree() {
+		
+		// Find the taxonset pointing to this alignment
+		TreeInterface tree = null;
+		for (BEASTInterface obj : this.getOutputs()) {
+			System.out.println(obj.getID());
+			if (obj instanceof TaxonSet) {
+				
+				
+				// Find the tree pointing to this taxonset
+				for (BEASTInterface obj2 : obj.getOutputs()) {
+					
+					if (obj2 instanceof TreeInterface) {
+						
+						if (tree != null) {
+							throw new IllegalArgumentException("More than 1 tree is pointing to " + this.getID() + ". Poetry can only handle single trees "
+									+ " at this stage.");
+						}
+						
+						tree = (TreeInterface) obj2;
+						break;
+					}
+					
+				}
+				
+			}
+		}
+		
+		
+		return tree;
 		
 	}
 	
@@ -90,7 +153,6 @@ public class DatasetSampler extends Alignment implements XMLSampler  {
 	@Override
 	public void reset() {
 		
-		
 		this.hasBegun = true;
 		
 		// Sample an alignment and set this object's inputs accordingly
@@ -99,8 +161,9 @@ public class DatasetSampler extends Alignment implements XMLSampler  {
 		Alignment aln = parser.m_alignment;
 		this.datatype = aln.getDataType();
 		
-		System.out.println("Sampling alignment: " +  this.sampledFile.getFilePath());
 		
+		
+		System.out.println("Sampling alignment: " +  this.sampledFile.getFilePath());
 		this.initAlignment(aln.sequenceInput.get(), aln.dataTypeInput.get());
 		
 		// Subsample partitions from the alignment
@@ -108,8 +171,161 @@ public class DatasetSampler extends Alignment implements XMLSampler  {
 		this.partitions = this.samplePartitions(parser);
 		System.out.println("Subsampling " + this.partitions.size() + " partitions from the alignment");
 		
+		
+		// MRCA priors (if applicable)
+		this.processMRCAPriors(parser);
+		
+		
+		// Remove unused sites from the main alignment
+		this.tidyAlignment();
+		
+		
 	}
 	
+	
+	
+	/**
+	 * Record all MRCA priors and use this to come up with a clock rate prior (for naughty Bayesians)
+	 * @param parser
+	 */
+	protected void processMRCAPriors(NexusParser parser) {
+		
+		if (this.clockRate == null) return;
+		
+		
+		// Get calibrations which actually have a prior
+		this.calibrations = new ArrayList<>();
+		for (MRCAPrior prior : parser.calibrations) {
+			if (prior.distInput.get() != null) {
+				this.calibrations.add(prior);
+			}
+		}
+		
+		
+		if (this.calibrations.isEmpty()) {
+			this.clockPriorMean = 0;
+			this.clockPriorSD = 0;
+		}else {
+			
+			
+			// Expected mutation rate is average of 
+			//			crown heights (in substitutions/site) divided by by crown times (time units)  
+			int numCalibrations = this.calibrations.size();
+			double[] crownRates = new double[numCalibrations];
+			for (int i = 0; i < numCalibrations; i ++) crownRates[i] = 0;
+			
+			
+			ClusterTree tree = new ClusterTree();
+			
+			
+			// For each partition
+			for (Alignment aln : this.partitions) {
+				tree.initByName("clusterType", "neighborjoining", "taxa", aln);
+				
+				// Get mrca node height
+				for (int i = 0; i < this.calibrations.size(); i ++) {
+					MRCAPrior prior = this.calibrations.get(i);
+					TaxonSet taxa = prior.taxonsetInput.get();
+					taxa.initAndValidate();
+					
+					// Node height (substitutions per site)
+					beast.evolution.tree.Node mrca = TreeUtils.getCommonAncestorNode(tree, taxa.getTaxaNames());
+					double height = mrca.getHeight();
+					
+					// Mean node time under the prior
+					ParametricDistribution distr = prior.distInput.get();
+					if (distr == null) {
+					System.out.println(distr);
+					}
+					double time = distr.getMean();
+					
+					// Clock rate
+					double rate = height / time;
+					crownRates[i] += rate / this.partitions.size();
+				
+				}
+				
+			}
+			
+			
+			// Calculate log mean 
+			double logmean = 0;
+			for (int i = 0; i < numCalibrations; i ++) {
+				crownRates[i] = Math.log(crownRates[i]);
+				logmean += crownRates[i];
+			}
+			logmean = logmean / numCalibrations;
+			
+			// Log standard deviation
+			double logsd = 0;
+			if (numCalibrations == 1) {
+				logsd = 0.2;
+			}else {
+				for (int i = 0; i < numCalibrations; i ++) {
+					logsd += Math.pow(crownRates[i] - logmean, 2);
+				}
+				logsd = logsd / numCalibrations;
+				logsd = Math.sqrt(logsd);
+			}
+			if (logsd <= 0) logsd = 0.2;
+			
+			
+			
+			
+			this.clockPriorMean = logmean;
+			this.clockPriorSD = logsd;
+				
+			System.out.println("Computed a clock rate prior: lognormal(" + clockPriorMean + "," +  this.clockPriorSD + ")");
+				
+			
+		}
+		
+		
+	}
+	
+	
+	
+	private void tidyAlignment() {
+		
+		if (true) return;
+		
+		// Which sites to include?
+		int nsites = this.sequences.get(0).getData().length();
+		boolean[] include = new boolean[nsites];
+		for (int i = 0; i < nsites; i ++) include[i] = false;
+		
+		
+		// Find the sites which are being used by any partition
+		for (Alignment alignment : this.partitions) {
+			
+			FilteredAlignment filtered = (FilteredAlignment) alignment;
+			//filtered/
+			int[] sitesFilter = filtered.indices();
+			for (int i = 0; i < sitesFilter.length; i ++) {
+				int site = sitesFilter[i];
+				include[site-1] = true;
+			}
+			
+		}
+		
+		
+		
+		
+		// Remove duplicates
+		//LinkedHashSet<Integer> hashSet = new LinkedHashSet<>(sites);
+		//sites = new ArrayList<>(hashSet);
+		
+		
+		// Sort in reverse order
+		//sites.sort(Collections.reverseOrder());
+		
+		
+		
+		//for (int i = 0; i < )
+		
+		
+		
+	}
 	
 	
 	/**
@@ -226,6 +442,74 @@ public class DatasetSampler extends Alignment implements XMLSampler  {
 	        
 			
 		}
+		
+		
+		// Clock rate
+		if (this.clockRate != null) {
+			Element prior = XMLUtils.getElementById(doc, "prior");
+			if (prior == null) {
+				throw new Exception("Cannot locate element with id 'prior'");
+			}
+			
+			// Clock rate initial value
+			Element clockRateElement = XMLUtils.getElementById(doc, this.clockRate.getID());
+			clockRateElement.setAttribute("value", "" + Math.exp(this.clockPriorMean));
+			for (Node node : XMLUtils.nodeListToList(clockRateElement.getChildNodes())) {
+				if (node instanceof Text) {
+					clockRateElement.removeChild(node);
+				}
+			}
+			
+			// Clock rate prior
+			Element clockRatePrior = doc.createElement("prior");
+			clockRatePrior.setAttribute("name", "distribution");
+			clockRatePrior.setAttribute("x", "@" + this.clockRate.getID());
+			prior.appendChild(clockRatePrior);
+			
+			Element logNormal = doc.createElement("LogNormal");
+			logNormal.setAttribute("name", "distr");
+			logNormal.setAttribute("M", "" + this.clockPriorMean);
+			logNormal.setAttribute("S", "" + this.clockPriorSD);
+			clockRatePrior.appendChild(logNormal);
+			
+			// MRCA priors
+			XMLSimProducer producer = new XMLSimProducer();
+			for (MRCAPrior mrcaPrior : this.calibrations) {
+				
+				
+				String xml = producer.toXML(mrcaPrior);
+				Document priorDoc = XMLUtils.loadXMLFromString(xml);
+				Element priorEle = XMLUtils.getElementById(priorDoc, mrcaPrior.getID());
+				Element imported = (Element) doc.importNode(priorEle, true);
+				doc.renameNode(imported, null, "prior");
+				imported.setAttribute("tree", "@" + this.tree.getID());
+				imported.setAttribute("name", "distribution");
+				prior.appendChild(imported);
+				
+				// Remove id's from distr and all if its descendents
+				for (Element distr : XMLUtils.getElementsByName(imported, "distr")) {
+					distr.removeAttribute("id");
+					for (Node child : XMLUtils.getAllElements(distr)) {
+						if (child instanceof Element) {
+							Element c = (Element) child;
+							c.removeAttribute("id");
+						}
+					}
+					
+				}
+				
+				
+				
+				
+			}
+			
+		
+		}
+		
+
+		
+		
+		
 		
 		// Remove the generic unfiltered alignment
 		//thisEle.getParentNode().removeChild(thisEle);

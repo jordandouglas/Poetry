@@ -49,7 +49,7 @@
 				 <populationModel id="speciesTreePopulationModel" spec="starbeast3.evolution.speciation.ConstantPopulations" populationSizes="@popSize" speciesTree="@tree" />
 			</speciesTreePrior>
 
-			<speciesTreeRates id="branchRatesModel.Species" spec="starbeast3.evolution.branchratemodel.UCRelaxedClockModelSB3" estimateRoot="true" realRates="@rates.clock" tree="@tree" stdev="@ucldStdev.clock" />
+			<speciesTreeRates id="branchRatesModel.Species" spec="starbeast3.evolution.branchratemodel.UCRelaxedClockModelSB3" estimateRoot="true" realRates="@rates.clock" tree="@tree" stdev="@ucldStdev.clock" clock.rate="@overallClockRate.c:tree" />
 
 	    </init>
 
