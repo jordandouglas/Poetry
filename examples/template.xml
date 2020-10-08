@@ -19,7 +19,8 @@
 	<data id="alignment.$(partition)" spec="poetry.sampler.DatasetSampler" partitions="100" clock.rate="@overallClockRate.c:tree">
 
 		
-		<file spec="poetry.util.WeightedFile" file="../datasets/Broughton_2013/alignment.nex" desc="Benchmark alignment" />
+		<file weight="10000" spec="poetry.util.WeightedFile" file="../datasets/Broughton_2013/alignment.nex" desc="Benchmark alignment" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Cognato_2001/alignment.nex" desc="Benchmark alignment" />
 
 		<!--
 		<file spec="poetry.util.WeightedFile" file="../datasets/Bryson_et_al.2017/alignment.nex" desc="MSC alignment" species="1" speciessplit="_" />
@@ -93,7 +94,7 @@
 
 
 		<!-- Do not repeat $(partition) across all partitions in these elements. Just use the first partition -->
-		<norepeat>tree.taxonset NJtree UPGMA_Distance_ref</norepeat>
+		<norepeat>tree.taxonset inittree UPGMA_Distance_ref NJ_Distance_ref</norepeat>
 
 	</data>
 
@@ -117,16 +118,19 @@
 
 
 
+
 		<!-- Parameter-operator-ESS mappings -->
 		<poem id="TopologyPOEM" spec="poetry.sampler.POEM" alpha="2.0" logEvery="10000">
 			<operator idref="species.tree.topology.operator" />
 			<log idref="treePrior" />
 		</poem>
 
+
 		<poem id="NodeHeightPOEM" spec="poetry.sampler.POEM" alpha="2.0" logEvery="10000">
 			<operator idref="species.tree.height.operator" />
 			<log idref="treePrior" />
 			<log idref="TreeStat.t:tree" />
+			<log idref="overallClockRate.c:tree" />
 		</poem>
 
 
@@ -186,9 +190,14 @@
 		<function id="doingMSCAnalysis" spec="poetry.functions.XMLCondition" obj="@MSC.model" method="wasSampled" />
 		<function id="doingConcatAnalysis" spec="poetry.functions.XMLCondition" obj="@Concat.model" method="wasSampled" />
 		<function id="tipsAreDated" spec="poetry.functions.XMLCondition" obj="@alignment.$(partition)" method="tipsAreDated" />
+		<function id="treeIsCalibrated" spec="poetry.functions.XMLCondition" obj="@alignment.$(partition)" method="treeIsCalibrated" />
+		<function id="treeIsUncalibrated" spec="poetry.functions.XMLCondition" obj="@alignment.$(partition)" method="treeIsCalibrated" negate="true" />
+
 
 		<function spec="poetry.functions.XMLInputSetter" obj="@alignment.$(partition)" method="getNumPartitionsDouble" target="@site.model.logconstrain" input="sum" />
 		<function spec="poetry.functions.XMLInputSetter" target="@site.model.AVMVN" input="allowNonsense" value="true" />
+
+
 
 		<function id="mscTaxonSet" spec="poetry.functions.XMLPopulator" obj="@alignment.$(partition)" method="getMSCTaxonSet" />
 
@@ -198,6 +207,17 @@
 			<file id="Concat.model" spec="poetry.util.WeightedFile" file="../models/species/Concat.xml" desc="Loci are concatenated (as partitions)" />
 			<file weight="10000" id="MSC.model" spec="poetry.util.WeightedFile" file="../models/species/MSC.xml" desc="Loci are treated as gene trees" condition="@speciesOnly" />
 		</model>
+
+
+
+
+		<!-- Tree clock sampler -->
+		<model id="treeclock.model" spec="poetry.sampler.ModelSampler">
+			<file id="Fixed.clock.model" spec="poetry.util.WeightedFile" file="../models/treeclock/Fixed.xml" desc="Tree clock rate is fixed" />
+			<file id="Estimated.clock.model" spec="poetry.util.WeightedFile" file="../models/treeclock/Fixed.xml" desc="Tree clock rate is estimated but there are no calibrated nodes" condition="@treeIsUncalibrated" />
+			<file weight="10000" id="Calibrated.clock.model" spec="poetry.util.WeightedFile" file="../models/treeclock/Calibrated.xml" desc="Tree clock rate is estimated using calibration nodes" condition="@treeIsCalibrated" />
+		</model>
+
 
 
 		<!-- Site model sampler -->
@@ -241,6 +261,9 @@
 
 			<file id="MCMC.search" spec="poetry.util.WeightedFile" file="../models/search/MCMC.xml" desc="Standard MCMC (i.e. MC2)" />
 			<file id="MCMCMC.search" spec="poetry.util.WeightedFile" file="../models/search/MCMCMC.xml" desc="Coupled MCMC (i.e. MC3)" />
+
+
+			<init spec="beast.evolution.tree.SimpleRandomTree" id="inittree" taxa="@alignment.$(partition)" initial="@tree"/>
 		
 
 			<state id="state" spec="State" storeEvery="1000">
@@ -287,9 +310,6 @@
 
 
 
-
-
-
 			<!-- Species tree node height operator -->
 			<operator id="species.tree.height.operator" spec="poetry.operators.MetaOperator"  weight="1.0">
 
@@ -298,6 +318,25 @@
 					<operator id="TreeRootScaler.t:tree" spec="ScaleOperator" rootOnly="true" scaleFactor="0.5" tree="@tree" weight="1.0"/>
 					<operator id="UniformOperator.t:tree" spec="Uniform" tree="@tree" weight="1.0"/>
 					<operator idref="SubtreeSlide.t:tree"/>
+
+
+					<operator id="species.tree.AVMVN" spec="beast.evolution.operators.AdaptableVarianceMultivariateNormalOperator" 
+		                weight="1"
+		                coefficient="1"
+		                scaleFactor="1"
+		                beta="0.05"
+		                initial="1000"
+		                burnin="500"
+		                every="1"
+		                allowNonsense="false">
+
+						<transformations id="species.tree.logtransform" spec="beast.util.Transform$LogTransform">
+							<f idref="tree" />
+						</transformations>
+
+					</operator>
+
+
 				</operator>
 
 			</operator>
@@ -326,6 +365,12 @@
 
 
 			</operator>
+
+
+
+
+	
+
 
 
 

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<fragment>
+
+
+
+	<append id="species.tree.logtransform">
+		<f idref="overallClockRate.c:tree" />
+	</append>
+
+
+</fragment>
+	
+
+

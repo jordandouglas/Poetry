@@ -30,7 +30,6 @@
 	<override name="branchRateModel" id="ClockModel.t:tree" spec="beast.evolution.branchratemodel.UCRelaxedClockModel" rates="@rates.clock" tree="@tree" clock.rate="@overallClockRate.c:tree">
 
 
-			<parameter estimate="false" name="clock.rate">1.0</parameter>
 			
 			<LogNormal id="LogNormalDistributionModel.clock" S="@ucldStdev.clock" meanInRealSpace="true" name="distr">
 				<parameter spec="parameter.RealParameter" estimate="false" lower="0.0" name="M" upper="1.0">1.0</parameter>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<fragment>
+
+
+	<append id="prior">
+		<prior id="treeClockPrior" name="distribution" x="@overallClockRate">
+			<LogNormal name="distr" M="0" S="0.2" />
+		</prior>
+	</append>
+
+	<append id="species.tree.logtransform">
+		<f idref="overallClockRate.c:tree" />
+	</append>
+
+</fragment>
+	
+
+

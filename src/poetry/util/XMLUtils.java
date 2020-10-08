@@ -487,6 +487,8 @@ public class XMLUtils {
 	 */
 	public static void mergeElementsWhichShareID(Document doc) {
 		
+
+		
 		List<Node> elements = getAllElements(doc);
 
 		
@@ -533,6 +535,11 @@ public class XMLUtils {
         						ele_i.appendChild(node);
         					}
         					*/
+        					
+        					
+        					ele_j.removeAttribute("id");
+        					ele_j.setAttribute("idref", id_i);
+        					
         					nodesToDelete.add(ele_j);
         					
         				}
@@ -544,8 +551,9 @@ public class XMLUtils {
         	}
 	        	
 	        	
-		 }
+		}
 		
+		if (true) return;
 
 		
 		// Delete the duplicates (ie the matched j's)

@@ -31,6 +31,7 @@ import beast.evolution.alignment.TaxonSet;
 import beast.evolution.datatype.Aminoacid;
 import beast.evolution.datatype.DataType;
 import beast.evolution.datatype.Nucleotide;
+import beast.evolution.tree.SimpleRandomTree;
 import beast.evolution.tree.Tree;
 import beast.evolution.tree.TreeInterface;
 import beast.evolution.tree.TreeUtils;
@@ -58,6 +59,7 @@ public class DatasetSampler extends Alignment implements XMLSampler  {
 	final public Input<RealParameter> clockRateInput = new Input<>("clock.rate", "The clock rate parameter. If there are MRCA priors, this will create a clock rate prior.");
 	
 	
+	
 	//protected String newID; // A new unique identifier for this element in output xmls
 	protected int numFiles;
 	protected int maxNumPartitions;
@@ -68,6 +70,7 @@ public class DatasetSampler extends Alignment implements XMLSampler  {
 	protected boolean hasBegun;
 	
 	TreeInterface tree;
+	//SimpleRandomTree init;
 	
 	// Clock rate lognormal priors
 	protected RealParameter clockRate;
@@ -95,7 +98,7 @@ public class DatasetSampler extends Alignment implements XMLSampler  {
 		
 		this.norepeats = norepeatsInput.get();
 		this.datatype = null;
-		
+		//this.init = this.getTreeInitialiser();
 		this.clockRate = clockRateInput.get();
 		
 		this.tree = this.getTree();
@@ -107,6 +110,22 @@ public class DatasetSampler extends Alignment implements XMLSampler  {
 	}
 	
 	
+	
+	/**
+	 * Searches the outputs of this class for a SimpleRandomTree initialsier
+	 * This will be useful for finding an initial state if there are calibrations
+	 * @return
+	
+	private SimpleRandomTree getTreeInitialiser() {
+		
+		for (BEASTInterface obj : this.getOutputs()) {
+			if (obj instanceof SimpleRandomTree) return (SimpleRandomTree) obj;
+		}
+		
+		return null;
+	}
+	 */
+	
 	/**
 	 * Find the tree pointing to this alignment
 	 * @return
@@ -116,7 +135,6 @@ public class DatasetSampler extends Alignment implements XMLSampler  {
 		// Find the taxonset pointing to this alignment
 		TreeInterface tree = null;
 		for (BEASTInterface obj : this.getOutputs()) {
-			System.out.println(obj.getID());
 			if (obj instanceof TaxonSet) {
 				
 				
@@ -195,9 +213,12 @@ public class DatasetSampler extends Alignment implements XMLSampler  {
 		
 		// Get calibrations which actually have a prior
 		this.calibrations = new ArrayList<>();
-		for (MRCAPrior prior : parser.calibrations) {
-			if (prior.distInput.get() != null) {
-				this.calibrations.add(prior);
+		if (parser.calibrations != null) {
+			for (MRCAPrior prior : parser.calibrations) {
+				if (prior.distInput.get() != null) {
+					//prior.isMonophyleticInput.set("false");
+					this.calibrations.add(prior);
+				}
 			}
 		}
 		
@@ -445,7 +466,7 @@ public class DatasetSampler extends Alignment implements XMLSampler  {
 		
 		
 		// Clock rate
-		if (this.clockRate != null) {
+		if (this.clockRate != null && this.calibrations != null && !this.calibrations.isEmpty()) {
 			Element prior = XMLUtils.getElementById(doc, "prior");
 			if (prior == null) {
 				throw new Exception("Cannot locate element with id 'prior'");
@@ -495,10 +516,18 @@ public class DatasetSampler extends Alignment implements XMLSampler  {
 							c.removeAttribute("id");
 						}
 					}
-					
 				}
 				
-				
+				/*
+				// Add to tree initialiser
+				if (this.init != null) {
+					Element initEle = XMLUtils.getElementById(doc, this.init.getID());
+					Element constraint = doc.createElement("constraint");
+					constraint.setAttribute("idref", mrcaPrior.getID());
+					initEle.appendChild(constraint);
+					
+				}
+				*/
 				
 				
 			}
@@ -689,6 +718,24 @@ public class DatasetSampler extends Alignment implements XMLSampler  {
 		return this.sampledFile.tipsAreDated();
 	}
 	
+	
+	/**
+	 * Does the dataset have calibrated nodes?
+	 * @return
+	 */
+	public boolean treeIsCalibrated() {
+		return this.calibrations != null && this.calibrations.size() > 0;
+	}
+	
+	
+	/**
+	 * Number of calibration nodes
+	 * @return
+	 */
+	public int getNumCalibrations() {
+		if (this.calibrations == null) return 0;
+		return this.calibrations.size();
+	}
 	
 	
 	/**
