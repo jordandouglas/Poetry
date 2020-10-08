@@ -195,7 +195,7 @@ public class DatasetSampler extends Alignment implements XMLSampler  {
 		
 		
 		// Remove unused sites from the main alignment
-		this.tidyAlignment();
+		this.tidyAlignment(parser);
 		
 		
 	}
@@ -306,44 +306,54 @@ public class DatasetSampler extends Alignment implements XMLSampler  {
 	
 	
 	
-	private void tidyAlignment() {
-		
-		if (true) return;
-		
-		// Which sites to include?
-		int nsites = this.sequences.get(0).getData().length();
-		boolean[] include = new boolean[nsites];
-		for (int i = 0; i < nsites; i ++) include[i] = false;
+	private void tidyAlignment(NexusParser parser) {
 		
 		
-		// Find the sites which are being used by any partition
-		for (Alignment alignment : this.partitions) {
+		// Small alignment
+		List<String> smallAln = new ArrayList<>();
+		for (int i = 0; i < this.sequences.size(); i ++) smallAln.add("");
+		
+		// Adjust filters to apply to the subsequence
+		int start = 1;
+		int[] starts = new int[this.partitions.size()];
+		int[] stops = new int[this.partitions.size()];
+		for (int j = 0; j < this.partitions.size(); j ++) {
 			
-			FilteredAlignment filtered = (FilteredAlignment) alignment;
-			//filtered/
-			int[] sitesFilter = filtered.indices();
-			for (int i = 0; i < sitesFilter.length; i ++) {
-				int site = sitesFilter[i];
-				include[site-1] = true;
+			FilteredAlignment filtered = (FilteredAlignment) this.partitions.get(j);
+			
+			int seqlen = 0;
+			for (int i = 0; i < smallAln.size(); i ++) {
+				String taxon = filtered.getTaxaNames().get(i);
+				String seq = filtered.getSequenceAsString(taxon);
+				smallAln.set(i, smallAln.get(i) + seq);
+				seqlen = seq.length();
 			}
+			
+			int stop = start + seqlen - 1;
+			starts[j] = start;
+			stops[j] = stop;
+			start = stop + 1;
 			
 		}
 		
 		
+		// Create alignment
+		List<Sequence> seqs = new ArrayList<>();
+		for (int i = 0; i < smallAln.size(); i ++) {
+			String taxon = this.sequences.get(i).getTaxon();
+			String seq = smallAln.get(i);
+			Sequence sequence = new Sequence(taxon, seq);
+			seqs.add(sequence);
+			
+		}
+		this.initAlignment(seqs, parser.m_alignment.dataTypeInput.get());
 		
 		
-		// Remove duplicates
-		//LinkedHashSet<Integer> hashSet = new LinkedHashSet<>(sites);
-		//sites = new ArrayList<>(hashSet);
-		
-		
-		// Sort in reverse order
-		//sites.sort(Collections.reverseOrder());
-		
-		
-		
-		//for (int i = 0; i < )
-		
+		// Reinitialise filters
+		for (int j = 0; j < this.partitions.size(); j ++) {
+			FilteredAlignment filtered = (FilteredAlignment) this.partitions.get(j);
+			filtered.initByName("data", (Alignment)this, "filter", starts[j] + "-" + stops[j]);
+		}
 		
 		
 	}

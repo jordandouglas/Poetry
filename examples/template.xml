@@ -19,7 +19,8 @@
 	<data id="alignment.$(partition)" spec="poetry.sampler.DatasetSampler" partitions="100" clock.rate="@overallClockRate.c:tree">
 
 		
-		<file weight="10000" spec="poetry.util.WeightedFile" file="../datasets/Broughton_2013/alignment.nex" desc="Benchmark alignment" />
+		<file weight="10000" spec="poetry.util.WeightedFile" file="../datasets/Bryson_et_al.2017/alignment.nex" desc="MSC alignment" species="1" speciessplit="_" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Broughton_2013/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Cognato_2001/alignment.nex" desc="Benchmark alignment" />
 
 		<!--
@@ -213,9 +214,9 @@
 
 		<!-- Tree clock sampler -->
 		<model id="treeclock.model" spec="poetry.sampler.ModelSampler">
-			<file id="Fixed.clock.model" spec="poetry.util.WeightedFile" file="../models/treeclock/Fixed.xml" desc="Tree clock rate is fixed" />
+			<file id="Fixed.clock.model" spec="poetry.util.WeightedFile" file="../models/treeclock/Fixed.xml" desc="Tree clock rate is fixed" condition="@treeIsUncalibrated" />
 			<file id="Estimated.clock.model" spec="poetry.util.WeightedFile" file="../models/treeclock/Fixed.xml" desc="Tree clock rate is estimated but there are no calibrated nodes" condition="@treeIsUncalibrated" />
-			<file weight="10000" id="Calibrated.clock.model" spec="poetry.util.WeightedFile" file="../models/treeclock/Calibrated.xml" desc="Tree clock rate is estimated using calibration nodes" condition="@treeIsCalibrated" />
+			<file id="Calibrated.clock.model" spec="poetry.util.WeightedFile" file="../models/treeclock/Calibrated.xml" desc="Tree clock rate is estimated using calibration nodes" condition="@treeIsCalibrated" />
 		</model>
 
 
