@@ -19,7 +19,8 @@
 	<data id="alignment.$(partition)" spec="poetry.sampler.DatasetSampler" partitions="100" clock.rate="@overallClockRate.c:tree">
 
 		
-		<file weight="10000" spec="poetry.util.WeightedFile" file="../datasets/Bryson_et_al.2017/alignment.nex" desc="MSC alignment" species="1" speciessplit="_" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Ballesteros_2019/alignment.nex" desc="Benchmark alignment" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Bryson_et_al.2017/alignment.nex" desc="MSC alignment" species="1" speciessplit="_" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Broughton_2013/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Cognato_2001/alignment.nex" desc="Benchmark alignment" />
 
@@ -264,7 +265,7 @@
 			<file id="MCMCMC.search" spec="poetry.util.WeightedFile" file="../models/search/MCMCMC.xml" desc="Coupled MCMC (i.e. MC3)" />
 
 
-			<init spec="beast.evolution.tree.SimpleRandomTree" id="inittree" taxa="@alignment.$(partition)" initial="@tree"/>
+			
 		
 
 			<state id="state" spec="State" storeEvery="1000">

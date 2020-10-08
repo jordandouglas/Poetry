@@ -37,6 +37,7 @@ import beast.evolution.tree.TreeInterface;
 import beast.evolution.tree.TreeUtils;
 import beast.math.distributions.MRCAPrior;
 import beast.math.distributions.ParametricDistribution;
+import beast.math.distributions.Uniform;
 import beast.util.ClusterTree;
 import beast.util.NexusParser;
 import beast.util.Randomizer;
@@ -195,7 +196,7 @@ public class DatasetSampler extends Alignment implements XMLSampler  {
 		
 		
 		// Remove unused sites from the main alignment
-		this.tidyAlignment(parser);
+		this.shrinkAlignment(parser);
 		
 		
 	}
@@ -255,13 +256,14 @@ public class DatasetSampler extends Alignment implements XMLSampler  {
 					
 					// Mean node time under the prior
 					ParametricDistribution distr = prior.distInput.get();
-					if (distr == null) {
-					System.out.println(distr);
-					}
 					double time = distr.getMean();
+					
 					
 					// Clock rate
 					double rate = height / time;
+					if (Double.isInfinite(rate) || Double.isNaN(rate)) {
+						rate = 0.0001; // Sensible estimate if time units are Ma (for large organisms) or years (for viruses)
+					}
 					crownRates[i] += rate / this.partitions.size();
 				
 				}
@@ -306,7 +308,12 @@ public class DatasetSampler extends Alignment implements XMLSampler  {
 	
 	
 	
-	private void tidyAlignment(NexusParser parser) {
+	
+	/**
+	 * Remove unused sites in the alignment to save both memory and disk space
+	 * @param parser
+	 */
+	private void shrinkAlignment(NexusParser parser) {
 		
 		
 		// Small alignment

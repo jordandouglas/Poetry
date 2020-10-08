@@ -3,6 +3,12 @@
 <fragment>
 
 
+
+	<append id="mcmc" >
+		<init spec="beast.evolution.tree.SimpleRandomTree" id="inittree" taxa="@alignment.$(partition)" initial="@tree"/>
+	</append>
+
+
 	<append id="tracelog">
 
 		<log id="NJ_Distance" spec="beast.evolution.tree.TreeDistanceLogger" tree="@tree" >
