@@ -28,8 +28,8 @@
 
 
 
-	<append id="species.tree.prior.model.operator">
-		<operator id="CoalescentPopSizeScaler.t:tree" spec="ScaleOperator" parameter="@popSize" scaleFactor="0.75" weight="1.0"/>
+	<append id="tree.prior.logtransform">
+		<f idref="fpopSize" />
 	</append>
 
 

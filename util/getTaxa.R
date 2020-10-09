@@ -8,7 +8,7 @@ aln = readLines(args[1])
 
 
 
-mat = grep("matrix", aln)
+mat = grep("matrix", tolower(aln))
 end = grep(";", aln)
 end = end[end > mat][1]
 

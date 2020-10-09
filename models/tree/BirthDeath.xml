@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<fragment>
+
+
+	<append id="state">
+		 <parameter id="BDBirthRate.t:tree" spec="parameter.RealParameter" lower="0.0" name="stateNode" upper="10000.0">1.0</parameter>
+		 <parameter id="BDDeathRate.t:tree" spec="parameter.RealParameter" lower="0.0" name="stateNode" upper="1.0">0.5</parameter>
+	</append>
+
+
+	<append id="treePrior">
+
+
+		  <distribution id="BirthDeath.t:tree" spec="beast.evolution.speciation.BirthDeathGernhard08Model" birthDiffRate="@BDBirthRate.t:tree" relativeDeathRate="@BDDeathRate.t:tree" tree="@tree"/>
+
+
+		<prior id="BirthRatePrior.t:tree" name="distribution" x="@BDBirthRate.t:tree">
+                <LogNormal name="distr" M="1.0" S="0.5" />
+        </prior>
+
+
+    	<prior id="DeathRatePrior.t:tree" name="distribution" x="@BDDeathRate.t:tree">
+                <LogNormal name="distr" M="0.5" S="0.1" />
+        </prior>
+
+	</append>
+
+
+
+	<append id="tree.prior.logtransform">
+		<f idref="BDBirthRate.t:tree"/>
+		<f idref="BDDeathRate.t:tree"/>
+	</append>
+
+
+
+
+	<append id="SpeciesTreePriorPOEM">
+		<log idref="BDBirthRate.t:tree"/>
+		<log idref="BDDeathRate.t:tree"/>
+	</append>
+
+
+	<append id="tracelog">
+		<log idref="BDBirthRate.t:tree"/>
+		<log idref="BDDeathRate.t:tree"/>
+	</append>
+
+
+</fragment>
+	
+
+

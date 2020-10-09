@@ -29,8 +29,8 @@
 
 
 
-	<append id="species.tree.prior.model.operator">
-		<operator id="YuleBirthRateScaler.t:tree" spec="ScaleOperator" parameter="@birthRate" scaleFactor="0.75" weight="1.0"/>
+	<append id="tree.prior.logtransform">
+		<f idref="birthRate" />
 	</append>
 
 
