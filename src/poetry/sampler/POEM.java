@@ -10,7 +10,7 @@ import beast.core.BEASTObject;
 import beast.core.Description;
 import beast.core.Function;
 import beast.core.Input;
-
+import beast.core.StateNode;
 import beast.util.Randomizer;
 import poetry.functions.XMLFunction;
 import poetry.operators.MetaOperator;
@@ -84,6 +84,16 @@ public class POEM extends BEASTObject implements XMLSampler {
 	public String getWeightColname() {
 		return this.getID() + ".weight";
 	}
+	
+	
+	/**
+	 * Dimension column name
+	 * @return
+	 */
+	public String getDimColName() {
+		return this.getID() + ".dim";
+	}
+	
 	
 	
 	/**
@@ -400,6 +410,23 @@ public class POEM extends BEASTObject implements XMLSampler {
 		return new double[] {meanESS, sdESS, sdESS / meanESS};
 	}
 
+
+
+	/**
+	 * Get the dimension of this POEM by counting the dimension of its operator's state nodes
+	 * @return
+	 */
+	public int getDim() {
+		
+		if (this.operator == null) return 0;
+		
+		int ndim = 0;
+		for (StateNode stateNode : this.operator.listStateNodes()){
+			ndim += stateNode.getDimension();
+		}
+		return ndim;
+		
+	}
 
 
 

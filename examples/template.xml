@@ -28,7 +28,7 @@
 		<file spec="poetry.util.WeightedFile" file="../datasets/Ballesteros_2019/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Bryson_et_al.2017/alignment.nex" desc="MSC alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Broughton_2013/alignment.nex" desc="Benchmark alignment" />
-		<file spec="poetry.util.WeightedFile" file="../datasets/Cognato_2001/alignment.nex" desc="Benchmark alignment" />
+		<file weight="10000" spec="poetry.util.WeightedFile" file="../datasets/Cognato_2001/alignment.nex" desc="Benchmark alignment" />
 
 		<file spec="poetry.util.WeightedFile" file="../datasets/Nguyen_2016f/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Oaks_2011/alignment.nex" desc="Benchmark alignment" />
@@ -115,7 +115,7 @@
 
 
 	<!-- Placeholder site model -->
-	<siteModel id="siteModel.s:$(partition)" spec="SiteModel" gammaCategoryCount="1">
+	<siteModel id="siteModel.s:$(partition)" spec="SiteModel" >
 		<parameter spec="parameter.RealParameter" estimate="false" name="mutationRate">1.0</parameter>
 		<parameter spec="parameter.RealParameter" estimate="false" name="shape">1.0</parameter>
 		<substModel spec="JukesCantor" />
@@ -128,7 +128,7 @@
     </branchRateModel>
 
 
-	<run id="XMLSimulator" spec="poetry.SimulateXML" data="@alignment.$(partition)" out="out" nsamples="200" updateEvery="10000000">
+	<run id="XMLSimulator" spec="poetry.SimulateXML" data="@alignment.$(partition)" out="out" nsamples="10" updateEvery="10000000">
 
 
 
@@ -184,7 +184,6 @@
 
 		<poem id="GeneTreePriorPOEM" spec="poetry.sampler.POEM" alpha="1.0" logEvery="10000">
 			<operator idref="gene.tree.prior.model.operator" />
-
 		</poem>
 		
 
@@ -220,7 +219,7 @@
 		<!-- Species model sampler -->
 		<model id="partition.model" spec="poetry.sampler.ModelSampler">
 			<file id="Concat.model" spec="poetry.util.WeightedFile" file="../models/species/Concat.xml" desc="Loci are concatenated (as partitions)" />
-			<file weight="10000" id="MSC.model" spec="poetry.util.WeightedFile" file="../models/species/MSC.xml" desc="Loci are treated as gene trees" condition="@speciesOnly" />
+			<file id="MSC.model" spec="poetry.util.WeightedFile" file="../models/species/MSC.xml" desc="Loci are treated as gene trees" condition="@speciesOnly" />
 		</model>
 
 
@@ -250,6 +249,17 @@
 			<file id="MTREV.model" spec="poetry.util.WeightedFile" file="../models/site/aminoacid/MTREV.xml" desc="The MTREV site model" condition="@aaOnly" />
 			
 		</model>
+
+
+		<!-- Site model heterogeneity sampler -->
+		<model id="site.heterogeneity.model" spec="poetry.sampler.ModelSampler">
+
+			<file id="NoHet.model" spec="poetry.util.WeightedFile" file="../models/heterogeneity/No.xml" desc="No site heteregeneity" />
+			<file id="GammaSite.model" spec="poetry.util.WeightedFile" file="../models/heterogeneity/Gamma.xml" desc="Gamma site heteregeneity model with 4 categories" />
+			<file id="Invariant.model" spec="poetry.util.WeightedFile" file="../models/heterogeneity/Invariant.xml" desc="Site model with invariant sites estimated" />
+			<file id="GammaInvariant.model" spec="poetry.util.WeightedFile" file="../models/heterogeneity/GammaInvariant.xml" desc="Gamma site heteregeneity model with 4 categories and invariant sites" />
+
+		</model>
 		
 
 		<!-- Branch rate model sampler -->
@@ -263,8 +273,10 @@
 		<!-- Tree prior sampler -->
 		<model id="tree.model" spec="poetry.sampler.ModelSampler">
 			<file id="Yule.model" spec="poetry.util.WeightedFile" file="../models/tree/Yule.xml" desc="A Yule tree prior" />
-			<file id="Coalescent.model" spec="poetry.util.WeightedFile" file="../models/tree/Coalescent.xml" desc="A coalescent tree prior" condition="@doingConcatAnalysis" />
+			<file id="CoalescentExp.model" spec="poetry.util.WeightedFile" file="../models/tree/CoalescentExp.xml" desc="A coalescent tree prior with exponential growth" condition="@doingConcatAnalysis" />
+			<file id="Coalescent.model" spec="poetry.util.WeightedFile" file="../models/tree/Coalescent.xml" desc="A coalescent tree prior with fixed population size" condition="@doingConcatAnalysis" />
 			<file id="BirthDeath.model" spec="poetry.util.WeightedFile" file="../models/tree/BirthDeath.xml" desc="Birth-death tree prior" condition="@doingConcatAnalysis" />
+			<file id="Skyline.model" spec="poetry.util.WeightedFile" file="../models/tree/Skyline.xml" desc="Bayesian skyline tree prior" condition="@doingConcatAnalysis" />
 		</model>
 
 
@@ -414,14 +426,10 @@
 					<transformations id="site.model.logtransform" spec="beast.util.Transform$LogTransform">
 						
 					</transformations>
-					<!--
+					
 					<transformations id="site.model.logittransform" spec="beast.util.Transform$LogitTransform">
 						
 					</transformations>
-					-->
-
-
-
 					
 					<transformations id="site.model.logconstrain" spec="beast.util.Transform$LogConstrainedSumTransform" >
 						<f idref="clockRate.t:$(partition)" />
@@ -452,6 +460,8 @@
 					<transformations id="tree.prior.logtransform" spec="beast.util.Transform$LogTransform">
 						
 					</transformations>
+
+
 	
 				
 				</operator>

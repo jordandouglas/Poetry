@@ -2,9 +2,9 @@
 
 <fragment>
 
-	<override id="siteModel.s:$(partition)" name="siteModel" spec="SiteModel" gammaCategoryCount="1" mutationRate="@clockRate.t:$(partition)">
+	<override id="siteModel.s:$(partition)" name="siteModel" spec="SiteModel" mutationRate="@clockRate.t:$(partition)">
 
-		<parameter spec="parameter.RealParameter" estimate="false" name="shape">1.0</parameter>
+		<parameter id="gammaShape.s:$(partition)" spec="parameter.RealParameter" estimate="false" name="shape">1.0</parameter>
 		<substModel spec="beast.evolution.substitutionmodel.Blosum62" />
 
 	</override>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<fragment>
+
+	
+	<append id="state" spec="State" storeEvery="1000">
+		<parameter id="gammaShape.s:$(partition)" spec="parameter.RealParameter" estimate="true" name="stateNode" lower="0.1">1.0</parameter>
+		<parameter id="proportionInvariant.s:$(partition)" spec="parameter.RealParameter" name="stateNode" lower="0.0" upper="1.0">0.01</parameter>
+	</append>
+
+
+	<append id="prior">
+
+		<prior id="PropInvariantPrior.s:$(partition)" name="distribution" x="@proportionInvariant.s:$(partition)">
+			<Uniform name="distr"/>
+        </prior>
+
+
+        <prior id="GammaShapePrior.s:$(partition)" name="distribution" x="@gammaShape.s:$(partition)">
+            <Exponential name="distr" mean="1.0" offset="0.1" />
+        </prior>
+
+	</append>
+
+
+
+
+	<append id="siteModel.s:$(partition)">
+		<proportionInvariant idref="proportionInvariant.s:$(partition)" />
+		<gammaCategoryCount>4</gammaCategoryCount>
+	</append>
+
+
+	<append id="site.model.logtransform">
+		<f idref="gammaShape.s:$(partition)"/>
+	</append>
+
+
+	<append id="site.model.logittransform">
+		<f idref="proportionInvariant.s:$(partition)"/>
+	</append>
+
+
+	<append id="SiteModelPOEM">
+		<log idref="proportionInvariant.s:$(partition)"/>
+		<log idref="gammaShape.s:$(partition)"/>
+	</append>
+
+	<append id="tracelog">
+		<log idref="proportionInvariant.s:$(partition)"/>
+		<log idref="gammaShape.s:$(partition)"/>
+	</append>
+
+
+</fragment>
+	
+
+

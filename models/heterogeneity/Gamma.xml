@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<fragment>
+
+
+	
+	<append id="state" spec="State" storeEvery="1000">
+		 <parameter id="gammaShape.s:$(partition)" spec="parameter.RealParameter" estimate="true" name="stateNode">1.0</parameter>
+	</append>
+
+
+	<append id="prior">
+
+        <prior id="GammaShapePrior.s:$(partition)" name="distribution" x="@gammaShape.s:$(partition)">
+            <Exponential name="distr" mean="1.0" />
+        </prior>
+
+	</append>
+
+
+	<append id="siteModel.s:$(partition)">
+		<gammaCategoryCount>4</gammaCategoryCount>
+	</append>
+
+
+	<append id="site.model.logtransform">
+		<f idref="gammaShape.s:$(partition)"/>
+	</append>
+
+
+	<append id="SiteModelPOEM">
+		<log idref="gammaShape.s:$(partition)"/>
+	</append>
+
+	<append id="tracelog">
+		<log idref="gammaShape.s:$(partition)"/>
+	</append>
+
+
+</fragment>
+	
+
+

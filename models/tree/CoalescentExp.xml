@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<fragment>
+
+
+	<append id="state">
+		<parameter id="ePopSize.t:tree" spec="parameter.RealParameter" name="stateNode">0.3</parameter>
+		<parameter id="growthRate.t:tree" spec="parameter.RealParameter" name="stateNode">3.0E-4</parameter>
+	</append>
+
+
+	<append id="treePrior">
+
+
+        <distribution id="CoalescentExponential.t:tree" spec="Coalescent">
+            <populationModel id="ExponentialGrowth.t:tree" spec="ExponentialGrowth" growthRate="@growthRate.t:tree" popSize="@ePopSize.t:tree"/>
+            <treeIntervals id="TreeIntervals.t:tree" spec="TreeIntervals" tree="@tree"/>
+        </distribution>
+                            
+
+		<prior id="PopulationSizesRatePrior.t:tree" name="distribution" x="@ePopSize.t:tree">
+			<LogNormal name="distr">
+				<parameter spec="parameter.RealParameter" estimate="false" name="M">-1.0</parameter>
+				<parameter spec="parameter.RealParameter" estimate="false" name="S">1.0</parameter>
+			</LogNormal>
+		</prior>
+
+
+    	<prior id="GrowthRatePrior.t:ef1a_1stpos" name="distribution" x="@growthRate.t:tree">
+            <LaplaceDistribution name="distr">
+                <parameter spec="parameter.RealParameter" estimate="false" name="mu">0.001</parameter>
+                <parameter spec="parameter.RealParameter" estimate="false" name="scale">30.701135</parameter>
+            </LaplaceDistribution>
+        </prior>
+
+	</append>
+
+
+
+	<append id="tree.prior.logtransform">
+		<f idref="ePopSize.t:tree" />
+		<f idref="growthRate.t:tree"/>
+	</append>
+
+
+
+
+	<append id="SpeciesTreePriorPOEM">
+		<log idref="ePopSize.t:tree"/>
+		<log idref="growthRate.t:tree"/>
+	</append>
+
+
+	<append id="tracelog">
+		<log idref="ePopSize.t:tree"/>
+		<log idref="growthRate.t:tree"/>
+	</append>
+
+
+</fragment>
+	
+
+

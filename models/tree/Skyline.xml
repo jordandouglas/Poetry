@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<fragment>
+
+
+	<append id="state">
+            <parameter id="bPopSizes.t:tree" spec="parameter.RealParameter" dimension="5" lower="0.0" name="stateNode">380.0</parameter>
+            <parameter id="bGroupSizes.t:tree" spec="parameter.IntegerParameter" dimension="5" name="stateNode">1</parameter>
+	</append>
+
+
+	<append id="treePrior">
+
+
+		<distribution id="BayesianSkyline.t:tree" spec="BayesianSkyline" groupSizes="@bGroupSizes.t:tree" popSizes="@bPopSizes.t:tree">
+            <treeIntervals id="BSPTreeIntervals.t:tree" spec="TreeIntervals" tree="@tree"/>
+        </distribution>
+                            
+		<distribution id="MarkovChainedPopSizes.t:tree" spec="beast.math.distributions.MarkovChainDistribution" jeffreys="true" parameter="@bPopSizes.t:tree"/>
+ 
+	</append>
+
+
+
+
+
+	<append id="tree.prior.logtransform">
+		<f idref="bPopSizes.t:tree"/>
+	</append>
+
+	<append id="species.tree.prior.model.operator">
+		<operator id="groupSizesDelta.t:tree" spec="DeltaExchangeOperator" integer="true" weight="1.0">
+            <intparameter idref="bGroupSizes.t:tree"/>
+        </operator>
+	</append>
+
+
+
+
+
+
+	<append id="SpeciesTreePriorPOEM">
+		<log idref="bPopSizes.t:tree"/>
+		<log idref="bGroupSizes.t:tree"/>
+	</append>
+
+
+	<append id="tracelog">
+		<log idref="bPopSizes.t:tree"/>
+		<log idref="bGroupSizes.t:tree"/>
+	</append>
+
+
+</fragment>
+	
+
+

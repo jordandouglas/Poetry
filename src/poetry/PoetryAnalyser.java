@@ -312,6 +312,7 @@ public class PoetryAnalyser extends Runnable {
 			// Write ESSes and weights
 			for (POEM poem : poems) {
 				this.setValueAtRow(poem.getESSColname(), "" + poem.getMinESS());
+				this.setValueAtRow(poem.getDimColName(), "" + poem.getDim());
 				this.setValueAtRow(poem.getWeightColname(), "" + poem.getWeight());
 			}
 			

@@ -29,10 +29,8 @@
 
 
 	<append id="tree.prior.logtransform">
-		<f idref="fpopSize" />
+		<f idref="popSize" />
 	</append>
-
-
 
 
 	<append id="SpeciesTreePriorPOEM">

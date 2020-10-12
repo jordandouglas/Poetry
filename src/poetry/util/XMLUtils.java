@@ -481,8 +481,8 @@ public class XMLUtils {
 
 	/**
 	 * Delete all duplicate ids
-	 * This is done by finding the last occurrences of each duplicate and deleting them
-	 * Their parent nodes will refer to the first occurrence of the object with the id
+	 * This is done by finding the last occurrences of each duplicate and changing it from id to idref
+	 * All other properties in the tag will be deleted
 	 * @param doc
 	 */
 	public static void mergeElementsWhichShareID(Document doc) {
@@ -537,10 +537,27 @@ public class XMLUtils {
         					*/
         					
         					
+        					
+        					// Remove all other attributes
+        					NamedNodeMap attributes = ele_j.getAttributes();
+        					for (int k = 0; k < attributes.getLength(); k ++) {
+        						Attr attr = (Attr) attributes.item(k);
+        						String attrName = attr.getNodeName();
+        						System.out.println(id_i + " removing " + attrName);
+        						if (!attrName.equals("name")) ele_j.removeAttribute(attrName);
+        					}
+        					
+        					// Remove all children
+        					for (Node child : XMLUtils.nodeListToList(ele_j.getChildNodes())){
+        						ele_j.removeChild(child);
+        					}
+        					
         					ele_j.removeAttribute("id");
         					ele_j.setAttribute("idref", id_i);
         					
-        					nodesToDelete.add(ele_j);
+        					
+        					
+        					//nodesToDelete.add(ele_j);
         					
         				}
         				
@@ -553,9 +570,8 @@ public class XMLUtils {
 	        	
 		}
 		
-		if (true) return;
 
-		
+		/*
 		// Delete the duplicates (ie the matched j's)
 		for (Element duplicate : nodesToDelete) {
 			if (duplicate.getParentNode() != null) {
@@ -566,7 +582,7 @@ public class XMLUtils {
 				duplicate.getParentNode().removeChild(duplicate);
 			}
 		}
-		
+		*/
 	}
 
 

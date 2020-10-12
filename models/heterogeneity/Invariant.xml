@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<fragment>
+
+	
+	<append id="state" spec="State" storeEvery="1000">
+		 <parameter id="proportionInvariant.s:$(partition)" spec="parameter.RealParameter" name="stateNode" lower="0.0" upper="1.0">0.01</parameter>
+	</append>
+
+
+	<append id="prior">
+
+		<prior id="PropInvariantPrior.s:$(partition)" name="distribution" x="@proportionInvariant.s:$(partition)">
+			<Uniform name="distr"/>
+        </prior>
+
+	</append>
+
+
+	<append id="siteModel.s:$(partition)">
+		<proportionInvariant idref="proportionInvariant.s:$(partition)" />
+	</append>
+
+
+	<append id="site.model.logittransform">
+		<f idref="proportionInvariant.s:$(partition)"/>
+	</append>
+
+
+	<append id="SiteModelPOEM">
+		<log idref="proportionInvariant.s:$(partition)"/>
+	</append>
+
+	<append id="tracelog">
+		<log idref="proportionInvariant.s:$(partition)"/>
+	</append>
+
+
+</fragment>
+	
+
+

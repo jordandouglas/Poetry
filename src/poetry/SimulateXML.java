@@ -492,6 +492,7 @@ public class SimulateXML extends Runnable {
 		// Operator weight summary
 		this.dbOut.print("search.mode\t");
 		for (POEM poem : this.poems) {
+			this.dbOut.print(poem.getDimColName() + "\t");
 			this.dbOut.print(poem.getWeightColname() + "\t");
 		}
 		
@@ -551,7 +552,7 @@ public class SimulateXML extends Runnable {
 			this.dbOut.print(model.getSampledID() + "\t");
 		}
 		
-		// Operator weight summary
+		// Inference engine
 		if (this.runner instanceof RunnableSampler) {
 			String id = ((RunnableSampler)this.runner).getSampledID();
 			this.dbOut.print(id + "\t");
@@ -559,8 +560,10 @@ public class SimulateXML extends Runnable {
 			this.dbOut.print("NA\t");
 		}
 		
+		
+		// Operater weights and dimension
 		for (POEM poem : this.poems) {
-			this.dbOut.print("NA\t");
+			this.dbOut.print("NA\tNA\t");
 		}
 		
 		
