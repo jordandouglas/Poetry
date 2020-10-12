@@ -34,7 +34,6 @@ public class DirichletSampler extends WeightSampler {
 		
 		
 		// Sample a dirichlet vector
-		double sum = 0.0;
 		for (int j = 0; j < dim; j++) {
 			POEM poem = poems.get(j);
 			double a = poem.getAlpha();
@@ -43,13 +42,9 @@ public class DirichletSampler extends WeightSampler {
 			}else {
 				weights[j] = Randomizer.nextGamma(a, 1.0);
 			}
-			sum += weights[j];
 		}
 		
-		// Normalise
-		for (int j = 0; j < dim; j++) {
-			weights[j] = weights[j] / sum;
-		}
+
 		this.setWeights(weights);
 		
 		

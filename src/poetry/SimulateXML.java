@@ -22,6 +22,7 @@ import beast.core.BEASTObject;
 import beast.core.Input;
 import beast.core.Logger;
 import beast.core.Runnable;
+import beast.core.StateNode;
 import beast.core.util.Log;
 import beast.evolution.alignment.Alignment;
 import poetry.functions.XMLFunction;
@@ -59,6 +60,9 @@ public class SimulateXML extends Runnable {
 	final public Input<File> outFolderInput = new Input<>("out", "A folder to save the results into", Input.Validate.REQUIRED);
 	final public Input<List<POEM>> poemsInput = new Input<>("poem", "A map between operators and log outputs", new ArrayList<>());
 	
+	
+	final public Input<StateNode> placeholderInput = new Input<>("placeholder", "A temporary state node which will be removed from all operators when MCMC "
+			+ "begins. This enables operators to have no state nodes without MCMC throwing an error.");
 	
 	final public Input<Integer> updateEveryInput = new Input<>("updateEvery", "How often to update the database with weights/ESSes "
 			+ "(default: only at the end of the chain)", 0);
@@ -429,6 +433,7 @@ public class SimulateXML extends Runnable {
 	    scheduler.setAttribute("runtime", RUNTIME_LOGNAME);
 	    scheduler.setAttribute("number", "" + sampleNum);
 	    scheduler.setAttribute("updateEvery", updateEvery2);
+	    if (placeholderInput.get() != null) scheduler.setAttribute("placeholder", "@" + placeholderInput.get().getID());
 	    runner.appendChild(scheduler);
 	    
 	    
@@ -476,8 +481,8 @@ public class SimulateXML extends Runnable {
 
 		
 		// Data summary
-		this.dbOut.print("xml\t");
-		this.dbOut.print("replicate\t");
+		this.dbOut.print(POEM.getXMLColumn() + "\t");
+		this.dbOut.print(POEM.getReplicateColumn() + "\t");
 		this.dbOut.print("dataset\t");
 		this.dbOut.print("ntaxa\t");
 		this.dbOut.print("nsites\t");

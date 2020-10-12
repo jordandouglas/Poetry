@@ -11,6 +11,7 @@ import beast.core.Input;
 import beast.core.MCMC;
 import beast.core.Operator;
 import beast.core.OperatorSchedule;
+import beast.core.StateNode;
 import beast.core.util.Log;
 import beast.coupledMCMC.CoupledMCMC;
 import beast.coupledMCMC.HeatedChain;
@@ -37,6 +38,9 @@ public class PoetryScheduler extends OperatorSchedule {
 	final public Input<List<POEM>> poemsInput = new Input<>("poem", "A map between operators and log outputs", new ArrayList<>());
 	final public Input<String> runtimeLoggerInput = new Input<>("runtime", "Log file containing runtimes");
 	final public Input<Integer> burninInput = new Input<>("burnin", "Burnin percentage for ESS computation (default 10)", 10);
+	
+	final public Input<StateNode> placeholderInput = new Input<>("placeholder", "A temporary state node which will be removed from all operators when MCMC "
+			+ "begins. This enables operators to have no state nodes without MCMC throwing an error.");
 	
 	final public Input<Boolean> noMCMC = new Input<>("noMCMC", "Set to true to only run the poetry analyser (and update the database) without"
 			+ " actually doing any MCMC. BEAST2 will exit afterwards (default false)", false);
@@ -87,7 +91,7 @@ public class PoetryScheduler extends OperatorSchedule {
 		 // Sample the weights but don't set them just yet
 		 // If this is static mode, the sampled weights will override each other between chains
 		 if (this.sampler != null) {
-			 sampler.initialise(poemsInput.get(), this.database);
+			 sampler.initialise(poemsInput.get(), this.database, this.placeholderInput.get());
 			 if (this.isColdChain()) sampler.sampleWeights();
 		 }
 		 

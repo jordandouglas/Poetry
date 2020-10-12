@@ -86,10 +86,10 @@
 	</append>
 
 
-
-
-	<append id="site.model.logittransform">
-		<f idref="proportionInvariant.s:$(partition)"/>
+	<append id="site.model.AVMVN">
+		<transformations id="site.model.logittransform.invar:$(partition)" spec="beast.util.Transform$LogConstrainedSumTransform" sum="1.0">
+			<f idref="proportionInvariant.s:$(partition)"/>
+		</transformations>
 	</append>
 
 

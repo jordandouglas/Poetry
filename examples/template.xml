@@ -16,7 +16,7 @@
 
 
 	<!-- Alignment sampler -->
-	<data id="alignment.$(partition)" spec="poetry.sampler.DatasetSampler" partitions="100" clock.rate="@overallClockRate.c:tree">
+	<data id="alignment.$(partition)" spec="poetry.sampler.DatasetSampler" partitions="1" clock.rate="@overallClockRate.c:tree">
 
 		
 		<file spec="poetry.util.WeightedFile" file="../datasets/Anderson_2013/alignment.nex" desc="Benchmark alignment" />
@@ -128,7 +128,7 @@
     </branchRateModel>
 
 
-	<run id="XMLSimulator" spec="poetry.SimulateXML" data="@alignment.$(partition)" out="out" nsamples="10" nreplicates="10" updateEvery="10000000">
+	<run id="XMLSimulator" spec="poetry.SimulateXML" data="@alignment.$(partition)" out="out" nsamples="10" nreplicates="10" updateEvery="10000000" placeholder="@PHStateNode">
 
 
 
@@ -312,6 +312,10 @@
 
 			<state id="state" spec="State" storeEvery="1000">
 
+				<!-- A state node that will later be removed by PoetryScheduler. 
+						This can be added to operators to ensure that each operator has a statenode -->
+				<parameter spec="parameter.RealParameter" id="PHStateNode" lower="0.0" name="stateNode">1.0</parameter>
+
 				<parameter spec="parameter.RealParameter" id="overallClockRate.c:tree" estimate="true" name="stateNode">1.0</parameter>
 				<tree id="tree" spec="beast.evolution.tree.Tree" name="stateNode">
 					<taxonset id="tree.taxonset" spec="TaxonSet" alignment="@alignment.$(partition)" />
@@ -440,12 +444,9 @@
 	                allowNonsense="true">
 
 					<transformations id="site.model.logtransform" spec="beast.util.Transform$LogTransform">
-						
+						<f idref="PHStateNode" />
 					</transformations>
 					
-					<transformations id="site.model.logittransform" spec="beast.util.Transform$LogitTransform">
-						
-					</transformations>
 					
 					<transformations id="site.model.logconstrain" spec="beast.util.Transform$LogConstrainedSumTransform" >
 						<f idref="clockRate.t:$(partition)" />
@@ -474,7 +475,6 @@
 	                allowNonsense="true">
 
 					<transformations id="tree.prior.logtransform" spec="beast.util.Transform$LogTransform">
-						
 					</transformations>
 
 

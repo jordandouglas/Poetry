@@ -368,6 +368,24 @@ public class POEM extends BEASTObject implements XMLSampler {
 	
 	
 	/**
+	 * The name of the xml id column
+	 * @return
+	 */
+	public static String getXMLColumn() {
+		return "xml";
+	}
+	
+	
+	/**
+	 * The name of the replicate column
+	 * @return
+	 */
+	public static String getReplicateColumn() {
+		return "replicate";
+	}
+	
+	
+	/**
 	 * Actual runtime
 	 * @return
 	 */

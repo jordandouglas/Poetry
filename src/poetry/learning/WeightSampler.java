@@ -8,6 +8,7 @@ import beast.core.BEASTObject;
 import beast.core.Description;
 import beast.core.Input;
 import beast.core.Operator;
+import beast.core.StateNode;
 import beast.core.util.Log;
 import poetry.operators.MetaOperator;
 import poetry.sampler.POEM;
@@ -29,11 +30,18 @@ public abstract class WeightSampler extends BEASTObject {
 	private double poeticSumInit;
 	
 	
+	List<Integer> invalidOps = new ArrayList<Integer>();
+	
 	// Non-static operator weights
 	double[] poeticWeights_local;
 	
 	// Static weights
 	static double[] poeticWeights_static;
+	
+	// A state node which is to be ignored when weighting operators
+	StateNode placeholder = null;
+	
+	
 	
 
 	/**
@@ -42,7 +50,7 @@ public abstract class WeightSampler extends BEASTObject {
 	 * @param operators
 	 * @param database
 	 */
-	public void initialise(List<POEM> poems,  File database) {
+	public void initialise(List<POEM> poems,  File database, StateNode placeholder) {
 		
 		this.poems = poems;
 		this.database = database;
@@ -50,6 +58,8 @@ public abstract class WeightSampler extends BEASTObject {
 		this.unpoeticOperators = null;
 		this.isStatic = staticInput.get();
 		this.poeticSumInit = 0;
+		this.placeholder = placeholder;
+		this.invalidOps = new ArrayList<Integer>();
 		
 	}
 	
@@ -76,17 +86,22 @@ public abstract class WeightSampler extends BEASTObject {
 			
 		}
 		
+
 		
 		// Determine which operators do and do not have poems
 		this.poeticOperators = new ArrayList<Operator>();
 		this.unpoeticOperators = new ArrayList<Operator>();
 		for (Operator op : operators) {
 			
+			
+			// Ensure that each operator has no more than 1 poem
 			boolean foundPoem = false;
 			for (POEM poem : this.poems) {
 				if (poem.getOperatorID().equals(op.getID())) {
+					if (foundPoem) {
+						throw new IllegalArgumentException("Operator " + op.getID() + " is associated with more than 1 POEM. Please ensure that every operator has at most 1 POEM.");
+					}
 					foundPoem = true;
-					break;
 				}
 			}
 			
@@ -97,6 +112,20 @@ public abstract class WeightSampler extends BEASTObject {
 			}
 			
 		}
+		
+		
+		// Take note of operators which do not have any state nodes 
+		// The placeholder does not count as an operator
+		this.invalidOps = new ArrayList<Integer>();
+		for (Operator op : this.poeticOperators) {
+			List<StateNode> stateNodes = op.listStateNodes();
+			stateNodes.remove(this.placeholder);
+			if (stateNodes.isEmpty()) {
+				this.invalidOps.add(this.poeticOperators.indexOf(op));
+				op.m_pWeight.set(0.0);
+			}
+		}
+
 		
 		
 		// Calculate the initial probabilistic sum of poetic operators
@@ -143,9 +172,11 @@ public abstract class WeightSampler extends BEASTObject {
 	
 	/**
 	 * Set the sampled weights
+	 * Parsed weights do not need to be normalised yet
 	 * @param poemWeights
 	 */
 	protected void setWeights(double[] poemWeights) {
+
 		if (this.isStatic) {
 			poeticWeights_static = poemWeights;
 		}else {
@@ -156,8 +187,24 @@ public abstract class WeightSampler extends BEASTObject {
 	
 	
 	/**
+	 * Does this operator have any state nodes (aside from the placeholder) ?
+	 * @param operator
+	 * @return
+	 */
+	protected boolean opIsValid(Operator operator) {
+		for (int index : this.invalidOps) {
+			Operator invalid = this.poeticOperators.get(index);
+			if (invalid == operator) return false;
+		}
+		return true;
+	}
+	
+	
+	
+	/**
 	 * Get the sampled weight vector
 	 * First normalise by multiplying by the weight max
+	 * Filters out the weights of invalid operators
 	 * @return
 	 */
 	public double[] getWeights() {
@@ -168,12 +215,28 @@ public abstract class WeightSampler extends BEASTObject {
 			weights = this.poeticWeights_local;
 		}
 		
-		double[] weightsNorm = new double[weights.length];
-		for (int i = 0; i < weights.length; i ++) {
-			weightsNorm[i] = weights[i] * this.poeticSumInit;
+		
+		// Sum weights and set weights to zero if the operator is invalid
+		double[] weightsNormalised = new double[weights.length];
+		double sum = 0.0;
+		for (int j = 0; j < weights.length; j++) {
+			
+			if (!this.opIsValid(this.poeticOperators.get(j))) {
+				weightsNormalised[j] = 0;
+			}else {
+				weightsNormalised[j] = weights[j];
+			}
+			sum += weightsNormalised[j];
 		}
 		
-		return weightsNorm;
+		// Normalise so they sum to the weight max
+		sum *= this.poeticSumInit;
+		for (int j = 0; j < weights.length; j++) {
+			if (sum == 0) weightsNormalised[j] = 0;
+			else weightsNormalised[j] = weightsNormalised[j] / sum;
+		}
+		
+		return weightsNormalised;
 	}
 	
 	

@@ -97,10 +97,13 @@
 		</transformations>
 	</append>
 
-
-	<append id="site.model.logittransform">
-		<f idref="OBAMA_ProportionInvariable.s:$(partition)"/>
+	<append id="site.model.AVMVN">
+		<transformations id="site.model.logittransform.invar:$(partition)" spec="beast.util.Transform$LogConstrainedSumTransform" sum="1.0">
+			<f idref="OBAMA_ProportionInvariable.s:$(partition)"/>
+		</transformations>
 	</append>
+
+
 
 
 	<append id="SiteModelPOEM">

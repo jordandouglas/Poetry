@@ -84,6 +84,7 @@ public class PoetryAnalyser extends Runnable {
 		
 		this.sampleNum = sampleNumInput.get();
 		this.database = databaseFileInput.get();
+		this.replicateNum = this.getReplicateNumber();
 		this.poems = poemsInput.get();
 		this.runtimeLogfile = runtimeLoggerInput.get();
 		this.burnin = burninInput.get();
@@ -199,7 +200,6 @@ public class PoetryAnalyser extends Runnable {
 		}catch(Exception e) {
 			Log.warning("Error: cannot find replicate number. Please ensure your working directory is within "
 					+ "the the replicateX folder where X is the replicate number. pwd: " + pwd);
-			e.printStackTrace();
 			throw e;
 		}
 		
@@ -327,8 +327,8 @@ public class PoetryAnalyser extends Runnable {
 	
 			// Open database and find the right line
 			this.db = this.openDatabase();
-			this.rowNum = this.getRowNum(this.sampleNum);
-			if (this.rowNum < 0) throw new Exception("Cannot locate sample number " + this.sampleNum + " in the 'xml' column of the database");
+			this.rowNum = this.getRowNum(this.sampleNum, this.replicateNum);
+			if (this.rowNum < 0) throw new Exception("Cannot locate sample " + this.sampleNum + ", replicate " + this.replicateNum + " in the database");
 			
 			
 			//Thread.sleep(2000);
@@ -417,14 +417,16 @@ public class PoetryAnalyser extends Runnable {
 	 * @param sampleNum
 	 * @return
 	 */
-	public int getRowNum(int sampleNum) {
+	public int getRowNum(int sampleNum, int replicateNum) {
 		
 		if (this.db == null) return -1;
 		
 		String sampleStr = "" + sampleNum;
-		String[] ids = db.get("xml");
+		String replicateStr = "" + replicateNum;
+		String[] ids = db.get(POEM.getXMLColumn() );
+		String[] reps = db.get(POEM.getReplicateColumn() );
 		for (int i = 0; i < ids.length; i ++) {
-			if (sampleStr.equals(ids[i])) {
+			if (sampleStr.equals(ids[i]) && replicateStr.equals(reps[i])) {
 				return i;
 			}
 		}
@@ -481,7 +483,10 @@ public class PoetryAnalyser extends Runnable {
 		
 		
 		// Check the xml column exists
-		if (!map.containsKey("xml")) throw new IllegalArgumentException("Cannot locate 'xml' column in database");
+		if (!map.containsKey(POEM.getXMLColumn())) throw new IllegalArgumentException("Cannot locate '" + POEM.getXMLColumn() + "' column in database");
+		
+		// Check the replicate column exists
+		if (!map.containsKey(POEM.getReplicateColumn())) throw new IllegalArgumentException("Cannot locate '" + POEM.getReplicateColumn() + "' column in database");
 		
 		scanner.close();
 		
