@@ -13,6 +13,10 @@
 		<f idref="overallClockRate.c:tree" />
 	</append>
 
+	<append id="SiteModelPOEM">
+		<f idref="treeClockPrior" />
+	</append>
+
 </fragment>
 	
 

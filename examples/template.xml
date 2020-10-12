@@ -16,39 +16,83 @@
 
 
 	<!-- Alignment sampler -->
-	<data id="alignment.$(partition)" spec="poetry.sampler.DatasetSampler" partitions="1" clock.rate="@overallClockRate.c:tree">
+	<data id="alignment.$(partition)" spec="poetry.sampler.DatasetSampler" partitions="100" clock.rate="@overallClockRate.c:tree">
 
 		
+		<!-- Calibrated -->
+		<file weight="2" spec="poetry.util.WeightedFile" file="../datasets/Fang_2020/alignment.nex" desc="MSC alignment (calibrated)" />
+		<file weight="2" spec="poetry.util.WeightedFile" file="../datasets/Hernandez_2020/alignment.nex" desc="MSC alignment (calibrated)" />
+		<file weight="2" spec="poetry.util.WeightedFile" file="../datasets/Broughton_2013/alignment.nex" desc="Benchmark alignment (calibrated)" />
+		<file weight="2" spec="poetry.util.WeightedFile" file="../datasets/Bryson_et_al.2017/alignment.nex" desc="MSC alignment (calibrated)" />
+		<file weight="2" spec="poetry.util.WeightedFile" file="../datasets/Belfiore_2008/alignment.nex" desc="Gopher dataset (calibrated)" />
+		<file weight="2" spec="poetry.util.WeightedFile" file="../datasets/Ballesteros_2019/alignment.nex" desc="Benchmark alignment (calibrated)" />
+
+
+		<!-- Not calibrated -->
 		<file spec="poetry.util.WeightedFile" file="../datasets/Anderson_2013/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Becker_2016/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Bergsten_2013/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Branstetter_2017/alignment.nex" desc="Benchmark alignment" />
-
-		<file spec="poetry.util.WeightedFile" file="../datasets/Belfiore_2008/alignment.nex" desc="Gopher dataset" />
-		<file spec="poetry.util.WeightedFile" file="../datasets/Ballesteros_2019/alignment.nex" desc="Benchmark alignment" />
-		<file spec="poetry.util.WeightedFile" file="../datasets/Bryson_et_al.2017/alignment.nex" desc="MSC alignment" />
-		<file spec="poetry.util.WeightedFile" file="../datasets/Broughton_2013/alignment.nex" desc="Benchmark alignment" />
-		<file weight="10000" spec="poetry.util.WeightedFile" file="../datasets/Cognato_2001/alignment.nex" desc="Benchmark alignment" />
-
-		<file spec="poetry.util.WeightedFile" file="../datasets/Nguyen_2016f/alignment.nex" desc="Benchmark alignment" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Brown_2012/alignment.nex" desc="Benchmark alignment" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Cannon_2016_aa/alignment.nex" desc="Benchmark alignment" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Cannon_2016_dna/alignment.nex" desc="Benchmark alignment" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Chen_2015/alignment.nex" desc="Benchmark alignment" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Cognato_2001/alignment.nex" desc="Benchmark alignment" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Crawford_2012/alignment.nex" desc="Benchmark alignment" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Day_2013/alignment.nex" desc="Benchmark alignment" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Devitt_2013/alignment.nex" desc="Benchmark alignment" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Dornburg_2012/alignment.nex" desc="Benchmark alignment" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Faircloth_2013/alignment.nex" desc="Benchmark alignment" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Fong_2012/alignment.nex" desc="Benchmark alignment" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Horn_2014/alignment.nex" desc="Benchmark alignment" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Kawahara_2013/alignment.nex" desc="Benchmark alignment" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Lartillot_2012/alignment.nex" desc="Benchmark alignment" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Leache_2015/alignment.nex" desc="Benchmark alignment" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Looney_2016/alignment.nex" desc="Benchmark alignment" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/McCormack_2013/alignment.nex" desc="Benchmark alignment" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Meiklejohn_2016/alignment.nex" desc="Benchmark alignment" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Misof_2014/alignment.nex" desc="Benchmark alignment" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Moyle_2016/alignment.nex" desc="Benchmark alignment" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Murray_2013/alignment.nex" desc="Benchmark alignment" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Near_2013/alignment.nex" desc="Benchmark alignment" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Nguyen_2016a/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Oaks_2011/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Prebus_2017/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Pyron_2011/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Ran_2018_aa/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Ran_2018_dna/alignment.nex" desc="Benchmark alignment" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Reddy_2017/alignment.nex" desc="Benchmark alignment" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Richart_2015/alignment.nex" desc="Benchmark alignment" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Rightmyer_2013/alignment.nex" desc="Benchmark alignment" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Sauquet_2011/alignment.nex" desc="Benchmark alignment" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Seago_2011/alignment.nex" desc="Benchmark alignment" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Sharanowski_2011/alignment.nex" desc="Benchmark alignment" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Siler_2013/alignment.nex" desc="Benchmark alignment" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Smith_2014/alignment.nex" desc="Benchmark alignment" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Tolley_2013/alignment.nex" desc="Benchmark alignment" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Unmack_2013/alignment.nex" desc="Benchmark alignment" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Varga_2019/alignment.nex" desc="Benchmark alignment" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Wainwright_2012/alignment.nex" desc="Benchmark alignment" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Whelan_2017/alignment.nex" desc="Benchmark alignment" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Wood_2012/alignment.nex" desc="Benchmark alignment" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Worobey_2014a/alignment.nex" desc="Benchmark alignment" />
+
+
 
 		<!--
-		<file spec="poetry.util.WeightedFile" file="../datasets/Bryson_et_al.2017/alignment.nex" desc="MSC alignment" species="1" speciessplit="_" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Bryson_et_al.2017/alignment.nex" desc="MSC alignment (calibrated)" species="1" speciessplit="_" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/GiarlaEsselstyn_2015/alignment.nex" desc="MSC alignment" species="1,2" speciessplit="-" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Fang_2020/alignment.nex" desc="MSC alignment (calibrated)" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Hernandez_2020/alignment.nex" desc="MSC alignment (calibrated)" />
 
-		<file weight="10000" spec="poetry.util.WeightedFile" file="../datasets/Belfiore_2008/alignment.nex" desc="Gopher dataset" species="1" speciessplit="_"  />
+		<file weight="10000" spec="poetry.util.WeightedFile" file="../datasets/Belfiore_2008/alignment.nex" desc="Gopher dataset (calibrated)" species="1" speciessplit="_"  />
 
 		<file spec="poetry.util.WeightedFile" file="../datasets/Anderson_2013/alignment.nex" desc="Benchmark alignment" />
-		<file spec="poetry.util.WeightedFile" file="../datasets/Ballesteros_2019/alignment.nex" desc="Benchmark alignment" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Ballesteros_2019/alignment.nex" desc="Benchmark alignment (calibrated)" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Becker_2016/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Bergsten_2013/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Branstetter_2017/alignment.nex" desc="Benchmark alignment" />
-		<file spec="poetry.util.WeightedFile" file="../datasets/Broughton_2013/alignment.nex" desc="Benchmark alignment" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Broughton_2013/alignment.nex" desc="Benchmark alignment (calibrated)" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Brown_2012/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Cannon_2016_aa/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Cannon_2016_dna/alignment.nex" desc="Benchmark alignment" />
@@ -128,7 +172,7 @@
     </branchRateModel>
 
 
-	<run id="XMLSimulator" spec="poetry.SimulateXML" data="@alignment.$(partition)" out="out" nsamples="10" nreplicates="10" updateEvery="10000000" placeholder="@PHStateNode">
+	<run id="XMLSimulator" spec="poetry.SimulateXML" data="@alignment.$(partition)" out="out" nsamples="500" nreplicates="10" updateEvery="10000000" placeholder="@PHStateNode">
 
 
 
@@ -335,6 +379,8 @@
 					<distribution  id="treePrior" spec="beast.core.util.CompoundDistribution">
 
 					</distribution>
+
+
 
 
 					<prior id="clockRatePrior.t:$(partition)" name="distribution" x="@clockRate.t:$(partition)">

@@ -20,7 +20,7 @@
 		</prior>
 
 
-		<prior id="FastRatePriorDistrbution.clock" name="distribution" x="@rates.clock">
+		<prior id="FastRatePriorDistribution.clock" name="distribution" x="@rates.clock">
 			<LogNormal id="LogNormalDistributionModel.clock" S="@ucldStdev.clock" M="1" meanInRealSpace="true" name="distr"/>
 		</prior>
 
@@ -122,7 +122,7 @@
 
 
 	<append id="ClockModelRatePOEM">
-		<log idref="FastRatePriorDistrbution.clock" />
+		<log idref="FastRatePriorDistribution.clock" />
 		<log idref="RateStatLogger" />
 	</append>
 

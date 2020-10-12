@@ -22,24 +22,26 @@
 
 
 
-        <prior id="OBAMA_freqsPrior.s:$(partition)" name="distribution" x="@OBAMA_frequencies.s:$(partition)">
-            <distr id="Dirichlet" spec="beast.math.distributions.Dirichlet">
-                <parameter spec="parameter.RealParameter" dimension="20" lower="0.0" name="alpha" upper="0.0">4.0 4.0 4.0 4.0 4.0 4.0 4.0 4.0 4.0 4.0 4.0 4.0 4.0 4.0 4.0 4.0 4.0 4.0 4.0 4.0</parameter>
-            </distr>
-        </prior>
-                    
-        <distribution id="OBAMA_GammaShapePrior.s:$(partition)" spec="beast.math.distributions.BMTPrior" count="@OBAMA_hasGammaRates.s:$(partition)" x="@OBAMA_gammaShape.s:$(partition)">
-            <Exponential name="distr">
-                <parameter spec="parameter.RealParameter" estimate="false" name="mean">1.0</parameter>
-            </Exponential>
-        </distribution>
+		<distribution id="OBAMAPrior" spec="beast.core.util.CompoundDistribution">
 
-                    
-        <distribution id="OBAMA_PropInvariablePrior.s:$(partition)" spec="beast.math.distributions.BMTPrior" count="@OBAMA_hasInvariableSites.s:$(partition)" x="@OBAMA_ProportionInvariable.s:$(partition)">
-            <Beta name="distr" alpha="1.0" beta="4.0" />
-        </distribution>
+	        <prior id="OBAMA_freqsPrior.s:$(partition)" name="distribution" x="@OBAMA_frequencies.s:$(partition)">
+	            <distr id="Dirichlet" spec="beast.math.distributions.Dirichlet">
+	                <parameter spec="parameter.RealParameter" dimension="20" lower="0.0" name="alpha" upper="0.0">4.0 4.0 4.0 4.0 4.0 4.0 4.0 4.0 4.0 4.0 4.0 4.0 4.0 4.0 4.0 4.0 4.0 4.0 4.0 4.0</parameter>
+	            </distr>
+	        </prior>
+	                    
+	        <distribution id="OBAMA_GammaShapePrior.s:$(partition)" spec="beast.math.distributions.BMTPrior" count="@OBAMA_hasGammaRates.s:$(partition)" x="@OBAMA_gammaShape.s:$(partition)">
+	            <Exponential name="distr">
+	                <parameter spec="parameter.RealParameter" estimate="false" name="mean">1.0</parameter>
+	            </Exponential>
+	        </distribution>
 
+	                    
+	        <distribution id="OBAMA_PropInvariablePrior.s:$(partition)" spec="beast.math.distributions.BMTPrior" count="@OBAMA_hasInvariableSites.s:$(partition)" x="@OBAMA_ProportionInvariable.s:$(partition)">
+	            <Beta name="distr" alpha="1.0" beta="4.0" />
+	        </distribution>
 
+	    </distribution>
 
 
 	</append>
@@ -114,6 +116,7 @@
 		<log idref="OBAMA_useExternalFreqs.s:$(partition)"/>
 		<log idref="OBAMA_ProportionInvariable.s:$(partition)"/>
 		<log idref="OBAMA_hasInvariableSites.s:$(partition)"/>
+		<log idref="OBAMAPrior" />
 	</append>
 
 

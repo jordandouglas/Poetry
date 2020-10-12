@@ -10,9 +10,14 @@
 
 	<append id="prior">
 
-		<prior id="PropInvariantPrior.s:$(partition)" name="distribution" x="@proportionInvariant.s:$(partition)">
-			<Beta name="distr" alpha="1.0" beta="4.0" />
-        </prior>
+
+		<distribution  id="HeterogeneityPrior" spec="beast.core.util.CompoundDistribution">
+
+			<prior id="PropInvariantPrior.s:$(partition)" name="distribution" x="@proportionInvariant.s:$(partition)">
+				<Beta name="distr" alpha="1.0" beta="4.0" />
+	        </prior>
+
+	    </distribution>	
 
 	</append>
 
@@ -31,7 +36,8 @@
 
 
 	<append id="SiteModelPOEM">
-		<log idref="proportionInvariant.s:$(partition)"/>
+		<log idref="PropInvariantPrior.s:$(partition)" />
+		<log idref="HeterogeneityPrior" />
 	</append>
 
 	<append id="tracelog">

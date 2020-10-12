@@ -11,14 +11,18 @@
 
 	<append id="prior">
 
-		<prior id="PropInvariantPrior.s:$(partition)" name="distribution" x="@proportionInvariant.s:$(partition)">
-			 <Beta name="distr" alpha="1.0" beta="4.0" />
-        </prior>
+		<distribution  id="HeterogeneityPrior" spec="beast.core.util.CompoundDistribution">
+
+			<prior id="PropInvariantPrior.s:$(partition)" name="distribution" x="@proportionInvariant.s:$(partition)">
+				 <Beta name="distr" alpha="1.0" beta="4.0" />
+	        </prior>
 
 
-        <prior id="GammaShapePrior.s:$(partition)" name="distribution" x="@gammaShape.s:$(partition)">
-            <Exponential name="distr" mean="1.0" offset="0.1" />
-        </prior>
+	        <prior id="GammaShapePrior.s:$(partition)" name="distribution" x="@gammaShape.s:$(partition)">
+	            <Exponential name="distr" mean="1.0" offset="0.1" />
+	        </prior>
+
+       </distribution>
 
 	</append>
 
@@ -47,6 +51,7 @@
 	<append id="SiteModelPOEM">
 		<log idref="proportionInvariant.s:$(partition)"/>
 		<log idref="gammaShape.s:$(partition)"/>
+		<log idref="HeterogeneityPrior" />
 	</append>
 
 	<append id="tracelog">

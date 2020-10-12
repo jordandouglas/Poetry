@@ -11,17 +11,22 @@
 
 
 	<append id="prior">
-		<prior id="kappaPrior.t:$(partition)" name="distribution" x="@kappa.t:$(partition)">
-			<LogNormal name="distr">
-				<parameter spec="parameter.RealParameter" estimate="false" name="M">1.0</parameter>
-				<parameter spec="parameter.RealParameter" estimate="false" name="S">1.25</parameter>
-			</LogNormal>
-		</prior>
+
+		<distribution  id="HKYPrior" spec="beast.core.util.CompoundDistribution">
+
+			<prior id="kappaPrior.t:$(partition)" name="distribution" x="@kappa.t:$(partition)">
+				<LogNormal name="distr">
+					<parameter spec="parameter.RealParameter" estimate="false" name="M">1.0</parameter>
+					<parameter spec="parameter.RealParameter" estimate="false" name="S">1.25</parameter>
+				</LogNormal>
+			</prior>
 
 
-		<prior id="freqParameterPrior.t:$(partition)" name="distribution" x="@freqParameter.t:$(partition)">
-			<Dirichlet alpha="10 10 10 10" name="distr"/>
-		</prior>
+			<prior id="freqParameterPrior.t:$(partition)" name="distribution" x="@freqParameter.t:$(partition)">
+				<Dirichlet alpha="10 10 10 10" name="distr"/>
+			</prior>
+
+		</distribution>
 	</append>
 
 
@@ -51,6 +56,7 @@
 	<append id="SiteModelPOEM">
 		<log idref="kappa.t:$(partition)"/>
 		<log idref="freqParameter.t:$(partition)"/>
+		<log idref="HKYPrior" />
 	</append>
 
 	<append id="tracelog">

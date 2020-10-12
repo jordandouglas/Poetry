@@ -221,7 +221,7 @@ public class POEM extends BEASTObject implements XMLSampler {
 			logger.appendChild(log.cloneNode(true));
 			
 			// ESS derivative logger
-			if (log.hasAttribute("idref")) {
+			if (false && log.hasAttribute("idref")) {
 				Element dESS = doc.createElement("log");
 				dESS.setAttribute("arg", "@" + log.getAttribute("idref"));
 				dESS.setAttribute("spec", ESSDerivative.class.getCanonicalName());

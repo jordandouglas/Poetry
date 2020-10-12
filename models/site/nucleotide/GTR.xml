@@ -19,48 +19,53 @@
 
 	<append id="prior">
 
-		<prior id="rateACPrior.t:$(partition)" name="distribution" x="@rateAC.t:$(partition)">
-			<LogNormal name="distr">
-				<parameter spec="parameter.RealParameter" estimate="false" name="M">1.0</parameter>
-				<parameter spec="parameter.RealParameter" estimate="false" name="S">1.25</parameter>
-			</LogNormal>
-		</prior>
 
-		<prior id="rateAGPrior.t:$(partition)" name="distribution" x="@rateAG.t:$(partition)">
-			<LogNormal name="distr">
-				<parameter spec="parameter.RealParameter" estimate="false" name="M">1.0</parameter>
-				<parameter spec="parameter.RealParameter" estimate="false" name="S">1.25</parameter>
-			</LogNormal>
-		</prior>
+		<distribution  id="GTRPrior" spec="beast.core.util.CompoundDistribution">
 
-		<prior id="rateATPrior.t:$(partition)" name="distribution" x="@rateAT.t:$(partition)">
-			<LogNormal name="distr">
-				<parameter spec="parameter.RealParameter" estimate="false" name="M">1.0</parameter>
-				<parameter spec="parameter.RealParameter" estimate="false" name="S">1.25</parameter>
-			</LogNormal>
-		</prior>
+			<prior id="rateACPrior.t:$(partition)" name="distribution" x="@rateAC.t:$(partition)">
+				<LogNormal name="distr">
+					<parameter spec="parameter.RealParameter" estimate="false" name="M">1.0</parameter>
+					<parameter spec="parameter.RealParameter" estimate="false" name="S">1.25</parameter>
+				</LogNormal>
+			</prior>
 
-		<prior id="rateCGPrior.t:$(partition)" name="distribution" x="@rateCG.t:$(partition)">
-			<LogNormal name="distr">
-				<parameter spec="parameter.RealParameter" estimate="false" name="M">1.0</parameter>
-				<parameter spec="parameter.RealParameter" estimate="false" name="S">1.25</parameter>
-			</LogNormal>
-		</prior>
+			<prior id="rateAGPrior.t:$(partition)" name="distribution" x="@rateAG.t:$(partition)">
+				<LogNormal name="distr">
+					<parameter spec="parameter.RealParameter" estimate="false" name="M">1.0</parameter>
+					<parameter spec="parameter.RealParameter" estimate="false" name="S">1.25</parameter>
+				</LogNormal>
+			</prior>
 
-		<prior id="rateCTPrior.t:$(partition)" name="distribution" x="@rateCT.t:$(partition)">
-			<LogNormal name="distr">
-				<parameter spec="parameter.RealParameter" estimate="false" name="M">1.0</parameter>
-				<parameter spec="parameter.RealParameter" estimate="false" name="S">1.25</parameter>
-			</LogNormal>
-		</prior>
+			<prior id="rateATPrior.t:$(partition)" name="distribution" x="@rateAT.t:$(partition)">
+				<LogNormal name="distr">
+					<parameter spec="parameter.RealParameter" estimate="false" name="M">1.0</parameter>
+					<parameter spec="parameter.RealParameter" estimate="false" name="S">1.25</parameter>
+				</LogNormal>
+			</prior>
 
-		<prior id="rateGTPrior.t:$(partition)" name="distribution" x="@rateGT.t:$(partition)">
-			<LogNormal name="distr">
-				<parameter spec="parameter.RealParameter" estimate="false" name="M">1.0</parameter>
-				<parameter spec="parameter.RealParameter" estimate="false" name="S">1.25</parameter>
-			</LogNormal>
-		</prior>
+			<prior id="rateCGPrior.t:$(partition)" name="distribution" x="@rateCG.t:$(partition)">
+				<LogNormal name="distr">
+					<parameter spec="parameter.RealParameter" estimate="false" name="M">1.0</parameter>
+					<parameter spec="parameter.RealParameter" estimate="false" name="S">1.25</parameter>
+				</LogNormal>
+			</prior>
 
+			<prior id="rateCTPrior.t:$(partition)" name="distribution" x="@rateCT.t:$(partition)">
+				<LogNormal name="distr">
+					<parameter spec="parameter.RealParameter" estimate="false" name="M">1.0</parameter>
+					<parameter spec="parameter.RealParameter" estimate="false" name="S">1.25</parameter>
+				</LogNormal>
+			</prior>
+
+			<prior id="rateGTPrior.t:$(partition)" name="distribution" x="@rateGT.t:$(partition)">
+				<LogNormal name="distr">
+					<parameter spec="parameter.RealParameter" estimate="false" name="M">1.0</parameter>
+					<parameter spec="parameter.RealParameter" estimate="false" name="S">1.25</parameter>
+				</LogNormal>
+			</prior>
+
+
+		</distribution>
 
 	</append>
 
@@ -100,6 +105,7 @@
 		<log idref="rateCG.t:$(partition)"/>
 		<log idref="rateCT.t:$(partition)"/>
 		<log idref="rateGT.t:$(partition)"/>
+		<log idref="GTRPrior"/>
 	</append>
 
 

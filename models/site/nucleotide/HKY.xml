@@ -19,12 +19,14 @@
 
 
 	<append id="prior">
-		<prior id="kappaPrior.t:$(partition)" name="distribution" x="@kappa.t:$(partition)">
-			<LogNormal name="distr">
-				<parameter spec="parameter.RealParameter" estimate="false" name="M">1.0</parameter>
-				<parameter spec="parameter.RealParameter" estimate="false" name="S">1.25</parameter>
-			</LogNormal>
-		</prior>
+		<distribution id="KappaPrior" spec="beast.core.util.CompoundDistribution">
+			<prior id="kappaPrior.t:$(partition)" name="distribution" x="@kappa.t:$(partition)">
+				<LogNormal name="distr">
+					<parameter spec="parameter.RealParameter" estimate="false" name="M">1.0</parameter>
+					<parameter spec="parameter.RealParameter" estimate="false" name="S">1.25</parameter>
+				</LogNormal>
+			</prior>
+		</distribution>
 	</append>
 
 
@@ -41,6 +43,7 @@
 
 	<append id="SiteModelPOEM">
 		<log idref="kappa.t:$(partition)"/>
+		<log idref="KappaPrior" />
 	</append>
 
 

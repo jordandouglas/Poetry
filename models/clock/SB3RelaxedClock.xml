@@ -12,7 +12,6 @@
 	<append id="prior">
 
 
-
 		<prior id="ucldStdevPrior.clock" name="distribution" x="@ucldStdev.clock">
 			<Gamma id="Gamma.2" name="distr">
 				<parameter id="RealParameter.10" spec="parameter.RealParameter" estimate="false" name="alpha">0.5396</parameter>
@@ -21,9 +20,10 @@
 		</prior>
 
 
-		<prior id="FastRatePriorDistrbution.clock" name="distribution" x="@rates.clock">
+		<prior id="FastRatePriorDistribution.clock" name="distribution" x="@rates.clock">
 			<LogNormal id="LogNormalDistributionModel.clock" S="@ucldStdev.clock" M="1" meanInRealSpace="true" name="distr"/>
 		</prior>
+
 
 	</append>
 
@@ -98,7 +98,7 @@
 
 
 	<append id="ClockModelRatePOEM">
-		<log idref="FastRatePriorDistrbution.clock" />
+		<log idref="FastRatePriorDistribution.clock" />
 		<log idref="RateStatLogger" />
 	</append>
 

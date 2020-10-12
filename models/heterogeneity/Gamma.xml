@@ -11,9 +11,13 @@
 
 	<append id="prior">
 
-        <prior id="GammaShapePrior.s:$(partition)" name="distribution" x="@gammaShape.s:$(partition)">
-            <Exponential name="distr" mean="1.0" />
-        </prior>
+
+		<distribution  id="HeterogeneityPrior" spec="beast.core.util.CompoundDistribution">
+
+	        <prior id="GammaShapePrior.s:$(partition)" name="distribution" x="@gammaShape.s:$(partition)">
+	            <Exponential name="distr" mean="1.0" />
+	        </prior>
+	    </distribution>
 
 	</append>
 
@@ -30,6 +34,7 @@
 
 	<append id="SiteModelPOEM">
 		<log idref="gammaShape.s:$(partition)"/>
+		<log idref="HeterogeneityPrior" />
 	</append>
 
 	<append id="tracelog">

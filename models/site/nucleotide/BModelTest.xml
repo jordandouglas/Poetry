@@ -25,27 +25,30 @@
 
 
 
-        <prior id="GammaShapePrior.s:$(partition)" name="distribution" x="@gammaShape.s:$(partition)">
-            <Exponential name="distr" mean="1.0" />
-        </prior>
+		<distribution  id="BModelTestPrior" spec="beast.core.util.CompoundDistribution">
 
-		<prior id="PropInvariantPrior.s:$(partition)" name="distribution" x="@proportionInvariant.s:$(partition)">
-		   <Beta name="distr" alpha="1.0" beta="4.0" />
-       	</prior>	
+	        <prior id="GammaShapePrior.s:$(partition)" name="distribution" x="@gammaShape.s:$(partition)">
+	            <Exponential name="distr" mean="1.0" />
+	        </prior>
+
+			<prior id="PropInvariantPrior.s:$(partition)" name="distribution" x="@proportionInvariant.s:$(partition)">
+			   <Beta name="distr" alpha="1.0" beta="4.0" />
+	       	</prior>	
 
 
-       <distribution id="BMT_RatesPrior.s:$(partition)" spec="beast.math.distributions.NucleotideRevJumpSubstModelRatePrior" modelIndicator="@BMT_ModelIndicator.s:$(partition)" x="@BMT_Rates.s:$(partition)">
-                        
-			<substModel id="RevJump.s:$(partition)" spec="NucleotideRevJumpSubstModel" modelIndicator="@BMT_ModelIndicator.s:$(partition)" rates="@BMT_Rates.s:$(partition)">
-			                        
-			    <frequencies id="BMTfreqs.s:$(partition)" spec="ModelFrequencies" empirical="false" frequencies="@freqParameter.t:$(partition)" hasEqualFreqs="@hasEqualFreqs.s:$(partition)"/>
-			                    
-			</substModel>
-			                
-			<Exponential name="distr"/>
-			            
-    	</distribution>
+	       <distribution id="BMT_RatesPrior.s:$(partition)" spec="beast.math.distributions.NucleotideRevJumpSubstModelRatePrior" modelIndicator="@BMT_ModelIndicator.s:$(partition)" x="@BMT_Rates.s:$(partition)">
+	                        
+				<substModel id="RevJump.s:$(partition)" spec="NucleotideRevJumpSubstModel" modelIndicator="@BMT_ModelIndicator.s:$(partition)" rates="@BMT_Rates.s:$(partition)">
+				                        
+				    <frequencies id="BMTfreqs.s:$(partition)" spec="ModelFrequencies" empirical="false" frequencies="@freqParameter.t:$(partition)" hasEqualFreqs="@hasEqualFreqs.s:$(partition)"/>
+				                    
+				</substModel>
+				                
+				<Exponential name="distr"/>
+				            
+	    	</distribution>
 
+	    </distribution>
 
 	</append>
 
@@ -105,6 +108,8 @@
 
 		<log idref="proportionInvariant.s:$(partition)"/>
 		<log idref="hasInvariableSites.s:$(partition)" />
+
+		<log idref="BModelTestPrior" />
 	</append>
 
 
