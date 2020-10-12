@@ -139,35 +139,135 @@ spec="Alignment">
                         
             </tree>
                     
-            <parameter id="clockRate.c:COI_1stpos" spec="parameter.RealParameter" name="stateNode">1.0</parameter>
+            <parameter id="birthRate.t:ef1a_1stpos" spec="parameter.RealParameter" name="stateNode">1.0</parameter>
                     
-            <parameter id="clockRate.c:mitochondrial_genome" spec="parameter.RealParameter" name="stateNode">1.0</parameter>
-                    
-            <parameter id="clockRate.c:COI_2ndpos" spec="parameter.RealParameter" name="stateNode">1.0</parameter>
-                    
-            <parameter id="clockRate.c:COI_3rdpos" spec="parameter.RealParameter" name="stateNode">1.0</parameter>
+            <tree id="Tree.t:ef1a_2ndpos" spec="beast.evolution.tree.Tree" name="stateNode">
+                            
+                <taxonset id="TaxonSet.ef1a_2ndpos" spec="TaxonSet">
+                                    
+                    <alignment id="ef1a_2ndpos" spec="FilteredAlignment" data="@alignment" filter="2-649\3"/>
+                                
+                </taxonset>
+                        
+            </tree>
                     
             <parameter id="clockRate.c:ef1a_2ndpos" spec="parameter.RealParameter" name="stateNode">1.0</parameter>
                     
-            <parameter id="clockRate.c:16S" spec="parameter.RealParameter" name="stateNode">1.0</parameter>
+            <parameter id="birthRate.t:ef1a_2ndpos" spec="parameter.RealParameter" name="stateNode">1.0</parameter>
+                    
+            <tree id="Tree.t:nuclear_genome" spec="beast.evolution.tree.Tree" name="stateNode">
+                            
+                <taxonset id="TaxonSet.nuclear_genome" spec="TaxonSet">
+                                    
+                    <alignment id="nuclear_genome" spec="FilteredAlignment" data="@alignment" filter="1-649"/>
+                                
+                </taxonset>
+                        
+            </tree>
                     
             <parameter id="clockRate.c:nuclear_genome" spec="parameter.RealParameter" name="stateNode">1.0</parameter>
                     
+            <parameter id="birthRate.t:nuclear_genome" spec="parameter.RealParameter" name="stateNode">1.0</parameter>
+                    
+            <tree id="Tree.t:COI_3rdpos" spec="beast.evolution.tree.Tree" name="stateNode">
+                            
+                <taxonset id="TaxonSet.COI_3rdpos" spec="TaxonSet">
+                                    
+                    <alignment id="COI_3rdpos" spec="FilteredAlignment" data="@alignment" filter="652-1415\3"/>
+                                
+                </taxonset>
+                        
+            </tree>
+                    
+            <parameter id="clockRate.c:COI_3rdpos" spec="parameter.RealParameter" name="stateNode">1.0</parameter>
+                    
+            <parameter id="birthRate.t:COI_3rdpos" spec="parameter.RealParameter" name="stateNode">1.0</parameter>
+                    
+            <tree id="Tree.t:ef1a_3rdpos" spec="beast.evolution.tree.Tree" name="stateNode">
+                            
+                <taxonset id="TaxonSet.ef1a_3rdpos" spec="TaxonSet">
+                                    
+                    <alignment id="ef1a_3rdpos" spec="FilteredAlignment" data="@alignment" filter="3-649\3"/>
+                                
+                </taxonset>
+                        
+            </tree>
+                    
             <parameter id="clockRate.c:ef1a_3rdpos" spec="parameter.RealParameter" name="stateNode">1.0</parameter>
                     
-            <parameter id="proportionInvariant.s:ef1a_1stpos" spec="parameter.RealParameter" lower="0.0" name="stateNode" upper="1.0">0.01</parameter>
+            <parameter id="birthRate.t:ef1a_3rdpos" spec="parameter.RealParameter" name="stateNode">1.0</parameter>
                     
-            <parameter id="gammaShape.s:ef1a_1stpos" spec="parameter.RealParameter" name="stateNode">1.0</parameter>
+            <tree id="Tree.t:mitochondrial_genome" spec="beast.evolution.tree.Tree" name="stateNode">
+                            
+                <taxonset id="TaxonSet.mitochondrial_genome" spec="TaxonSet">
+                                    
+                    <alignment id="mitochondrial_genome" spec="FilteredAlignment" data="@alignment" filter="650-1897"/>
+                                
+                </taxonset>
+                        
+            </tree>
                     
-            <parameter id="kappa1.s:ef1a_1stpos" spec="parameter.RealParameter" lower="0.0" name="stateNode">2.0</parameter>
+            <parameter id="clockRate.c:mitochondrial_genome" spec="parameter.RealParameter" name="stateNode">1.0</parameter>
                     
-            <parameter id="kappa2.s:ef1a_1stpos" spec="parameter.RealParameter" lower="0.0" name="stateNode">2.0</parameter>
+            <parameter id="birthRate.t:mitochondrial_genome" spec="parameter.RealParameter" name="stateNode">1.0</parameter>
                     
-            <parameter id="ePopSize.t:ef1a_1stpos" spec="parameter.RealParameter" name="stateNode">0.3</parameter>
+            <tree id="Tree.t:COI_2ndpos" spec="beast.evolution.tree.Tree" name="stateNode">
+                            
+                <taxonset id="TaxonSet.COI_2ndpos" spec="TaxonSet">
+                                    
+                    <alignment id="COI_2ndpos" spec="FilteredAlignment" data="@alignment" filter="651-1415\3"/>
+                                
+                </taxonset>
+                        
+            </tree>
                     
-            <parameter id="growthRate.t:ef1a_1stpos" spec="parameter.RealParameter" name="stateNode">3.0E-4</parameter>
+            <parameter id="clockRate.c:COI_2ndpos" spec="parameter.RealParameter" name="stateNode">1.0</parameter>
                     
-            <parameter id="freqParameter.s:ef1a_1stpos" spec="parameter.RealParameter" dimension="4" lower="0.0" name="stateNode" upper="1.0">0.25</parameter>
+            <parameter id="birthRate.t:COI_2ndpos" spec="parameter.RealParameter" name="stateNode">1.0</parameter>
+                    
+            <tree id="Tree.t:16S" spec="beast.evolution.tree.Tree" name="stateNode">
+                            
+                <taxonset id="TaxonSet.16S" spec="TaxonSet">
+                                    
+                    <alignment id="16S" spec="FilteredAlignment" data="@alignment" filter="1416-1897"/>
+                                
+                </taxonset>
+                        
+            </tree>
+                    
+            <parameter id="clockRate.c:16S" spec="parameter.RealParameter" name="stateNode">1.0</parameter>
+                    
+            <parameter id="birthRate.t:16S" spec="parameter.RealParameter" name="stateNode">1.0</parameter>
+                    
+            <tree id="Tree.t:COI_1stpos" spec="beast.evolution.tree.Tree" name="stateNode">
+                            
+                <taxonset id="TaxonSet.COI_1stpos" spec="TaxonSet">
+                                    
+                    <alignment id="COI_1stpos" spec="FilteredAlignment" data="@alignment" filter="650-1415\3"/>
+                                
+                </taxonset>
+                        
+            </tree>
+                    
+            <parameter id="clockRate.c:COI_1stpos" spec="parameter.RealParameter" name="stateNode">1.0</parameter>
+                    
+            <parameter id="birthRate.t:COI_1stpos" spec="parameter.RealParameter" name="stateNode">1.0</parameter>
+                    
+            <stateNode id="BMT_ModelIndicator.s:ef1a_1stpos" spec="parameter.IntegerParameter" lower="0" upper="5">5</stateNode>
+                    
+            <parameter id="BMT_Rates.s:ef1a_1stpos" spec="parameter.RealParameter" dimension="6" lower="0.01" name="stateNode" upper="100.0">1.0</parameter>
+                    
+            <parameter id="BMT_gammaShape.s:ef1a_1stpos" spec="parameter.RealParameter" name="stateNode">1.0</parameter>
+                    
+            <parameter id="BMT_ProportionInvariable.s:ef1a_1stpos" spec="parameter.RealParameter" lower="0.0" name="stateNode" upper="1.0">0.1</parameter>
+                    
+            <stateNode id="hasInvariableSites.s:ef1a_1stpos" spec="parameter.IntegerParameter">1</stateNode>
+                    
+            <stateNode id="hasGammaRates.s:ef1a_1stpos" spec="parameter.IntegerParameter">1</stateNode>
+                    
+            <stateNode id="hasEqualFreqs.s:ef1a_1stpos" spec="parameter.BooleanParameter">false</stateNode>
+                    
+            <parameter id="BMT_frequencies.s:ef1a_1stpos" spec="parameter.RealParameter" dimension="4" name="stateNode">0.25 0.25 0.25 0.25</parameter>
                 
         </state>
             
@@ -181,39 +281,111 @@ spec="Alignment">
                 
         </init>
             
+        <init id="RandomTree.t:ef1a_2ndpos" spec="beast.evolution.tree.RandomTree" estimate="false" initial="@Tree.t:ef1a_2ndpos" taxa="@ef1a_2ndpos">
+                    
+            <populationModel id="ConstantPopulation0.t:ef1a_2ndpos" spec="ConstantPopulation">
+                            
+                <parameter id="randomPopSize.t:ef1a_2ndpos" spec="parameter.RealParameter" name="popSize">1.0</parameter>
+                        
+            </populationModel>
+                
+        </init>
+            
+        <init id="RandomTree.t:nuclear_genome" spec="beast.evolution.tree.RandomTree" estimate="false" initial="@Tree.t:nuclear_genome" taxa="@nuclear_genome">
+                    
+            <populationModel id="ConstantPopulation0.t:nuclear_genome" spec="ConstantPopulation">
+                            
+                <parameter id="randomPopSize.t:nuclear_genome" spec="parameter.RealParameter" name="popSize">1.0</parameter>
+                        
+            </populationModel>
+                
+        </init>
+            
+        <init id="RandomTree.t:COI_3rdpos" spec="beast.evolution.tree.RandomTree" estimate="false" initial="@Tree.t:COI_3rdpos" taxa="@COI_3rdpos">
+                    
+            <populationModel id="ConstantPopulation0.t:COI_3rdpos" spec="ConstantPopulation">
+                            
+                <parameter id="randomPopSize.t:COI_3rdpos" spec="parameter.RealParameter" name="popSize">1.0</parameter>
+                        
+            </populationModel>
+                
+        </init>
+            
+        <init id="RandomTree.t:ef1a_3rdpos" spec="beast.evolution.tree.RandomTree" estimate="false" initial="@Tree.t:ef1a_3rdpos" taxa="@ef1a_3rdpos">
+                    
+            <populationModel id="ConstantPopulation0.t:ef1a_3rdpos" spec="ConstantPopulation">
+                            
+                <parameter id="randomPopSize.t:ef1a_3rdpos" spec="parameter.RealParameter" name="popSize">1.0</parameter>
+                        
+            </populationModel>
+                
+        </init>
+            
+        <init id="RandomTree.t:mitochondrial_genome" spec="beast.evolution.tree.RandomTree" estimate="false" initial="@Tree.t:mitochondrial_genome" taxa="@mitochondrial_genome">
+                    
+            <populationModel id="ConstantPopulation0.t:mitochondrial_genome" spec="ConstantPopulation">
+                            
+                <parameter id="randomPopSize.t:mitochondrial_genome" spec="parameter.RealParameter" name="popSize">1.0</parameter>
+                        
+            </populationModel>
+                
+        </init>
+            
+        <init id="RandomTree.t:COI_2ndpos" spec="beast.evolution.tree.RandomTree" estimate="false" initial="@Tree.t:COI_2ndpos" taxa="@COI_2ndpos">
+                    
+            <populationModel id="ConstantPopulation0.t:COI_2ndpos" spec="ConstantPopulation">
+                            
+                <parameter id="randomPopSize.t:COI_2ndpos" spec="parameter.RealParameter" name="popSize">1.0</parameter>
+                        
+            </populationModel>
+                
+        </init>
+            
+        <init id="RandomTree.t:16S" spec="beast.evolution.tree.RandomTree" estimate="false" initial="@Tree.t:16S" taxa="@16S">
+                    
+            <populationModel id="ConstantPopulation0.t:16S" spec="ConstantPopulation">
+                            
+                <parameter id="randomPopSize.t:16S" spec="parameter.RealParameter" name="popSize">1.0</parameter>
+                        
+            </populationModel>
+                
+        </init>
+            
+        <init id="RandomTree.t:COI_1stpos" spec="beast.evolution.tree.RandomTree" estimate="false" initial="@Tree.t:COI_1stpos" taxa="@COI_1stpos">
+                    
+            <populationModel id="ConstantPopulation0.t:COI_1stpos" spec="ConstantPopulation">
+                            
+                <parameter id="randomPopSize.t:COI_1stpos" spec="parameter.RealParameter" name="popSize">1.0</parameter>
+                        
+            </populationModel>
+                
+        </init>
+            
         <distribution id="posterior" spec="util.CompoundDistribution">
                     
             <distribution id="prior" spec="util.CompoundDistribution">
                             
-                <distribution id="CoalescentExponential.t:ef1a_1stpos" spec="Coalescent">
-                                    
-                    <populationModel id="ExponentialGrowth.t:ef1a_1stpos" spec="ExponentialGrowth" growthRate="@growthRate.t:ef1a_1stpos" popSize="@ePopSize.t:ef1a_1stpos"/>
-                                    
-                    <treeIntervals id="TreeIntervals.t:ef1a_1stpos" spec="TreeIntervals" tree="@Tree.t:ef1a_1stpos"/>
-                                
-                </distribution>
+                <distribution id="YuleModel.t:ef1a_1stpos" spec="beast.evolution.speciation.YuleModel" birthDiffRate="@birthRate.t:ef1a_1stpos" tree="@Tree.t:ef1a_1stpos"/>
                             
-                <prior id="ClockPrior.c:16S" name="distribution" x="@clockRate.c:16S">
-                                    
-                    <Uniform id="Uniform.18" name="distr" upper="Infinity"/>
-                                
-                </prior>
+                <distribution id="YuleModel.t:ef1a_2ndpos" spec="beast.evolution.speciation.YuleModel" birthDiffRate="@birthRate.t:ef1a_2ndpos" tree="@Tree.t:ef1a_2ndpos"/>
                             
-                <prior id="ClockPrior.c:COI_1stpos" name="distribution" x="@clockRate.c:COI_1stpos">
-                                    
-                    <Uniform id="Uniform.9" name="distr" upper="Infinity"/>
-                                
-                </prior>
+                <distribution id="YuleModel.t:ef1a_3rdpos" spec="beast.evolution.speciation.YuleModel" birthDiffRate="@birthRate.t:ef1a_3rdpos" tree="@Tree.t:ef1a_3rdpos"/>
                             
-                <prior id="ClockPrior.c:COI_2ndpos" name="distribution" x="@clockRate.c:COI_2ndpos">
-                                    
-                    <Uniform id="Uniform.12" name="distr" upper="Infinity"/>
-                                
-                </prior>
+                <distribution id="YuleModel.t:COI_1stpos" spec="beast.evolution.speciation.YuleModel" birthDiffRate="@birthRate.t:COI_1stpos" tree="@Tree.t:COI_1stpos"/>
                             
-                <prior id="ClockPrior.c:COI_3rdpos" name="distribution" x="@clockRate.c:COI_3rdpos">
+                <distribution id="YuleModel.t:COI_2ndpos" spec="beast.evolution.speciation.YuleModel" birthDiffRate="@birthRate.t:COI_2ndpos" tree="@Tree.t:COI_2ndpos"/>
+                            
+                <distribution id="YuleModel.t:COI_3rdpos" spec="beast.evolution.speciation.YuleModel" birthDiffRate="@birthRate.t:COI_3rdpos" tree="@Tree.t:COI_3rdpos"/>
+                            
+                <distribution id="YuleModel.t:16S" spec="beast.evolution.speciation.YuleModel" birthDiffRate="@birthRate.t:16S" tree="@Tree.t:16S"/>
+                            
+                <distribution id="YuleModel.t:mitochondrial_genome" spec="beast.evolution.speciation.YuleModel" birthDiffRate="@birthRate.t:mitochondrial_genome" tree="@Tree.t:mitochondrial_genome"/>
+                            
+                <distribution id="YuleModel.t:nuclear_genome" spec="beast.evolution.speciation.YuleModel" birthDiffRate="@birthRate.t:nuclear_genome" tree="@Tree.t:nuclear_genome"/>
+                            
+                <prior id="YuleBirthRatePrior.t:ef1a_1stpos" name="distribution" x="@birthRate.t:ef1a_1stpos">
                                     
-                    <Uniform id="Uniform.15" name="distr" upper="Infinity"/>
+                    <Uniform id="Uniform.1" name="distr" upper="Infinity"/>
                                 
                 </prior>
                             
@@ -223,15 +395,9 @@ spec="Alignment">
                                 
                 </prior>
                             
-                <prior id="ClockPrior.c:ef1a_3rdpos" name="distribution" x="@clockRate.c:ef1a_3rdpos">
+                <prior id="YuleBirthRatePrior.t:ef1a_2ndpos" name="distribution" x="@birthRate.t:ef1a_2ndpos">
                                     
-                    <Uniform id="Uniform.6" name="distr" upper="Infinity"/>
-                                
-                </prior>
-                            
-                <prior id="ClockPrior.c:mitochondrial_genome" name="distribution" x="@clockRate.c:mitochondrial_genome">
-                                    
-                    <Uniform id="Uniform.21" name="distr" upper="Infinity"/>
+                    <Uniform id="Uniform.4" name="distr" upper="Infinity"/>
                                 
                 </prior>
                             
@@ -241,67 +407,81 @@ spec="Alignment">
                                 
                 </prior>
                             
-                <prior id="ePopSizePrior.t:ef1a_1stpos" name="distribution" x="@ePopSize.t:ef1a_1stpos">
+                <prior id="YuleBirthRatePrior.t:nuclear_genome" name="distribution" x="@birthRate.t:nuclear_genome">
                                     
-                    <OneOnX id="OneOnX.9" name="distr"/>
+                    <Uniform id="Uniform.25" name="distr" upper="Infinity"/>
                                 
                 </prior>
                             
-                <prior id="FrequenciesPrior.s:ef1a_1stpos" name="distribution" x="@freqParameter.s:ef1a_1stpos">
+                <prior id="ClockPrior.c:COI_3rdpos" name="distribution" x="@clockRate.c:COI_3rdpos">
                                     
-                    <Uniform id="Uniform.27" name="distr"/>
+                    <Uniform id="Uniform.15" name="distr" upper="Infinity"/>
                                 
                 </prior>
                             
-                <prior id="GammaShapePrior.s:ef1a_1stpos" name="distribution" x="@gammaShape.s:ef1a_1stpos">
+                <prior id="YuleBirthRatePrior.t:COI_3rdpos" name="distribution" x="@birthRate.t:COI_3rdpos">
                                     
-                    <Exponential id="Exponential.0" name="distr">
-                                            
-                        <parameter id="RealParameter.0" spec="parameter.RealParameter" estimate="false" name="mean">1.0</parameter>
-                                        
-                    </Exponential>
+                    <Uniform id="Uniform.16" name="distr" upper="Infinity"/>
                                 
                 </prior>
                             
-                <prior id="GrowthRatePrior.t:ef1a_1stpos" name="distribution" x="@growthRate.t:ef1a_1stpos">
+                <prior id="ClockPrior.c:ef1a_3rdpos" name="distribution" x="@clockRate.c:ef1a_3rdpos">
                                     
-                    <LaplaceDistribution id="LaplaceDistribution.0" name="distr">
-                                            
-                        <parameter id="RealParameter.15" spec="parameter.RealParameter" estimate="false" name="mu">0.001</parameter>
-                                            
-                        <parameter id="RealParameter.16" spec="parameter.RealParameter" estimate="false" name="scale">30.701135</parameter>
-                                        
-                    </LaplaceDistribution>
+                    <Uniform id="Uniform.6" name="distr" upper="Infinity"/>
                                 
                 </prior>
                             
-                <prior id="kappa1Prior.s:ef1a_1stpos" name="distribution" x="@kappa1.s:ef1a_1stpos">
+                <prior id="YuleBirthRatePrior.t:ef1a_3rdpos" name="distribution" x="@birthRate.t:ef1a_3rdpos">
                                     
-                    <LogNormal id="LogNormalDistributionModel.0" name="distr">
-                                            
-                        <parameter id="RealParameter.9" spec="parameter.RealParameter" estimate="false" name="M">1.0</parameter>
-                                            
-                        <parameter id="RealParameter.10" spec="parameter.RealParameter" estimate="false" name="S">1.25</parameter>
-                                        
-                    </LogNormal>
+                    <Uniform id="Uniform.7" name="distr" upper="Infinity"/>
                                 
                 </prior>
                             
-                <prior id="kappa2Prior.s:ef1a_1stpos" name="distribution" x="@kappa2.s:ef1a_1stpos">
+                <prior id="ClockPrior.c:mitochondrial_genome" name="distribution" x="@clockRate.c:mitochondrial_genome">
                                     
-                    <LogNormal id="LogNormalDistributionModel.1" name="distr">
-                                            
-                        <parameter id="RealParameter.11" spec="parameter.RealParameter" estimate="false" name="M">1.0</parameter>
-                                            
-                        <parameter id="RealParameter.12" spec="parameter.RealParameter" estimate="false" name="S">1.25</parameter>
-                                        
-                    </LogNormal>
+                    <Uniform id="Uniform.21" name="distr" upper="Infinity"/>
                                 
                 </prior>
                             
-                <prior id="PropInvariantPrior.s:ef1a_1stpos" name="distribution" x="@proportionInvariant.s:ef1a_1stpos">
+                <prior id="YuleBirthRatePrior.t:mitochondrial_genome" name="distribution" x="@birthRate.t:mitochondrial_genome">
                                     
-                    <Uniform id="Uniform.2" name="distr"/>
+                    <Uniform id="Uniform.22" name="distr" upper="Infinity"/>
+                                
+                </prior>
+                            
+                <prior id="ClockPrior.c:COI_2ndpos" name="distribution" x="@clockRate.c:COI_2ndpos">
+                                    
+                    <Uniform id="Uniform.12" name="distr" upper="Infinity"/>
+                                
+                </prior>
+                            
+                <prior id="YuleBirthRatePrior.t:COI_2ndpos" name="distribution" x="@birthRate.t:COI_2ndpos">
+                                    
+                    <Uniform id="Uniform.13" name="distr" upper="Infinity"/>
+                                
+                </prior>
+                            
+                <prior id="ClockPrior.c:16S" name="distribution" x="@clockRate.c:16S">
+                                    
+                    <Uniform id="Uniform.18" name="distr" upper="Infinity"/>
+                                
+                </prior>
+                            
+                <prior id="YuleBirthRatePrior.t:16S" name="distribution" x="@birthRate.t:16S">
+                                    
+                    <Uniform id="Uniform.19" name="distr" upper="Infinity"/>
+                                
+                </prior>
+                            
+                <prior id="ClockPrior.c:COI_1stpos" name="distribution" x="@clockRate.c:COI_1stpos">
+                                    
+                    <Uniform id="Uniform.9" name="distr" upper="Infinity"/>
+                                
+                </prior>
+                            
+                <prior id="YuleBirthRatePrior.t:COI_1stpos" name="distribution" x="@birthRate.t:COI_1stpos">
+                                    
+                    <Uniform id="Uniform.10" name="distr" upper="Infinity"/>
                                 
                 </prior>
                             
@@ -328,6 +508,50 @@ spec="Alignment">
                     </taxonset>
                                 
                 </distribution>
+                            
+                <distribution id="BMT_RatesPrior.s:ef1a_1stpos" spec="beast.math.distributions.NucleotideRevJumpSubstModelRatePrior" modelIndicator="@BMT_ModelIndicator.s:ef1a_1stpos" x="@BMT_Rates.s:ef1a_1stpos">
+                                    
+                    <substModel id="RevJump.s:ef1a_1stpos" spec="NucleotideRevJumpSubstModel" modelIndicator="@BMT_ModelIndicator.s:ef1a_1stpos" rates="@BMT_Rates.s:ef1a_1stpos">
+                                            
+                        <frequencies id="BMTfreqs.s:ef1a_1stpos" spec="ModelFrequencies" empirical="false" frequencies="@BMT_frequencies.s:ef1a_1stpos" hasEqualFreqs="@hasEqualFreqs.s:ef1a_1stpos"/>
+                                        
+                    </substModel>
+                                    
+                    <Exponential id="BMT_RatesPrior.s:ef1a_1stposx" name="distr"/>
+                                
+                </distribution>
+                            
+                <distribution id="BMT_GammaShapePrior.s:ef1a_1stpos" spec="beast.math.distributions.BMTPrior" count="@hasGammaRates.s:ef1a_1stpos" x="@BMT_gammaShape.s:ef1a_1stpos">
+                                    
+                    <Exponential id="Exponential.9" name="distr">
+                                            
+                        <parameter id="RealParameter.9" spec="parameter.RealParameter" estimate="false" lower="0.0" name="mean" upper="0.0">1.0</parameter>
+                                        
+                    </Exponential>
+                                
+                </distribution>
+                            
+                <distribution id="BMT_PropInvariablePrior.s:ef1a_1stpos" spec="beast.math.distributions.BMTPrior" count="@hasInvariableSites.s:ef1a_1stpos" x="@BMT_ProportionInvariable.s:ef1a_1stpos">
+                                    
+                    <Beta id="Beta.0" name="distr">
+                                            
+                        <parameter id="RealParameter.10" spec="parameter.RealParameter" lower="0.0" name="alpha" upper="0.0">1.0</parameter>
+                                            
+                        <parameter id="RealParameter.11" spec="parameter.RealParameter" lower="0.0" name="beta" upper="0.0">4.0</parameter>
+                                        
+                    </Beta>
+                                
+                </distribution>
+                            
+                <prior id="BMT_freqsPrior.s:ef1a_1stpos" name="distribution" x="@BMT_frequencies.s:ef1a_1stpos">
+                                    
+                    <distr id="Dirichlet.0" spec="beast.math.distributions.Dirichlet">
+                                            
+                        <parameter id="RealParameter.12" spec="parameter.RealParameter" dimension="4" lower="0.0" name="alpha" upper="0.0">1.0 1.0 1.0 1.0</parameter>
+                                        
+                    </distr>
+                                
+                </prior>
                         
             </distribution>
                     
@@ -335,15 +559,9 @@ spec="Alignment">
                             
                 <distribution id="treeLikelihood.ef1a_1stpos" spec="ThreadedTreeLikelihood" data="@ef1a_1stpos" tree="@Tree.t:ef1a_1stpos">
                                     
-                    <siteModel id="SiteModel.s:ef1a_1stpos" spec="SiteModel" gammaCategoryCount="10" proportionInvariant="@proportionInvariant.s:ef1a_1stpos" shape="@gammaShape.s:ef1a_1stpos">
+                    <siteModel id="BEASTModelTest.s:ef1a_1stpos" spec="BEASTModelTestSiteModel" gammaCategoryCount="4" hasGammaRates="@hasGammaRates.s:ef1a_1stpos" hasInvariantSites="@hasInvariableSites.s:ef1a_1stpos" proportionInvariant="@BMT_ProportionInvariable.s:ef1a_1stpos" shape="@BMT_gammaShape.s:ef1a_1stpos" substModel="@RevJump.s:ef1a_1stpos">
                                             
-                        <parameter id="mutationRate.s:ef1a_1stpos" spec="parameter.RealParameter" estimate="false" name="mutationRate">1.0</parameter>
-                                            
-                        <substModel id="tn93.s:ef1a_1stpos" spec="TN93" kappa1="@kappa1.s:ef1a_1stpos" kappa2="@kappa2.s:ef1a_1stpos">
-                                                    
-                            <frequencies id="estimatedFreqs.s:ef1a_1stpos" spec="Frequencies" frequencies="@freqParameter.s:ef1a_1stpos"/>
-                                                
-                        </substModel>
+                        <parameter id="BMT_mutationRate.s:ef1a_1stpos" spec="parameter.RealParameter" estimate="false" name="mutationRate">1.0</parameter>
                                         
                     </siteModel>
                                     
@@ -355,13 +573,7 @@ spec="Alignment">
                                 
                 </distribution>
                             
-                <distribution id="treeLikelihood.ef1a_2ndpos" spec="ThreadedTreeLikelihood" tree="@Tree.t:ef1a_1stpos">
-                                    
-                    <data
-id="ef1a_2ndpos"
-spec="FilteredAlignment"
-data="@alignment"
-filter="2-649\3"/>
+                <distribution id="treeLikelihood.ef1a_2ndpos" spec="ThreadedTreeLikelihood" data="@ef1a_2ndpos" tree="@Tree.t:ef1a_2ndpos">
                                     
                     <siteModel id="SiteModel.s:ef1a_2ndpos" spec="SiteModel">
                                             
@@ -379,13 +591,7 @@ filter="2-649\3"/>
                                 
                 </distribution>
                             
-                <distribution id="treeLikelihood.ef1a_3rdpos" spec="ThreadedTreeLikelihood" tree="@Tree.t:ef1a_1stpos">
-                                    
-                    <data
-id="ef1a_3rdpos"
-spec="FilteredAlignment"
-data="@alignment"
-filter="3-649\3"/>
+                <distribution id="treeLikelihood.ef1a_3rdpos" spec="ThreadedTreeLikelihood" data="@ef1a_3rdpos" tree="@Tree.t:ef1a_3rdpos">
                                     
                     <siteModel id="SiteModel.s:ef1a_3rdpos" spec="SiteModel">
                                             
@@ -403,13 +609,7 @@ filter="3-649\3"/>
                                 
                 </distribution>
                             
-                <distribution id="treeLikelihood.COI_1stpos" spec="ThreadedTreeLikelihood" tree="@Tree.t:ef1a_1stpos">
-                                    
-                    <data
-id="COI_1stpos"
-spec="FilteredAlignment"
-data="@alignment"
-filter="650-1415\3"/>
+                <distribution id="treeLikelihood.COI_1stpos" spec="ThreadedTreeLikelihood" data="@COI_1stpos" tree="@Tree.t:COI_1stpos">
                                     
                     <siteModel id="SiteModel.s:COI_1stpos" spec="SiteModel">
                                             
@@ -427,13 +627,7 @@ filter="650-1415\3"/>
                                 
                 </distribution>
                             
-                <distribution id="treeLikelihood.COI_2ndpos" spec="ThreadedTreeLikelihood" tree="@Tree.t:ef1a_1stpos">
-                                    
-                    <data
-id="COI_2ndpos"
-spec="FilteredAlignment"
-data="@alignment"
-filter="651-1415\3"/>
+                <distribution id="treeLikelihood.COI_2ndpos" spec="ThreadedTreeLikelihood" data="@COI_2ndpos" tree="@Tree.t:COI_2ndpos">
                                     
                     <siteModel id="SiteModel.s:COI_2ndpos" spec="SiteModel">
                                             
@@ -451,13 +645,7 @@ filter="651-1415\3"/>
                                 
                 </distribution>
                             
-                <distribution id="treeLikelihood.COI_3rdpos" spec="ThreadedTreeLikelihood" tree="@Tree.t:ef1a_1stpos">
-                                    
-                    <data
-id="COI_3rdpos"
-spec="FilteredAlignment"
-data="@alignment"
-filter="652-1415\3"/>
+                <distribution id="treeLikelihood.COI_3rdpos" spec="ThreadedTreeLikelihood" data="@COI_3rdpos" tree="@Tree.t:COI_3rdpos">
                                     
                     <siteModel id="SiteModel.s:COI_3rdpos" spec="SiteModel">
                                             
@@ -475,13 +663,7 @@ filter="652-1415\3"/>
                                 
                 </distribution>
                             
-                <distribution id="treeLikelihood.16S" spec="ThreadedTreeLikelihood" tree="@Tree.t:ef1a_1stpos">
-                                    
-                    <data
-id="16S"
-spec="FilteredAlignment"
-data="@alignment"
-filter="1416-1897"/>
+                <distribution id="treeLikelihood.16S" spec="ThreadedTreeLikelihood" data="@16S" tree="@Tree.t:16S">
                                     
                     <siteModel id="SiteModel.s:16S" spec="SiteModel">
                                             
@@ -499,13 +681,7 @@ filter="1416-1897"/>
                                 
                 </distribution>
                             
-                <distribution id="treeLikelihood.mitochondrial_genome" spec="ThreadedTreeLikelihood" tree="@Tree.t:ef1a_1stpos">
-                                    
-                    <data
-id="mitochondrial_genome"
-spec="FilteredAlignment"
-data="@alignment"
-filter="650-1897"/>
+                <distribution id="treeLikelihood.mitochondrial_genome" spec="ThreadedTreeLikelihood" data="@mitochondrial_genome" tree="@Tree.t:mitochondrial_genome">
                                     
                     <siteModel id="SiteModel.s:mitochondrial_genome" spec="SiteModel">
                                             
@@ -523,13 +699,7 @@ filter="650-1897"/>
                                 
                 </distribution>
                             
-                <distribution id="treeLikelihood.nuclear_genome" spec="ThreadedTreeLikelihood" tree="@Tree.t:ef1a_1stpos">
-                                    
-                    <data
-id="nuclear_genome"
-spec="FilteredAlignment"
-data="@alignment"
-filter="1-649"/>
+                <distribution id="treeLikelihood.nuclear_genome" spec="ThreadedTreeLikelihood" data="@nuclear_genome" tree="@Tree.t:nuclear_genome">
                                     
                     <siteModel id="SiteModel.s:nuclear_genome" spec="SiteModel">
                                             
@@ -551,115 +721,247 @@ filter="1-649"/>
                 
         </distribution>
             
-        <operator id="StrictClockRateScaler.c:COI_1stpos" spec="ScaleOperator" parameter="@clockRate.c:COI_1stpos" weight="3.0"/>
+        <operator id="YuleBirthRateScaler.t:ef1a_1stpos" spec="ScaleOperator" parameter="@birthRate.t:ef1a_1stpos" weight="3.0"/>
             
-        <operator id="StrictClockRateScaler.c:mitochondrial_genome" spec="ScaleOperator" parameter="@clockRate.c:mitochondrial_genome" weight="3.0"/>
+        <operator id="YuleModelTreeScaler.t:ef1a_1stpos" spec="ScaleOperator" scaleFactor="0.5" tree="@Tree.t:ef1a_1stpos" weight="3.0"/>
             
-        <operator id="StrictClockRateScaler.c:COI_2ndpos" spec="ScaleOperator" parameter="@clockRate.c:COI_2ndpos" weight="3.0"/>
+        <operator id="YuleModelTreeRootScaler.t:ef1a_1stpos" spec="ScaleOperator" rootOnly="true" scaleFactor="0.5" tree="@Tree.t:ef1a_1stpos" weight="3.0"/>
             
-        <operator id="StrictClockRateScaler.c:COI_3rdpos" spec="ScaleOperator" parameter="@clockRate.c:COI_3rdpos" weight="3.0"/>
+        <operator id="YuleModelUniformOperator.t:ef1a_1stpos" spec="Uniform" tree="@Tree.t:ef1a_1stpos" weight="30.0"/>
+            
+        <operator id="YuleModelSubtreeSlide.t:ef1a_1stpos" spec="SubtreeSlide" tree="@Tree.t:ef1a_1stpos" weight="15.0"/>
+            
+        <operator id="YuleModelNarrow.t:ef1a_1stpos" spec="Exchange" tree="@Tree.t:ef1a_1stpos" weight="15.0"/>
+            
+        <operator id="YuleModelWide.t:ef1a_1stpos" spec="Exchange" isNarrow="false" tree="@Tree.t:ef1a_1stpos" weight="3.0"/>
+            
+        <operator id="YuleModelWilsonBalding.t:ef1a_1stpos" spec="WilsonBalding" tree="@Tree.t:ef1a_1stpos" weight="3.0"/>
             
         <operator id="StrictClockRateScaler.c:ef1a_2ndpos" spec="ScaleOperator" parameter="@clockRate.c:ef1a_2ndpos" weight="3.0"/>
             
-        <operator id="StrictClockRateScaler.c:16S" spec="ScaleOperator" parameter="@clockRate.c:16S" weight="3.0"/>
-            
-        <operator id="StrictClockRateScaler.c:nuclear_genome" spec="ScaleOperator" parameter="@clockRate.c:nuclear_genome" weight="3.0"/>
-            
-        <operator id="StrictClockRateScaler.c:ef1a_3rdpos" spec="ScaleOperator" parameter="@clockRate.c:ef1a_3rdpos" weight="3.0"/>
-            
-        <operator id="proportionInvariantScaler.s:ef1a_1stpos" spec="ScaleOperator" parameter="@proportionInvariant.s:ef1a_1stpos" scaleFactor="0.5" weight="0.1"/>
-            
-        <operator id="gammaShapeScaler.s:ef1a_1stpos" spec="ScaleOperator" parameter="@gammaShape.s:ef1a_1stpos" scaleFactor="0.5" weight="0.1"/>
-            
-        <operator id="kappa1Scaler.s:ef1a_1stpos" spec="ScaleOperator" parameter="@kappa1.s:ef1a_1stpos" scaleFactor="0.5" weight="0.1"/>
-            
-        <operator id="kappa2Scaler.s:ef1a_1stpos" spec="ScaleOperator" parameter="@kappa2.s:ef1a_1stpos" scaleFactor="0.5" weight="0.1"/>
+        <operator id="YuleBirthRateScaler.t:ef1a_2ndpos" spec="ScaleOperator" parameter="@birthRate.t:ef1a_2ndpos" weight="3.0"/>
             
         <operator id="strictClockUpDownOperator.c:ef1a_2ndpos" spec="UpDownOperator" scaleFactor="0.75" weight="3.0">
                     
             <up idref="clockRate.c:ef1a_2ndpos"/>
                     
-            <down idref="Tree.t:ef1a_1stpos"/>
+            <down idref="Tree.t:ef1a_2ndpos"/>
                 
         </operator>
+            
+        <operator id="YuleModelTreeScaler.t:ef1a_2ndpos" spec="ScaleOperator" scaleFactor="0.5" tree="@Tree.t:ef1a_2ndpos" weight="3.0"/>
+            
+        <operator id="YuleModelTreeRootScaler.t:ef1a_2ndpos" spec="ScaleOperator" rootOnly="true" scaleFactor="0.5" tree="@Tree.t:ef1a_2ndpos" weight="3.0"/>
+            
+        <operator id="YuleModelUniformOperator.t:ef1a_2ndpos" spec="Uniform" tree="@Tree.t:ef1a_2ndpos" weight="30.0"/>
+            
+        <operator id="YuleModelSubtreeSlide.t:ef1a_2ndpos" spec="SubtreeSlide" tree="@Tree.t:ef1a_2ndpos" weight="15.0"/>
+            
+        <operator id="YuleModelNarrow.t:ef1a_2ndpos" spec="Exchange" tree="@Tree.t:ef1a_2ndpos" weight="15.0"/>
+            
+        <operator id="YuleModelWide.t:ef1a_2ndpos" spec="Exchange" isNarrow="false" tree="@Tree.t:ef1a_2ndpos" weight="3.0"/>
+            
+        <operator id="YuleModelWilsonBalding.t:ef1a_2ndpos" spec="WilsonBalding" tree="@Tree.t:ef1a_2ndpos" weight="3.0"/>
+            
+        <operator id="StrictClockRateScaler.c:nuclear_genome" spec="ScaleOperator" parameter="@clockRate.c:nuclear_genome" weight="3.0"/>
+            
+        <operator id="YuleBirthRateScaler.t:nuclear_genome" spec="ScaleOperator" parameter="@birthRate.t:nuclear_genome" weight="3.0"/>
             
         <operator id="strictClockUpDownOperator.c:nuclear_genome" spec="UpDownOperator" scaleFactor="0.75" weight="3.0">
                     
             <up idref="clockRate.c:nuclear_genome"/>
                     
-            <down idref="Tree.t:ef1a_1stpos"/>
+            <down idref="Tree.t:nuclear_genome"/>
                 
         </operator>
             
-        <operator id="strictClockUpDownOperator.c:mitochondrial_genome" spec="UpDownOperator" scaleFactor="0.75" weight="3.0">
-                    
-            <up idref="clockRate.c:mitochondrial_genome"/>
-                    
-            <down idref="Tree.t:ef1a_1stpos"/>
-                
-        </operator>
+        <operator id="YuleModelTreeScaler.t:nuclear_genome" spec="ScaleOperator" scaleFactor="0.5" tree="@Tree.t:nuclear_genome" weight="3.0"/>
             
-        <operator id="strictClockUpDownOperator.c:COI_2ndpos" spec="UpDownOperator" scaleFactor="0.75" weight="3.0">
-                    
-            <up idref="clockRate.c:COI_2ndpos"/>
-                    
-            <down idref="Tree.t:ef1a_1stpos"/>
-                
-        </operator>
+        <operator id="YuleModelTreeRootScaler.t:nuclear_genome" spec="ScaleOperator" rootOnly="true" scaleFactor="0.5" tree="@Tree.t:nuclear_genome" weight="3.0"/>
             
-        <operator id="strictClockUpDownOperator.c:16S" spec="UpDownOperator" scaleFactor="0.75" weight="3.0">
-                    
-            <up idref="clockRate.c:16S"/>
-                    
-            <down idref="Tree.t:ef1a_1stpos"/>
-                
-        </operator>
+        <operator id="YuleModelUniformOperator.t:nuclear_genome" spec="Uniform" tree="@Tree.t:nuclear_genome" weight="30.0"/>
+            
+        <operator id="YuleModelSubtreeSlide.t:nuclear_genome" spec="SubtreeSlide" tree="@Tree.t:nuclear_genome" weight="15.0"/>
+            
+        <operator id="YuleModelNarrow.t:nuclear_genome" spec="Exchange" tree="@Tree.t:nuclear_genome" weight="15.0"/>
+            
+        <operator id="YuleModelWide.t:nuclear_genome" spec="Exchange" isNarrow="false" tree="@Tree.t:nuclear_genome" weight="3.0"/>
+            
+        <operator id="YuleModelWilsonBalding.t:nuclear_genome" spec="WilsonBalding" tree="@Tree.t:nuclear_genome" weight="3.0"/>
+            
+        <operator id="StrictClockRateScaler.c:COI_3rdpos" spec="ScaleOperator" parameter="@clockRate.c:COI_3rdpos" weight="3.0"/>
+            
+        <operator id="YuleBirthRateScaler.t:COI_3rdpos" spec="ScaleOperator" parameter="@birthRate.t:COI_3rdpos" weight="3.0"/>
             
         <operator id="strictClockUpDownOperator.c:COI_3rdpos" spec="UpDownOperator" scaleFactor="0.75" weight="3.0">
                     
             <up idref="clockRate.c:COI_3rdpos"/>
                     
-            <down idref="Tree.t:ef1a_1stpos"/>
+            <down idref="Tree.t:COI_3rdpos"/>
                 
         </operator>
+            
+        <operator id="YuleModelTreeScaler.t:COI_3rdpos" spec="ScaleOperator" scaleFactor="0.5" tree="@Tree.t:COI_3rdpos" weight="3.0"/>
+            
+        <operator id="YuleModelTreeRootScaler.t:COI_3rdpos" spec="ScaleOperator" rootOnly="true" scaleFactor="0.5" tree="@Tree.t:COI_3rdpos" weight="3.0"/>
+            
+        <operator id="YuleModelUniformOperator.t:COI_3rdpos" spec="Uniform" tree="@Tree.t:COI_3rdpos" weight="30.0"/>
+            
+        <operator id="YuleModelSubtreeSlide.t:COI_3rdpos" spec="SubtreeSlide" tree="@Tree.t:COI_3rdpos" weight="15.0"/>
+            
+        <operator id="YuleModelNarrow.t:COI_3rdpos" spec="Exchange" tree="@Tree.t:COI_3rdpos" weight="15.0"/>
+            
+        <operator id="YuleModelWide.t:COI_3rdpos" spec="Exchange" isNarrow="false" tree="@Tree.t:COI_3rdpos" weight="3.0"/>
+            
+        <operator id="YuleModelWilsonBalding.t:COI_3rdpos" spec="WilsonBalding" tree="@Tree.t:COI_3rdpos" weight="3.0"/>
+            
+        <operator id="StrictClockRateScaler.c:ef1a_3rdpos" spec="ScaleOperator" parameter="@clockRate.c:ef1a_3rdpos" weight="3.0"/>
+            
+        <operator id="YuleBirthRateScaler.t:ef1a_3rdpos" spec="ScaleOperator" parameter="@birthRate.t:ef1a_3rdpos" weight="3.0"/>
             
         <operator id="strictClockUpDownOperator.c:ef1a_3rdpos" spec="UpDownOperator" scaleFactor="0.75" weight="3.0">
                     
             <up idref="clockRate.c:ef1a_3rdpos"/>
                     
-            <down idref="Tree.t:ef1a_1stpos"/>
+            <down idref="Tree.t:ef1a_3rdpos"/>
                 
         </operator>
+            
+        <operator id="YuleModelTreeScaler.t:ef1a_3rdpos" spec="ScaleOperator" scaleFactor="0.5" tree="@Tree.t:ef1a_3rdpos" weight="3.0"/>
+            
+        <operator id="YuleModelTreeRootScaler.t:ef1a_3rdpos" spec="ScaleOperator" rootOnly="true" scaleFactor="0.5" tree="@Tree.t:ef1a_3rdpos" weight="3.0"/>
+            
+        <operator id="YuleModelUniformOperator.t:ef1a_3rdpos" spec="Uniform" tree="@Tree.t:ef1a_3rdpos" weight="30.0"/>
+            
+        <operator id="YuleModelSubtreeSlide.t:ef1a_3rdpos" spec="SubtreeSlide" tree="@Tree.t:ef1a_3rdpos" weight="15.0"/>
+            
+        <operator id="YuleModelNarrow.t:ef1a_3rdpos" spec="Exchange" tree="@Tree.t:ef1a_3rdpos" weight="15.0"/>
+            
+        <operator id="YuleModelWide.t:ef1a_3rdpos" spec="Exchange" isNarrow="false" tree="@Tree.t:ef1a_3rdpos" weight="3.0"/>
+            
+        <operator id="YuleModelWilsonBalding.t:ef1a_3rdpos" spec="WilsonBalding" tree="@Tree.t:ef1a_3rdpos" weight="3.0"/>
+            
+        <operator id="StrictClockRateScaler.c:mitochondrial_genome" spec="ScaleOperator" parameter="@clockRate.c:mitochondrial_genome" weight="3.0"/>
+            
+        <operator id="YuleBirthRateScaler.t:mitochondrial_genome" spec="ScaleOperator" parameter="@birthRate.t:mitochondrial_genome" weight="3.0"/>
+            
+        <operator id="strictClockUpDownOperator.c:mitochondrial_genome" spec="UpDownOperator" scaleFactor="0.75" weight="3.0">
+                    
+            <up idref="clockRate.c:mitochondrial_genome"/>
+                    
+            <down idref="Tree.t:mitochondrial_genome"/>
+                
+        </operator>
+            
+        <operator id="YuleModelTreeScaler.t:mitochondrial_genome" spec="ScaleOperator" scaleFactor="0.5" tree="@Tree.t:mitochondrial_genome" weight="3.0"/>
+            
+        <operator id="YuleModelTreeRootScaler.t:mitochondrial_genome" spec="ScaleOperator" rootOnly="true" scaleFactor="0.5" tree="@Tree.t:mitochondrial_genome" weight="3.0"/>
+            
+        <operator id="YuleModelUniformOperator.t:mitochondrial_genome" spec="Uniform" tree="@Tree.t:mitochondrial_genome" weight="30.0"/>
+            
+        <operator id="YuleModelSubtreeSlide.t:mitochondrial_genome" spec="SubtreeSlide" tree="@Tree.t:mitochondrial_genome" weight="15.0"/>
+            
+        <operator id="YuleModelNarrow.t:mitochondrial_genome" spec="Exchange" tree="@Tree.t:mitochondrial_genome" weight="15.0"/>
+            
+        <operator id="YuleModelWide.t:mitochondrial_genome" spec="Exchange" isNarrow="false" tree="@Tree.t:mitochondrial_genome" weight="3.0"/>
+            
+        <operator id="YuleModelWilsonBalding.t:mitochondrial_genome" spec="WilsonBalding" tree="@Tree.t:mitochondrial_genome" weight="3.0"/>
+            
+        <operator id="StrictClockRateScaler.c:COI_2ndpos" spec="ScaleOperator" parameter="@clockRate.c:COI_2ndpos" weight="3.0"/>
+            
+        <operator id="YuleBirthRateScaler.t:COI_2ndpos" spec="ScaleOperator" parameter="@birthRate.t:COI_2ndpos" weight="3.0"/>
+            
+        <operator id="strictClockUpDownOperator.c:COI_2ndpos" spec="UpDownOperator" scaleFactor="0.75" weight="3.0">
+                    
+            <up idref="clockRate.c:COI_2ndpos"/>
+                    
+            <down idref="Tree.t:COI_2ndpos"/>
+                
+        </operator>
+            
+        <operator id="YuleModelTreeScaler.t:COI_2ndpos" spec="ScaleOperator" scaleFactor="0.5" tree="@Tree.t:COI_2ndpos" weight="3.0"/>
+            
+        <operator id="YuleModelTreeRootScaler.t:COI_2ndpos" spec="ScaleOperator" rootOnly="true" scaleFactor="0.5" tree="@Tree.t:COI_2ndpos" weight="3.0"/>
+            
+        <operator id="YuleModelUniformOperator.t:COI_2ndpos" spec="Uniform" tree="@Tree.t:COI_2ndpos" weight="30.0"/>
+            
+        <operator id="YuleModelSubtreeSlide.t:COI_2ndpos" spec="SubtreeSlide" tree="@Tree.t:COI_2ndpos" weight="15.0"/>
+            
+        <operator id="YuleModelNarrow.t:COI_2ndpos" spec="Exchange" tree="@Tree.t:COI_2ndpos" weight="15.0"/>
+            
+        <operator id="YuleModelWide.t:COI_2ndpos" spec="Exchange" isNarrow="false" tree="@Tree.t:COI_2ndpos" weight="3.0"/>
+            
+        <operator id="YuleModelWilsonBalding.t:COI_2ndpos" spec="WilsonBalding" tree="@Tree.t:COI_2ndpos" weight="3.0"/>
+            
+        <operator id="StrictClockRateScaler.c:16S" spec="ScaleOperator" parameter="@clockRate.c:16S" weight="3.0"/>
+            
+        <operator id="YuleBirthRateScaler.t:16S" spec="ScaleOperator" parameter="@birthRate.t:16S" weight="3.0"/>
+            
+        <operator id="strictClockUpDownOperator.c:16S" spec="UpDownOperator" scaleFactor="0.75" weight="3.0">
+                    
+            <up idref="clockRate.c:16S"/>
+                    
+            <down idref="Tree.t:16S"/>
+                
+        </operator>
+            
+        <operator id="YuleModelTreeScaler.t:16S" spec="ScaleOperator" scaleFactor="0.5" tree="@Tree.t:16S" weight="3.0"/>
+            
+        <operator id="YuleModelTreeRootScaler.t:16S" spec="ScaleOperator" rootOnly="true" scaleFactor="0.5" tree="@Tree.t:16S" weight="3.0"/>
+            
+        <operator id="YuleModelUniformOperator.t:16S" spec="Uniform" tree="@Tree.t:16S" weight="30.0"/>
+            
+        <operator id="YuleModelSubtreeSlide.t:16S" spec="SubtreeSlide" tree="@Tree.t:16S" weight="15.0"/>
+            
+        <operator id="YuleModelNarrow.t:16S" spec="Exchange" tree="@Tree.t:16S" weight="15.0"/>
+            
+        <operator id="YuleModelWide.t:16S" spec="Exchange" isNarrow="false" tree="@Tree.t:16S" weight="3.0"/>
+            
+        <operator id="YuleModelWilsonBalding.t:16S" spec="WilsonBalding" tree="@Tree.t:16S" weight="3.0"/>
+            
+        <operator id="StrictClockRateScaler.c:COI_1stpos" spec="ScaleOperator" parameter="@clockRate.c:COI_1stpos" weight="3.0"/>
+            
+        <operator id="YuleBirthRateScaler.t:COI_1stpos" spec="ScaleOperator" parameter="@birthRate.t:COI_1stpos" weight="3.0"/>
             
         <operator id="strictClockUpDownOperator.c:COI_1stpos" spec="UpDownOperator" scaleFactor="0.75" weight="3.0">
                     
             <up idref="clockRate.c:COI_1stpos"/>
                     
-            <down idref="Tree.t:ef1a_1stpos"/>
+            <down idref="Tree.t:COI_1stpos"/>
                 
         </operator>
             
-        <operator id="CoalescentExponentialTreeScaler.t:ef1a_1stpos" spec="ScaleOperator" scaleFactor="0.5" tree="@Tree.t:ef1a_1stpos" weight="3.0"/>
+        <operator id="YuleModelTreeScaler.t:COI_1stpos" spec="ScaleOperator" scaleFactor="0.5" tree="@Tree.t:COI_1stpos" weight="3.0"/>
             
-        <operator id="CoalescentExponentialTreeRootScaler.t:ef1a_1stpos" spec="ScaleOperator" rootOnly="true" scaleFactor="0.5" tree="@Tree.t:ef1a_1stpos" weight="3.0"/>
+        <operator id="YuleModelTreeRootScaler.t:COI_1stpos" spec="ScaleOperator" rootOnly="true" scaleFactor="0.5" tree="@Tree.t:COI_1stpos" weight="3.0"/>
             
-        <operator id="CoalescentExponentialUniformOperator.t:ef1a_1stpos" spec="Uniform" tree="@Tree.t:ef1a_1stpos" weight="30.0"/>
+        <operator id="YuleModelUniformOperator.t:COI_1stpos" spec="Uniform" tree="@Tree.t:COI_1stpos" weight="30.0"/>
             
-        <operator id="CoalescentExponentialSubtreeSlide.t:ef1a_1stpos" spec="SubtreeSlide" tree="@Tree.t:ef1a_1stpos" weight="15.0"/>
+        <operator id="YuleModelSubtreeSlide.t:COI_1stpos" spec="SubtreeSlide" tree="@Tree.t:COI_1stpos" weight="15.0"/>
             
-        <operator id="CoalescentExponentialNarrow.t:ef1a_1stpos" spec="Exchange" tree="@Tree.t:ef1a_1stpos" weight="15.0"/>
+        <operator id="YuleModelNarrow.t:COI_1stpos" spec="Exchange" tree="@Tree.t:COI_1stpos" weight="15.0"/>
             
-        <operator id="CoalescentExponentialWide.t:ef1a_1stpos" spec="Exchange" isNarrow="false" tree="@Tree.t:ef1a_1stpos" weight="3.0"/>
+        <operator id="YuleModelWide.t:COI_1stpos" spec="Exchange" isNarrow="false" tree="@Tree.t:COI_1stpos" weight="3.0"/>
             
-        <operator id="CoalescentExponentialWilsonBalding.t:ef1a_1stpos" spec="WilsonBalding" tree="@Tree.t:ef1a_1stpos" weight="3.0"/>
+        <operator id="YuleModelWilsonBalding.t:COI_1stpos" spec="WilsonBalding" tree="@Tree.t:COI_1stpos" weight="3.0"/>
             
-        <operator id="ePopSizeScaler.t:ef1a_1stpos" spec="ScaleOperator" parameter="@ePopSize.t:ef1a_1stpos" weight="3.0"/>
+        <operator id="BMT_ModelTestOperator.s:ef1a_1stpos" spec="BMTMergeSplitOperator" modelIndicator="@BMT_ModelIndicator.s:ef1a_1stpos" rates="@BMT_Rates.s:ef1a_1stpos" substModel="@RevJump.s:ef1a_1stpos" weight="1.0"/>
             
-        <operator id="GrowthRateRandomWalk.t:ef1a_1stpos" spec="RealRandomWalkOperator" parameter="@growthRate.t:ef1a_1stpos" weight="3.0" windowSize="1.0"/>
+        <operator id="BMT_Ratescaler.s:ef1a_1stpos" spec="BMTExchangeOperator" delta="0.15" modelIndicator="@BMT_ModelIndicator.s:ef1a_1stpos" rates="@BMT_Rates.s:ef1a_1stpos" substModel="@RevJump.s:ef1a_1stpos" weight="1.0"/>
             
-        <operator id="FrequenciesExchanger.s:ef1a_1stpos" spec="DeltaExchangeOperator" delta="0.01" weight="0.1">
+        <operator id="BMT_gammaShapeScaler.s:ef1a_1stpos" spec="BMTScaleOperator" count="@hasGammaRates.s:ef1a_1stpos" parameter="@BMT_gammaShape.s:ef1a_1stpos" scaleFactor="0.5" weight="0.5"/>
+            
+        <operator id="BMT_ProportionInvariableScaler.s:ef1a_1stpos" spec="BMTScaleOperator" count="@hasInvariableSites.s:ef1a_1stpos" parameter="@BMT_ProportionInvariable.s:ef1a_1stpos" scaleFactor="0.5" weight="0.5"/>
+            
+        <operator id="BMT_hasGammaRatesFlipper.s:ef1a_1stpos" spec="BMTBirthDeathOperator" count="@hasGammaRates.s:ef1a_1stpos" rates="@BMT_gammaShape.s:ef1a_1stpos" weight="0.1"/>
+            
+        <operator id="BMT_hasInvariableSitesFlipper.s:ef1a_1stpos" spec="BMTBirthDeathOperator" count="@hasInvariableSites.s:ef1a_1stpos" rates="@BMT_ProportionInvariable.s:ef1a_1stpos" weight="0.1"/>
+            
+        <operator id="BMT_FreqsFlipOperator.s:ef1a_1stpos" spec="BitFlipOperator" parameter="@hasEqualFreqs.s:ef1a_1stpos" weight="0.1"/>
+            
+        <operator id="BMT_FrequenciesExchanger.s:ef1a_1stpos" spec="DeltaExchangeOperator" delta="0.01" weight="0.2">
                     
-            <parameter idref="freqParameter.s:ef1a_1stpos"/>
+            <parameter idref="BMT_frequencies.s:ef1a_1stpos"/>
                 
         </operator>
             
@@ -675,55 +977,123 @@ filter="1-649"/>
                     
             <log id="TreeHeight.t:ef1a_1stpos" spec="beast.evolution.tree.TreeHeightLogger" tree="@Tree.t:ef1a_1stpos"/>
                     
-            <log idref="treeLikelihood.COI_1stpos"/>
+            <log idref="YuleModel.t:ef1a_1stpos"/>
                     
-            <log idref="clockRate.c:COI_1stpos"/>
-                    
-            <log idref="treeLikelihood.mitochondrial_genome"/>
-                    
-            <log idref="clockRate.c:mitochondrial_genome"/>
-                    
-            <log idref="treeLikelihood.COI_2ndpos"/>
-                    
-            <log idref="clockRate.c:COI_2ndpos"/>
-                    
-            <log idref="treeLikelihood.COI_3rdpos"/>
-                    
-            <log idref="clockRate.c:COI_3rdpos"/>
+            <log idref="birthRate.t:ef1a_1stpos"/>
                     
             <log idref="treeLikelihood.ef1a_2ndpos"/>
                     
+            <log id="TreeHeight.t:ef1a_2ndpos" spec="beast.evolution.tree.TreeHeightLogger" tree="@Tree.t:ef1a_2ndpos"/>
+                    
             <log idref="clockRate.c:ef1a_2ndpos"/>
                     
-            <log idref="treeLikelihood.16S"/>
+            <log idref="YuleModel.t:ef1a_2ndpos"/>
                     
-            <log idref="clockRate.c:16S"/>
+            <log idref="birthRate.t:ef1a_2ndpos"/>
                     
             <log idref="treeLikelihood.nuclear_genome"/>
                     
+            <log id="TreeHeight.t:nuclear_genome" spec="beast.evolution.tree.TreeHeightLogger" tree="@Tree.t:nuclear_genome"/>
+                    
             <log idref="clockRate.c:nuclear_genome"/>
+                    
+            <log idref="YuleModel.t:nuclear_genome"/>
+                    
+            <log idref="birthRate.t:nuclear_genome"/>
+                    
+            <log idref="treeLikelihood.COI_3rdpos"/>
+                    
+            <log id="TreeHeight.t:COI_3rdpos" spec="beast.evolution.tree.TreeHeightLogger" tree="@Tree.t:COI_3rdpos"/>
+                    
+            <log idref="clockRate.c:COI_3rdpos"/>
+                    
+            <log idref="YuleModel.t:COI_3rdpos"/>
+                    
+            <log idref="birthRate.t:COI_3rdpos"/>
                     
             <log idref="treeLikelihood.ef1a_3rdpos"/>
                     
+            <log id="TreeHeight.t:ef1a_3rdpos" spec="beast.evolution.tree.TreeHeightLogger" tree="@Tree.t:ef1a_3rdpos"/>
+                    
             <log idref="clockRate.c:ef1a_3rdpos"/>
+                    
+            <log idref="YuleModel.t:ef1a_3rdpos"/>
+                    
+            <log idref="birthRate.t:ef1a_3rdpos"/>
+                    
+            <log idref="treeLikelihood.mitochondrial_genome"/>
+                    
+            <log id="TreeHeight.t:mitochondrial_genome" spec="beast.evolution.tree.TreeHeightLogger" tree="@Tree.t:mitochondrial_genome"/>
+                    
+            <log idref="clockRate.c:mitochondrial_genome"/>
+                    
+            <log idref="YuleModel.t:mitochondrial_genome"/>
+                    
+            <log idref="birthRate.t:mitochondrial_genome"/>
+                    
+            <log idref="treeLikelihood.COI_2ndpos"/>
+                    
+            <log id="TreeHeight.t:COI_2ndpos" spec="beast.evolution.tree.TreeHeightLogger" tree="@Tree.t:COI_2ndpos"/>
+                    
+            <log idref="clockRate.c:COI_2ndpos"/>
+                    
+            <log idref="YuleModel.t:COI_2ndpos"/>
+                    
+            <log idref="birthRate.t:COI_2ndpos"/>
+                    
+            <log idref="treeLikelihood.16S"/>
+                    
+            <log id="TreeHeight.t:16S" spec="beast.evolution.tree.TreeHeightLogger" tree="@Tree.t:16S"/>
+                    
+            <log idref="clockRate.c:16S"/>
+                    
+            <log idref="YuleModel.t:16S"/>
+                    
+            <log idref="birthRate.t:16S"/>
+                    
+            <log idref="treeLikelihood.COI_1stpos"/>
+                    
+            <log id="TreeHeight.t:COI_1stpos" spec="beast.evolution.tree.TreeHeightLogger" tree="@Tree.t:COI_1stpos"/>
+                    
+            <log idref="clockRate.c:COI_1stpos"/>
+                    
+            <log idref="YuleModel.t:COI_1stpos"/>
+                    
+            <log idref="birthRate.t:COI_1stpos"/>
                     
             <log idref="outgroups.prior"/>
                     
-            <log idref="proportionInvariant.s:ef1a_1stpos"/>
+            <log idref="RevJump.s:ef1a_1stpos"/>
                     
-            <log idref="gammaShape.s:ef1a_1stpos"/>
+            <log idref="BMT_ModelIndicator.s:ef1a_1stpos"/>
                     
-            <log idref="kappa1.s:ef1a_1stpos"/>
+            <log idref="BMT_gammaShape.s:ef1a_1stpos"/>
                     
-            <log idref="kappa2.s:ef1a_1stpos"/>
+            <log idref="BMT_ProportionInvariable.s:ef1a_1stpos"/>
                     
-            <log idref="CoalescentExponential.t:ef1a_1stpos"/>
+            <log idref="hasGammaRates.s:ef1a_1stpos"/>
                     
-            <log idref="ePopSize.t:ef1a_1stpos"/>
+            <log idref="hasInvariableSites.s:ef1a_1stpos"/>
                     
-            <log idref="growthRate.t:ef1a_1stpos"/>
+            <log id="ActivePropInvariable.s:ef1a_1stpos" spec="beast.util.Script" argnames="BMT_ProportionInvariable hasInvariableSites" expression="BMT_ProportionInvariable * hasInvariableSites">
+                            
+                <x idref="BMT_ProportionInvariable.s:ef1a_1stpos"/>
+                            
+                <x idref="hasInvariableSites.s:ef1a_1stpos"/>
+                        
+            </log>
                     
-            <log idref="freqParameter.s:ef1a_1stpos"/>
+            <log id="ActiveGammaShape.s:ef1a_1stpos" spec="beast.util.Script" argnames="BMT_gammaShape hasGammaRates" expression="BMT_gammaShape * hasGammaRates">
+                            
+                <x idref="BMT_gammaShape.s:ef1a_1stpos"/>
+                            
+                <x idref="hasGammaRates.s:ef1a_1stpos"/>
+                        
+            </log>
+                    
+            <log idref="hasEqualFreqs.s:ef1a_1stpos"/>
+                    
+            <log idref="BMT_frequencies.s:ef1a_1stpos"/>
                 
         </logger>
             
@@ -740,6 +1110,54 @@ filter="1-649"/>
         <logger id="treelog.t:ef1a_1stpos" spec="Logger" fileName="$(tree).trees" logEvery="1000" mode="tree">
                     
             <log id="TreeWithMetaDataLogger.t:ef1a_1stpos" spec="beast.evolution.tree.TreeWithMetaDataLogger" tree="@Tree.t:ef1a_1stpos"/>
+                
+        </logger>
+            
+        <logger id="treelog.t:ef1a_2ndpos" spec="Logger" fileName="$(tree).trees" logEvery="1000" mode="tree">
+                    
+            <log id="TreeWithMetaDataLogger.t:ef1a_2ndpos" spec="beast.evolution.tree.TreeWithMetaDataLogger" tree="@Tree.t:ef1a_2ndpos"/>
+                
+        </logger>
+            
+        <logger id="treelog.t:nuclear_genome" spec="Logger" fileName="$(tree).trees" logEvery="1000" mode="tree">
+                    
+            <log id="TreeWithMetaDataLogger.t:nuclear_genome" spec="beast.evolution.tree.TreeWithMetaDataLogger" tree="@Tree.t:nuclear_genome"/>
+                
+        </logger>
+            
+        <logger id="treelog.t:COI_3rdpos" spec="Logger" fileName="$(tree).trees" logEvery="1000" mode="tree">
+                    
+            <log id="TreeWithMetaDataLogger.t:COI_3rdpos" spec="beast.evolution.tree.TreeWithMetaDataLogger" tree="@Tree.t:COI_3rdpos"/>
+                
+        </logger>
+            
+        <logger id="treelog.t:ef1a_3rdpos" spec="Logger" fileName="$(tree).trees" logEvery="1000" mode="tree">
+                    
+            <log id="TreeWithMetaDataLogger.t:ef1a_3rdpos" spec="beast.evolution.tree.TreeWithMetaDataLogger" tree="@Tree.t:ef1a_3rdpos"/>
+                
+        </logger>
+            
+        <logger id="treelog.t:mitochondrial_genome" spec="Logger" fileName="$(tree).trees" logEvery="1000" mode="tree">
+                    
+            <log id="TreeWithMetaDataLogger.t:mitochondrial_genome" spec="beast.evolution.tree.TreeWithMetaDataLogger" tree="@Tree.t:mitochondrial_genome"/>
+                
+        </logger>
+            
+        <logger id="treelog.t:COI_2ndpos" spec="Logger" fileName="$(tree).trees" logEvery="1000" mode="tree">
+                    
+            <log id="TreeWithMetaDataLogger.t:COI_2ndpos" spec="beast.evolution.tree.TreeWithMetaDataLogger" tree="@Tree.t:COI_2ndpos"/>
+                
+        </logger>
+            
+        <logger id="treelog.t:16S" spec="Logger" fileName="$(tree).trees" logEvery="1000" mode="tree">
+                    
+            <log id="TreeWithMetaDataLogger.t:16S" spec="beast.evolution.tree.TreeWithMetaDataLogger" tree="@Tree.t:16S"/>
+                
+        </logger>
+            
+        <logger id="treelog.t:COI_1stpos" spec="Logger" fileName="$(tree).trees" logEvery="1000" mode="tree">
+                    
+            <log id="TreeWithMetaDataLogger.t:COI_1stpos" spec="beast.evolution.tree.TreeWithMetaDataLogger" tree="@Tree.t:COI_1stpos"/>
                 
         </logger>
             

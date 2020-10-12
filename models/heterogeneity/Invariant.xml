@@ -11,7 +11,7 @@
 	<append id="prior">
 
 		<prior id="PropInvariantPrior.s:$(partition)" name="distribution" x="@proportionInvariant.s:$(partition)">
-			<Uniform name="distr"/>
+			<Beta name="distr" alpha="1.0" beta="4.0" />
         </prior>
 
 	</append>

@@ -30,11 +30,12 @@ public class MetaOperator extends Operator {
 	
 	List<Operator> operators;
 	Operator lastOperator;
-	
+	protected boolean weightLoaded; // Was the operator weight loaded from a file?
 	
 	@Override
 	public void initAndValidate() {
 		this.operators = operatorsInput.get();
+		this.weightLoaded = false;
 		
 		if (this.operators.isEmpty()) {
 			this.m_pWeight.set(0.0);
@@ -68,17 +69,20 @@ public class MetaOperator extends Operator {
 	
 	@Override 
 	public void accept() {
+		super.accept();
 		this.lastOperator.accept();
 	}
 	
 	@Override
 	public void reject(int reason) {
+		super.reject(reason);
 		this.lastOperator.reject(reason);
 	}
 	
 	
 	@Override
 	public void reject() {
+		super.reject();
 		this.lastOperator.reject();
 	}
 
@@ -159,8 +163,8 @@ public class MetaOperator extends Operator {
     public void storeToFile(final PrintWriter out) {
     	
 
-        
     	try {
+    		
 	        JSONStringer json = new JSONStringer();
 	        json.object();
 	
@@ -168,6 +172,10 @@ public class MetaOperator extends Operator {
 	
 	        // id
 	        json.key("id").value(getID());
+	        
+	        
+	        // weight
+	        json.key("weight").value(this.getWeight());
 	        
 	        
 	        
@@ -216,6 +224,14 @@ public class MetaOperator extends Operator {
     }
     
     
+    /**
+     * Was the operator weight loaded from a state file?
+     * @return
+     */
+    public boolean weightLoadedFromStateFile() {
+    	return this.weightLoaded;
+    }
+    
     
 
     @Override
@@ -224,9 +240,15 @@ public class MetaOperator extends Operator {
     	
     	super.restoreFromFile(o);
     	
-    	
     	try {
     		
+    		// Weight
+    		if (o.has("weight")) {
+    			this.weightLoaded = true;
+    			this.m_pWeight.set(o.getDouble("weight"));
+    		}else {
+    			this.weightLoaded = false;
+    		}
     		
 	    	// Load sub-operators
 	        JSONArray operatorArray = o.getJSONArray("operators");

@@ -207,6 +207,9 @@
 		<function id="treeIsCalibrated" spec="poetry.functions.XMLCondition" obj="@alignment.$(partition)" method="treeIsCalibrated" />
 		<function id="treeIsUncalibrated" spec="poetry.functions.XMLCondition" obj="@alignment.$(partition)" method="treeIsCalibrated" negate="true" />
 
+		<function id="notUsingBModelTest" spec="poetry.functions.XMLCondition" obj="@BModelTest.model" method="wasSampled" negate="true" />
+		
+
 
 		<function spec="poetry.functions.XMLInputSetter" obj="@alignment.$(partition)" method="getNumPartitionsDouble" target="@site.model.logconstrain" input="sum" />
 		<!---<function spec="poetry.functions.XMLInputSetter" target="@site.model.AVMVN" input="allowNonsense" value="true" />-->
@@ -228,7 +231,8 @@
 		<!-- Tree clock sampler -->
 		<model id="treeclock.model" spec="poetry.sampler.ModelSampler">
 			<file id="Fixed.clock.model" spec="poetry.util.WeightedFile" file="../models/treeclock/Fixed.xml" desc="Tree clock rate is fixed" condition="@treeIsUncalibrated" />
-			<file id="Estimated.clock.model" spec="poetry.util.WeightedFile" file="../models/treeclock/Fixed.xml" desc="Tree clock rate is estimated but there are no calibrated nodes" condition="@treeIsUncalibrated" />
+			<file weight="0.5" id="Estimated.clock.model" spec="poetry.util.WeightedFile" file="../models/treeclock/Fixed.xml" desc="Tree clock rate is estimated but there are no calibrated nodes" condition="@treeIsUncalibrated" />
+
 			<file id="Calibrated.clock.model" spec="poetry.util.WeightedFile" file="../models/treeclock/Calibrated.xml" desc="Tree clock rate is estimated using calibration nodes" condition="@treeIsCalibrated" />
 		</model>
 
@@ -242,6 +246,7 @@
 			<file id="HKY.model" spec="poetry.util.WeightedFile" file="../models/site/nucleotide/HKY.xml" desc="The HKY site model" condition="@dnaOnly" />
 			<file id="HKYf.model" spec="poetry.util.WeightedFile" file="../models/site/nucleotide/HKYf.xml" desc="The HKY site model with estimated frequencies" condition="@dnaOnly" />
 			<file id="GTR.model" spec="poetry.util.WeightedFile" file="../models/site/nucleotide/GTR.xml" desc="The GTR site model" condition="@dnaOnly" />
+			<file id="BModelTest.model" spec="poetry.util.WeightedFile" file="../models/site/nucleotide/BModelTest.xml" desc="The BModelTest site model" condition="@dnaOnly" />
 
 			<!-- Amino acid -->
 			<file id="WAG.model" spec="poetry.util.WeightedFile" file="../models/site/aminoacid/WAG.xml" desc="The WAG site model" condition="@aaOnly" />
@@ -255,9 +260,9 @@
 		<model id="site.heterogeneity.model" spec="poetry.sampler.ModelSampler">
 
 			<file id="NoHet.model" spec="poetry.util.WeightedFile" file="../models/heterogeneity/No.xml" desc="No site heteregeneity" />
-			<file id="GammaSite.model" spec="poetry.util.WeightedFile" file="../models/heterogeneity/Gamma.xml" desc="Gamma site heteregeneity model with 4 categories" />
-			<file id="Invariant.model" spec="poetry.util.WeightedFile" file="../models/heterogeneity/Invariant.xml" desc="Site model with invariant sites estimated" />
-			<file id="GammaInvariant.model" spec="poetry.util.WeightedFile" file="../models/heterogeneity/GammaInvariant.xml" desc="Gamma site heteregeneity model with 4 categories and invariant sites" />
+			<file id="GammaSite.model" spec="poetry.util.WeightedFile" file="../models/heterogeneity/Gamma.xml" desc="Gamma site heteregeneity model with 4 categories" condition="@notUsingBModelTest" />
+			<file id="Invariant.model" spec="poetry.util.WeightedFile" file="../models/heterogeneity/Invariant.xml" desc="Site model with invariant sites estimated" condition="@notUsingBModelTest" />
+			<file id="GammaInvariant.model" spec="poetry.util.WeightedFile" file="../models/heterogeneity/GammaInvariant.xml" desc="Gamma site heteregeneity model with 4 categories and invariant sites" condition="@notUsingBModelTest" />
 
 		</model>
 		

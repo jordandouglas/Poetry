@@ -9,6 +9,7 @@ import beast.core.Description;
 import beast.core.Input;
 import beast.core.Operator;
 import beast.core.util.Log;
+import poetry.operators.MetaOperator;
 import poetry.sampler.POEM;
 
 
@@ -189,10 +190,33 @@ public abstract class WeightSampler extends BEASTObject {
 		double[] weights = this.getWeights();
 		for (int j = 0; j < weights.length; j++) {
 			Operator op = this.poeticOperators.get(j);
+			
+			// Can the weight be set?
+			if (!this.allowOpWeightSet(op)) continue;
+			
 			POEM poem = this.poems.get(j);
 			op.m_pWeight.set(weights[j]);
 			poem.setWeight(weights[j]);
 		}
+		
+	}
+	
+	
+	/**
+	 * Is this operator allowed to have its weight changed?
+	 * @param op
+	 * @return
+	 */
+	protected boolean allowOpWeightSet(Operator op) {
+		
+		// Do not change operator weight if its was loaded from a state file
+		if (op instanceof MetaOperator) {
+			MetaOperator meta = (MetaOperator)op;
+			if (meta.weightLoadedFromStateFile()){
+				return false;
+			}
+		}
+		return true;
 		
 	}
 

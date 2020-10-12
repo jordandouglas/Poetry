@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<fragment>
+
+
+	
+	<append id="state" spec="State" storeEvery="1000">
+		
+		<parameter id="gammaShape.s:$(partition)" spec="parameter.RealParameter" estimate="true" name="stateNode" >1.0</parameter>
+		<parameter id="proportionInvariant.s:$(partition)" spec="parameter.RealParameter" name="stateNode" lower="0.0" upper="1.0">0.01</parameter>
+
+		<parameter id="freqParameter.t:$(partition)" spec="parameter.RealParameter" dimension="4" name="stateNode">0.25</parameter> 
+		<parameter id="BMT_Rates.s:$(partition)" spec="parameter.RealParameter" dimension="6" lower="0.01" name="stateNode" upper="100.0">1.0</parameter>
+
+       	<stateNode id="hasInvariableSites.s:$(partition)" spec="parameter.IntegerParameter">1</stateNode>
+    	<stateNode id="hasGammaRates.s:$(partition)" spec="parameter.IntegerParameter">1</stateNode>
+        <stateNode id="hasEqualFreqs.s:$(partition)" spec="parameter.BooleanParameter">false</stateNode>
+		<stateNode id="BMT_ModelIndicator.s:$(partition)" spec="parameter.IntegerParameter" lower="0" upper="5">5</stateNode>
+
+
+	</append>
+
+
+	<append id="prior">
+
+
+
+        <prior id="GammaShapePrior.s:$(partition)" name="distribution" x="@gammaShape.s:$(partition)">
+            <Exponential name="distr" mean="1.0" />
+        </prior>
+
+		<prior id="PropInvariantPrior.s:$(partition)" name="distribution" x="@proportionInvariant.s:$(partition)">
+		   <Beta name="distr" alpha="1.0" beta="4.0" />
+       	</prior>	
+
+
+       <distribution id="BMT_RatesPrior.s:$(partition)" spec="beast.math.distributions.NucleotideRevJumpSubstModelRatePrior" modelIndicator="@BMT_ModelIndicator.s:$(partition)" x="@BMT_Rates.s:$(partition)">
+                        
+			<substModel id="RevJump.s:$(partition)" spec="NucleotideRevJumpSubstModel" modelIndicator="@BMT_ModelIndicator.s:$(partition)" rates="@BMT_Rates.s:$(partition)">
+			                        
+			    <frequencies id="BMTfreqs.s:$(partition)" spec="ModelFrequencies" empirical="false" frequencies="@freqParameter.t:$(partition)" hasEqualFreqs="@hasEqualFreqs.s:$(partition)"/>
+			                    
+			</substModel>
+			                
+			<Exponential name="distr"/>
+			            
+    	</distribution>
+
+
+	</append>
+
+
+	<override name="siteModel" id="siteModel.s:$(partition)" spec="BEASTModelTestSiteModel" gammaCategoryCount="4" hasGammaRates="@hasGammaRates.s:$(partition)" hasInvariantSites="@hasInvariableSites.s:$(partition)" proportionInvariant="@proportionInvariant.s:$(partition)" shape="@gammaShape.s:$(partition)" substModel="@RevJump.s:$(partition)" mutationRate="@clockRate.t:$(partition)">
+                                            
+                                        
+    </override>
+
+
+
+	<append id="site.model.operator">
+
+
+	    <operator id="BMT_ModelTestOperator.s:$(partition)" spec="BMTMergeSplitOperator" modelIndicator="@BMT_ModelIndicator.s:$(partition)" rates="@BMT_Rates.s:$(partition)" substModel="@RevJump.s:$(partition)" weight="1.0"/>
+	        
+	        
+	    <operator id="BMT_hasGammaRatesFlipper.s:$(partition)" spec="BMTBirthDeathOperator" count="@hasGammaRates.s:$(partition)" rates="@gammaShape.s:$(partition)" weight="0.1"/>
+	        
+	    <operator id="BMT_hasInvariableSitesFlipper.s:$(partition)" spec="BMTBirthDeathOperator" count="@hasInvariableSites.s:$(partition)" rates="@proportionInvariant.s:$(partition)" weight="0.1"/>
+
+
+	    <operator id="BMT_FreqsFlipOperator.s:$(partition)" spec="BitFlipOperator" parameter="@hasEqualFreqs.s:$(partition)" weight="0.1"/>
+
+	</append>
+
+
+	<append id="site.model.logtransform">
+		<f idref="gammaShape.s:$(partition)"/>
+	</append>
+
+	<append id="site.model.AVMVN">
+
+		<transformations id="site.model.logconstrain.freq:$(partition)" spec="beast.util.Transform$LogConstrainedSumTransform" sum="1.0">
+			<f idref="freqParameter.t:$(partition)"/>
+		</transformations>
+
+	</append>
+
+
+
+
+	<append id="site.model.logittransform">
+		<f idref="proportionInvariant.s:$(partition)"/>
+	</append>
+
+
+	<append id="SiteModelPOEM">
+		<log idref="BMT_Rates.s:$(partition)"/>
+		<log idref="BMT_ModelIndicator.s:$(partition)" />
+
+		<log idref="freqParameter.t:$(partition)"/>
+		<log idref="hasEqualFreqs.s:$(partition)"/>
+
+		<log idref="gammaShape.s:$(partition)"/>
+		<log idref="hasGammaRates.s:$(partition)" />
+
+		<log idref="proportionInvariant.s:$(partition)"/>
+		<log idref="hasInvariableSites.s:$(partition)" />
+	</append>
+
+
+	<append id="tracelog">
+		<log idref="BMT_Rates.s:$(partition)"/>
+		<log idref="BMT_ModelIndicator.s:$(partition)" />
+
+		<log idref="freqParameter.t:$(partition)"/>
+		<log idref="hasEqualFreqs.s:$(partition)"/>
+
+		<log idref="gammaShape.s:$(partition)"/>
+		<log idref="hasGammaRates.s:$(partition)" />
+
+		<log idref="proportionInvariant.s:$(partition)"/>
+		<log idref="hasInvariableSites.s:$(partition)" />
+	</append>
+
+
+</fragment>
+	
+
+
