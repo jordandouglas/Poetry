@@ -26,18 +26,18 @@ public class Lock {
     private final static int timeOut = 60000; 
     
     // This process number
-    private int process;
+    private String process;
     private File file;
     private boolean verbose;
     
-    public Lock(int process, File database) {
+    public Lock(String process, File database) {
     	this.process = process;
     	this.file = new File(database.getPath() + ".lock");
     	this.verbose = true;
     }
     
     
-    public Lock(int process, File database, boolean verbose) {
+    public Lock(String process, File database, boolean verbose) {
     	this.process = process;
     	this.file = new File(database.getPath() + ".lock");
     	this.verbose = verbose;
@@ -63,7 +63,7 @@ public class Lock {
             	
             	// What is the process row number?
             	BufferedReader br = new BufferedReader(new FileReader(file));
-	            int processNum1 = Integer.parseInt(br.readLine());
+            	String processNum1 = br.readLine();
 	            br.close();
             	
             	// Repeat until either the lock file has been deleted 
@@ -89,18 +89,17 @@ public class Lock {
 		            
 		            // Check it again
 		            br = new BufferedReader(new FileReader(file));
-		            String line = br.readLine();
+		            String processNum2 = br.readLine();
 		            br.close();
 		            
 		            
 		            // Parse line in file
-		            if (line == null || line.isEmpty()) continue;
-		            int processNum2 = Integer.parseInt(line);
+		            if (processNum2 == null || processNum2.isEmpty()) continue;
 		           
 		            
 		            
 		            // Same number? The other program may have crashed
-		            if (processNum1 == processNum2) {
+		            if (processNum1.equals(processNum2)) {
 		            	
 		            	if (timeElapsed > Lock.timeOut) {
 		            		if (verbose) Log.warning("Timeout reached. Unlocking database.");

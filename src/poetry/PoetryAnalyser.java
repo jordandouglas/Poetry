@@ -49,6 +49,7 @@ public class PoetryAnalyser extends Runnable {
 	
 	boolean verbose;
 	int sampleNum;
+	int replicateNum;
 	int rowNum;
 	int burnin;
 	File database;
@@ -63,6 +64,7 @@ public class PoetryAnalyser extends Runnable {
 	
 	public PoetryAnalyser(int sampleNum, File database, List<POEM> poems, File runtimeLogfile, int burnin) {
 		this.sampleNum = sampleNum;
+		this.replicateNum = this.getReplicateNumber();
 		this.database = database;
 		this.poems = poems;
 		this.runtimeLogfile = runtimeLogfile;
@@ -181,6 +183,29 @@ public class PoetryAnalyser extends Runnable {
 	
 	
 	/**
+	 * Get the replicate number of this by examining the current working directory
+	 * eg. if the pwd is out/xml2/replicate7/ then the replicate number is 7
+	 * @return
+	 */
+	public int getReplicateNumber() {
+		
+		String pwd = System.getProperty("user.dir");
+		String[] split = pwd.split("/");
+		String replicate = split[split.length-1];
+		try {
+			int replicateNum = Integer.parseInt(replicate.replace("replicate", ""));
+			System.out.println("Poetry replicate number: " + replicateNum);
+			return replicateNum;
+		}catch(Exception e) {
+			Log.warning("Error: cannot find replicate number. Please ensure your working directory is within "
+					+ "the the replicateX folder where X is the replicate number. pwd: " + pwd);
+			e.printStackTrace();
+			throw e;
+		}
+		
+	}
+	
+	/**
 	 * Same as getSmoothRuntime(double[] incrTrace) except this works on Double[])
 	 * @param incrTrace - a Double array with capital D
 	 * @param nsamples - number of time samples (including burnin)
@@ -290,7 +315,7 @@ public class PoetryAnalyser extends Runnable {
 		
 		
 		// Lock the database
-		Lock lock = new Lock(this.sampleNum, this.database, this.verbose);
+		Lock lock = new Lock(this.sampleNum + " " + this.replicateNum, this.database, this.verbose);
 		lock.lock();
 		
 		try {

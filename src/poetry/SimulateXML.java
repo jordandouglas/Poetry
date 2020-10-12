@@ -53,6 +53,8 @@ public class SimulateXML extends Runnable {
 	final public Input<List<ModelSampler>> modelInput = new Input<>("model", "A component of the model. All of its data will be dumped into this xml.", new ArrayList<>());
 	final public Input<Alignment> dataInput = new Input<>("data", "A dataset samplers for loading and sampling data. Optional", Input.Validate.OPTIONAL);
 	final public Input<Integer> nsamplesInput = new Input<>("nsamples", "Number of xml files to produce (default 1)", 1);
+	final public Input<Integer> nreplicatesInput = new Input<>("nreplicates", "Number of replicates per xml file (default 1)", 1);
+	
 	final public Input<List<XMLFunction>> functionsInput = new Input<>("function", "Functions which can be called during xml simulation", new ArrayList<>());
 	final public Input<File> outFolderInput = new Input<>("out", "A folder to save the results into", Input.Validate.REQUIRED);
 	final public Input<List<POEM>> poemsInput = new Input<>("poem", "A map between operators and log outputs", new ArrayList<>());
@@ -74,6 +76,7 @@ public class SimulateXML extends Runnable {
 	
 	
 	int nsamples;
+	int nreplicates;
 	Runnable runner;
 	Alignment data;
 	List<ModelSampler> modelElements;
@@ -93,6 +96,7 @@ public class SimulateXML extends Runnable {
 		
 		this.runner = runnableInput.get();
 		this.nsamples = nsamplesInput.get();
+		this.nreplicates = nreplicatesInput.get();
 		this.data = dataInput.get();
 		this.modelElements = modelInput.get();
 		this.functions = functionsInput.get();
@@ -105,6 +109,13 @@ public class SimulateXML extends Runnable {
 		if (this.runner.getID() == null || this.runner.getID().isEmpty()) {
 			throw new IllegalArgumentException("Please provide an id for the <runner /> element");
 		}
+		
+		
+		// Positive number of replicates
+		if (this.nreplicates <= 0) {
+			throw new IllegalArgumentException("Please ensure that nreplicates > 0");
+		}
+		
 		
 		if (this.outFolder.exists()) {
 			
@@ -202,6 +213,8 @@ public class SimulateXML extends Runnable {
 			if (!folder.mkdir()) throw new IllegalArgumentException("Cannot generate folder " + folder.getPath());
 		}
 		
+
+		
 		// Path to xml file
 		Path path = Paths.get(folder.getPath(), "out.xml");
 		
@@ -209,6 +222,16 @@ public class SimulateXML extends Runnable {
 		PrintStream out = new PrintStream(path.toFile());
 		out.println(xml);
 		out.close();
+		
+		
+		// Path to replicate subsubfolders
+		for (int rep = 1; rep <= this.nreplicates; rep++) {
+			File replicateFolder = Paths.get(folder.getPath(), "replicate" + rep).toFile();
+			if (!replicateFolder.exists()) {
+				if (!replicateFolder.mkdir()) throw new IllegalArgumentException("Cannot generate folder " + replicateFolder.getPath());
+			}
+		}
+		
 		
 		
 		// Write the poem file
@@ -399,9 +422,10 @@ public class SimulateXML extends Runnable {
 		
 		
 	    // Create the PoetryAnalyser runnable element and populate its inputs
+		String relativeDir = "../../";
 	    Element scheduler = doc.createElement("operatorschedule");
 	    scheduler.setAttribute("spec", PoetryScheduler.class.getCanonicalName());
-	    scheduler.setAttribute("database", "../" + DATABASE_FILENAME);
+	    scheduler.setAttribute("database", relativeDir + DATABASE_FILENAME);
 	    scheduler.setAttribute("runtime", RUNTIME_LOGNAME);
 	    scheduler.setAttribute("number", "" + sampleNum);
 	    scheduler.setAttribute("updateEvery", updateEvery2);
@@ -431,28 +455,13 @@ public class SimulateXML extends Runnable {
 	    	}
 	    	
 	    	Element imported =  (Element) doc.importNode(poem, true);
-	    	
-	    	// Remove idrefs using hack so it initialises on load
-	    	//if (imported.hasAttribute("operator")){
-	    		//imported.setAttribute("operatorID", imported.getAttribute("operator").substring(1));
-	    		//imported.removeAttribute("operator");
-	    	//}
-	    	//if (imported.hasAttribute("log")){
-	    	//	imported.setAttribute("logID", imported.getAttribute("log").substring(1));
-	    	//	imported.removeAttribute("log");
-	    	//}
 	    	for (Node child : XMLUtils.nodeListToList(imported.getChildNodes())) {
 	    		if (!(child instanceof Element)) continue;
 	    		Element childEle = (Element)child;
 	    		if (childEle.getNodeName().equals("log")) {
 	    			imported.removeChild(childEle);
 	    		}
-	    		//else if (childEle.hasAttribute("idref")) {
-	    			//String idref = childEle.getAttribute("idref");
-	    			//childEle.removeAttribute("idref");
-	    			//childEle.setTextContent(idref);
-	    			//doc.renameNode(childEle, null, childEle.getNodeName() + "ID");
-	    		//}
+
 	    	}
 	    	scheduler.appendChild(imported);
 	    }
@@ -468,6 +477,7 @@ public class SimulateXML extends Runnable {
 		
 		// Data summary
 		this.dbOut.print("xml\t");
+		this.dbOut.print("replicate\t");
 		this.dbOut.print("dataset\t");
 		this.dbOut.print("ntaxa\t");
 		this.dbOut.print("nsites\t");
@@ -532,57 +542,64 @@ public class SimulateXML extends Runnable {
 		int ncalibrations = this.data == null ? 0 : !(this.data instanceof DatasetSampler) ? 0 : ((DatasetSampler)this.data).getNumCalibrations();
 		
 		
-		// Dataset summary
-		this.dbOut.print(sampleNum + "\t"); // Sample number
-		this.dbOut.print(dataset + "\t"); // Dataset folder 
-		this.dbOut.print((this.data == null ? 0 : this.data.getTaxonCount()) + "\t"); // Taxon count
-		this.dbOut.print((this.data == null ? 0 : this.data.getSiteCount()) + "\t"); // Site count
-		this.dbOut.print((this.data == null ? 0 : this.data.getPatternCount()) + "\t"); // Pattern count
-		this.dbOut.print(npartitions + "\t"); // Number of partitions
-		this.dbOut.print(ncalibrations + "\t"); // Number of calibrations 
-		this.dbOut.print(nspecies + "\t");
-		this.dbOut.print(pgaps + "\t"); // Proportion of sites which are gaps
-		this.dbOut.print((this.data == null ? 0 : this.data.getDataType().getStateCount()) + "\t"); // Number of characters (4 for nt, 20 for aa etc)
-		this.dbOut.print(datedTips + "\t"); // Are the tips dated?
-		this.dbOut.print(treeHeight + "\t"); // Estimate the tree height using neighbour joining
+		for (int rep = 1; rep <= this.nreplicates; rep++) {
 		
-		
-		// Model summary
-		for (ModelSampler model : this.modelElements) {
-			this.dbOut.print(model.getSampledID() + "\t");
-		}
-		
-		// Inference engine
-		if (this.runner instanceof RunnableSampler) {
-			String id = ((RunnableSampler)this.runner).getSampledID();
-			this.dbOut.print(id + "\t");
-		}else {
+			
+			// Dataset summary
+			this.dbOut.print(sampleNum + "\t"); // Sample number
+			this.dbOut.print(rep + "\t"); // Replicate number
+			this.dbOut.print(dataset + "\t"); // Dataset folder 
+			this.dbOut.print((this.data == null ? 0 : this.data.getTaxonCount()) + "\t"); // Taxon count
+			this.dbOut.print((this.data == null ? 0 : this.data.getSiteCount()) + "\t"); // Site count
+			this.dbOut.print((this.data == null ? 0 : this.data.getPatternCount()) + "\t"); // Pattern count
+			this.dbOut.print(npartitions + "\t"); // Number of partitions
+			this.dbOut.print(ncalibrations + "\t"); // Number of calibrations 
+			this.dbOut.print(nspecies + "\t");
+			this.dbOut.print(pgaps + "\t"); // Proportion of sites which are gaps
+			this.dbOut.print((this.data == null ? 0 : this.data.getDataType().getStateCount()) + "\t"); // Number of characters (4 for nt, 20 for aa etc)
+			this.dbOut.print(datedTips + "\t"); // Are the tips dated?
+			this.dbOut.print(treeHeight + "\t"); // Estimate the tree height using neighbour joining
+			
+			
+			// Model summary
+			for (ModelSampler model : this.modelElements) {
+				this.dbOut.print(model.getSampledID() + "\t");
+			}
+			
+			// Inference engine
+			if (this.runner instanceof RunnableSampler) {
+				String id = ((RunnableSampler)this.runner).getSampledID();
+				this.dbOut.print(id + "\t");
+			}else {
+				this.dbOut.print("NA\t");
+			}
+			
+			
+			// Operater weights and dimension
+			for (POEM poem : this.poems) {
+				this.dbOut.print("NA\tNA\t");
+			}
+			
+			
+			// ESS summary
+			for (POEM poem : this.poems) {
+				this.dbOut.print("NA\t");
+			}
 			this.dbOut.print("NA\t");
-		}
-		
-		
-		// Operater weights and dimension
-		for (POEM poem : this.poems) {
-			this.dbOut.print("NA\tNA\t");
-		}
-		
-		
-		// ESS summary
-		for (POEM poem : this.poems) {
 			this.dbOut.print("NA\t");
+			this.dbOut.print("NA\t");
+			this.dbOut.print("NA\t");
+			
+			
+			
+			// Runtime (num hr)
+			this.dbOut.print("NA\t");
+			this.dbOut.print("NA");
+	
+			this.dbOut.println();
+			
+			
 		}
-		this.dbOut.print("NA\t");
-		this.dbOut.print("NA\t");
-		this.dbOut.print("NA\t");
-		this.dbOut.print("NA\t");
-		
-		
-		
-		// Runtime (num hr)
-		this.dbOut.print("NA\t");
-		this.dbOut.print("NA");
-
-		this.dbOut.println();
 		
 	}
 	

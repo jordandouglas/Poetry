@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-TEMPLATE=../../template.sh
+TEMPLATE=../../../template.sh
 
 cd out
 for f in xml*/
@@ -16,32 +16,42 @@ do
 	fi
 
 
+	for r in replicate*/
 
-	rand=$RANDOM
-	echo "Dispatching ${f%?} with seed $rand"
-	sed "s/JOBID/${f%?}/g" ${TEMPLATE} > temp.sl
-	sed "s/RANDOMSEED/$rand/g" temp.sl > temp2.sl
+		cd r
 
-	if ${mc3} ; then
-		echo "MCMCMC"
-		sed "s/THREADS//g" temp2.sl > temp.sl
-		sed "s/MEMORY/4000/g" temp.sl > temp2.sl
-	else
-		echo "MCMC"
-		sed "s/THREADS/-threads 4/g" temp2.sl > temp.sl
-		sed "s/MEMORY/4000/g" temp.sl > temp2.sl
+		echo $r
+
+		rand=$RANDOM
+		echo "Dispatching ${f%?} with seed $rand"
+		sed "s/JOBID/${f%?}${r}/g" ${TEMPLATE} > temp.sl
+		sed "s/RANDOMSEED/$rand/g" temp.sl > temp2.sl
+
+		if ${mc3} ; then
+			echo "MCMCMC"
+			sed "s/THREADS//g" temp2.sl > temp.sl
+			sed "s/MEMORY/4000/g" temp.sl > temp2.sl
+		else
+			echo "MCMC"
+			sed "s/THREADS/-threads 4/g" temp2.sl > temp.sl
+			sed "s/MEMORY/4000/g" temp.sl > temp2.sl
+		fi
+
+
+		mv temp2.sl temp.sl
+
+		#sbatch temp.sl
+		sleep 1
+		rm -f temp.sl 
+
+		cd ../
+
 	fi
-
-
-	mv temp2.sl temp.sl
-
-	#sbatch temp.sl
-	sleep 2
-	rm -f temp.sl 
-
-
-
 	
 	cd ../
 
+
 done	
+
+
+
