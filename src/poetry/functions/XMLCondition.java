@@ -5,6 +5,7 @@ import java.lang.reflect.Modifier;
 import java.util.List;
 
 import beast.core.BEASTObject;
+import beast.core.Description;
 import beast.core.Input;
 import beast.core.util.Log;
 
@@ -13,6 +14,7 @@ import beast.core.util.Log;
  * Returns true or false
  *
  */
+@Description("A BEASTObject which calls a specified method from a specified BEASTObject and returns true/false")
 public class XMLCondition extends XMLFunction {
 
 	

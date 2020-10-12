@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<fragment>
+
+
+	
+	<append id="state" spec="State" storeEvery="1000">
+		
+		<stateNode id="OBAMA_ModelIndicator.s:$(partition)" spec="parameter.IntegerParameter" lower="0" upper="14">0</stateNode>
+		<parameter id="OBAMA_gammaShape.s:$(partition)" spec="parameter.RealParameter" lower="0.1" name="stateNode">1.0</parameter>
+		<parameter id="OBAMA_ProportionInvariable.s:$(partition)" spec="parameter.RealParameter" lower="0.0" name="stateNode" upper="1.0">0.1</parameter>
+		<stateNode id="OBAMA_hasInvariableSites.s:$(partition)" spec="parameter.IntegerParameter">1</stateNode>
+		<stateNode id="OBAMA_hasGammaRates.s:$(partition)" spec="parameter.IntegerParameter">1</stateNode>
+		<stateNode id="OBAMA_useExternalFreqs.s:$(partition)" spec="parameter.BooleanParameter">false</stateNode>
+		<parameter id="OBAMA_frequencies.s:$(partition)" spec="parameter.RealParameter" dimension="20" lower="0.0" name="stateNode" upper="1.0">0.05</parameter>
+
+
+	</append>
+
+
+	<append id="prior">
+
+
+
+        <prior id="OBAMA_freqsPrior.s:$(partition)" name="distribution" x="@OBAMA_frequencies.s:$(partition)">
+            <distr id="Dirichlet" spec="beast.math.distributions.Dirichlet">
+                <parameter spec="parameter.RealParameter" dimension="20" lower="0.0" name="alpha" upper="0.0">4.0 4.0 4.0 4.0 4.0 4.0 4.0 4.0 4.0 4.0 4.0 4.0 4.0 4.0 4.0 4.0 4.0 4.0 4.0 4.0</parameter>
+            </distr>
+        </prior>
+                    
+        <distribution id="OBAMA_GammaShapePrior.s:$(partition)" spec="beast.math.distributions.BMTPrior" count="@OBAMA_hasGammaRates.s:$(partition)" x="@OBAMA_gammaShape.s:$(partition)">
+            <Exponential name="distr">
+                <parameter spec="parameter.RealParameter" estimate="false" name="mean">1.0</parameter>
+            </Exponential>
+        </distribution>
+
+                    
+        <distribution id="OBAMA_PropInvariablePrior.s:$(partition)" spec="beast.math.distributions.BMTPrior" count="@OBAMA_hasInvariableSites.s:$(partition)" x="@OBAMA_ProportionInvariable.s:$(partition)">
+            <Beta name="distr" alpha="1.0" beta="4.0" />
+        </distribution>
+
+
+
+
+	</append>
+
+
+    <override name="siteModel" id="siteModel.s:$(partition)" spec="OBAMAModelTestSiteModel" gammaCategoryCount="4" hasGammaRates="@OBAMA_hasGammaRates.s:$(partition)" hasInvariantSites="@OBAMA_hasInvariableSites.s:$(partition)" proportionInvariant="@OBAMA_ProportionInvariable.s:$(partition)" shape="@OBAMA_gammaShape.s:$(partition)" mutationRate="@clockRate.t:$(partition)">
+                            
+        <substModel id="OBAMA_substmodel.s:$(partition)" spec="OBAMAModel" modelIndicator="@OBAMA_ModelIndicator.s:$(partition)" useExternalFreqs="@OBAMA_useExternalFreqs.s:$(partition)">
+                                    
+            <model id="OBAMA_Blosum62.s:$(partition)" spec="OBAMA_Blosum62"/>
+            <model id="OBAMA_CpREV.s:$(partition)" spec="OBAMA_CpREV"/>
+            <model id="OBAMA_DCMut.s:$(partition)" spec="OBAMA_DCMut"/>
+            <model id="OBAMA_Dayhoff.s:$(partition)" spec="OBAMA_Dayhoff"/>
+            <model id="OBAMA_FLU.s:$(partition)" spec="OBAMA_FLU"/>
+            <model id="OBAMA_HIVb.s:$(partition)" spec="OBAMA_HIVb"/>
+            <model id="OBAMA_HIVw.s:$(partition)" spec="OBAMA_HIVw"/>
+            <model id="OBAMA_JTT.s:$(partition)" spec="OBAMA_JTT"/>
+            <model id="OBAMA_LG.s:$(partition)" spec="OBAMA_LG"/>
+            <model id="OBAMA_MtArt.s:$(partition)" spec="OBAMA_MtArt"/>
+            <model id="OBAMA_MtREV.s:$(partition)" spec="OBAMA_MtREV"/>
+            <model id="OBAMA_MtMam.s:$(partition)" spec="OBAMA_MtMam"/>
+            <model id="OBAMA_RtREV.s:$(partition)" spec="OBAMA_RtREV"/>
+            <model id="OBAMA_VT.s:$(partition)" spec="OBAMA_VT"/>
+            <model id="OBAMA_WAG.s:$(partition)" spec="OBAMA_WAG"/>
+                                    
+            <frequencies id="OBAMA_freqs.s:$(partition)" spec="Frequencies" frequencies="@OBAMA_frequencies.s:$(partition)"/>
+                                
+        </substModel>
+                        
+    </override>
+                            
+                                        
+
+	<append id="site.model.operator">
+
+
+       	<operator id="OBAMA_hasGammaRatesFlipper.s:$(partition)" spec="BMTBirthDeathOperator" count="@OBAMA_hasGammaRates.s:$(partition)" rates="@OBAMA_gammaShape.s:$(partition)" weight="0.1"/>
+            
+        <operator id="OBAMA_hasInvariableSitesFlipper.s:$(partition)" spec="BMTBirthDeathOperator" count="@OBAMA_hasInvariableSites.s:$(partition)" rates="@OBAMA_ProportionInvariable.s:$(partition)" weight="0.1"/>
+
+		<operator id="OBAMA_FreqsFlipOperator.s:$(partition)" spec="BitFlipOperator" parameter="@OBAMA_useExternalFreqs.s:$(partition)" weight="0.1"/>
+
+		<operator id="OBAMA_ModelIndicatorUniformOperator.s:$(partition)" spec="UniformOperator" parameter="@OBAMA_ModelIndicator.s:$(partition)" weight="1.0"/>
+
+	</append>
+
+
+	<append id="site.model.logtransform">
+		<f idref="OBAMA_gammaShape.s:$(partition)"/>
+	</append>
+
+	<append id="site.model.AVMVN">
+		<transformations id="site.model.logconstrain.freq:$(partition)" spec="beast.util.Transform$LogConstrainedSumTransform" sum="1.0">
+			<f idref="OBAMA_frequencies.s:$(partition)"/>
+		</transformations>
+	</append>
+
+
+	<append id="site.model.logittransform">
+		<f idref="OBAMA_ProportionInvariable.s:$(partition)"/>
+	</append>
+
+
+	<append id="SiteModelPOEM">
+		<log idref="OBAMA_ModelIndicator.s:$(partition)"/>
+		<log idref="OBAMA_gammaShape.s:$(partition)"/>
+		<log idref="OBAMA_hasGammaRates.s:$(partition)"/>
+		<log idref="OBAMA_frequencies.s:$(partition)"/>
+		<log idref="OBAMA_useExternalFreqs.s:$(partition)"/>
+		<log idref="OBAMA_ProportionInvariable.s:$(partition)"/>
+		<log idref="OBAMA_hasInvariableSites.s:$(partition)"/>
+	</append>
+
+
+	<append id="tracelog">
+		<log idref="OBAMA_ModelIndicator.s:$(partition)"/>
+		<log idref="OBAMA_gammaShape.s:$(partition)"/>
+		<log idref="OBAMA_hasGammaRates.s:$(partition)"/>
+		<log idref="OBAMA_frequencies.s:$(partition)"/>
+		<log idref="OBAMA_useExternalFreqs.s:$(partition)"/>
+		<log idref="OBAMA_ProportionInvariable.s:$(partition)"/>
+		<log idref="OBAMA_hasInvariableSites.s:$(partition)"/>
+	</append>
+
+
+</fragment>
+	
+
+
+

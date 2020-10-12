@@ -28,7 +28,7 @@
 		<file spec="poetry.util.WeightedFile" file="../datasets/Ballesteros_2019/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Bryson_et_al.2017/alignment.nex" desc="MSC alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Broughton_2013/alignment.nex" desc="Benchmark alignment" />
-		<file weight="10000" spec="poetry.util.WeightedFile" file="../datasets/Cognato_2001/alignment.nex" desc="Benchmark alignment" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Cognato_2001/alignment.nex" desc="Benchmark alignment" />
 
 		<file spec="poetry.util.WeightedFile" file="../datasets/Nguyen_2016f/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Oaks_2011/alignment.nex" desc="Benchmark alignment" />
@@ -208,6 +208,7 @@
 		<function id="treeIsUncalibrated" spec="poetry.functions.XMLCondition" obj="@alignment.$(partition)" method="treeIsCalibrated" negate="true" />
 
 		<function id="notUsingBModelTest" spec="poetry.functions.XMLCondition" obj="@BModelTest.model" method="wasSampled" negate="true" />
+		<function id="notUsingOBAMA" spec="poetry.functions.XMLCondition" obj="@OBAMA.model" method="wasSampled" negate="true" />
 		
 
 
@@ -246,12 +247,13 @@
 			<file id="HKY.model" spec="poetry.util.WeightedFile" file="../models/site/nucleotide/HKY.xml" desc="The HKY site model" condition="@dnaOnly" />
 			<file id="HKYf.model" spec="poetry.util.WeightedFile" file="../models/site/nucleotide/HKYf.xml" desc="The HKY site model with estimated frequencies" condition="@dnaOnly" />
 			<file id="GTR.model" spec="poetry.util.WeightedFile" file="../models/site/nucleotide/GTR.xml" desc="The GTR site model" condition="@dnaOnly" />
-			<file id="BModelTest.model" spec="poetry.util.WeightedFile" file="../models/site/nucleotide/BModelTest.xml" desc="The BModelTest site model" condition="@dnaOnly" />
+			<file id="BModelTest.model" spec="poetry.util.WeightedFile" file="../models/site/nucleotide/BModelTest.xml" desc="The BModelTest site model (model averaging)" condition="@dnaOnly" />
 
 			<!-- Amino acid -->
 			<file id="WAG.model" spec="poetry.util.WeightedFile" file="../models/site/aminoacid/WAG.xml" desc="The WAG site model" condition="@aaOnly" />
 			<file id="Blosum62.model" spec="poetry.util.WeightedFile" file="../models/site/aminoacid/Blosum62.xml" desc="The Blosum62 site model" condition="@aaOnly" />
 			<file id="MTREV.model" spec="poetry.util.WeightedFile" file="../models/site/aminoacid/MTREV.xml" desc="The MTREV site model" condition="@aaOnly" />
+			<file id="OBAMA.model" spec="poetry.util.WeightedFile" file="../models/site/aminoacid/OBAMA.xml" desc="The OBAMA site model (model averaging)" condition="@aaOnly" />
 			
 		</model>
 
@@ -260,9 +262,18 @@
 		<model id="site.heterogeneity.model" spec="poetry.sampler.ModelSampler">
 
 			<file id="NoHet.model" spec="poetry.util.WeightedFile" file="../models/heterogeneity/No.xml" desc="No site heteregeneity" />
-			<file id="GammaSite.model" spec="poetry.util.WeightedFile" file="../models/heterogeneity/Gamma.xml" desc="Gamma site heteregeneity model with 4 categories" condition="@notUsingBModelTest" />
-			<file id="Invariant.model" spec="poetry.util.WeightedFile" file="../models/heterogeneity/Invariant.xml" desc="Site model with invariant sites estimated" condition="@notUsingBModelTest" />
-			<file id="GammaInvariant.model" spec="poetry.util.WeightedFile" file="../models/heterogeneity/GammaInvariant.xml" desc="Gamma site heteregeneity model with 4 categories and invariant sites" condition="@notUsingBModelTest" />
+			<file id="GammaSite.model" spec="poetry.util.WeightedFile" file="../models/heterogeneity/Gamma.xml" desc="Gamma site heteregeneity model with 4 categories">
+				<condition idref="notUsingBModelTest" />
+				<condition idref="notUsingOBAMA" />
+			</file>
+			<file id="Invariant.model" spec="poetry.util.WeightedFile" file="../models/heterogeneity/Invariant.xml" desc="Site model with invariant sites estimated">
+				<condition idref="notUsingBModelTest" />
+				<condition idref="notUsingOBAMA" />
+			</file>
+			<file id="GammaInvariant.model" spec="poetry.util.WeightedFile" file="../models/heterogeneity/GammaInvariant.xml" desc="Gamma site heteregeneity model with 4 categories and invariant sites">
+				<condition idref="notUsingBModelTest" />
+				<condition idref="notUsingOBAMA" />
+			</file>
 
 		</model>
 		
