@@ -10,6 +10,7 @@ import beast.core.Input;
 import beast.core.Operator;
 import beast.core.StateNode;
 import beast.core.util.Log;
+import poetry.PoetryAnalyser;
 import poetry.operators.MetaOperator;
 import poetry.sampler.POEM;
 
@@ -42,6 +43,8 @@ public abstract class WeightSampler extends BEASTObject {
 	StateNode placeholder = null;
 	
 	
+	// For accessing the database
+	PoetryAnalyser poetry;
 	
 
 	/**
@@ -50,7 +53,7 @@ public abstract class WeightSampler extends BEASTObject {
 	 * @param operators
 	 * @param database
 	 */
-	public void initialise(List<POEM> poems,  File database, StateNode placeholder) {
+	public void initialise(List<POEM> poems,  File database, StateNode placeholder, PoetryAnalyser poetry) {
 		
 		this.poems = poems;
 		this.database = database;
@@ -60,6 +63,10 @@ public abstract class WeightSampler extends BEASTObject {
 		this.poeticSumInit = 0;
 		this.placeholder = placeholder;
 		this.invalidOps = new ArrayList<Integer>();
+		this.poetry = poetry;
+		
+		
+		// Check the database for weights
 		
 	}
 	
@@ -174,15 +181,22 @@ public abstract class WeightSampler extends BEASTObject {
 	 * Set the sampled weights
 	 * Parsed weights do not need to be normalised yet
 	 * @param poemWeights
+	 * @throws Exception 
 	 */
-	protected void setWeights(double[] poemWeights) {
+	protected void setWeights(double[] poemWeights) throws Exception {
 
 		if (this.isStatic) {
 			poeticWeights_static = poemWeights;
 		}else {
 			this.poeticWeights_local = poemWeights;
 		}
+		
+		// Correct the weights if they have already been set
+		if (this.poetry != null) this.poetry.correctWeights(poemWeights);
+		
 	}
+	
+
 	
 	
 	
@@ -215,6 +229,7 @@ public abstract class WeightSampler extends BEASTObject {
 			weights = this.poeticWeights_local;
 		}
 		
+
 		
 		// Sum weights and set weights to zero if the operator is invalid
 		double[] weightsNormalised = new double[weights.length];
@@ -243,14 +258,18 @@ public abstract class WeightSampler extends BEASTObject {
 	/**
 	 * Sample operator weights but don't set them
 	 */
-	public abstract void sampleWeights();
+	public abstract void sampleWeights() throws Exception;
 	
 	
 	/**
 	 * Assign the pre-set weights to the list of operators
+	 * @throws Exception 
 	 */
-	public void applyWeights() {
+	public void applyWeights() throws Exception {
+		
 		double[] weights = this.getWeights();
+		
+
 		for (int j = 0; j < weights.length; j++) {
 			Operator op = this.poeticOperators.get(j);
 			

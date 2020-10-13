@@ -21,9 +21,10 @@ public class DirichletSampler extends WeightSampler {
 	/**
 	 * Sample weights using a dirichlet distribution
 	 * The alpha of each operator is specified in the poem
+	 * @throws Exception 
 	 */
 	@Override
-	public void sampleWeights() {
+	public void sampleWeights() throws Exception {
 		
 		
 		if (this.poems == null || this.poems.isEmpty()) return;

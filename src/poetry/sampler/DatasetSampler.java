@@ -609,7 +609,7 @@ public class DatasetSampler extends Alignment implements XMLSampler  {
 			parser.parseFile(file);
 			this.sampledFile.close();
 		} catch(IOException e) {
-			Log.err("Cannot find " + this.sampledFile.getFilePath());
+			Log.err("Error opening " + this.sampledFile.getFilePath());
 			System.exit(1);
 		}
 		

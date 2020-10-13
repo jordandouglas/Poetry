@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import beast.core.BEASTInterface;
-import beast.core.BEASTObject;
 import beast.core.Description;
 import beast.core.Input;
 import beast.core.MCMC;
@@ -13,7 +12,6 @@ import beast.core.Operator;
 import beast.core.OperatorSchedule;
 import beast.core.StateNode;
 import beast.core.util.Log;
-import beast.coupledMCMC.CoupledMCMC;
 import beast.coupledMCMC.HeatedChain;
 import poetry.PoetryAnalyser;
 import poetry.learning.WeightSampler;
@@ -91,8 +89,14 @@ public class PoetryScheduler extends OperatorSchedule {
 		 // Sample the weights but don't set them just yet
 		 // If this is static mode, the sampled weights will override each other between chains
 		 if (this.sampler != null) {
-			 sampler.initialise(poemsInput.get(), this.database, this.placeholderInput.get());
-			 if (this.isColdChain()) sampler.sampleWeights();
+			 sampler.initialise(poemsInput.get(), this.database, this.placeholderInput.get(), (this.isColdChain() ? this.poetry : null));
+			 if (this.isColdChain())
+				try {
+					sampler.sampleWeights();
+				} catch (Exception e) {
+					e.printStackTrace();
+					throw new IllegalArgumentException("Error: encountered a problem when sampling weights");
+				}
 		 }
 		 
 		 
@@ -132,7 +136,13 @@ public class PoetryScheduler extends OperatorSchedule {
 		 // Set the weights
 		 if (this.numCalls == 0 && this.sampler != null ) {
 			 sampler.setOperators(this.operators);
-			 sampler.applyWeights();
+			 try {
+				 sampler.applyWeights();
+			 }catch (Exception e){
+				 e.printStackTrace();
+				 Log.warning("Encountered a problem applying weights / accessing database");
+				 System.exit(0);
+			 }
 			 sampler.report();
 			 this.reweightOperators();
 		 }
@@ -141,7 +151,7 @@ public class PoetryScheduler extends OperatorSchedule {
 		 this.numCalls ++;
 		
 		 
-		 // Update the database if this is the cold chain
+		 // Update the database periodically if this is the cold chain
 		 if (this.numCalls % updateEvery == 0 && this.isColdChain() ) {
 			 try {
 				this.poetry.run();

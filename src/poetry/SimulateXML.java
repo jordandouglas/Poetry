@@ -483,6 +483,7 @@ public class SimulateXML extends Runnable {
 		// Data summary
 		this.dbOut.print(POEM.getXMLColumn() + "\t");
 		this.dbOut.print(POEM.getReplicateColumn() + "\t");
+		this.dbOut.print(POEM.getStartedColumn() + "\t");
 		this.dbOut.print("dataset\t");
 		this.dbOut.print("ntaxa\t");
 		this.dbOut.print("nsites\t");
@@ -509,13 +510,11 @@ public class SimulateXML extends Runnable {
 		for (POEM poem : this.poems) {
 			this.dbOut.print(poem.getDimColName() + "\t");
 			this.dbOut.print(poem.getWeightColname() + "\t");
-		}
-		
-		
-		// ESS summary (ESS per million states)
-		for (POEM poem : this.poems) {
 			this.dbOut.print(poem.getESSColname() + "\t");
 		}
+		
+		
+		// ESS summary
 		this.dbOut.print(POEM.getMeanColumnName() + "\t");
 		this.dbOut.print(POEM.getStddevColumnName() + "\t");
 		this.dbOut.print(POEM.getCoefficientOfVariationColumnName() + "\t");
@@ -553,6 +552,7 @@ public class SimulateXML extends Runnable {
 			// Dataset summary
 			this.dbOut.print(sampleNum + "\t"); // Sample number
 			this.dbOut.print(rep + "\t"); // Replicate number
+			this.dbOut.print("false\t"); // Has the sample started running?
 			this.dbOut.print(dataset + "\t"); // Dataset folder 
 			this.dbOut.print((this.data == null ? 0 : this.data.getTaxonCount()) + "\t"); // Taxon count
 			this.dbOut.print((this.data == null ? 0 : this.data.getSiteCount()) + "\t"); // Site count
@@ -580,16 +580,13 @@ public class SimulateXML extends Runnable {
 			}
 			
 			
-			// Operater weights and dimension
+			// POEM weights, dimension, ESS
 			for (POEM poem : this.poems) {
-				this.dbOut.print("NA\tNA\t");
+				this.dbOut.print("NA\tNA\tNA\t");
 			}
 			
 			
 			// ESS summary
-			for (POEM poem : this.poems) {
-				this.dbOut.print("NA\t");
-			}
 			this.dbOut.print("NA\t");
 			this.dbOut.print("NA\t");
 			this.dbOut.print("NA\t");

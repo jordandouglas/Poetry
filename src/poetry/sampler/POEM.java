@@ -449,6 +449,17 @@ public class POEM extends BEASTObject implements XMLSampler {
 
 
 
+	/**
+	 * Whether the first replicate of this xml file has started
+	 * @return
+	 */
+	public static String getStartedColumn() {
+		return "weight.sampled";
+	}
+
+
+
+
 
 	
 	
