@@ -20,10 +20,10 @@ import beast.core.util.Log;
 public class Lock {
 	
 	// Time to sleep between checking for file unlocks
-    private final static int sleepTime = 100;
+    private final static int sleepTime = 200;
     
     // If another process has locked the database for more than this long, it is assumed to have crashed and the file is automatically unlocked
-    private final static int timeOut = 60000; 
+    private final static int timeOut = 120000; 
     
     // This process number
     private String process;

@@ -12,6 +12,7 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -54,6 +55,7 @@ public class PoetryAnalyser extends Runnable {
 	int rowNum;
 	int burnin;
 	File database;
+	File databaseBackup;
 	File runtimeLogfile;
 	List<POEM> poems;
 	HashMap<String, String[]> db;
@@ -69,6 +71,7 @@ public class PoetryAnalyser extends Runnable {
 		this.sampleNum = sampleNum;
 		this.replicateNum = this.getReplicateNumber();
 		this.database = database;
+		this.databaseBackup = new File(this.database.getPath() + ".bu");
 		this.poems = poems;
 		this.runtimeLogfile = runtimeLogfile;
 		this.burnin = burnin;
@@ -87,6 +90,7 @@ public class PoetryAnalyser extends Runnable {
 		
 		this.sampleNum = sampleNumInput.get();
 		this.database = databaseFileInput.get();
+		this.databaseBackup = new File(this.database.getPath() + ".bu");
 		this.replicateNum = this.getReplicateNumber();
 		this.poems = poemsInput.get();
 		this.runtimeLogfile = runtimeLoggerInput.get();
@@ -329,8 +333,12 @@ public class PoetryAnalyser extends Runnable {
 			
 			this.lock.lock();
 			
+			// Backup
+			//Files.copy(this.database.toPath(), this.databaseBackup.toPath());
+			
+			
 			// Open the database and find the right line
-			this.db = this.openDatabase();
+			this.db = this.openDatabase(this.database);
 			this.rowNum = this.getRowNum(this.sampleNum, this.replicateNum);
 			boolean initialised = this.getValueAtRow(POEM.getStartedColumn()).equals("true");
 			
@@ -361,11 +369,24 @@ public class PoetryAnalyser extends Runnable {
 				
 				
 				// Update the database
-				this.updateDatabaseLines(rowNums);
+				this.updateDatabaseLines(rowNums, this.database, this.databaseBackup);
 				
-				// Clear the file and rewrite it 
-				//channel.truncate(0);
-				//raf.write(this.dbToString().getBytes());
+				
+				// Validation. If something has gone wrong, discard the backup and return
+				try {
+					validateDatabase(this.databaseBackup);
+					Files.move(this.databaseBackup.toPath(), this.database.toPath(), StandardCopyOption.REPLACE_EXISTING);
+				}catch(Exception e) {
+					
+					e.printStackTrace();
+					
+					// Delete the backup
+					this.databaseBackup.delete();
+				}
+				
+				
+
+
 				
 			}else {
 				
@@ -392,26 +413,51 @@ public class PoetryAnalyser extends Runnable {
 	}
 	
 	
+	
+	/**
+	 * Open the database file and ensure that everything is in order
+	 * tab delimited, correct number of row/columns etc.
+	 * Multiple processes writing to the same file in quick succession can cause issues on some OSs / clusters etc
+	 * If the output is corrupted / incomplete then the new database should be discarded 
+	 * @return
+	 */
+	protected boolean validateDatabase(File filename) throws Exception {
+		
+		try {
+			this.db = this.openDatabase(filename);
+			int rownumber = this.getRowNum(this.sampleNum, this.replicateNum);
+			if (rownumber < 0) throw new Exception("Cannot locate row " + this.sampleNum + " replicate " + this.replicateNum + " in the database.");
+		}catch(Exception e) {
+			
+			Log.warning("Error opening newly created database. The database may have been corrupted by the file writing system.");
+			throw e;
+			
+		}
+		
+		return true;
+	}
+	
+	
 	/**
 	 * Edits the database file by updating specified row number
 	 * @param rowNum
 	 * @throws IOException
 	 */
-	protected void updateDatabaseLine(int rowNum) throws IOException {
+	protected void updateDatabaseLine(int rowNum, File dbin, File dbout) throws IOException {
 		List<Integer> rowNums = new ArrayList<Integer>();
 		rowNums.add(rowNum);
-		this.updateDatabaseLines(rowNums);
+		this.updateDatabaseLines(rowNums, dbin, dbout);
 	}
 	
 	/**
 	 * Edits the database file by updating all specified row numbers (fast)
 	 * @throws IOException 
 	 */
-	protected void updateDatabaseLines(List<Integer> rowNums) throws IOException {
+	protected void updateDatabaseLines(List<Integer> rowNums, File dbin, File dbout) throws IOException {
 		
 		//System.out.println("Writing to db...");
 		
-		List<String> fileContent = new ArrayList<>(Files.readAllLines(this.database.toPath(), StandardCharsets.UTF_8));
+		List<String> fileContent = new ArrayList<>(Files.readAllLines(dbin.toPath(), StandardCharsets.UTF_8));
 		for (int i = 1; i < fileContent.size(); i++) {
 			
 			Integer rowNum = i-1;
@@ -425,7 +471,8 @@ public class PoetryAnalyser extends Runnable {
 			}
 		}
 
-		Files.write(this.database.toPath(), fileContent, StandardCharsets.UTF_8);
+		Files.write(dbout.toPath(), fileContent, StandardCharsets.UTF_8);
+		
 		
 	}
 	
@@ -461,12 +508,9 @@ public class PoetryAnalyser extends Runnable {
 		
 		try {
 			
-			//RandomAccessFile raf = new RandomAccessFile(this.database, "rw");
-			//FileChannel channel = raf.getChannel();
-			
-	
+
 			// Open database and find the right line
-			this.db = this.openDatabase();
+			this.db = this.openDatabase(this.database);
 			this.rowNum = this.getRowNum(this.sampleNum, this.replicateNum);
 			if (this.rowNum < 0) throw new Exception("Cannot locate sample " + this.sampleNum + ", replicate " + this.replicateNum + " in the database");
 			
@@ -495,12 +539,23 @@ public class PoetryAnalyser extends Runnable {
 			
 			
 			
-			// Update the database at this row
-			this.updateDatabaseLine(this.rowNum);
+			// Update the database at this row (save to the backup file)
+			this.updateDatabaseLine(this.rowNum, this.database, this.databaseBackup);
 			
-			// Clear the file and rewrite it 
-			//channel.truncate(0);
-			//raf.write(this.dbToString().getBytes());
+			
+			// Validation. If something has gone wrong, discard the backup and return
+			try {
+				validateDatabase(this.databaseBackup);
+				Files.move(this.databaseBackup.toPath(), this.database.toPath(), StandardCopyOption.REPLACE_EXISTING);
+			}catch(Exception e) {
+				
+				e.printStackTrace();
+				
+				// Delete the backup
+				this.databaseBackup.delete();
+			}
+			
+
 			
 			
 		} catch(Exception e) {
@@ -609,12 +664,12 @@ public class PoetryAnalyser extends Runnable {
 	 * @return
 	 * @throws Exception
 	 */
-	public LinkedHashMap<String, String[]> openDatabase() throws Exception {
+	public LinkedHashMap<String, String[]> openDatabase(File filename) throws Exception {
 		
 		LinkedHashMap<String, String[]> map = new LinkedHashMap<String, String[]>();
 		
 		// Read headers
-		Scanner scanner = new Scanner(this.database);
+		Scanner scanner = new Scanner(filename);
 		String[] headers = scanner.nextLine().split("\t");
 		int ncol = headers.length;
 		List<String[]> values = new ArrayList<String[]>();
@@ -628,7 +683,9 @@ public class PoetryAnalyser extends Runnable {
 			if (line.isEmpty()) continue;
 			String[] spl = line.split("\t");
 			if (spl.length == 0) continue;
-			if (spl.length != ncol) throw new IllegalArgumentException("Database has " + spl.length + " elements on file line " + lineNum + " but there should be " + ncol);
+			if (spl.length != ncol) {
+				throw new Exception("Error: database has " + spl.length + " elements on file line " + lineNum + " but there should be " + ncol);
+			}
 			values.add(line.split("\t"));
 			
 		}
@@ -641,7 +698,9 @@ public class PoetryAnalyser extends Runnable {
 			String[] vals = new String[nrow];
 			for (int rowNum = 0; rowNum < nrow; rowNum ++) {
 				String[] row = values.get(rowNum);
-				String val = row[colNum];
+				String val;
+				if (colNum > row.length -1) val = "NA";
+				else val = row[colNum];
 				vals[rowNum] = val;
 			}
 			map.put(colname, vals);
