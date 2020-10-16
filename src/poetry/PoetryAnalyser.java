@@ -474,6 +474,7 @@ public class PoetryAnalyser extends Runnable {
 		Files.write(dbout.toPath(), fileContent, StandardCharsets.UTF_8);
 		
 		
+		
 	}
 	
 	

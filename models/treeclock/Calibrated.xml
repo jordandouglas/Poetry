@@ -4,6 +4,20 @@
 
 
 
+	 
+
+	<append id="AdaptableNodeHeightOperator.tree">
+		<parameter idref="overallClockRate.c:tree" />
+		<operator id="ClockScaler.t:tree" scaleFactor="0.5" spec="ScaleOperator" parameter="@overallClockRate.c:tree" weight="1.0"/>
+
+        <operator id="clockUpDownOperator.t:tree" spec="UpDownOperator" scaleFactor="0.95" weight="1.0">
+            <down idref="overallClockRate.c:tree"/>
+            <down idref="tree"/>
+        </operator>
+
+
+	</append>
+
 	<append id="species.tree.logtransform">
 		<f idref="overallClockRate.c:tree" />
 	</append>

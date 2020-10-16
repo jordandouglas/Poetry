@@ -161,10 +161,15 @@ public class SimulateXML extends Runnable {
 	public void run() throws Exception {
 
 		
+		int ndigits = 2 + (int) Math.floor(1 + Math.log(this.nsamples) / Math.log(10));
 		for (int sample = 1; sample <= this.nsamples; sample ++) {
+			
+			// Pad the string so that the files are name xml0001, xml0002, ..., xml0099. 
+			// This looks nicer and ensures the alphabetical order is the same as the numeric order
+			String sampleStr = padLeftZeros("" + sample, ndigits);
 		
 			Log.warning("--------------------------------------------------");
-			Log.warning("Sample " + sample);
+			Log.warning("Sample " + sampleStr);
 			Log.warning("--------------------------------------------------\n");
 			
 			// Sample alignments
@@ -186,7 +191,7 @@ public class SimulateXML extends Runnable {
 			
 			// Print the new xml
 			String sXML = this.toXML(sample);
-			this.writeXMLFile(sXML, sample);
+			this.writeXMLFile(sXML, sampleStr);
 			
 			
 			// Update database
@@ -205,14 +210,14 @@ public class SimulateXML extends Runnable {
 	/**
 	 * Write the xml file in a folder indexed by its sample number
 	 * @param xml
-	 * @param sampleNum
+	 * @param sampleStr
 	 * @return
 	 * @throws Exception 
 	 */
-	protected void writeXMLFile(String xml, int sampleNum) throws Exception {
+	protected void writeXMLFile(String xml, String sampleStr) throws Exception {
 		
 		// Path to subfolder. Build it if it does not exist
-		File folder = Paths.get(this.outFolder.getPath(), "xml" + sampleNum).toFile();
+		File folder = Paths.get(this.outFolder.getPath(), "xml" + sampleStr).toFile();
 		if (!folder.exists()) {
 			if (!folder.mkdir()) throw new IllegalArgumentException("Cannot generate folder " + folder.getPath());
 		}
@@ -258,6 +263,8 @@ public class SimulateXML extends Runnable {
 		
 		XMLSimProducer producer = new XMLSimProducer();
 		String sXML = producer.toXML(this);
+		
+
 		
 		// xml comments
 		String comments = "\nXML sample " + sampleNum + "\n";
@@ -529,6 +536,25 @@ public class SimulateXML extends Runnable {
 		
 	}
 	
+	
+	/**
+	 * Pad string left with zeros
+	 * @param inputString
+	 * @param length
+	 * @return
+	 */
+	public static String padLeftZeros(String inputString, int length) {
+	    if (inputString.length() >= length) {
+	        return inputString;
+	    }
+	    StringBuilder sb = new StringBuilder();
+	    while (sb.length() < length - inputString.length()) {
+	        sb.append('0');
+	    }
+	    sb.append(inputString);
+	 
+	    return sb.toString();
+	}
 	
 	
 

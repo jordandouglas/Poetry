@@ -36,7 +36,6 @@
 		<file spec="poetry.util.WeightedFile" file="../datasets/Brown_2012/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Cannon_2016_aa/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Cannon_2016_dna/alignment.nex" desc="Benchmark alignment" />
-		<file spec="poetry.util.WeightedFile" file="../datasets/Chen_2015/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Cognato_2001/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Crawford_2012/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Day_2013/alignment.nex" desc="Benchmark alignment" />
@@ -171,7 +170,7 @@
     </branchRateModel>
 
 
-	<run id="XMLSimulator" spec="poetry.SimulateXML" data="@alignment.$(partition)" out="out" nsamples="1000" nreplicates="5" updateEvery="10000000" placeholder="@PHStateNode">
+	<run id="XMLSimulator" spec="poetry.SimulateXML" data="@alignment.$(partition)" out="out" nsamples="200" nreplicates="5" updateEvery="10000000" placeholder="@PHStateNode">
 
 
 
@@ -406,7 +405,10 @@
 			<!-- Species tree node height operator -->
 			<operator id="species.tree.height.operator" spec="poetry.operators.MetaOperator"  weight="1.0">
 
-				<operator id="AdaptableNodeHeightOperator.tree" spec="orc.operators.AdaptableOperatorSampler" tree="@tree" weight="1.0">
+				<operator id="AdaptableNodeHeightOperator.tree" spec="orc.operators.AdaptableOperatorSampler" tree="@tree" weight="1.0" uniformp="0.1">
+
+
+
 					<operator id="TreeScaler.t:tree" spec="ScaleOperator" scaleFactor="0.5" tree="@tree" weight="1.0"/>
 					<operator id="TreeRootScaler.t:tree" spec="ScaleOperator" rootOnly="true" scaleFactor="0.5" tree="@tree" weight="1.0"/>
 					<operator id="UniformOperator.t:tree" spec="Uniform" tree="@tree" weight="1.0"/>
@@ -439,7 +441,7 @@
 			<!-- Species tree topology operator -->
 			<operator id="species.tree.topology.operator" spec="poetry.operators.MetaOperator"  weight="1.0">
 
-				<operator id="AdaptableTopologyOperator.tree" spec="orc.operators.AdaptableOperatorSampler" tree="@tree" weight="1.0">
+				<operator id="AdaptableTopologyOperator.tree" spec="orc.operators.AdaptableOperatorSampler" tree="@tree" weight="1.0" uniformp="0.1">
 					<metric spec="beast.evolution.tree.RobinsonsFouldMetric" taxonset="@tree.taxonset"/>
 
 					<operator id="SubtreeSlide.t:tree" spec="SubtreeSlide" tree="@tree" weight="1.0"/>
@@ -496,7 +498,6 @@
 					<transformations id="site.model.logconstrain" spec="beast.util.Transform$LogConstrainedSumTransform" >
 						<f idref="clockRate.t:$(partition)" />
 					</transformations>
-					
 
 				
 				</operator>
