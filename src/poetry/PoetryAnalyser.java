@@ -55,7 +55,7 @@ public class PoetryAnalyser extends Runnable {
 	int rowNum;
 	int burnin;
 	File database;
-	File databaseBackup;
+	File localDatabase;
 	File runtimeLogfile;
 	List<POEM> poems;
 	HashMap<String, String[]> db;
@@ -71,7 +71,8 @@ public class PoetryAnalyser extends Runnable {
 		this.sampleNum = sampleNum;
 		this.replicateNum = this.getReplicateNumber();
 		this.database = database;
-		this.databaseBackup = new File(this.database.getPath() + ".bu");
+		String[] bits = this.database.getAbsolutePath().split("/");
+		this.localDatabase = new File(bits[bits.length-1]);
 		this.poems = poems;
 		this.runtimeLogfile = runtimeLogfile;
 		this.burnin = burnin;
@@ -79,7 +80,7 @@ public class PoetryAnalyser extends Runnable {
 		
 		// File validation
 		if (!this.database.exists()) throw new IllegalArgumentException("Could not locate database " + this.database.getPath());
-		this.lock = new Lock(this.sampleNum + " " + this.replicateNum, this.database, this.verbose);
+		this.lock = new Lock(this.sampleNum + " " + this.replicateNum, this.database, true);
 		
 	}
 	
@@ -90,7 +91,8 @@ public class PoetryAnalyser extends Runnable {
 		
 		this.sampleNum = sampleNumInput.get();
 		this.database = databaseFileInput.get();
-		this.databaseBackup = new File(this.database.getPath() + ".bu");
+		String[] bits = this.database.getAbsolutePath().split("/");
+		this.localDatabase = new File(bits[bits.length-1]);
 		this.replicateNum = this.getReplicateNumber();
 		this.poems = poemsInput.get();
 		this.runtimeLogfile = runtimeLoggerInput.get();
@@ -324,91 +326,85 @@ public class PoetryAnalyser extends Runnable {
 	public void correctWeights(double[] candidateWeights) throws Exception {
 		
 		
+		
 		if (candidateWeights.length != this.poems.size()) {
 			throw new Exception("Dev error: candidateWeights length does not equal poems length " + candidateWeights.length + " != " + poems.size());
 		}
 		
 		
+		File weightFile = new File("../weights.tsv");
+		
+		
 		try {
 			
-			this.lock.lock();
 			
-			// Backup
-			//Files.copy(this.database.toPath(), this.databaseBackup.toPath());
-			
-			
-			// Open the database and find the right line
-			this.db = this.openDatabase(this.database);
-			this.rowNum = this.getRowNum(this.sampleNum, this.replicateNum);
-			boolean initialised = this.getValueAtRow(POEM.getStartedColumn()).equals("true");
-			
-			
-			// If it has not started, then set all of the others to true
-			if (!initialised) {
-				
-				//RandomAccessFile raf = new RandomAccessFile(this.database, "rw");
-				//FileChannel channel = raf.getChannel();
-				
-				Log.warning("Sampling POEM weights and saving to the database. All replicates of this xml file will use the same weights.");
+			// Replicate 1 samples the weights
+			if (this.replicateNum == 1 && !weightFile.exists()) {
 				
 				
-				// Set 'started' to true and set weights for all replicates/poems in this xml file
-				List<Integer> rowNums = this.getRowNums(this.sampleNum);
-				for (int repRowNum : rowNums) {
+				// Open the database and find the right line
+				//this.db = this.openDatabase(this.database);
+				//this.rowNum = this.getRowNum(this.sampleNum, this.replicateNum);
+				//boolean initialised = this.getValueAtRow(POEM.getStartedColumn()).equals("true");
+				
+				//boolean initialised = 
+				
+			
+		
+					PrintWriter pw = new PrintWriter(weightFile);
 					
-						
-					this.setValueAtRow(POEM.getStartedColumn(), repRowNum, "true");
 					
-					// Set poem weights and set started to true for all poems
+					Log.warning("Sampling POEM weights and saving to the weightFile. All replicates of this xml file will use the same weights.");
 					for (int i = 0; i < this.poems.size(); i ++) {
 						POEM poem = this.poems.get(i);
 						double weight = candidateWeights[i];
-						this.setValueAtRow(poem.getWeightColname(), repRowNum, "" + weight);
+						pw.println(poem.getWeightColname() + "=" + weight);
 					}
-				}
-				
-				
-				// Update the database
-				this.updateDatabaseLines(rowNums, this.database, this.databaseBackup);
-				
-				
-				// Validation. If something has gone wrong, discard the backup and return
-				try {
-					validateDatabase(this.databaseBackup);
-					Files.move(this.databaseBackup.toPath(), this.database.toPath(), StandardCopyOption.REPLACE_EXISTING);
-				}catch(Exception e) {
 					
-					e.printStackTrace();
-					
-					// Delete the backup
-					this.databaseBackup.delete();
-				}
-				
-				
-
+					pw.close();
+	
 
 				
-			}else {
+			// Replicate 2,3,...,n or 1 on a repeat run
+			} else {
 				
-				Log.warning("Weights have already been set by another replicate in the database. Using those weights.");
-				
-				// The replicate has already started. Use its weights
-				for (int i = 0; i < this.poems.size(); i ++) {
-					POEM poem = this.poems.get(i);
-					double weight = Double.parseDouble(this.getValueAtRow(poem.getWeightColname()));
-					candidateWeights[i] = weight;
+					
+				while (!weightFile.exists()) {
+					Log.warning("Weights have not yet been sampled by replicate1. Sleeping until they have been sampled...");
+					Thread.sleep(1000);
 				}
 				
+				Log.warning("Weights already been set replicate1 in the weights.tsv file. Using those weights.");
+				
+				
+				Scanner scanner = new Scanner(weightFile);
+				while (scanner.hasNext()) {
+					
+					String line = scanner.nextLine();
+					String poemName = line.split("=")[0];
+					double weight = Double.parseDouble(line.split("=")[1]);
+					
+					for (int i = 0; i < this.poems.size(); i ++) {
+						POEM poem = this.poems.get(i);
+						if (poem.getWeightColname().equals(poemName)) {
+							candidateWeights[i] = weight;
+							break;
+						}
+					}
+					
+				}
+				scanner.close();
+			
 			}
 			
 			
 		} catch (Exception e) {
-			this.lock.unlock();
+			//this.lock.unlock();
 			throw e;
 		}
 		
 		
-		this.lock.unlock();
+		//this.lock.unlock();
 		
 	}
 	
@@ -424,7 +420,8 @@ public class PoetryAnalyser extends Runnable {
 	protected boolean validateDatabase(File filename) throws Exception {
 		
 		try {
-			this.db = this.openDatabase(filename);
+			Thread.sleep(1000);
+			this.db = openDatabase(filename);
 			int rownumber = this.getRowNum(this.sampleNum, this.replicateNum);
 			if (rownumber < 0) throw new Exception("Cannot locate row " + this.sampleNum + " replicate " + this.replicateNum + " in the database.");
 		}catch(Exception e) {
@@ -472,9 +469,16 @@ public class PoetryAnalyser extends Runnable {
 		}
 
 		Files.write(dbout.toPath(), fileContent, StandardCharsets.UTF_8);
-		
-		
-		
+
+	}
+	
+	
+	protected void writeDatabaseLine(File dbout) throws FileNotFoundException {
+		PrintWriter pw = new PrintWriter(dbout);
+		for (String colname : this.db.keySet()) {
+			pw.write(this.db.get(colname)[rowNum] + "\t");
+		}
+		pw.close();
 	}
 	
 	
@@ -505,13 +509,13 @@ public class PoetryAnalyser extends Runnable {
 		
 		
 		// Lock the database
-		lock.lock();
+		//lock.lock();
 		
 		try {
 			
 
 			// Open database and find the right line
-			this.db = this.openDatabase(this.database);
+			this.db = openDatabase(this.database);
 			this.rowNum = this.getRowNum(this.sampleNum, this.replicateNum);
 			if (this.rowNum < 0) throw new Exception("Cannot locate sample " + this.sampleNum + ", replicate " + this.replicateNum + " in the database");
 			
@@ -541,23 +545,10 @@ public class PoetryAnalyser extends Runnable {
 			
 			
 			// Update the database at this row (save to the backup file)
-			this.updateDatabaseLine(this.rowNum, this.database, this.databaseBackup);
-			
-			
-			// Validation. If something has gone wrong, discard the backup and return
-			try {
-				validateDatabase(this.databaseBackup);
-				Files.move(this.databaseBackup.toPath(), this.database.toPath(), StandardCopyOption.REPLACE_EXISTING);
-			}catch(Exception e) {
-				
-				e.printStackTrace();
-				
-				// Delete the backup
-				this.databaseBackup.delete();
-			}
+			// this.updateDatabaseLine(this.rowNum, this.database, this.localDatabase);
+			this.writeDatabaseLine(this.localDatabase);
 			
 
-			
 			
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -565,7 +556,7 @@ public class PoetryAnalyser extends Runnable {
 		
 		
 		// Unlock the database
-		lock.unlock();
+		//lock.unlock();
 		
 		
 		
@@ -665,7 +656,7 @@ public class PoetryAnalyser extends Runnable {
 	 * @return
 	 * @throws Exception
 	 */
-	public LinkedHashMap<String, String[]> openDatabase(File filename) throws Exception {
+	public static LinkedHashMap<String, String[]> openDatabase(File filename) throws Exception {
 		
 		LinkedHashMap<String, String[]> map = new LinkedHashMap<String, String[]>();
 		

@@ -1,4 +1,3 @@
-
 package poetry.util;
  
 import java.io.BufferedReader;
@@ -6,6 +5,11 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import beast.core.util.Log;
 
@@ -124,7 +128,14 @@ public class Lock {
             
             
             // Lock the file
-            file.createNewFile();
+            try {
+            	Files.createFile(file.toPath());
+            } catch (FileAlreadyExistsException e) {
+            	if (verbose) Log.warning("File already exists. Trying again...");
+            	Thread.sleep(Lock.sleepTime);
+            	this.lock();
+            	return;
+            }
         	PrintWriter pw = new PrintWriter(file);
         	pw.print(this.process);
         	pw.close();

@@ -1,12 +1,14 @@
 package poetry;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
-
+import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -87,9 +89,11 @@ public class SimulateXML extends Runnable {
 	List<XMLFunction> functions;
 	File outFolder;
 	File dbFile;
-	PrintStream dbOut;
 	List<POEM> poems;
 	int updateEvery;
+	
+	boolean resuming;
+	int startFrom; // Start from 1 unless resuming
 	
 	//Document poetry;
 	
@@ -107,6 +111,8 @@ public class SimulateXML extends Runnable {
 		this.outFolder = outFolderInput.get();
 		this.poems = poemsInput.get();
 		this.updateEvery = updateEveryInput.get();
+		this.startFrom = 1;
+		this.resuming = false;
 		//this.poetry = null;
 		
 		// Ensure that runner already has an ID
@@ -121,6 +127,10 @@ public class SimulateXML extends Runnable {
 		}
 		
 		
+		this.dbFile = Paths.get(this.outFolder.getPath(), DATABASE_FILENAME).toFile();
+		
+		
+		// Create / overwrite / resume
 		if (this.outFolder.exists()) {
 			
 			// Is it a directory
@@ -128,31 +138,69 @@ public class SimulateXML extends Runnable {
 				throw new IllegalArgumentException(this.outFolder.getPath() + " is not a directory. Please provide a directory");
 			}
 			
+			// Resume?
+			if (Logger.FILE_MODE == Logger.LogFileMode.resume) {
+				
+				this.resuming = true;
+				
+				// Check the database folder exists
+				if (!this.dbFile.exists() || !this.dbFile.canWrite()) {
+					throw new IllegalArgumentException("Cannot resume because the database " + this.dbFile.getPath() + " does not exist. Perhaps remove the -resume flag");
+				}
+				
+				// What is the latest row in the database?
+				try {
+					HashMap<String, String[]> db = PoetryAnalyser.openDatabase(this.dbFile);
+					String[] indices = db.get(POEM.getXMLColumn());
+					if (indices.length > 0) {
+						this.startFrom = Integer.parseInt(indices[0]);
+						for (int i = 0; i < indices.length; i ++) {
+							int index = Integer.parseInt(indices[i]);
+							this.startFrom = Math.max(index, this.startFrom);
+						}
+						this.startFrom ++;
+						Log.warning("Resuming from sample " + this.startFrom);
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+					throw new IllegalArgumentException("Error opening the database while resuming. If you are okay with overwriting, remove the -resume flag and add -overwrite");
+					
+				}
+				
+				
+			}
+			
 			// Overwrite?
-			if (Logger.FILE_MODE != Logger.LogFileMode.overwrite) {
+			else if (Logger.FILE_MODE != Logger.LogFileMode.overwrite) {
 				throw new IllegalArgumentException("Cannot write to " + this.outFolder.getPath() + " because it already exists. Perhaps use the -overwrite flag");
 			}
+			
 			
 		}
 		
 		// Make the folder
 		else {
+			
+			// Cannot resume if it does not already exist
+			if (Logger.FILE_MODE == Logger.LogFileMode.resume) {
+				throw new IllegalArgumentException("Cannot resume because " + this.outFolder.getPath() + " does not exist. Perhaps remove the -resume flag");
+			}
+			
+			// Try to create the out folder
 			if (!this.outFolder.mkdir()) {
 				throw new IllegalArgumentException("Failed to create directory at " + this.outFolder.getPath());
 			}
 		}
-		
+
 		
 		// Prepare database file
-		this.dbFile = Paths.get(this.outFolder.getPath(), DATABASE_FILENAME).toFile();
-		try {
-			this.dbOut = new PrintStream(this.dbFile);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			throw new IllegalArgumentException("Failed to create database at " + this.dbFile);
+		if (!this.resuming) {
+			try {
+				this.initDatabase();
+			} catch (FileNotFoundException e) {
+				throw new IllegalArgumentException("Failed to initialise database at " + this.outFolder.getPath());
+			}
 		}
-		this.initDatabase();
-
 
 	}
 	
@@ -162,7 +210,7 @@ public class SimulateXML extends Runnable {
 
 		
 		int ndigits = 2 + (int) Math.floor(1 + Math.log(this.nsamples) / Math.log(10));
-		for (int sample = 1; sample <= this.nsamples; sample ++) {
+		for (int sample = this.startFrom; sample <= this.nsamples; sample ++) {
 			
 			// Pad the string so that the files are name xml0001, xml0002, ..., xml0099. 
 			// This looks nicer and ensures the alphabetical order is the same as the numeric order
@@ -483,55 +531,61 @@ public class SimulateXML extends Runnable {
 
 	/**
 	 * Prepare header for the database
+	 * @throws FileNotFoundException 
 	 */
-	protected void initDatabase() {
+	protected void initDatabase() throws FileNotFoundException {
 
 		
+		
+		PrintStream dbOut = new PrintStream(this.dbFile);
+		
 		// Data summary
-		this.dbOut.print(POEM.getXMLColumn() + "\t");
-		this.dbOut.print(POEM.getReplicateColumn() + "\t");
-		this.dbOut.print(POEM.getStartedColumn() + "\t");
-		this.dbOut.print("dataset\t");
-		this.dbOut.print("ntaxa\t");
-		this.dbOut.print("nsites\t");
-		this.dbOut.print("npatterns\t");
-		this.dbOut.print("npartitions\t");
-		this.dbOut.print("ncalibrations\t");
-		this.dbOut.print("nspecies\t");
-		this.dbOut.print("pgaps\t");
-		this.dbOut.print("nchar\t");
-		this.dbOut.print("dated\t");
-		this.dbOut.print("NJtree.height\t");
+		dbOut.print(POEM.getXMLColumn() + "\t");
+		dbOut.print(POEM.getReplicateColumn() + "\t");
+		dbOut.print(POEM.getStartedColumn() + "\t");
+		dbOut.print("dataset\t");
+		dbOut.print("ntaxa\t");
+		dbOut.print("nsites\t");
+		dbOut.print("npatterns\t");
+		dbOut.print("npartitions\t");
+		dbOut.print("ncalibrations\t");
+		dbOut.print("nspecies\t");
+		dbOut.print("pgaps\t");
+		dbOut.print("nchar\t");
+		dbOut.print("dated\t");
+		dbOut.print("NJtree.height\t");
 		
 		
 		
 		
 		// Model summary
 		for (ModelSampler model : this.modelElements) {
-			this.dbOut.print(model.getID() + "\t");
+			dbOut.print(model.getID() + "\t");
 		}
 		
 		
 		// Operator weight summary
-		this.dbOut.print("search.mode\t");
+		dbOut.print("search.mode\t");
 		for (POEM poem : this.poems) {
-			this.dbOut.print(poem.getDimColName() + "\t");
-			this.dbOut.print(poem.getWeightColname() + "\t");
-			this.dbOut.print(poem.getESSColname() + "\t");
+			dbOut.print(poem.getDimColName() + "\t");
+			dbOut.print(poem.getWeightColname() + "\t");
+			dbOut.print(poem.getESSColname() + "\t");
 		}
 		
 		
 		// ESS summary
-		this.dbOut.print(POEM.getMeanColumnName() + "\t");
-		this.dbOut.print(POEM.getStddevColumnName() + "\t");
-		this.dbOut.print(POEM.getCoefficientOfVariationColumnName() + "\t");
-		this.dbOut.print(POEM.getNumberOfStatesColumnName() + "\t");
+		dbOut.print(POEM.getMeanColumnName() + "\t");
+		dbOut.print(POEM.getStddevColumnName() + "\t");
+		dbOut.print(POEM.getCoefficientOfVariationColumnName() + "\t");
+		dbOut.print(POEM.getNumberOfStatesColumnName() + "\t");
 		
 		
 		// Runtime (million states per hr)
-		this.dbOut.print(POEM.getRuntimeSmoothColumn() + "\t");
-		this.dbOut.print(POEM.getRuntimeRawColumn());
-		this.dbOut.println();
+		dbOut.print(POEM.getRuntimeSmoothColumn() + "\t");
+		dbOut.print(POEM.getRuntimeRawColumn());
+		dbOut.println();
+		
+		dbOut.close();
 	
 		
 	}
@@ -560,8 +614,12 @@ public class SimulateXML extends Runnable {
 
 	/**
 	 * Prepare header for the database
+	 * @throws FileNotFoundException 
 	 */
-	protected void appendToDatabase(int sampleNum) {
+	protected void appendToDatabase(int sampleNum) throws FileNotFoundException {
+		
+		// Append
+		PrintStream dbOut = new PrintStream(new BufferedOutputStream(new FileOutputStream(this.dbFile, true)));
 	
 		String dataset = this.data == null ? "NA" : !(this.data instanceof DatasetSampler) ? "NA" : ((DatasetSampler)this.data).getFilePath();
 		int npartitions = this.data == null ? 0 : !(this.data instanceof DatasetSampler) ? 1 : ((DatasetSampler)this.data).getNumPartitions();
@@ -576,55 +634,57 @@ public class SimulateXML extends Runnable {
 		
 			
 			// Dataset summary
-			this.dbOut.print(sampleNum + "\t"); // Sample number
-			this.dbOut.print(rep + "\t"); // Replicate number
-			this.dbOut.print("false\t"); // Has the sample started running?
-			this.dbOut.print(dataset + "\t"); // Dataset folder 
-			this.dbOut.print((this.data == null ? 0 : this.data.getTaxonCount()) + "\t"); // Taxon count
-			this.dbOut.print((this.data == null ? 0 : this.data.getSiteCount()) + "\t"); // Site count
-			this.dbOut.print((this.data == null ? 0 : this.data.getPatternCount()) + "\t"); // Pattern count
-			this.dbOut.print(npartitions + "\t"); // Number of partitions
-			this.dbOut.print(ncalibrations + "\t"); // Number of calibrations 
-			this.dbOut.print(nspecies + "\t");
-			this.dbOut.print(pgaps + "\t"); // Proportion of sites which are gaps
-			this.dbOut.print((this.data == null ? 0 : this.data.getDataType().getStateCount()) + "\t"); // Number of characters (4 for nt, 20 for aa etc)
-			this.dbOut.print(datedTips + "\t"); // Are the tips dated?
-			this.dbOut.print(treeHeight + "\t"); // Estimate the tree height using neighbour joining
+			dbOut.print(sampleNum + "\t"); // Sample number
+			dbOut.print(rep + "\t"); // Replicate number
+			dbOut.print("false\t"); // Has the sample started running?
+			dbOut.print(dataset + "\t"); // Dataset folder 
+			dbOut.print((this.data == null ? 0 : this.data.getTaxonCount()) + "\t"); // Taxon count
+			dbOut.print((this.data == null ? 0 : this.data.getSiteCount()) + "\t"); // Site count
+			dbOut.print((this.data == null ? 0 : this.data.getPatternCount()) + "\t"); // Pattern count
+			dbOut.print(npartitions + "\t"); // Number of partitions
+			dbOut.print(ncalibrations + "\t"); // Number of calibrations 
+			dbOut.print(nspecies + "\t");
+			dbOut.print(pgaps + "\t"); // Proportion of sites which are gaps
+			dbOut.print((this.data == null ? 0 : this.data.getDataType().getStateCount()) + "\t"); // Number of characters (4 for nt, 20 for aa etc)
+			dbOut.print(datedTips + "\t"); // Are the tips dated?
+			dbOut.print(treeHeight + "\t"); // Estimate the tree height using neighbour joining
 			
 			
 			// Model summary
 			for (ModelSampler model : this.modelElements) {
-				this.dbOut.print(model.getSampledID() + "\t");
+				dbOut.print(model.getSampledID() + "\t");
 			}
 			
 			// Inference engine
 			if (this.runner instanceof RunnableSampler) {
 				String id = ((RunnableSampler)this.runner).getSampledID();
-				this.dbOut.print(id + "\t");
+				dbOut.print(id + "\t");
 			}else {
-				this.dbOut.print("NA\t");
+				dbOut.print("NA\t");
 			}
 			
 			
 			// POEM weights, dimension, ESS
 			for (POEM poem : this.poems) {
-				this.dbOut.print("NA\tNA\tNA\t");
+				dbOut.print("NA\tNA\tNA\t");
 			}
 			
 			
 			// ESS summary
-			this.dbOut.print("NA\t");
-			this.dbOut.print("NA\t");
-			this.dbOut.print("NA\t");
-			this.dbOut.print("NA\t");
+			dbOut.print("NA\t");
+			dbOut.print("NA\t");
+			dbOut.print("NA\t");
+			dbOut.print("NA\t");
 			
 			
 			
 			// Runtime (num hr)
-			this.dbOut.print("NA\t");
-			this.dbOut.print("NA");
+			dbOut.print("NA\t");
+			dbOut.print("NA");
 	
-			this.dbOut.println();
+			dbOut.println();
+			
+			dbOut.close();
 			
 			
 		}
