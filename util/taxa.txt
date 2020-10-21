@@ -1,0 +1,58 @@
+
+begin sets;
+
+	taxset node_U = Alfaroa_williamsii Alfaropsis_roxburghiana Betula_platyphylla Carpinus_betulus Carya_illinoinensis Castanea_sativa Casuarina_equisetifolia Chrysolepis_sempervirens Comptonia_peregrina Cucumis_sativus Cyclocarya_paliurus Engelhardia_fenzelii Fagus_grandifolia Juglans_nigra Lithocarpus_henryi Lotus_japonicus Morella_cerifera Nothofagus_aequilateralis Nothofagus_alessandri Nothofagus_alpina Nothofagus_antarctica Nothofagus_balansae Nothofagus_baumanniae Nothofagus_betuloides Nothofagus_brassii Nothofagus_carrii Nothofagus_cliffortioides Nothofagus_codonandra Nothofagus_cunninghamii Nothofagus_discoidea Nothofagus_dombeyi Nothofagus_fusca Nothofagus_glauca Nothofagus_grandis Nothofagus_gunnii Nothofagus_menziesii Nothofagus_moorei Nothofagus_nitida Nothofagus_obliqua Nothofagus_perryi Nothofagus_pumilio Nothofagus_resinosa Nothofagus_solandri Nothofagus_truncata Oreomunnea_mexicana Phaseolous_vulgaris Platycarya_strobilacea Quercus_rubra Rhoiptelea_chiliantha Ticodendron_incognitum Trigonobalanus_verticellata;
+
+
+	taxset node_A = Cucumis_sativus Fagus_grandifolia Trigonobalanus_verticellata Castanea_sativa Lithocarpus_henryi Chrysolepis_sempervirens Quercus_rubra Comptonia_peregrina Morella_cerifera Casuarina_equisetifolia Ticodendron_incognitum Betula_platyphylla Carpinus_betulus Rhoiptelea_chiliantha Carya_illinoinensis Platycarya_strobilacea Cyclocarya_paliurus Juglans_nigra Alfaropsis_roxburghiana Engelhardia_fenzelii Alfaroa_williamsii Oreomunnea_mexicana Nothofagus_alpina Nothofagus_glauca Nothofagus_obliqua Nothofagus_menziesii Nothofagus_cunninghamii Nothofagus_moorei Nothofagus_alessandri Nothofagus_gunnii Nothofagus_cliffortioides Nothofagus_truncata Nothofagus_fusca Nothofagus_solandri Nothofagus_betuloides Nothofagus_nitida Nothofagus_antarctica Nothofagus_dombeyi Nothofagus_pumilio Nothofagus_discoidea Nothofagus_codonandra Nothofagus_baumanniae Nothofagus_aequilateralis Nothofagus_balansae Nothofagus_brassii Nothofagus_resinosa Nothofagus_perryi Nothofagus_grandis Nothofagus_carrii ;
+
+	taxset node_B = Fagus_grandifolia Trigonobalanus_verticellata Castanea_sativa Lithocarpus_henryi Chrysolepis_sempervirens Quercus_rubra Comptonia_peregrina Morella_cerifera Casuarina_equisetifolia Ticodendron_incognitum Betula_platyphylla Carpinus_betulus Rhoiptelea_chiliantha Carya_illinoinensis Platycarya_strobilacea Cyclocarya_paliurus Juglans_nigra Alfaropsis_roxburghiana Engelhardia_fenzelii Alfaroa_williamsii Oreomunnea_mexicana;
+
+	taxset node_C = Fagus_grandifolia Trigonobalanus_verticellata Castanea_sativa Lithocarpus_henryi Chrysolepis_sempervirens Quercus_rubra;
+
+	taxset node_D = Trigonobalanus_verticellata Castanea_sativa Lithocarpus_henryi Chrysolepis_sempervirens Quercus_rubra;
+
+	taxset node_E = Castanea_sativa Lithocarpus_henryi Chrysolepis_sempervirens Quercus_rubra;
+
+	taxset node_F = Casuarina_equisetifolia Ticodendron_incognitum Betula_platyphylla Carpinus_betulus;
+
+	taxset node_G = Betula_platyphylla Carpinus_betulus;
+
+	taxset node_I = Carya_illinoinensis Platycarya_strobilacea Cyclocarya_paliurus Juglans_nigra Alfaropsis_roxburghiana Engelhardia_fenzelii Alfaroa_williamsii Oreomunnea_mexicana;
+
+	taxset node_J = Carya_illinoinensis Platycarya_strobilacea Cyclocarya_paliurus Juglans_nigra;
+
+	taxset node_K = Cyclocarya_paliurus Juglans_nigra;
+
+	taxset node_M = Nothofagus_alpina Nothofagus_glauca Nothofagus_obliqua Nothofagus_menziesii Nothofagus_cunninghamii Nothofagus_moorei;
+
+	taxset node_N = Nothofagus_cunninghamii Nothofagus_moorei;
+
+	taxset node_Q = Nothofagus_betuloides Nothofagus_nitida Nothofagus_antarctica Nothofagus_dombeyi Nothofagus_pumilio Nothofagus_discoidea Nothofagus_codonandra Nothofagus_baumanniae Nothofagus_aequilateralis Nothofagus_balansae Nothofagus_brassii Nothofagus_resinosa Nothofagus_perryi Nothofagus_grandis Nothofagus_carrii;
+
+end;
+
+
+begin assumptions;
+
+	calibrate node_U = uniform(83.5,125)
+	calibrate node_A = uniform(83.5,1000)
+	calibrate node_B = uniform(83.5,1000)
+	calibrate node_C = uniform(47,1000)
+	calibrate node_D = uniform(37.2,1000)
+	calibrate node_E = uniform(43.8,1000)
+	calibrate node_F = uniform(55.8,1000)
+	calibrate node_G = uniform(59.8,1000)
+	calibrate node_I = uniform(64.4,1000)
+	calibrate node_J = uniform(52.7,1000)
+	calibrate node_K = uniform(55.8,1000)
+	calibrate node_M = uniform(31.5,1000)
+	calibrate node_N = uniform(0.8,1000)
+	calibrate node_Q = uniform(31.5,1000)
+
+
+end;
+
+
+
+

@@ -5,10 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 
 
@@ -20,7 +17,6 @@ import org.w3c.dom.Text;
 
 import beast.core.BEASTInterface;
 import beast.core.Input;
-import beast.core.Input.Validate;
 import beast.core.parameter.RealParameter;
 import beast.core.util.Log;
 import beast.evolution.alignment.Alignment;
@@ -31,13 +27,10 @@ import beast.evolution.alignment.TaxonSet;
 import beast.evolution.datatype.Aminoacid;
 import beast.evolution.datatype.DataType;
 import beast.evolution.datatype.Nucleotide;
-import beast.evolution.tree.SimpleRandomTree;
-import beast.evolution.tree.Tree;
 import beast.evolution.tree.TreeInterface;
 import beast.evolution.tree.TreeUtils;
 import beast.math.distributions.MRCAPrior;
 import beast.math.distributions.ParametricDistribution;
-import beast.math.distributions.Uniform;
 import beast.util.ClusterTree;
 import beast.util.NexusParser;
 import beast.util.Randomizer;
@@ -912,7 +905,11 @@ public class DatasetSampler extends Alignment implements XMLSampler  {
 		ClusterTree tree = new ClusterTree();
 		
 		for (Alignment aln : this.partitions) {
-			tree.initByName("clusterType", "neighborjoining", "taxa", aln);
+			
+			// Set estimate to false so that the tree is still calculated even in -resume mode
+			tree.initByName("clusterType", "neighborjoining", "taxa", aln, "estimate", false);
+			
+			// Calculate height
 			double height = tree.getRoot().getHeight();
 			double nsites = aln.getSiteCount();
 			weightedMeanHeight += height * nsites;

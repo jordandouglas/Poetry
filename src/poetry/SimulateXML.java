@@ -630,6 +630,8 @@ public class SimulateXML extends Runnable {
 		int ncalibrations = this.data == null ? 0 : !(this.data instanceof DatasetSampler) ? 0 : ((DatasetSampler)this.data).getNumCalibrations();
 		
 		
+		System.out.println("ESTIMATED HEIGHT " + treeHeight);
+		
 		for (int rep = 1; rep <= this.nreplicates; rep++) {
 		
 			

@@ -1,0 +1,2202 @@
+
+                   BEAST v2.6.3 Prerelease, 2002-2020
+             Bayesian Evolutionary Analysis Sampling Trees
+                       Designed and developed by
+ Remco Bouckaert, Alexei J. Drummond, Andrew Rambaut & Marc A. Suchard
+                                    
+                   Centre for Computational Evolution
+                         University of Auckland
+                       r.bouckaert@auckland.ac.nz
+                        alexei@cs.auckland.ac.nz
+                                    
+                   Institute of Evolutionary Biology
+                        University of Edinburgh
+                           a.rambaut@ed.ac.uk
+                                    
+                    David Geffen School of Medicine
+                 University of California, Los Angeles
+                           msuchard@ucla.edu
+                                    
+                      Downloads, Help & Resources:
+                           http://beast2.org/
+                                    
+  Source code distributed under the GNU Lesser General Public License:
+                   http://github.com/CompEvol/beast2
+                                    
+                           BEAST developers:
+   Alex Alekseyenko, Trevor Bedford, Erik Bloomquist, Joseph Heled, 
+ Sebastian Hoehna, Denise Kuehnert, Philippe Lemey, Wai Lok Sibon Li, 
+Gerton Lunter, Sidney Markowitz, Vladimir Minin, Michael Defoin Platel, 
+          Oliver Pybus, Tim Vaughan, Chieh-Hsi Wu, Walter Xie
+                                    
+                               Thanks to:
+          Roald Forsberg, Beth Shapiro and Korbinian Strimmer
+
+Random number seed: 1603313465194
+
+Resuming from file
+Alignment(null)
+  51 taxa
+  5444 sites
+  1834 patterns
+
+Filter 1-1353\3
+51 taxa
+451 sites
+51 patterns
+Filter 2-1353\3
+51 taxa
+451 sites
+28 patterns
+Filter 3-1353\3
+51 taxa
+451 sites
+147 patterns
+Filter 1354-2784\3
+51 taxa
+477 sites
+94 patterns
+Filter 1355-2784\3
+51 taxa
+477 sites
+74 patterns
+Filter 1356-2784\3
+51 taxa
+477 sites
+235 patterns
+Filter 2785-3777
+51 taxa
+993 sites
+427 patterns
+Filter 3778-4258
+51 taxa
+481 sites
+271 patterns
+Filter 4259-4816
+51 taxa
+558 sites
+281 patterns
+Filter 4817-5444
+51 taxa
+628 sites
+313 patterns
+Filter 1-4816
+51 taxa
+4816 sites
+1521 patterns
+Filter 4817-5444
+51 taxa
+628 sites
+313 patterns
+Sampling alignment: ../datasets/Sauquet_2011/alignment.nex
+DatasetSampler(alignment.$(partition))
+  51 taxa
+  5444 sites
+  1834 patterns
+
+Subsampling 10 partitions from the alignment
+Computed a clock rate prior: lognormal(-2.607720171251041,0.913802208383204)
+DatasetSampler(alignment.$(partition))
+  51 taxa
+  9930 sites
+  3249 patterns
+
+Filter 1-477
+51 taxa
+477 sites
+94 patterns
+Filter 478-928
+51 taxa
+451 sites
+147 patterns
+Filter 929-1556
+51 taxa
+628 sites
+313 patterns
+Filter 1557-2184
+51 taxa
+628 sites
+313 patterns
+Filter 2185-7000
+51 taxa
+4816 sites
+1521 patterns
+Filter 7001-7477
+51 taxa
+477 sites
+74 patterns
+Filter 7478-7928
+51 taxa
+451 sites
+28 patterns
+Filter 7929-8486
+51 taxa
+558 sites
+281 patterns
+Filter 8487-9479
+51 taxa
+993 sites
+427 patterns
+Filter 9480-9930
+51 taxa
+451 sites
+51 patterns
+Sampling model: ../models/species/Concat.xml
+Sampling model: ../models/treeclock/Calibrated.xml
+Sampling model: ../models/site/nucleotide/BModelTest.xml
+Sampling model: ../models/heterogeneity/No.xml
+Sampling model: ../models/clock/Strict.xml
+Sampling model: ../models/tree/Skyline.xml
+TreeLikelihood(treeLikelihood.$(partition)0) uses BeerLikelihoodCore4
+  DatasetSampler(alignment.$(partition)): [taxa, patterns, sites] = [51, 1834, 9930]
+Alignment(null)
+  51 taxa
+  5444 sites
+  1834 patterns
+
+Filter 1-1353\3
+51 taxa
+451 sites
+51 patterns
+Filter 2-1353\3
+51 taxa
+451 sites
+28 patterns
+Filter 3-1353\3
+51 taxa
+451 sites
+147 patterns
+Filter 1354-2784\3
+51 taxa
+477 sites
+94 patterns
+Filter 1355-2784\3
+51 taxa
+477 sites
+74 patterns
+Filter 1356-2784\3
+51 taxa
+477 sites
+235 patterns
+Filter 2785-3777
+51 taxa
+993 sites
+427 patterns
+Filter 3778-4258
+51 taxa
+481 sites
+271 patterns
+Filter 4259-4816
+51 taxa
+558 sites
+281 patterns
+Filter 4817-5444
+51 taxa
+628 sites
+313 patterns
+Filter 1-4816
+51 taxa
+4816 sites
+1521 patterns
+Filter 4817-5444
+51 taxa
+628 sites
+313 patterns
+Sampling alignment: ../datasets/Sauquet_2011/alignment.nex
+DatasetSampler(alignment.$(partition))
+  51 taxa
+  9930 sites with weight 5444
+  3249 patterns
+
+Subsampling 3 partitions from the alignment
+Computed a clock rate prior: lognormal(-2.607720171251041,0.9138022083832041)
+DatasetSampler(alignment.$(partition))
+  51 taxa
+  1663 sites
+  668 patterns
+
+Filter 1-558
+51 taxa
+558 sites
+281 patterns
+Filter 559-1035
+51 taxa
+477 sites
+74 patterns
+Filter 1036-1663
+51 taxa
+628 sites
+313 patterns
+Sampling model: ../models/species/Concat.xml
+Sampling model: ../models/treeclock/Calibrated.xml
+Sampling model: ../models/site/nucleotide/HKY.xml
+Sampling model: ../models/heterogeneity/GammaInvariant.xml
+Sampling model: ../models/clock/RelaxedLN.xml
+Sampling model: ../models/tree/BirthDeath.xml
+gammaShape.s:trnl_intron removing estimate
+gammaShape.s:trnl_intron removing name
+gammaShape.s:trnl_intron removing spec
+gammaShape.s:rbcl_2ndpos removing estimate
+gammaShape.s:rbcl_2ndpos removing name
+gammaShape.s:rbcl_2ndpos removing spec
+gammaShape.s:nuclear_genome removing estimate
+gammaShape.s:nuclear_genome removing name
+gammaShape.s:nuclear_genome removing spec
+LogNormalDistributionModel.clock removing S
+LogNormalDistributionModel.clock removing meanInRealSpace
+LogNormalDistributionModel.clock removing S
+LogNormalDistributionModel.clock removing meanInRealSpace
+LogNormalDistributionModel.clock removing S
+LogNormalDistributionModel.clock removing meanInRealSpace
+Alfaroa_williamsii removing id
+Alfaroa_williamsii removing id
+Alfaroa_williamsii removing id
+Alfaropsis_roxburghiana removing id
+Alfaropsis_roxburghiana removing id
+Alfaropsis_roxburghiana removing id
+Betula_platyphylla removing id
+Betula_platyphylla removing id
+Betula_platyphylla removing id
+Betula_platyphylla removing id
+Carpinus_betulus removing id
+Carpinus_betulus removing id
+Carpinus_betulus removing id
+Carpinus_betulus removing id
+Carya_illinoinensis removing id
+Carya_illinoinensis removing id
+Carya_illinoinensis removing id
+Carya_illinoinensis removing id
+Castanea_sativa removing id
+Castanea_sativa removing id
+Castanea_sativa removing id
+Castanea_sativa removing id
+Castanea_sativa removing id
+Casuarina_equisetifolia removing id
+Casuarina_equisetifolia removing id
+Casuarina_equisetifolia removing id
+Chrysolepis_sempervirens removing id
+Chrysolepis_sempervirens removing id
+Chrysolepis_sempervirens removing id
+Chrysolepis_sempervirens removing id
+Chrysolepis_sempervirens removing id
+Comptonia_peregrina removing id
+Comptonia_peregrina removing id
+Cucumis_sativus removing id
+Cyclocarya_paliurus removing id
+Cyclocarya_paliurus removing id
+Cyclocarya_paliurus removing id
+Cyclocarya_paliurus removing id
+Cyclocarya_paliurus removing id
+Engelhardia_fenzelii removing id
+Engelhardia_fenzelii removing id
+Engelhardia_fenzelii removing id
+Fagus_grandifolia removing id
+Fagus_grandifolia removing id
+Fagus_grandifolia removing id
+Juglans_nigra removing id
+Juglans_nigra removing id
+Juglans_nigra removing id
+Juglans_nigra removing id
+Juglans_nigra removing id
+Lithocarpus_henryi removing id
+Lithocarpus_henryi removing id
+Lithocarpus_henryi removing id
+Lithocarpus_henryi removing id
+Lithocarpus_henryi removing id
+Morella_cerifera removing id
+Morella_cerifera removing id
+Nothofagus_aequilateralis removing id
+Nothofagus_aequilateralis removing id
+Nothofagus_alessandri removing id
+Nothofagus_alpina removing id
+Nothofagus_alpina removing id
+Nothofagus_antarctica removing id
+Nothofagus_antarctica removing id
+Nothofagus_balansae removing id
+Nothofagus_balansae removing id
+Nothofagus_baumanniae removing id
+Nothofagus_baumanniae removing id
+Nothofagus_betuloides removing id
+Nothofagus_betuloides removing id
+Nothofagus_brassii removing id
+Nothofagus_brassii removing id
+Nothofagus_carrii removing id
+Nothofagus_carrii removing id
+Nothofagus_cliffortioides removing id
+Nothofagus_codonandra removing id
+Nothofagus_codonandra removing id
+Nothofagus_cunninghamii removing id
+Nothofagus_cunninghamii removing id
+Nothofagus_cunninghamii removing id
+Nothofagus_discoidea removing id
+Nothofagus_discoidea removing id
+Nothofagus_dombeyi removing id
+Nothofagus_dombeyi removing id
+Nothofagus_fusca removing id
+Nothofagus_glauca removing id
+Nothofagus_glauca removing id
+Nothofagus_grandis removing id
+Nothofagus_grandis removing id
+Nothofagus_gunnii removing id
+Nothofagus_menziesii removing id
+Nothofagus_menziesii removing id
+Nothofagus_moorei removing id
+Nothofagus_moorei removing id
+Nothofagus_moorei removing id
+Nothofagus_nitida removing id
+Nothofagus_nitida removing id
+Nothofagus_obliqua removing id
+Nothofagus_obliqua removing id
+Nothofagus_perryi removing id
+Nothofagus_perryi removing id
+Nothofagus_pumilio removing id
+Nothofagus_pumilio removing id
+Nothofagus_resinosa removing id
+Nothofagus_resinosa removing id
+Nothofagus_solandri removing id
+Nothofagus_truncata removing id
+Oreomunnea_mexicana removing id
+Oreomunnea_mexicana removing id
+Oreomunnea_mexicana removing id
+Platycarya_strobilacea removing id
+Platycarya_strobilacea removing id
+Platycarya_strobilacea removing id
+Platycarya_strobilacea removing id
+Quercus_rubra removing id
+Quercus_rubra removing id
+Quercus_rubra removing id
+Quercus_rubra removing id
+Quercus_rubra removing id
+Rhoiptelea_chiliantha removing id
+Rhoiptelea_chiliantha removing id
+Ticodendron_incognitum removing id
+Ticodendron_incognitum removing id
+Ticodendron_incognitum removing id
+Trigonobalanus_verticellata removing id
+Trigonobalanus_verticellata removing id
+Trigonobalanus_verticellata removing id
+Trigonobalanus_verticellata removing id
+ClockModel.t:tree removing clock.rate
+ClockModel.t:tree removing rates
+ClockModel.t:tree removing tree
+ClockModel.t:tree removing clock.rate
+ClockModel.t:tree removing rates
+ClockModel.t:tree removing tree
+ESTIMATED HEIGHT 0.03475009366935548
+Alignment(null)
+  51 taxa
+  5444 sites
+  1834 patterns
+
+Filter 1-1353\3
+51 taxa
+451 sites
+51 patterns
+Filter 2-1353\3
+51 taxa
+451 sites
+28 patterns
+Filter 3-1353\3
+51 taxa
+451 sites
+147 patterns
+Filter 1354-2784\3
+51 taxa
+477 sites
+94 patterns
+Filter 1355-2784\3
+51 taxa
+477 sites
+74 patterns
+Filter 1356-2784\3
+51 taxa
+477 sites
+235 patterns
+Filter 2785-3777
+51 taxa
+993 sites
+427 patterns
+Filter 3778-4258
+51 taxa
+481 sites
+271 patterns
+Filter 4259-4816
+51 taxa
+558 sites
+281 patterns
+Filter 4817-5444
+51 taxa
+628 sites
+313 patterns
+Filter 1-4816
+51 taxa
+4816 sites
+1521 patterns
+Filter 4817-5444
+51 taxa
+628 sites
+313 patterns
+Sampling alignment: ../datasets/Sauquet_2011/alignment.nex
+DatasetSampler(alignment.$(partition))
+  51 taxa
+  1663 sites with weight 5444
+  668 patterns
+
+Subsampling 1 partitions from the alignment
+Computed a clock rate prior: lognormal(-2.6077201712510414,0.913802208383204)
+DatasetSampler(alignment.$(partition))
+  51 taxa
+  477 sites
+  235 patterns
+
+Filter 1-477
+51 taxa
+477 sites
+235 patterns
+Sampling model: ../models/species/Concat.xml
+Sampling model: ../models/treeclock/Calibrated.xml
+Sampling model: ../models/site/nucleotide/HKYf.xml
+Sampling model: ../models/heterogeneity/Gamma.xml
+Sampling model: ../models/clock/RelaxedLN.xml
+Sampling model: ../models/tree/Yule.xml
+gammaShape.s:rbcl_3rdpos removing estimate
+gammaShape.s:rbcl_3rdpos removing name
+gammaShape.s:rbcl_3rdpos removing spec
+LogNormalDistributionModel.clock removing S
+LogNormalDistributionModel.clock removing meanInRealSpace
+Alfaroa_williamsii removing id
+Alfaroa_williamsii removing id
+Alfaroa_williamsii removing id
+Alfaropsis_roxburghiana removing id
+Alfaropsis_roxburghiana removing id
+Alfaropsis_roxburghiana removing id
+Betula_platyphylla removing id
+Betula_platyphylla removing id
+Betula_platyphylla removing id
+Betula_platyphylla removing id
+Carpinus_betulus removing id
+Carpinus_betulus removing id
+Carpinus_betulus removing id
+Carpinus_betulus removing id
+Carya_illinoinensis removing id
+Carya_illinoinensis removing id
+Carya_illinoinensis removing id
+Carya_illinoinensis removing id
+Castanea_sativa removing id
+Castanea_sativa removing id
+Castanea_sativa removing id
+Castanea_sativa removing id
+Castanea_sativa removing id
+Casuarina_equisetifolia removing id
+Casuarina_equisetifolia removing id
+Casuarina_equisetifolia removing id
+Chrysolepis_sempervirens removing id
+Chrysolepis_sempervirens removing id
+Chrysolepis_sempervirens removing id
+Chrysolepis_sempervirens removing id
+Chrysolepis_sempervirens removing id
+Comptonia_peregrina removing id
+Comptonia_peregrina removing id
+Cucumis_sativus removing id
+Cyclocarya_paliurus removing id
+Cyclocarya_paliurus removing id
+Cyclocarya_paliurus removing id
+Cyclocarya_paliurus removing id
+Cyclocarya_paliurus removing id
+Engelhardia_fenzelii removing id
+Engelhardia_fenzelii removing id
+Engelhardia_fenzelii removing id
+Fagus_grandifolia removing id
+Fagus_grandifolia removing id
+Fagus_grandifolia removing id
+Juglans_nigra removing id
+Juglans_nigra removing id
+Juglans_nigra removing id
+Juglans_nigra removing id
+Juglans_nigra removing id
+Lithocarpus_henryi removing id
+Lithocarpus_henryi removing id
+Lithocarpus_henryi removing id
+Lithocarpus_henryi removing id
+Lithocarpus_henryi removing id
+Morella_cerifera removing id
+Morella_cerifera removing id
+Nothofagus_aequilateralis removing id
+Nothofagus_aequilateralis removing id
+Nothofagus_alessandri removing id
+Nothofagus_alpina removing id
+Nothofagus_alpina removing id
+Nothofagus_antarctica removing id
+Nothofagus_antarctica removing id
+Nothofagus_balansae removing id
+Nothofagus_balansae removing id
+Nothofagus_baumanniae removing id
+Nothofagus_baumanniae removing id
+Nothofagus_betuloides removing id
+Nothofagus_betuloides removing id
+Nothofagus_brassii removing id
+Nothofagus_brassii removing id
+Nothofagus_carrii removing id
+Nothofagus_carrii removing id
+Nothofagus_cliffortioides removing id
+Nothofagus_codonandra removing id
+Nothofagus_codonandra removing id
+Nothofagus_cunninghamii removing id
+Nothofagus_cunninghamii removing id
+Nothofagus_cunninghamii removing id
+Nothofagus_discoidea removing id
+Nothofagus_discoidea removing id
+Nothofagus_dombeyi removing id
+Nothofagus_dombeyi removing id
+Nothofagus_fusca removing id
+Nothofagus_glauca removing id
+Nothofagus_glauca removing id
+Nothofagus_grandis removing id
+Nothofagus_grandis removing id
+Nothofagus_gunnii removing id
+Nothofagus_menziesii removing id
+Nothofagus_menziesii removing id
+Nothofagus_moorei removing id
+Nothofagus_moorei removing id
+Nothofagus_moorei removing id
+Nothofagus_nitida removing id
+Nothofagus_nitida removing id
+Nothofagus_obliqua removing id
+Nothofagus_obliqua removing id
+Nothofagus_perryi removing id
+Nothofagus_perryi removing id
+Nothofagus_pumilio removing id
+Nothofagus_pumilio removing id
+Nothofagus_resinosa removing id
+Nothofagus_resinosa removing id
+Nothofagus_solandri removing id
+Nothofagus_truncata removing id
+Oreomunnea_mexicana removing id
+Oreomunnea_mexicana removing id
+Oreomunnea_mexicana removing id
+Platycarya_strobilacea removing id
+Platycarya_strobilacea removing id
+Platycarya_strobilacea removing id
+Platycarya_strobilacea removing id
+Quercus_rubra removing id
+Quercus_rubra removing id
+Quercus_rubra removing id
+Quercus_rubra removing id
+Quercus_rubra removing id
+Rhoiptelea_chiliantha removing id
+Rhoiptelea_chiliantha removing id
+Ticodendron_incognitum removing id
+Ticodendron_incognitum removing id
+Ticodendron_incognitum removing id
+Trigonobalanus_verticellata removing id
+Trigonobalanus_verticellata removing id
+Trigonobalanus_verticellata removing id
+Trigonobalanus_verticellata removing id
+ESTIMATED HEIGHT 0.10032707023391917
+Alignment(null)
+  51 taxa
+  5444 sites
+  1834 patterns
+
+Filter 1-1353\3
+51 taxa
+451 sites
+51 patterns
+Filter 2-1353\3
+51 taxa
+451 sites
+28 patterns
+Filter 3-1353\3
+51 taxa
+451 sites
+147 patterns
+Filter 1354-2784\3
+51 taxa
+477 sites
+94 patterns
+Filter 1355-2784\3
+51 taxa
+477 sites
+74 patterns
+Filter 1356-2784\3
+51 taxa
+477 sites
+235 patterns
+Filter 2785-3777
+51 taxa
+993 sites
+427 patterns
+Filter 3778-4258
+51 taxa
+481 sites
+271 patterns
+Filter 4259-4816
+51 taxa
+558 sites
+281 patterns
+Filter 4817-5444
+51 taxa
+628 sites
+313 patterns
+Filter 1-4816
+51 taxa
+4816 sites
+1521 patterns
+Filter 4817-5444
+51 taxa
+628 sites
+313 patterns
+Sampling alignment: ../datasets/Sauquet_2011/alignment.nex
+DatasetSampler(alignment.$(partition))
+  51 taxa
+  477 sites with weight 5444
+  235 patterns
+
+Subsampling 3 partitions from the alignment
+Computed a clock rate prior: lognormal(-2.607720171251041,0.9138022083832041)
+DatasetSampler(alignment.$(partition))
+  51 taxa
+  2072 sites
+  887 patterns
+
+Filter 1-993
+51 taxa
+993 sites
+427 patterns
+Filter 994-1444
+51 taxa
+451 sites
+147 patterns
+Filter 1445-2072
+51 taxa
+628 sites
+313 patterns
+Sampling model: ../models/species/Concat.xml
+Sampling model: ../models/treeclock/Calibrated.xml
+Sampling model: ../models/site/nucleotide/HKY.xml
+Sampling model: ../models/heterogeneity/GammaInvariant.xml
+Sampling model: ../models/clock/Strict.xml
+Sampling model: ../models/tree/Skyline.xml
+gammaShape.s:spacer_rbcl removing estimate
+gammaShape.s:spacer_rbcl removing name
+gammaShape.s:spacer_rbcl removing spec
+gammaShape.s:atpb_3rdpos removing estimate
+gammaShape.s:atpb_3rdpos removing name
+gammaShape.s:atpb_3rdpos removing spec
+gammaShape.s:its removing estimate
+gammaShape.s:its removing name
+gammaShape.s:its removing spec
+Alfaroa_williamsii removing id
+Alfaroa_williamsii removing id
+Alfaroa_williamsii removing id
+Alfaropsis_roxburghiana removing id
+Alfaropsis_roxburghiana removing id
+Alfaropsis_roxburghiana removing id
+Betula_platyphylla removing id
+Betula_platyphylla removing id
+Betula_platyphylla removing id
+Betula_platyphylla removing id
+Carpinus_betulus removing id
+Carpinus_betulus removing id
+Carpinus_betulus removing id
+Carpinus_betulus removing id
+Carya_illinoinensis removing id
+Carya_illinoinensis removing id
+Carya_illinoinensis removing id
+Carya_illinoinensis removing id
+Castanea_sativa removing id
+Castanea_sativa removing id
+Castanea_sativa removing id
+Castanea_sativa removing id
+Castanea_sativa removing id
+Casuarina_equisetifolia removing id
+Casuarina_equisetifolia removing id
+Casuarina_equisetifolia removing id
+Chrysolepis_sempervirens removing id
+Chrysolepis_sempervirens removing id
+Chrysolepis_sempervirens removing id
+Chrysolepis_sempervirens removing id
+Chrysolepis_sempervirens removing id
+Comptonia_peregrina removing id
+Comptonia_peregrina removing id
+Cucumis_sativus removing id
+Cyclocarya_paliurus removing id
+Cyclocarya_paliurus removing id
+Cyclocarya_paliurus removing id
+Cyclocarya_paliurus removing id
+Cyclocarya_paliurus removing id
+Engelhardia_fenzelii removing id
+Engelhardia_fenzelii removing id
+Engelhardia_fenzelii removing id
+Fagus_grandifolia removing id
+Fagus_grandifolia removing id
+Fagus_grandifolia removing id
+Juglans_nigra removing id
+Juglans_nigra removing id
+Juglans_nigra removing id
+Juglans_nigra removing id
+Juglans_nigra removing id
+Lithocarpus_henryi removing id
+Lithocarpus_henryi removing id
+Lithocarpus_henryi removing id
+Lithocarpus_henryi removing id
+Lithocarpus_henryi removing id
+Morella_cerifera removing id
+Morella_cerifera removing id
+Nothofagus_aequilateralis removing id
+Nothofagus_aequilateralis removing id
+Nothofagus_alessandri removing id
+Nothofagus_alpina removing id
+Nothofagus_alpina removing id
+Nothofagus_antarctica removing id
+Nothofagus_antarctica removing id
+Nothofagus_balansae removing id
+Nothofagus_balansae removing id
+Nothofagus_baumanniae removing id
+Nothofagus_baumanniae removing id
+Nothofagus_betuloides removing id
+Nothofagus_betuloides removing id
+Nothofagus_brassii removing id
+Nothofagus_brassii removing id
+Nothofagus_carrii removing id
+Nothofagus_carrii removing id
+Nothofagus_cliffortioides removing id
+Nothofagus_codonandra removing id
+Nothofagus_codonandra removing id
+Nothofagus_cunninghamii removing id
+Nothofagus_cunninghamii removing id
+Nothofagus_cunninghamii removing id
+Nothofagus_discoidea removing id
+Nothofagus_discoidea removing id
+Nothofagus_dombeyi removing id
+Nothofagus_dombeyi removing id
+Nothofagus_fusca removing id
+Nothofagus_glauca removing id
+Nothofagus_glauca removing id
+Nothofagus_grandis removing id
+Nothofagus_grandis removing id
+Nothofagus_gunnii removing id
+Nothofagus_menziesii removing id
+Nothofagus_menziesii removing id
+Nothofagus_moorei removing id
+Nothofagus_moorei removing id
+Nothofagus_moorei removing id
+Nothofagus_nitida removing id
+Nothofagus_nitida removing id
+Nothofagus_obliqua removing id
+Nothofagus_obliqua removing id
+Nothofagus_perryi removing id
+Nothofagus_perryi removing id
+Nothofagus_pumilio removing id
+Nothofagus_pumilio removing id
+Nothofagus_resinosa removing id
+Nothofagus_resinosa removing id
+Nothofagus_solandri removing id
+Nothofagus_truncata removing id
+Oreomunnea_mexicana removing id
+Oreomunnea_mexicana removing id
+Oreomunnea_mexicana removing id
+Platycarya_strobilacea removing id
+Platycarya_strobilacea removing id
+Platycarya_strobilacea removing id
+Platycarya_strobilacea removing id
+Quercus_rubra removing id
+Quercus_rubra removing id
+Quercus_rubra removing id
+Quercus_rubra removing id
+Quercus_rubra removing id
+Rhoiptelea_chiliantha removing id
+Rhoiptelea_chiliantha removing id
+Ticodendron_incognitum removing id
+Ticodendron_incognitum removing id
+Ticodendron_incognitum removing id
+Trigonobalanus_verticellata removing id
+Trigonobalanus_verticellata removing id
+Trigonobalanus_verticellata removing id
+Trigonobalanus_verticellata removing id
+ClockModel.t:tree removing clock.rate
+ClockModel.t:tree removing spec
+ClockModel.t:tree removing clock.rate
+ClockModel.t:tree removing spec
+ESTIMATED HEIGHT 0.052237731905714666
+Alignment(null)
+  51 taxa
+  5444 sites
+  1834 patterns
+
+Filter 1-1353\3
+51 taxa
+451 sites
+51 patterns
+Filter 2-1353\3
+51 taxa
+451 sites
+28 patterns
+Filter 3-1353\3
+51 taxa
+451 sites
+147 patterns
+Filter 1354-2784\3
+51 taxa
+477 sites
+94 patterns
+Filter 1355-2784\3
+51 taxa
+477 sites
+74 patterns
+Filter 1356-2784\3
+51 taxa
+477 sites
+235 patterns
+Filter 2785-3777
+51 taxa
+993 sites
+427 patterns
+Filter 3778-4258
+51 taxa
+481 sites
+271 patterns
+Filter 4259-4816
+51 taxa
+558 sites
+281 patterns
+Filter 4817-5444
+51 taxa
+628 sites
+313 patterns
+Filter 1-4816
+51 taxa
+4816 sites
+1521 patterns
+Filter 4817-5444
+51 taxa
+628 sites
+313 patterns
+Sampling alignment: ../datasets/Sauquet_2011/alignment.nex
+DatasetSampler(alignment.$(partition))
+  51 taxa
+  2072 sites with weight 5444
+  887 patterns
+
+Subsampling 9 partitions from the alignment
+Computed a clock rate prior: lognormal(-2.607720171251041,0.913802208383204)
+DatasetSampler(alignment.$(partition))
+  51 taxa
+  4993 sites
+  1870 patterns
+
+Filter 1-451
+51 taxa
+451 sites
+147 patterns
+Filter 452-1444
+51 taxa
+993 sites
+427 patterns
+Filter 1445-1895
+51 taxa
+451 sites
+28 patterns
+Filter 1896-2453
+51 taxa
+558 sites
+281 patterns
+Filter 2454-2930
+51 taxa
+477 sites
+74 patterns
+Filter 2931-3558
+51 taxa
+628 sites
+313 patterns
+Filter 3559-4035
+51 taxa
+477 sites
+94 patterns
+Filter 4036-4512
+51 taxa
+477 sites
+235 patterns
+Filter 4513-4993
+51 taxa
+481 sites
+271 patterns
+Sampling model: ../models/species/Concat.xml
+Sampling model: ../models/treeclock/Calibrated.xml
+Sampling model: ../models/site/nucleotide/GTR.xml
+Sampling model: ../models/heterogeneity/Gamma.xml
+Sampling model: ../models/clock/RelaxedLN.xml
+Sampling model: ../models/tree/Coalescent.xml
+gammaShape.s:atpb_3rdpos removing estimate
+gammaShape.s:atpb_3rdpos removing name
+gammaShape.s:atpb_3rdpos removing spec
+gammaShape.s:spacer_rbcl removing estimate
+gammaShape.s:spacer_rbcl removing name
+gammaShape.s:spacer_rbcl removing spec
+gammaShape.s:atpb_2ndpos removing estimate
+gammaShape.s:atpb_2ndpos removing name
+gammaShape.s:atpb_2ndpos removing spec
+gammaShape.s:trnl_intron removing estimate
+gammaShape.s:trnl_intron removing name
+gammaShape.s:trnl_intron removing spec
+gammaShape.s:rbcl_2ndpos removing estimate
+gammaShape.s:rbcl_2ndpos removing name
+gammaShape.s:rbcl_2ndpos removing spec
+gammaShape.s:its removing estimate
+gammaShape.s:its removing name
+gammaShape.s:its removing spec
+gammaShape.s:rbcl_1stpos removing estimate
+gammaShape.s:rbcl_1stpos removing name
+gammaShape.s:rbcl_1stpos removing spec
+gammaShape.s:rbcl_3rdpos removing estimate
+gammaShape.s:rbcl_3rdpos removing name
+gammaShape.s:rbcl_3rdpos removing spec
+gammaShape.s:spacer_trnlf removing estimate
+gammaShape.s:spacer_trnlf removing name
+gammaShape.s:spacer_trnlf removing spec
+LogNormalDistributionModel.clock removing S
+LogNormalDistributionModel.clock removing meanInRealSpace
+LogNormalDistributionModel.clock removing S
+LogNormalDistributionModel.clock removing meanInRealSpace
+LogNormalDistributionModel.clock removing S
+LogNormalDistributionModel.clock removing meanInRealSpace
+LogNormalDistributionModel.clock removing S
+LogNormalDistributionModel.clock removing meanInRealSpace
+LogNormalDistributionModel.clock removing S
+LogNormalDistributionModel.clock removing meanInRealSpace
+LogNormalDistributionModel.clock removing S
+LogNormalDistributionModel.clock removing meanInRealSpace
+LogNormalDistributionModel.clock removing S
+LogNormalDistributionModel.clock removing meanInRealSpace
+LogNormalDistributionModel.clock removing S
+LogNormalDistributionModel.clock removing meanInRealSpace
+LogNormalDistributionModel.clock removing S
+LogNormalDistributionModel.clock removing meanInRealSpace
+Alfaroa_williamsii removing id
+Alfaroa_williamsii removing id
+Alfaroa_williamsii removing id
+Alfaropsis_roxburghiana removing id
+Alfaropsis_roxburghiana removing id
+Alfaropsis_roxburghiana removing id
+Betula_platyphylla removing id
+Betula_platyphylla removing id
+Betula_platyphylla removing id
+Betula_platyphylla removing id
+Carpinus_betulus removing id
+Carpinus_betulus removing id
+Carpinus_betulus removing id
+Carpinus_betulus removing id
+Carya_illinoinensis removing id
+Carya_illinoinensis removing id
+Carya_illinoinensis removing id
+Carya_illinoinensis removing id
+Castanea_sativa removing id
+Castanea_sativa removing id
+Castanea_sativa removing id
+Castanea_sativa removing id
+Castanea_sativa removing id
+Casuarina_equisetifolia removing id
+Casuarina_equisetifolia removing id
+Casuarina_equisetifolia removing id
+Chrysolepis_sempervirens removing id
+Chrysolepis_sempervirens removing id
+Chrysolepis_sempervirens removing id
+Chrysolepis_sempervirens removing id
+Chrysolepis_sempervirens removing id
+Comptonia_peregrina removing id
+Comptonia_peregrina removing id
+Cucumis_sativus removing id
+Cyclocarya_paliurus removing id
+Cyclocarya_paliurus removing id
+Cyclocarya_paliurus removing id
+Cyclocarya_paliurus removing id
+Cyclocarya_paliurus removing id
+Engelhardia_fenzelii removing id
+Engelhardia_fenzelii removing id
+Engelhardia_fenzelii removing id
+Fagus_grandifolia removing id
+Fagus_grandifolia removing id
+Fagus_grandifolia removing id
+Juglans_nigra removing id
+Juglans_nigra removing id
+Juglans_nigra removing id
+Juglans_nigra removing id
+Juglans_nigra removing id
+Lithocarpus_henryi removing id
+Lithocarpus_henryi removing id
+Lithocarpus_henryi removing id
+Lithocarpus_henryi removing id
+Lithocarpus_henryi removing id
+Morella_cerifera removing id
+Morella_cerifera removing id
+Nothofagus_aequilateralis removing id
+Nothofagus_aequilateralis removing id
+Nothofagus_alessandri removing id
+Nothofagus_alpina removing id
+Nothofagus_alpina removing id
+Nothofagus_antarctica removing id
+Nothofagus_antarctica removing id
+Nothofagus_balansae removing id
+Nothofagus_balansae removing id
+Nothofagus_baumanniae removing id
+Nothofagus_baumanniae removing id
+Nothofagus_betuloides removing id
+Nothofagus_betuloides removing id
+Nothofagus_brassii removing id
+Nothofagus_brassii removing id
+Nothofagus_carrii removing id
+Nothofagus_carrii removing id
+Nothofagus_cliffortioides removing id
+Nothofagus_codonandra removing id
+Nothofagus_codonandra removing id
+Nothofagus_cunninghamii removing id
+Nothofagus_cunninghamii removing id
+Nothofagus_cunninghamii removing id
+Nothofagus_discoidea removing id
+Nothofagus_discoidea removing id
+Nothofagus_dombeyi removing id
+Nothofagus_dombeyi removing id
+Nothofagus_fusca removing id
+Nothofagus_glauca removing id
+Nothofagus_glauca removing id
+Nothofagus_grandis removing id
+Nothofagus_grandis removing id
+Nothofagus_gunnii removing id
+Nothofagus_menziesii removing id
+Nothofagus_menziesii removing id
+Nothofagus_moorei removing id
+Nothofagus_moorei removing id
+Nothofagus_moorei removing id
+Nothofagus_nitida removing id
+Nothofagus_nitida removing id
+Nothofagus_obliqua removing id
+Nothofagus_obliqua removing id
+Nothofagus_perryi removing id
+Nothofagus_perryi removing id
+Nothofagus_pumilio removing id
+Nothofagus_pumilio removing id
+Nothofagus_resinosa removing id
+Nothofagus_resinosa removing id
+Nothofagus_solandri removing id
+Nothofagus_truncata removing id
+Oreomunnea_mexicana removing id
+Oreomunnea_mexicana removing id
+Oreomunnea_mexicana removing id
+Platycarya_strobilacea removing id
+Platycarya_strobilacea removing id
+Platycarya_strobilacea removing id
+Platycarya_strobilacea removing id
+Quercus_rubra removing id
+Quercus_rubra removing id
+Quercus_rubra removing id
+Quercus_rubra removing id
+Quercus_rubra removing id
+Rhoiptelea_chiliantha removing id
+Rhoiptelea_chiliantha removing id
+Ticodendron_incognitum removing id
+Ticodendron_incognitum removing id
+Ticodendron_incognitum removing id
+Trigonobalanus_verticellata removing id
+Trigonobalanus_verticellata removing id
+Trigonobalanus_verticellata removing id
+Trigonobalanus_verticellata removing id
+ClockModel.t:tree removing clock.rate
+ClockModel.t:tree removing rates
+ClockModel.t:tree removing tree
+ClockModel.t:tree removing clock.rate
+ClockModel.t:tree removing rates
+ClockModel.t:tree removing tree
+ClockModel.t:tree removing clock.rate
+ClockModel.t:tree removing rates
+ClockModel.t:tree removing tree
+ClockModel.t:tree removing clock.rate
+ClockModel.t:tree removing rates
+ClockModel.t:tree removing tree
+ClockModel.t:tree removing clock.rate
+ClockModel.t:tree removing rates
+ClockModel.t:tree removing tree
+ClockModel.t:tree removing clock.rate
+ClockModel.t:tree removing rates
+ClockModel.t:tree removing tree
+ClockModel.t:tree removing clock.rate
+ClockModel.t:tree removing rates
+ClockModel.t:tree removing tree
+ClockModel.t:tree removing clock.rate
+ClockModel.t:tree removing rates
+ClockModel.t:tree removing tree
+ESTIMATED HEIGHT 0.03971525091940054
+Alignment(null)
+  51 taxa
+  5444 sites
+  1834 patterns
+
+Filter 1-1353\3
+51 taxa
+451 sites
+51 patterns
+Filter 2-1353\3
+51 taxa
+451 sites
+28 patterns
+Filter 3-1353\3
+51 taxa
+451 sites
+147 patterns
+Filter 1354-2784\3
+51 taxa
+477 sites
+94 patterns
+Filter 1355-2784\3
+51 taxa
+477 sites
+74 patterns
+Filter 1356-2784\3
+51 taxa
+477 sites
+235 patterns
+Filter 2785-3777
+51 taxa
+993 sites
+427 patterns
+Filter 3778-4258
+51 taxa
+481 sites
+271 patterns
+Filter 4259-4816
+51 taxa
+558 sites
+281 patterns
+Filter 4817-5444
+51 taxa
+628 sites
+313 patterns
+Filter 1-4816
+51 taxa
+4816 sites
+1521 patterns
+Filter 4817-5444
+51 taxa
+628 sites
+313 patterns
+Sampling alignment: ../datasets/Sauquet_2011/alignment.nex
+DatasetSampler(alignment.$(partition))
+  51 taxa
+  4993 sites with weight 5444
+  1870 patterns
+
+Subsampling 6 partitions from the alignment
+Computed a clock rate prior: lognormal(-2.6077201712510414,0.913802208383204)
+DatasetSampler(alignment.$(partition))
+  51 taxa
+  7949 sites
+  2710 patterns
+
+Filter 1-993
+51 taxa
+993 sites
+427 patterns
+Filter 994-5809
+51 taxa
+4816 sites
+1521 patterns
+Filter 5810-6437
+51 taxa
+628 sites
+313 patterns
+Filter 6438-6914
+51 taxa
+477 sites
+94 patterns
+Filter 6915-7391
+51 taxa
+477 sites
+74 patterns
+Filter 7392-7949
+51 taxa
+558 sites
+281 patterns
+Sampling model: ../models/species/Concat.xml
+Sampling model: ../models/treeclock/Calibrated.xml
+Sampling model: ../models/site/nucleotide/GTR.xml
+Sampling model: ../models/heterogeneity/No.xml
+Sampling model: ../models/clock/RelaxedLN.xml
+Sampling model: ../models/tree/Yule.xml
+LogNormalDistributionModel.clock removing S
+LogNormalDistributionModel.clock removing meanInRealSpace
+LogNormalDistributionModel.clock removing S
+LogNormalDistributionModel.clock removing meanInRealSpace
+LogNormalDistributionModel.clock removing S
+LogNormalDistributionModel.clock removing meanInRealSpace
+LogNormalDistributionModel.clock removing S
+LogNormalDistributionModel.clock removing meanInRealSpace
+LogNormalDistributionModel.clock removing S
+LogNormalDistributionModel.clock removing meanInRealSpace
+LogNormalDistributionModel.clock removing S
+LogNormalDistributionModel.clock removing meanInRealSpace
+Alfaroa_williamsii removing id
+Alfaroa_williamsii removing id
+Alfaroa_williamsii removing id
+Alfaropsis_roxburghiana removing id
+Alfaropsis_roxburghiana removing id
+Alfaropsis_roxburghiana removing id
+Betula_platyphylla removing id
+Betula_platyphylla removing id
+Betula_platyphylla removing id
+Betula_platyphylla removing id
+Carpinus_betulus removing id
+Carpinus_betulus removing id
+Carpinus_betulus removing id
+Carpinus_betulus removing id
+Carya_illinoinensis removing id
+Carya_illinoinensis removing id
+Carya_illinoinensis removing id
+Carya_illinoinensis removing id
+Castanea_sativa removing id
+Castanea_sativa removing id
+Castanea_sativa removing id
+Castanea_sativa removing id
+Castanea_sativa removing id
+Casuarina_equisetifolia removing id
+Casuarina_equisetifolia removing id
+Casuarina_equisetifolia removing id
+Chrysolepis_sempervirens removing id
+Chrysolepis_sempervirens removing id
+Chrysolepis_sempervirens removing id
+Chrysolepis_sempervirens removing id
+Chrysolepis_sempervirens removing id
+Comptonia_peregrina removing id
+Comptonia_peregrina removing id
+Cucumis_sativus removing id
+Cyclocarya_paliurus removing id
+Cyclocarya_paliurus removing id
+Cyclocarya_paliurus removing id
+Cyclocarya_paliurus removing id
+Cyclocarya_paliurus removing id
+Engelhardia_fenzelii removing id
+Engelhardia_fenzelii removing id
+Engelhardia_fenzelii removing id
+Fagus_grandifolia removing id
+Fagus_grandifolia removing id
+Fagus_grandifolia removing id
+Juglans_nigra removing id
+Juglans_nigra removing id
+Juglans_nigra removing id
+Juglans_nigra removing id
+Juglans_nigra removing id
+Lithocarpus_henryi removing id
+Lithocarpus_henryi removing id
+Lithocarpus_henryi removing id
+Lithocarpus_henryi removing id
+Lithocarpus_henryi removing id
+Morella_cerifera removing id
+Morella_cerifera removing id
+Nothofagus_aequilateralis removing id
+Nothofagus_aequilateralis removing id
+Nothofagus_alessandri removing id
+Nothofagus_alpina removing id
+Nothofagus_alpina removing id
+Nothofagus_antarctica removing id
+Nothofagus_antarctica removing id
+Nothofagus_balansae removing id
+Nothofagus_balansae removing id
+Nothofagus_baumanniae removing id
+Nothofagus_baumanniae removing id
+Nothofagus_betuloides removing id
+Nothofagus_betuloides removing id
+Nothofagus_brassii removing id
+Nothofagus_brassii removing id
+Nothofagus_carrii removing id
+Nothofagus_carrii removing id
+Nothofagus_cliffortioides removing id
+Nothofagus_codonandra removing id
+Nothofagus_codonandra removing id
+Nothofagus_cunninghamii removing id
+Nothofagus_cunninghamii removing id
+Nothofagus_cunninghamii removing id
+Nothofagus_discoidea removing id
+Nothofagus_discoidea removing id
+Nothofagus_dombeyi removing id
+Nothofagus_dombeyi removing id
+Nothofagus_fusca removing id
+Nothofagus_glauca removing id
+Nothofagus_glauca removing id
+Nothofagus_grandis removing id
+Nothofagus_grandis removing id
+Nothofagus_gunnii removing id
+Nothofagus_menziesii removing id
+Nothofagus_menziesii removing id
+Nothofagus_moorei removing id
+Nothofagus_moorei removing id
+Nothofagus_moorei removing id
+Nothofagus_nitida removing id
+Nothofagus_nitida removing id
+Nothofagus_obliqua removing id
+Nothofagus_obliqua removing id
+Nothofagus_perryi removing id
+Nothofagus_perryi removing id
+Nothofagus_pumilio removing id
+Nothofagus_pumilio removing id
+Nothofagus_resinosa removing id
+Nothofagus_resinosa removing id
+Nothofagus_solandri removing id
+Nothofagus_truncata removing id
+Oreomunnea_mexicana removing id
+Oreomunnea_mexicana removing id
+Oreomunnea_mexicana removing id
+Platycarya_strobilacea removing id
+Platycarya_strobilacea removing id
+Platycarya_strobilacea removing id
+Platycarya_strobilacea removing id
+Quercus_rubra removing id
+Quercus_rubra removing id
+Quercus_rubra removing id
+Quercus_rubra removing id
+Quercus_rubra removing id
+Rhoiptelea_chiliantha removing id
+Rhoiptelea_chiliantha removing id
+Ticodendron_incognitum removing id
+Ticodendron_incognitum removing id
+Ticodendron_incognitum removing id
+Trigonobalanus_verticellata removing id
+Trigonobalanus_verticellata removing id
+Trigonobalanus_verticellata removing id
+Trigonobalanus_verticellata removing id
+ClockModel.t:tree removing clock.rate
+ClockModel.t:tree removing rates
+ClockModel.t:tree removing tree
+ClockModel.t:tree removing clock.rate
+ClockModel.t:tree removing rates
+ClockModel.t:tree removing tree
+ClockModel.t:tree removing clock.rate
+ClockModel.t:tree removing rates
+ClockModel.t:tree removing tree
+ClockModel.t:tree removing clock.rate
+ClockModel.t:tree removing rates
+ClockModel.t:tree removing tree
+ClockModel.t:tree removing clock.rate
+ClockModel.t:tree removing rates
+ClockModel.t:tree removing tree
+ESTIMATED HEIGHT 0.03387049994277429
+Alignment(null)
+  51 taxa
+  5444 sites
+  1834 patterns
+
+Filter 1-1353\3
+51 taxa
+451 sites
+51 patterns
+Filter 2-1353\3
+51 taxa
+451 sites
+28 patterns
+Filter 3-1353\3
+51 taxa
+451 sites
+147 patterns
+Filter 1354-2784\3
+51 taxa
+477 sites
+94 patterns
+Filter 1355-2784\3
+51 taxa
+477 sites
+74 patterns
+Filter 1356-2784\3
+51 taxa
+477 sites
+235 patterns
+Filter 2785-3777
+51 taxa
+993 sites
+427 patterns
+Filter 3778-4258
+51 taxa
+481 sites
+271 patterns
+Filter 4259-4816
+51 taxa
+558 sites
+281 patterns
+Filter 4817-5444
+51 taxa
+628 sites
+313 patterns
+Filter 1-4816
+51 taxa
+4816 sites
+1521 patterns
+Filter 4817-5444
+51 taxa
+628 sites
+313 patterns
+Sampling alignment: ../datasets/Sauquet_2011/alignment.nex
+DatasetSampler(alignment.$(partition))
+  51 taxa
+  7949 sites with weight 5444
+  2710 patterns
+
+Subsampling 2 partitions from the alignment
+Computed a clock rate prior: lognormal(-2.6077201712510414,0.913802208383204)
+DatasetSampler(alignment.$(partition))
+  51 taxa
+  1105 sites
+  387 patterns
+
+Filter 1-477
+51 taxa
+477 sites
+74 patterns
+Filter 478-1105
+51 taxa
+628 sites
+313 patterns
+Sampling model: ../models/species/Concat.xml
+Sampling model: ../models/treeclock/Calibrated.xml
+Sampling model: ../models/site/nucleotide/JukesCantor.xml
+Sampling model: ../models/heterogeneity/GammaInvariant.xml
+Sampling model: ../models/clock/RelaxedLN.xml
+Sampling model: ../models/tree/BirthDeath.xml
+gammaShape.s:rbcl_2ndpos removing estimate
+gammaShape.s:rbcl_2ndpos removing name
+gammaShape.s:rbcl_2ndpos removing spec
+gammaShape.s:its removing estimate
+gammaShape.s:its removing name
+gammaShape.s:its removing spec
+LogNormalDistributionModel.clock removing S
+LogNormalDistributionModel.clock removing meanInRealSpace
+LogNormalDistributionModel.clock removing S
+LogNormalDistributionModel.clock removing meanInRealSpace
+Alfaroa_williamsii removing id
+Alfaroa_williamsii removing id
+Alfaroa_williamsii removing id
+Alfaropsis_roxburghiana removing id
+Alfaropsis_roxburghiana removing id
+Alfaropsis_roxburghiana removing id
+Betula_platyphylla removing id
+Betula_platyphylla removing id
+Betula_platyphylla removing id
+Betula_platyphylla removing id
+Carpinus_betulus removing id
+Carpinus_betulus removing id
+Carpinus_betulus removing id
+Carpinus_betulus removing id
+Carya_illinoinensis removing id
+Carya_illinoinensis removing id
+Carya_illinoinensis removing id
+Carya_illinoinensis removing id
+Castanea_sativa removing id
+Castanea_sativa removing id
+Castanea_sativa removing id
+Castanea_sativa removing id
+Castanea_sativa removing id
+Casuarina_equisetifolia removing id
+Casuarina_equisetifolia removing id
+Casuarina_equisetifolia removing id
+Chrysolepis_sempervirens removing id
+Chrysolepis_sempervirens removing id
+Chrysolepis_sempervirens removing id
+Chrysolepis_sempervirens removing id
+Chrysolepis_sempervirens removing id
+Comptonia_peregrina removing id
+Comptonia_peregrina removing id
+Cucumis_sativus removing id
+Cyclocarya_paliurus removing id
+Cyclocarya_paliurus removing id
+Cyclocarya_paliurus removing id
+Cyclocarya_paliurus removing id
+Cyclocarya_paliurus removing id
+Engelhardia_fenzelii removing id
+Engelhardia_fenzelii removing id
+Engelhardia_fenzelii removing id
+Fagus_grandifolia removing id
+Fagus_grandifolia removing id
+Fagus_grandifolia removing id
+Juglans_nigra removing id
+Juglans_nigra removing id
+Juglans_nigra removing id
+Juglans_nigra removing id
+Juglans_nigra removing id
+Lithocarpus_henryi removing id
+Lithocarpus_henryi removing id
+Lithocarpus_henryi removing id
+Lithocarpus_henryi removing id
+Lithocarpus_henryi removing id
+Morella_cerifera removing id
+Morella_cerifera removing id
+Nothofagus_aequilateralis removing id
+Nothofagus_aequilateralis removing id
+Nothofagus_alessandri removing id
+Nothofagus_alpina removing id
+Nothofagus_alpina removing id
+Nothofagus_antarctica removing id
+Nothofagus_antarctica removing id
+Nothofagus_balansae removing id
+Nothofagus_balansae removing id
+Nothofagus_baumanniae removing id
+Nothofagus_baumanniae removing id
+Nothofagus_betuloides removing id
+Nothofagus_betuloides removing id
+Nothofagus_brassii removing id
+Nothofagus_brassii removing id
+Nothofagus_carrii removing id
+Nothofagus_carrii removing id
+Nothofagus_cliffortioides removing id
+Nothofagus_codonandra removing id
+Nothofagus_codonandra removing id
+Nothofagus_cunninghamii removing id
+Nothofagus_cunninghamii removing id
+Nothofagus_cunninghamii removing id
+Nothofagus_discoidea removing id
+Nothofagus_discoidea removing id
+Nothofagus_dombeyi removing id
+Nothofagus_dombeyi removing id
+Nothofagus_fusca removing id
+Nothofagus_glauca removing id
+Nothofagus_glauca removing id
+Nothofagus_grandis removing id
+Nothofagus_grandis removing id
+Nothofagus_gunnii removing id
+Nothofagus_menziesii removing id
+Nothofagus_menziesii removing id
+Nothofagus_moorei removing id
+Nothofagus_moorei removing id
+Nothofagus_moorei removing id
+Nothofagus_nitida removing id
+Nothofagus_nitida removing id
+Nothofagus_obliqua removing id
+Nothofagus_obliqua removing id
+Nothofagus_perryi removing id
+Nothofagus_perryi removing id
+Nothofagus_pumilio removing id
+Nothofagus_pumilio removing id
+Nothofagus_resinosa removing id
+Nothofagus_resinosa removing id
+Nothofagus_solandri removing id
+Nothofagus_truncata removing id
+Oreomunnea_mexicana removing id
+Oreomunnea_mexicana removing id
+Oreomunnea_mexicana removing id
+Platycarya_strobilacea removing id
+Platycarya_strobilacea removing id
+Platycarya_strobilacea removing id
+Platycarya_strobilacea removing id
+Quercus_rubra removing id
+Quercus_rubra removing id
+Quercus_rubra removing id
+Quercus_rubra removing id
+Quercus_rubra removing id
+Rhoiptelea_chiliantha removing id
+Rhoiptelea_chiliantha removing id
+Ticodendron_incognitum removing id
+Ticodendron_incognitum removing id
+Ticodendron_incognitum removing id
+Trigonobalanus_verticellata removing id
+Trigonobalanus_verticellata removing id
+Trigonobalanus_verticellata removing id
+Trigonobalanus_verticellata removing id
+ClockModel.t:tree removing clock.rate
+ClockModel.t:tree removing rates
+ClockModel.t:tree removing tree
+ESTIMATED HEIGHT 0.037580113389600364
+Alignment(null)
+  51 taxa
+  5444 sites
+  1834 patterns
+
+Filter 1-1353\3
+51 taxa
+451 sites
+51 patterns
+Filter 2-1353\3
+51 taxa
+451 sites
+28 patterns
+Filter 3-1353\3
+51 taxa
+451 sites
+147 patterns
+Filter 1354-2784\3
+51 taxa
+477 sites
+94 patterns
+Filter 1355-2784\3
+51 taxa
+477 sites
+74 patterns
+Filter 1356-2784\3
+51 taxa
+477 sites
+235 patterns
+Filter 2785-3777
+51 taxa
+993 sites
+427 patterns
+Filter 3778-4258
+51 taxa
+481 sites
+271 patterns
+Filter 4259-4816
+51 taxa
+558 sites
+281 patterns
+Filter 4817-5444
+51 taxa
+628 sites
+313 patterns
+Filter 1-4816
+51 taxa
+4816 sites
+1521 patterns
+Filter 4817-5444
+51 taxa
+628 sites
+313 patterns
+Sampling alignment: ../datasets/Sauquet_2011/alignment.nex
+DatasetSampler(alignment.$(partition))
+  51 taxa
+  1105 sites with weight 5444
+  387 patterns
+
+Subsampling 8 partitions from the alignment
+Computed a clock rate prior: lognormal(-2.6077201712510414,0.913802208383204)
+DatasetSampler(alignment.$(partition))
+  51 taxa
+  8232 sites
+  2640 patterns
+
+Filter 1-477
+51 taxa
+477 sites
+235 patterns
+Filter 478-928
+51 taxa
+451 sites
+147 patterns
+Filter 929-1556
+51 taxa
+628 sites
+313 patterns
+Filter 1557-2007
+51 taxa
+451 sites
+51 patterns
+Filter 2008-2484
+51 taxa
+477 sites
+74 patterns
+Filter 2485-7300
+51 taxa
+4816 sites
+1521 patterns
+Filter 7301-7751
+51 taxa
+451 sites
+28 patterns
+Filter 7752-8232
+51 taxa
+481 sites
+271 patterns
+Sampling model: ../models/species/Concat.xml
+Sampling model: ../models/treeclock/Calibrated.xml
+Sampling model: ../models/site/nucleotide/JukesCantor.xml
+Sampling model: ../models/heterogeneity/Invariant.xml
+Sampling model: ../models/clock/RelaxedLN.xml
+Sampling model: ../models/tree/BirthDeath.xml
+LogNormalDistributionModel.clock removing S
+LogNormalDistributionModel.clock removing meanInRealSpace
+LogNormalDistributionModel.clock removing S
+LogNormalDistributionModel.clock removing meanInRealSpace
+LogNormalDistributionModel.clock removing S
+LogNormalDistributionModel.clock removing meanInRealSpace
+LogNormalDistributionModel.clock removing S
+LogNormalDistributionModel.clock removing meanInRealSpace
+LogNormalDistributionModel.clock removing S
+LogNormalDistributionModel.clock removing meanInRealSpace
+LogNormalDistributionModel.clock removing S
+LogNormalDistributionModel.clock removing meanInRealSpace
+LogNormalDistributionModel.clock removing S
+LogNormalDistributionModel.clock removing meanInRealSpace
+LogNormalDistributionModel.clock removing S
+LogNormalDistributionModel.clock removing meanInRealSpace
+Alfaroa_williamsii removing id
+Alfaroa_williamsii removing id
+Alfaroa_williamsii removing id
+Alfaropsis_roxburghiana removing id
+Alfaropsis_roxburghiana removing id
+Alfaropsis_roxburghiana removing id
+Betula_platyphylla removing id
+Betula_platyphylla removing id
+Betula_platyphylla removing id
+Betula_platyphylla removing id
+Carpinus_betulus removing id
+Carpinus_betulus removing id
+Carpinus_betulus removing id
+Carpinus_betulus removing id
+Carya_illinoinensis removing id
+Carya_illinoinensis removing id
+Carya_illinoinensis removing id
+Carya_illinoinensis removing id
+Castanea_sativa removing id
+Castanea_sativa removing id
+Castanea_sativa removing id
+Castanea_sativa removing id
+Castanea_sativa removing id
+Casuarina_equisetifolia removing id
+Casuarina_equisetifolia removing id
+Casuarina_equisetifolia removing id
+Chrysolepis_sempervirens removing id
+Chrysolepis_sempervirens removing id
+Chrysolepis_sempervirens removing id
+Chrysolepis_sempervirens removing id
+Chrysolepis_sempervirens removing id
+Comptonia_peregrina removing id
+Comptonia_peregrina removing id
+Cucumis_sativus removing id
+Cyclocarya_paliurus removing id
+Cyclocarya_paliurus removing id
+Cyclocarya_paliurus removing id
+Cyclocarya_paliurus removing id
+Cyclocarya_paliurus removing id
+Engelhardia_fenzelii removing id
+Engelhardia_fenzelii removing id
+Engelhardia_fenzelii removing id
+Fagus_grandifolia removing id
+Fagus_grandifolia removing id
+Fagus_grandifolia removing id
+Juglans_nigra removing id
+Juglans_nigra removing id
+Juglans_nigra removing id
+Juglans_nigra removing id
+Juglans_nigra removing id
+Lithocarpus_henryi removing id
+Lithocarpus_henryi removing id
+Lithocarpus_henryi removing id
+Lithocarpus_henryi removing id
+Lithocarpus_henryi removing id
+Morella_cerifera removing id
+Morella_cerifera removing id
+Nothofagus_aequilateralis removing id
+Nothofagus_aequilateralis removing id
+Nothofagus_alessandri removing id
+Nothofagus_alpina removing id
+Nothofagus_alpina removing id
+Nothofagus_antarctica removing id
+Nothofagus_antarctica removing id
+Nothofagus_balansae removing id
+Nothofagus_balansae removing id
+Nothofagus_baumanniae removing id
+Nothofagus_baumanniae removing id
+Nothofagus_betuloides removing id
+Nothofagus_betuloides removing id
+Nothofagus_brassii removing id
+Nothofagus_brassii removing id
+Nothofagus_carrii removing id
+Nothofagus_carrii removing id
+Nothofagus_cliffortioides removing id
+Nothofagus_codonandra removing id
+Nothofagus_codonandra removing id
+Nothofagus_cunninghamii removing id
+Nothofagus_cunninghamii removing id
+Nothofagus_cunninghamii removing id
+Nothofagus_discoidea removing id
+Nothofagus_discoidea removing id
+Nothofagus_dombeyi removing id
+Nothofagus_dombeyi removing id
+Nothofagus_fusca removing id
+Nothofagus_glauca removing id
+Nothofagus_glauca removing id
+Nothofagus_grandis removing id
+Nothofagus_grandis removing id
+Nothofagus_gunnii removing id
+Nothofagus_menziesii removing id
+Nothofagus_menziesii removing id
+Nothofagus_moorei removing id
+Nothofagus_moorei removing id
+Nothofagus_moorei removing id
+Nothofagus_nitida removing id
+Nothofagus_nitida removing id
+Nothofagus_obliqua removing id
+Nothofagus_obliqua removing id
+Nothofagus_perryi removing id
+Nothofagus_perryi removing id
+Nothofagus_pumilio removing id
+Nothofagus_pumilio removing id
+Nothofagus_resinosa removing id
+Nothofagus_resinosa removing id
+Nothofagus_solandri removing id
+Nothofagus_truncata removing id
+Oreomunnea_mexicana removing id
+Oreomunnea_mexicana removing id
+Oreomunnea_mexicana removing id
+Platycarya_strobilacea removing id
+Platycarya_strobilacea removing id
+Platycarya_strobilacea removing id
+Platycarya_strobilacea removing id
+Quercus_rubra removing id
+Quercus_rubra removing id
+Quercus_rubra removing id
+Quercus_rubra removing id
+Quercus_rubra removing id
+Rhoiptelea_chiliantha removing id
+Rhoiptelea_chiliantha removing id
+Ticodendron_incognitum removing id
+Ticodendron_incognitum removing id
+Ticodendron_incognitum removing id
+Trigonobalanus_verticellata removing id
+Trigonobalanus_verticellata removing id
+Trigonobalanus_verticellata removing id
+Trigonobalanus_verticellata removing id
+ClockModel.t:tree removing clock.rate
+ClockModel.t:tree removing rates
+ClockModel.t:tree removing tree
+ClockModel.t:tree removing clock.rate
+ClockModel.t:tree removing rates
+ClockModel.t:tree removing tree
+ClockModel.t:tree removing clock.rate
+ClockModel.t:tree removing rates
+ClockModel.t:tree removing tree
+ClockModel.t:tree removing clock.rate
+ClockModel.t:tree removing rates
+ClockModel.t:tree removing tree
+ClockModel.t:tree removing clock.rate
+ClockModel.t:tree removing rates
+ClockModel.t:tree removing tree
+ClockModel.t:tree removing clock.rate
+ClockModel.t:tree removing rates
+ClockModel.t:tree removing tree
+ClockModel.t:tree removing clock.rate
+ClockModel.t:tree removing rates
+ClockModel.t:tree removing tree
+ESTIMATED HEIGHT 0.03419611734286266
+Alignment(null)
+  51 taxa
+  5444 sites
+  1834 patterns
+
+Filter 1-1353\3
+51 taxa
+451 sites
+51 patterns
+Filter 2-1353\3
+51 taxa
+451 sites
+28 patterns
+Filter 3-1353\3
+51 taxa
+451 sites
+147 patterns
+Filter 1354-2784\3
+51 taxa
+477 sites
+94 patterns
+Filter 1355-2784\3
+51 taxa
+477 sites
+74 patterns
+Filter 1356-2784\3
+51 taxa
+477 sites
+235 patterns
+Filter 2785-3777
+51 taxa
+993 sites
+427 patterns
+Filter 3778-4258
+51 taxa
+481 sites
+271 patterns
+Filter 4259-4816
+51 taxa
+558 sites
+281 patterns
+Filter 4817-5444
+51 taxa
+628 sites
+313 patterns
+Filter 1-4816
+51 taxa
+4816 sites
+1521 patterns
+Filter 4817-5444
+51 taxa
+628 sites
+313 patterns
+Sampling alignment: ../datasets/Sauquet_2011/alignment.nex
+DatasetSampler(alignment.$(partition))
+  51 taxa
+  8232 sites with weight 5444
+  2640 patterns
+
+Subsampling 8 partitions from the alignment
+Computed a clock rate prior: lognormal(-2.6077201712510414,0.913802208383204)
+DatasetSampler(alignment.$(partition))
+  51 taxa
+  8774 sites
+  2898 patterns
+
+Filter 1-481
+51 taxa
+481 sites
+271 patterns
+Filter 482-5297
+51 taxa
+4816 sites
+1521 patterns
+Filter 5298-5925
+51 taxa
+628 sites
+313 patterns
+Filter 5926-6376
+51 taxa
+451 sites
+147 patterns
+Filter 6377-6853
+51 taxa
+477 sites
+94 patterns
+Filter 6854-7304
+51 taxa
+451 sites
+51 patterns
+Filter 7305-8297
+51 taxa
+993 sites
+427 patterns
+Filter 8298-8774
+51 taxa
+477 sites
+74 patterns
+Sampling model: ../models/species/Concat.xml
+Sampling model: ../models/treeclock/Calibrated.xml
+Sampling model: ../models/site/nucleotide/GTR.xml
+Sampling model: ../models/heterogeneity/No.xml
+Sampling model: ../models/clock/Strict.xml
+Sampling model: ../models/tree/Skyline.xml
+Alfaroa_williamsii removing id
+Alfaroa_williamsii removing id
+Alfaroa_williamsii removing id
+Alfaropsis_roxburghiana removing id
+Alfaropsis_roxburghiana removing id
+Alfaropsis_roxburghiana removing id
+Betula_platyphylla removing id
+Betula_platyphylla removing id
+Betula_platyphylla removing id
+Betula_platyphylla removing id
+Carpinus_betulus removing id
+Carpinus_betulus removing id
+Carpinus_betulus removing id
+Carpinus_betulus removing id
+Carya_illinoinensis removing id
+Carya_illinoinensis removing id
+Carya_illinoinensis removing id
+Carya_illinoinensis removing id
+Castanea_sativa removing id
+Castanea_sativa removing id
+Castanea_sativa removing id
+Castanea_sativa removing id
+Castanea_sativa removing id
+Casuarina_equisetifolia removing id
+Casuarina_equisetifolia removing id
+Casuarina_equisetifolia removing id
+Chrysolepis_sempervirens removing id
+Chrysolepis_sempervirens removing id
+Chrysolepis_sempervirens removing id
+Chrysolepis_sempervirens removing id
+Chrysolepis_sempervirens removing id
+Comptonia_peregrina removing id
+Comptonia_peregrina removing id
+Cucumis_sativus removing id
+Cyclocarya_paliurus removing id
+Cyclocarya_paliurus removing id
+Cyclocarya_paliurus removing id
+Cyclocarya_paliurus removing id
+Cyclocarya_paliurus removing id
+Engelhardia_fenzelii removing id
+Engelhardia_fenzelii removing id
+Engelhardia_fenzelii removing id
+Fagus_grandifolia removing id
+Fagus_grandifolia removing id
+Fagus_grandifolia removing id
+Juglans_nigra removing id
+Juglans_nigra removing id
+Juglans_nigra removing id
+Juglans_nigra removing id
+Juglans_nigra removing id
+Lithocarpus_henryi removing id
+Lithocarpus_henryi removing id
+Lithocarpus_henryi removing id
+Lithocarpus_henryi removing id
+Lithocarpus_henryi removing id
+Morella_cerifera removing id
+Morella_cerifera removing id
+Nothofagus_aequilateralis removing id
+Nothofagus_aequilateralis removing id
+Nothofagus_alessandri removing id
+Nothofagus_alpina removing id
+Nothofagus_alpina removing id
+Nothofagus_antarctica removing id
+Nothofagus_antarctica removing id
+Nothofagus_balansae removing id
+Nothofagus_balansae removing id
+Nothofagus_baumanniae removing id
+Nothofagus_baumanniae removing id
+Nothofagus_betuloides removing id
+Nothofagus_betuloides removing id
+Nothofagus_brassii removing id
+Nothofagus_brassii removing id
+Nothofagus_carrii removing id
+Nothofagus_carrii removing id
+Nothofagus_cliffortioides removing id
+Nothofagus_codonandra removing id
+Nothofagus_codonandra removing id
+Nothofagus_cunninghamii removing id
+Nothofagus_cunninghamii removing id
+Nothofagus_cunninghamii removing id
+Nothofagus_discoidea removing id
+Nothofagus_discoidea removing id
+Nothofagus_dombeyi removing id
+Nothofagus_dombeyi removing id
+Nothofagus_fusca removing id
+Nothofagus_glauca removing id
+Nothofagus_glauca removing id
+Nothofagus_grandis removing id
+Nothofagus_grandis removing id
+Nothofagus_gunnii removing id
+Nothofagus_menziesii removing id
+Nothofagus_menziesii removing id
+Nothofagus_moorei removing id
+Nothofagus_moorei removing id
+Nothofagus_moorei removing id
+Nothofagus_nitida removing id
+Nothofagus_nitida removing id
+Nothofagus_obliqua removing id
+Nothofagus_obliqua removing id
+Nothofagus_perryi removing id
+Nothofagus_perryi removing id
+Nothofagus_pumilio removing id
+Nothofagus_pumilio removing id
+Nothofagus_resinosa removing id
+Nothofagus_resinosa removing id
+Nothofagus_solandri removing id
+Nothofagus_truncata removing id
+Oreomunnea_mexicana removing id
+Oreomunnea_mexicana removing id
+Oreomunnea_mexicana removing id
+Platycarya_strobilacea removing id
+Platycarya_strobilacea removing id
+Platycarya_strobilacea removing id
+Platycarya_strobilacea removing id
+Quercus_rubra removing id
+Quercus_rubra removing id
+Quercus_rubra removing id
+Quercus_rubra removing id
+Quercus_rubra removing id
+Rhoiptelea_chiliantha removing id
+Rhoiptelea_chiliantha removing id
+Ticodendron_incognitum removing id
+Ticodendron_incognitum removing id
+Ticodendron_incognitum removing id
+Trigonobalanus_verticellata removing id
+Trigonobalanus_verticellata removing id
+Trigonobalanus_verticellata removing id
+Trigonobalanus_verticellata removing id
+ClockModel.t:tree removing clock.rate
+ClockModel.t:tree removing spec
+ClockModel.t:tree removing clock.rate
+ClockModel.t:tree removing spec
+ClockModel.t:tree removing clock.rate
+ClockModel.t:tree removing spec
+ClockModel.t:tree removing clock.rate
+ClockModel.t:tree removing spec
+ClockModel.t:tree removing clock.rate
+ClockModel.t:tree removing spec
+ClockModel.t:tree removing clock.rate
+ClockModel.t:tree removing spec
+ClockModel.t:tree removing clock.rate
+ClockModel.t:tree removing spec
+ESTIMATED HEIGHT 0.033016620433517975
+Alignment(null)
+  51 taxa
+  5444 sites
+  1834 patterns
+
+Filter 1-1353\3
+51 taxa
+451 sites
+51 patterns
+Filter 2-1353\3
+51 taxa
+451 sites
+28 patterns
+Filter 3-1353\3
+51 taxa
+451 sites
+147 patterns
+Filter 1354-2784\3
+51 taxa
+477 sites
+94 patterns
+Filter 1355-2784\3
+51 taxa
+477 sites
+74 patterns
+Filter 1356-2784\3
+51 taxa
+477 sites
+235 patterns
+Filter 2785-3777
+51 taxa
+993 sites
+427 patterns
+Filter 3778-4258
+51 taxa
+481 sites
+271 patterns
+Filter 4259-4816
+51 taxa
+558 sites
+281 patterns
+Filter 4817-5444
+51 taxa
+628 sites
+313 patterns
+Filter 1-4816
+51 taxa
+4816 sites
+1521 patterns
+Filter 4817-5444
+51 taxa
+628 sites
+313 patterns
+Sampling alignment: ../datasets/Sauquet_2011/alignment.nex
+DatasetSampler(alignment.$(partition))
+  51 taxa
+  8774 sites with weight 5444
+  2898 patterns
+
+Subsampling 3 partitions from the alignment
+Computed a clock rate prior: lognormal(-2.607720171251041,0.9138022083832041)
+DatasetSampler(alignment.$(partition))
+  51 taxa
+  1516 sites
+  626 patterns
+
+Filter 1-477
+51 taxa
+477 sites
+74 patterns
+Filter 478-1035
+51 taxa
+558 sites
+281 patterns
+Filter 1036-1516
+51 taxa
+481 sites
+271 patterns
+Sampling model: ../models/species/Concat.xml
+Sampling model: ../models/treeclock/Calibrated.xml
+Sampling model: ../models/site/nucleotide/BModelTest.xml
+Sampling model: ../models/heterogeneity/No.xml
+Sampling model: ../models/clock/Strict.xml
+Sampling model: ../models/tree/Skyline.xml

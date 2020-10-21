@@ -63,7 +63,7 @@
 		<file spec="poetry.util.WeightedFile" file="../datasets/Reddy_2017/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Richart_2015/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Rightmyer_2013/alignment.nex" desc="Benchmark alignment" />
-		<file spec="poetry.util.WeightedFile" file="../datasets/Sauquet_2011/alignment.nex" desc="Benchmark alignment" />
+		<file weight="100000" spec="poetry.util.WeightedFile" file="../datasets/Sauquet_2011/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Seago_2011/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Sharanowski_2011/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Siler_2013/alignment.nex" desc="Benchmark alignment" />
