@@ -135,8 +135,7 @@ public class PoetryAnalyser extends Runnable {
 			
 			
 			// Actual runtime
-			Double[] cumulative = analyser.getTrace(RuntimeLoggable.getCumulativeColname());
-			rawRuntime = cumulative[cumulative.length-1] / 3600;
+			rawRuntime = arraySum(analyser.getTrace(RuntimeLoggable.getIncrementalColname())) / 3600000;
 			
 			// Smooth runtime
 			smoothRuntime = getSmoothRuntime(analyser.getTrace(RuntimeLoggable.getIncrementalColname()), nsamples); //cumulative[cumulative.length-1]  / 3600;
@@ -211,6 +210,21 @@ public class PoetryAnalyser extends Runnable {
 			throw e;
 		}
 		
+	}
+	
+	
+	
+	/**
+	 * Tally up the incremental values to get the total
+	 * @param incrTrace - a Double array with capital D
+	 * @return
+	 */
+	public static double arraySum(Double[] incrTrace) {
+		double time = 0;
+		for (int i = 0; i < incrTrace.length; i ++) {
+			time += incrTrace[i];
+		}
+		return time;
 	}
 	
 	/**
@@ -495,8 +509,11 @@ public class PoetryAnalyser extends Runnable {
 		out += "\n";
 		int nrow = this.db.get("xml").length;
 		for (int rowNum = 0; rowNum < nrow; rowNum ++) {
+			int colNum = 0;
 			for (String colname : this.db.keySet()) {
-				out += this.db.get(colname)[rowNum] + "\t";
+				out += this.db.get(colname)[rowNum];
+				colNum ++;
+				if (colNum < this.db.keySet().size()) out += "\t";
 			}
 			out += "\n";
 		}

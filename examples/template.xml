@@ -21,11 +21,14 @@
 		
 		<!-- Calibrated -->
 		<file weight="2" spec="poetry.util.WeightedFile" file="../datasets/Fang_2020/alignment.nex" desc="MSC alignment (calibrated)" />
-		<file spec="poetry.util.WeightedFile" file="../datasets/Hernandez_2020/alignment.nex" desc="MSC alignment (calibrated)" />
+		<file weight="2" spec="poetry.util.WeightedFile" file="../datasets/Hernandez_2020/alignment.nex" desc="MSC alignment (calibrated)" />
 		<file weight="2" spec="poetry.util.WeightedFile" file="../datasets/Broughton_2013/alignment.nex" desc="Benchmark alignment (calibrated)" />
 		<file weight="2" spec="poetry.util.WeightedFile" file="../datasets/Bryson_et_al.2017/alignment.nex" desc="MSC alignment (calibrated)" />
 		<file weight="2" spec="poetry.util.WeightedFile" file="../datasets/Belfiore_2008/alignment.nex" desc="Gopher dataset (calibrated)" />
 		<file weight="2" spec="poetry.util.WeightedFile" file="../datasets/Ballesteros_2019/alignment.nex" desc="Benchmark alignment (calibrated)" />
+		<file weight="2" spec="poetry.util.WeightedFile" file="../datasets/Horn_2014/alignment.nex" desc="Benchmark alignment" />
+		<file weight="2" spec="poetry.util.WeightedFile" file="../datasets/Moyle_2016/alignment.nex" desc="Benchmark alignment" />
+		<file weight="2" spec="poetry.util.WeightedFile" file="../datasets/Sauquet_2011/alignment.nex" desc="Benchmark alignment" />
 
 
 		<!-- Not calibrated -->
@@ -43,7 +46,6 @@
 		<file spec="poetry.util.WeightedFile" file="../datasets/Dornburg_2012/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Faircloth_2013/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Fong_2012/alignment.nex" desc="Benchmark alignment" />
-		<file spec="poetry.util.WeightedFile" file="../datasets/Horn_2014/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Kawahara_2013/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Lartillot_2012/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Leache_2015/alignment.nex" desc="Benchmark alignment" />
@@ -51,7 +53,6 @@
 		<file spec="poetry.util.WeightedFile" file="../datasets/McCormack_2013/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Meiklejohn_2016/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Misof_2014/alignment.nex" desc="Benchmark alignment" />
-		<file spec="poetry.util.WeightedFile" file="../datasets/Moyle_2016/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Murray_2013/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Near_2013/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Nguyen_2016a/alignment.nex" desc="Benchmark alignment" />
@@ -63,7 +64,6 @@
 		<file spec="poetry.util.WeightedFile" file="../datasets/Reddy_2017/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Richart_2015/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Rightmyer_2013/alignment.nex" desc="Benchmark alignment" />
-		<file weight="100000" spec="poetry.util.WeightedFile" file="../datasets/Sauquet_2011/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Seago_2011/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Sharanowski_2011/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Siler_2013/alignment.nex" desc="Benchmark alignment" />
@@ -170,7 +170,7 @@
     </branchRateModel>
 
 
-	<run id="XMLSimulator" spec="poetry.SimulateXML" data="@alignment.$(partition)" out="out" nsamples="200" nreplicates="5" updateEvery="10000000" placeholder="@PHStateNode">
+	<run id="XMLSimulator" spec="poetry.SimulateXML" data="@alignment.$(partition)" out="out" nsamples="1000" nreplicates="5" updateEvery="10000000" placeholder="@PHStateNode">
 
 
 
@@ -356,7 +356,7 @@
 
 				<!-- A state node that will later be removed by PoetryScheduler. 
 						This can be added to operators to ensure that each operator has a statenode -->
-				<parameter spec="parameter.RealParameter" id="PHStateNode" lower="0.0" name="stateNode">1.0</parameter>
+				<parameter spec="parameter.RealParameter" id="PHStateNode" lower="0.0" upper="1.0" name="stateNode">1.0</parameter>
 
 				<parameter spec="parameter.RealParameter" id="overallClockRate.c:tree" estimate="true" name="stateNode">1.0</parameter>
 				<tree id="tree" spec="beast.evolution.tree.Tree" name="stateNode">
@@ -490,8 +490,13 @@
 	                every="1"
 	                allowNonsense="true">
 
+					
+                    <transformations id="PH.logittransform" spec="beast.util.Transform$LogitTransform">
+                            <f idref="PHStateNode" />
+                    </transformations>
+
 					<transformations id="site.model.logtransform" spec="beast.util.Transform$LogTransform">
-						<f idref="PHStateNode" />
+						
 					</transformations>
 					
 					

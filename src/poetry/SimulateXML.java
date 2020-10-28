@@ -686,10 +686,10 @@ public class SimulateXML extends Runnable {
 	
 			dbOut.println();
 			
-			dbOut.close();
-			
-			
 		}
+		
+		dbOut.close();
+		
 		
 	}
 	

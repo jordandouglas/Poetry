@@ -66,6 +66,11 @@
 	</append>
 
 
+	<append id="AdaptableNodeHeightOperator.tree">
+		<operator idref="InternalnodesOperator.c:dna" />
+	</append>
+
+
 	<append id="clock.model.rate.operator">
 
 
