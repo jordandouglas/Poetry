@@ -2,4 +2,13 @@
 	<depends on='beast2' atleast='2.6.0' atmost="2.6.9"/> 
 	<depends on='BEASTLabs' atleast='1.9.5'/>
 	<depends on='CoupledMCMC' atleast='1.0.2'/>
+
+
+
+    <packageapp description="Split a poetry database to training and test .arff files"
+              class="poetry.tools.PoetryToArff"
+              args=""
+            />
+
+
 </package>

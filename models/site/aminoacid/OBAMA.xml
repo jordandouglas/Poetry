@@ -100,7 +100,7 @@
 	</append>
 
 	<append id="site.model.AVMVN">
-		<transformations id="site.model.logittransform.invar:$(partition)" spec="beast.util.Transform$LogitTransform" sum="1.0">
+		<transformations id="site.model.logittransform.invar:$(partition)" spec="beast.util.Transform$LogitTransform">
 			<f idref="OBAMA_ProportionInvariable.s:$(partition)"/>
 		</transformations>
 	</append>
