@@ -9,6 +9,10 @@
               class="poetry.tools.PoetryToArff"
               args=""
             />
+    <packageapp description="Build a decision tree using a training .arff file"
+              class="poetry.tools.BuildPoetrees"
+              args=""
+            />
 
 
 </package>

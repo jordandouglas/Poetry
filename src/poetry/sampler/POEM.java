@@ -74,16 +74,24 @@ public class POEM extends BEASTObject implements XMLSampler {
 	 * @return
 	 */
 	public String getESSColname() {
-		return this.getID() + ".min.ESS";
+		return POEM.getESSColname(this.getID()); 
 	}
+	public static String getESSColname(String poemName) {
+		return poemName + ".min.ESS";
+	}
+	
 	
 	/**
 	 * Column name of this poem's oeprator weight in the database file
 	 * @return
 	 */
 	public String getWeightColname() {
-		return this.getID() + ".weight";
+		return POEM.getWeightColname(this.getID()); 
 	}
+	public static String getWeightColname(String poemName) {
+		return poemName + ".weight";
+	}
+
 	
 	
 	/**
@@ -456,6 +464,10 @@ public class POEM extends BEASTObject implements XMLSampler {
 	public static String getStartedColumn() {
 		return "weight.sampled";
 	}
+
+
+
+
 
 
 

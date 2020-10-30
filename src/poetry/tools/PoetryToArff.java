@@ -14,6 +14,7 @@ import beast.core.Input;
 import beast.core.Runnable;
 import beast.core.util.Log;
 import beast.util.Randomizer;
+import poetry.util.WekaUtils;
 import beast.core.Input.Validate;
 import weka.core.Attribute;
 import weka.core.Instance;
@@ -74,22 +75,11 @@ public class PoetryToArff extends Runnable {
 		// Read in the database
 		DataSource source = new DataSource(database.getAbsolutePath());
 		Instances data = source.getDataSet();
-		
-		// Remove unwanted columns
-		removeCol(data, "replicate");
-		removeCol(data, "dataset");
-		removeCol(data, "nstates");
-		removeCol(data, "runtime.smooth.hr");
-		removeCol(data, "runtime.smooth.hr.m");
-		removeCol(data, "runtime.raw.hr");
-		removeCol(data, "runtime.raw.hr.m");
-		removeCol(data, "ESS.mean.m");
-		removeCol(data, "ESS.sd.m");
-		removeCol(data, "ESS.cov.m");
+
 
 		
 		// The test/training split must ensure that no single xml file has replicates on either side of the partition
-		List<Double> xmls = getVals(data, "xml");
+		List<Double> xmls = WekaUtils.getVals(data, "xml");
 		xmls = xmls.stream().distinct().collect(Collectors.toList()); // Remove duplicates
 		int trainingSize = (int) Math.floor(xmls.size() * this.splitPercentage/100);
 		
@@ -114,10 +104,10 @@ public class PoetryToArff extends Runnable {
 		
 		
 		// Generate training set and save
-		splitDataAndSaveArff(data, xmlTrain, trainingOut);
+		WekaUtils.splitDataAndSaveArff(data, xmlTrain, trainingOut);
 		
 		// Generate test set and save
-		splitDataAndSaveArff(data, xmlTest, testOut);
+		WekaUtils.splitDataAndSaveArff(data, xmlTest, testOut);
 		
 
 		
@@ -126,121 +116,6 @@ public class PoetryToArff extends Runnable {
 	}
 	
 	
-	
-	/**
-	 * Subsets the data based on xml column value and writes the subset to the specified file
-	 * @param data
-	 * @param xmls
-	 * @param outfile
-	 * @throws IOException
-	 */
-	private static void splitDataAndSaveArff(Instances data, List<Double> xmls, File outfile) throws IOException {
-		
-		// Generate the subset
-		Instances subset = new Instances(data);
-		subset.clear();
-		for (double xml : xmls) {
-			subset.addAll(getWithVal(data, "xml", xml));
-		}
-		
-		// Remove xml column
-		removeCol(subset, "xml");
-		
-		// Save to .arff file
-		ArffSaver saver = new ArffSaver();
-		saver.setInstances(subset);
-		saver.setFile(new File(outfile.getPath()));
-		saver.writeBatch();
-				
-		
-	}
-	
-	
-	/**
-	 * Returns list of instances which have this attribute value
-	 * @param data
-	 * @param attr
-	 * @param val
-	 * @return
-	 */
-	private static Collection<Instance> getWithVal(Instances data, String attr, double val) {
-		
-		int colNum = getIndexOfColumn(data, attr);
-		if (colNum < 0) throw new IllegalArgumentException("Cannot find column " + attr);
-		
-		// Get matches
-		Collection<Instance> matches = new ArrayList<>();
-		Enumeration<Instance> instances = data.enumerateInstances();
-		Instance instance;
-		while (instances.hasMoreElements()) {
-			instance = instances.nextElement();
-			if (instance.value(colNum) == val) {
-				matches.add(instance);
-			}
-		}
-		
-		
-		return matches;
-	}
-	
-	/**
-	 * Returns list of values under this column
-	 * @param data
-	 * @param colname
-	 */
-	private static List<Double> getVals(Instances data, String colname) {
-	
-		
-		int colNum = getIndexOfColumn(data, colname);
-		if (colNum < 0) throw new IllegalArgumentException("Cannot find column " + colname);
-		
-		// Build list of values
-		List<Double> vals = new ArrayList<>();
-		Enumeration<Instance> instances = data.enumerateInstances();
-		Instance instance;
-		while (instances.hasMoreElements()) {
-			instance = instances.nextElement();
-			vals.add(instance.value(colNum));
-		}
-		return vals;
-		
-	}
-	
-	
-	private static int getIndexOfColumn(Instances data, String name) {
-		
-		// Get the index number of this attribute
-		Enumeration<Attribute> attributes = data.enumerateAttributes();
-		Attribute attr;
-		int i = 0;
-		while (attributes.hasMoreElements()) {
-			attr = attributes.nextElement();
-			if (attr.name().equals(name)) return i;
-			i++;
-		}
-		return -1;
-		
-	}
-	
-	/**
-	 * Removes the column by name
-	 * @param data
-	 * @param name
-	 */
-	private static void removeCol(Instances data, String name) {
-		
-		
-		int colNum = getIndexOfColumn(data, name);
-		
-		// If it exists then remove it
-		if (colNum >= 0) {
-			Log.warning("Removing attribute " + name);
-			data.deleteAttributeAt(colNum);
-		}else {
-			//Log.warning("Cannot remove attribute " + name + " because it does not exist");
-		}
-		
-	}
 	
 	public static void main(String[] args) throws Exception {
 		new Application(new PoetryToArff(), "Prepare poetry database for analysis by weka", args);
