@@ -133,6 +133,8 @@ public class BuildPoetrees extends Runnable {
 		
 		// Build the tree on training set
 		REPTree tree = new REPTree();
+		String[] opts = { "-L", "3" }; // Max depth
+		tree.setOptions(opts);
 		tree.buildClassifier(trainingSet);
 		
 		
