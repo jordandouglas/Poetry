@@ -17,6 +17,7 @@ import poetry.util.WekaUtils;
 import beast.core.Input.Validate;
 import weka.classifiers.evaluation.Evaluation;
 import weka.classifiers.trees.REPTree;
+import weka.classifiers.trees.RandomForest;
 import weka.core.Attribute;
 import weka.core.Instances;
 import weka.core.converters.ArffSaver;
@@ -146,9 +147,27 @@ public class BuildPoetrees extends Runnable {
 		
 		// Test set
 		if (testSet != null) {
-			eval.evaluateModel(tree, testSet);
-			System.out.println(eval.toSummaryString("\nTest results\n======\n", false));
+			Evaluation eval2 = new Evaluation(testSet);
+			eval2.evaluateModel(tree, testSet);
+			System.out.println(eval2.toSummaryString("\nTest results\n======\n", false));
 		}
+		
+		
+		// Random forest
+		RandomForest rf = new RandomForest();
+		rf.setOptions(opts);
+		rf.buildClassifier(trainingSet);
+		eval.crossValidateModel(rf, trainingSet, 10, new Random(Randomizer.nextInt()));
+		System.out.println(eval.toSummaryString("\nRF CV results\n======\n", false));
+		
+		
+		// Test set
+		if (testSet != null) {
+			Evaluation eval2 = new Evaluation(testSet);
+			eval2.evaluateModel(rf, testSet);
+			System.out.println(eval2.toSummaryString("\nRF Test results\n======\n", false));
+		}
+		
 		
 		// Print tree to file
 		File out = Paths.get(outputDir.getPath(), "tree.txt").toFile();
