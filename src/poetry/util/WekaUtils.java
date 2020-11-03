@@ -4,10 +4,16 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Random;
+import java.util.stream.Collectors;
 
 import beast.core.util.Log;
+import beast.util.Randomizer;
+import weka.classifiers.Classifier;
+import weka.classifiers.evaluation.Evaluation;
 import weka.core.Attribute;
 import weka.core.Instance;
 import weka.core.Instances;
@@ -23,13 +29,13 @@ public class WekaUtils {
 
 
 	/**
-	 * Subsets the data based on xml column value and writes the subset to the specified file
+	 * Subsets the data based on xml column value and optionally writes the subset to the specified file
 	 * @param data
 	 * @param xmls
 	 * @param outfile
 	 * @throws IOException
 	 */
-	public static void splitDataAndSaveArff(Instances data, List<Double> xmls, File outfile) throws IOException {
+	public static Instances splitDataAndSaveArff(Instances data, List<Double> xmls, File outfile) throws IOException {
 		
 		// Generate the subset
 		Instances subset = new Instances(data);
@@ -39,11 +45,14 @@ public class WekaUtils {
 		}
 		
 		// Save to .arff file
-		ArffSaver saver = new ArffSaver();
-		saver.setInstances(subset);
-		saver.setFile(new File(outfile.getPath()));
-		saver.writeBatch();
-				
+		if (outfile != null) {
+			ArffSaver saver = new ArffSaver();
+			saver.setInstances(subset);
+			saver.setFile(new File(outfile.getPath()));
+			saver.writeBatch();
+		}
+		
+		return subset;
 		
 	}
 	
@@ -131,7 +140,7 @@ public class WekaUtils {
 		
 		// If it exists then remove it
 		if (colNum >= 0) {
-			Log.warning("Removing attribute " + name);
+			//Log.warning("Removing attribute " + name);
 			data.deleteAttributeAt(colNum);
 		}else {
 			//Log.warning("Cannot remove attribute " + name + " because it does not exist");
@@ -161,6 +170,220 @@ public class WekaUtils {
 		
 	}
 	
+	
+	/**
+	 * Performs cross-validation k times (with replicates accounted for) and reports mean correlation
+	 * @param data
+	 * @param model
+	 * @return
+	 * @throws Exception
+	 */
+	public static double kFoldCrossValidationReplicates(Instances data, Classifier model, int nfolds) throws Exception {
+		
+		double correlation = 0;
+		for (int i = 0; i < nfolds; i ++) {
+			correlation += crossValidateReplicates(data, model);
+		}
+		return correlation / nfolds;
+		
+	}
+	
+	
+	/**
+	 * Performs cross-validation k times and reports mean correlation
+	 * @param data
+	 * @param model
+	 * @return
+	 * @throws Exception
+	 */
+	public static double kFoldCrossValidationSafe(Instances data, Classifier model, int nfolds) throws Exception {
+		
+		double correlation = 0;
+		for (int i = 0; i < nfolds; i ++) {
+			correlation += crossValidateSafe(data, model);
+		}
+		return correlation / nfolds;
+		
+	}
+	
+	
+	
+
+	/**
+	 * Performs cross-validation but it does not throw an error when 'GaussianProcesses' is the classifier
+	 * TODO: Remove xml column
+	 * @param data
+	 * @param model
+	 * @return
+	 */
+	public static double crossValidateSafe(Instances data, Classifier model) throws Exception {
+		
+		
+		
+	
+		final int nfolds = 10;
+		double correlation = 0;
+		
+		// Get list of instances
+		List<Integer> indices = new ArrayList<>();
+		for (int i = 0; i < data.size(); i ++) indices.add(i);
+		int numInstances = indices.size();
+		
+		// Shuffle
+		Collections.shuffle(indices, new Random(Randomizer.nextInt()));
+		
+		// Prepare
+		List<List<Integer>> splits = new ArrayList<>();
+		for (int i = 0; i < nfolds; i ++) {
+			splits.add(new ArrayList<Integer>());
+		}
+		
+		
+		// Split into 10 even groups with remainders allocated to the first ones
+		int i = 0;
+		while (!indices.isEmpty()) {
+			List<Integer> split = splits.get(i);
+			int index = indices.remove(0);
+			split.add(index);
+			i++;
+			if (i >= nfolds) i = 0;
+		}
+		
+		try {
+		
+			// Perform cross-validation
+			for (int f = 0; f < nfolds; f++) {
+				
+				// The training set
+				Instances training = new Instances(data);
+				training.clear();
+				for (int j = 0; j < nfolds; j ++) {
+					if (j == f) continue;
+					for (int index : splits.get(j)) {
+						training.add(data.instance(index));
+					}
+				}
+				WekaUtils.removeCol(training, "xml");
+				
+				// The test set
+				Instances test= new Instances(data);
+				test.clear();
+				for (int index : splits.get(f)) {
+					test.add(data.instance(index));
+				}
+				WekaUtils.removeCol(test, "xml");
+				
+				// New model
+				Classifier freshModel = model.getClass().getConstructor().newInstance();
+				freshModel.buildClassifier(training);
+				
+				// Evaluate
+				Evaluation eval = new Evaluation(training);
+				eval.evaluateModel(freshModel, test);
+				double corr_f = eval.correlationCoefficient();
+				correlation += corr_f;
+				
+				//Log.warning("Fold " + (f+1) + ": training on " + training.size() + " and testing on " + test.size() + ". p = " + corr_f);
+				
+				
+			}
+		
+		
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		
+		return correlation / nfolds;
+		
+	}
+	
+	
+	
+	/**
+	 * Performs cross-validation but it splits by xml file so that all replicates remain in the same partition
+	 * TODO: Remove xml column
+	 * @param data
+	 * @param model
+	 * @return
+	 */
+	public static double crossValidateReplicates(Instances data, Classifier model) throws Exception {
+		
+		
+		
+	
+		final int nfolds = 10;
+		double correlation = 0;
+		
+		// Get unique list of xml files
+		List<Double> xmls = WekaUtils.getVals(data, "xml");
+		xmls = xmls.stream().distinct().collect(Collectors.toList());
+		int numXMLs = xmls.size();
+		
+		// Shuffle
+		Collections.shuffle(xmls, new Random(Randomizer.nextInt()));
+		
+		// Prepare
+		List<List<Double>> splits = new ArrayList<>();
+		for (int i = 0; i < nfolds; i ++) {
+			splits.add(new ArrayList<Double>());
+		}
+		
+		
+		// Split into 10 even groups with remainders allocated to the first ones
+		int i = 0;
+		while (!xmls.isEmpty()) {
+			List<Double> split = splits.get(i);
+			double val = xmls.remove(0);
+			split.add(val);
+			i++;
+			if (i >= nfolds) i = 0;
+		}
+		
+		try {
+		
+			// Perform cross-validation
+			for (int f = 0; f < nfolds; f++) {
+				
+				// The training set
+				List<Double> trainingXMLs = new ArrayList<>();
+				for (int j = 0; j < nfolds; j ++) {
+					if (j == f) continue;
+					trainingXMLs.addAll(splits.get(j));
+				}
+				Instances training = splitDataAndSaveArff(data, trainingXMLs, null);
+				WekaUtils.removeCol(training, "xml");
+				
+				// The test set
+				List<Double> testXMLs = splits.get(f);
+				Instances test = splitDataAndSaveArff(data, testXMLs, null);
+				WekaUtils.removeCol(test, "xml");
+				
+				
+				// New model
+				Classifier freshModel = model.getClass().getConstructor().newInstance();
+				freshModel.buildClassifier(training);
+				
+				// Evaluate
+				Evaluation eval = new Evaluation(training);
+				eval.evaluateModel(freshModel, test);
+				double corr_f = eval.correlationCoefficient();
+				correlation += corr_f;
+				
+				//Log.warning("Fold " + (f+1) + ": training on " + training.size() + " and testing on " + test.size() + ". p = " + corr_f);
+				
+				
+			}
+		
+		
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		
+		return correlation / nfolds;
+		
+	}
 	
 	
 }

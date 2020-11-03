@@ -30,7 +30,7 @@ public class PoetryToArff extends Runnable {
 	final public Input<Double> splitInput = new Input<>("split", "percentage of data which will be in the training set (default: 70)", 70.0);
 	
 	
-	File database, trainingOut, testOut;
+	File database, fullOut, trainingOut, testOut;
 	double splitPercentage;
 	String[] columnsToRemove;
 	
@@ -50,6 +50,7 @@ public class PoetryToArff extends Runnable {
 			str += spl[i];
 			if (i < spl.length - 2) str += "/";
 		}
+		fullOut = new File(str + ".arff");
 		trainingOut = new File(str + ".training.arff");
 		testOut = new File(str  + ".test.arff");
 		
@@ -68,6 +69,7 @@ public class PoetryToArff extends Runnable {
 	@Override
 	public void run() throws Exception {
 		
+		Log.warning("Writing full dataset to " + fullOut.getPath());
 		Log.warning("Writing training data to " + trainingOut.getPath());
 		Log.warning("Writing test data to " + testOut.getPath());
 		
@@ -77,11 +79,11 @@ public class PoetryToArff extends Runnable {
 		Instances data = source.getDataSet();
 
 
-		
 		// The test/training split must ensure that no single xml file has replicates on either side of the partition
 		List<Double> xmls = WekaUtils.getVals(data, "xml");
 		xmls = xmls.stream().distinct().collect(Collectors.toList()); // Remove duplicates
 		int trainingSize = (int) Math.floor(xmls.size() * this.splitPercentage/100);
+		
 		
 		// Sample an xml split
 		List<Double> xmlTrain = new ArrayList<>();;
@@ -109,7 +111,13 @@ public class PoetryToArff extends Runnable {
 		// Generate test set and save
 		WekaUtils.splitDataAndSaveArff(data, xmlTest, testOut);
 		
-
+		// Full dataset out
+		ArffSaver saver = new ArffSaver();
+		saver.setInstances(data);
+		saver.setFile(new File(fullOut.getPath()));
+		saver.writeBatch();
+		
+		
 		
 		Log.warning("Done!");
 		
