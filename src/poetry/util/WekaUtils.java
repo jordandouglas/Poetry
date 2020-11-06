@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import beast.core.util.Log;
 import beast.util.Randomizer;
+import poetry.learning.RandomLinearTree;
 import weka.classifiers.Classifier;
 import weka.classifiers.evaluation.Evaluation;
 import weka.core.Attribute;
@@ -266,7 +267,7 @@ public class WekaUtils {
 				WekaUtils.removeCol(training, "xml");
 				
 				// The test set
-				Instances test= new Instances(data);
+				Instances test = new Instances(data);
 				test.clear();
 				for (int index : splits.get(f)) {
 					test.add(data.instance(index));
@@ -275,6 +276,9 @@ public class WekaUtils {
 				
 				// New model
 				Classifier freshModel = model.getClass().getConstructor().newInstance();
+				if (freshModel instanceof RandomLinearTree) {
+					//((RandomLinearTree) freshModel).setOptions(new String[] { "-x",  "" + (24) });
+				}
 				freshModel.buildClassifier(training);
 				
 				// Evaluate
@@ -297,6 +301,7 @@ public class WekaUtils {
 		return correlation / nfolds;
 		
 	}
+	
 	
 	
 	
@@ -362,6 +367,9 @@ public class WekaUtils {
 				
 				// New model
 				Classifier freshModel = model.getClass().getConstructor().newInstance();
+				if (freshModel instanceof RandomLinearTree) {
+					//((RandomLinearTree) freshModel).setOptions(new String[] { "-x",  "" + (24) });
+				}
 				freshModel.buildClassifier(training);
 				
 				// Evaluate
@@ -382,6 +390,21 @@ public class WekaUtils {
 		
 		
 		return correlation / nfolds;
+		
+	}
+	
+	
+
+	/**
+	 * Fits a linear model y~x and returns the entropy of the fit
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	public static double getEntropyOfLinearModel(double[] x, double[] y) {
+		
+		
+		return 0;
 		
 	}
 	

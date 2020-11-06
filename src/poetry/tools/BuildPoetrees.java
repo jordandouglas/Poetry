@@ -15,6 +15,7 @@ import beast.core.Input;
 import beast.core.Runnable;
 import beast.core.util.Log;
 import beast.util.Randomizer;
+import poetry.learning.RandomLinearTree;
 import poetry.sampler.POEM;
 import poetry.util.WekaUtils;
 import beast.core.Input.Validate;
@@ -22,20 +23,15 @@ import weka.classifiers.Classifier;
 import weka.classifiers.evaluation.Evaluation;
 import weka.classifiers.functions.GaussianProcesses;
 import weka.classifiers.functions.LinearRegression;
-import weka.classifiers.functions.MultilayerPerceptron;
 import weka.classifiers.functions.SMOreg;
-import weka.classifiers.lazy.IBk;
 import weka.classifiers.lazy.KStar;
 import weka.classifiers.trees.REPTree;
 import weka.classifiers.trees.RandomForest;
+import weka.classifiers.trees.RandomTree;
 import weka.core.Attribute;
-import weka.core.Instance;
 import weka.core.Instances;
-import weka.core.converters.ArffSaver;
 import weka.core.converters.ConverterUtils.DataSource;
 import weka.filters.Filter;
-import weka.filters.unsupervised.attribute.NumericTransform;
-import weka.filters.unsupervised.attribute.StringToNominal;
 import weka.filters.unsupervised.instance.RemoveWithValues;
 
 
@@ -51,13 +47,14 @@ public class BuildPoetrees extends Runnable {
 	final public Input<Integer> minInstancesPerLeafInput = new Input<>("min", "Minimum number of instances per leaf in decision tree", 20);
 	
 	
-	
+	final int nfolds = 5;
 	String poemName;
 	File outputDir;
 	Instances trainingSet;
+	int weightColNum;
 	
 	// The classifiers
-	final protected Class<?>[] classifiers = new Class[] { 	REPTree.class, RandomForest.class, 
+	final protected Class<?>[] classifiers = new Class[] { 	REPTree.class, RandomTree.class, RandomForest.class, 
 															LinearRegression.class, GaussianProcesses.class,
 															SMOreg.class, KStar.class  };
 
@@ -99,7 +96,7 @@ public class BuildPoetrees extends Runnable {
 		// Tidy the columns
 		poemName = poemNameInput.get();
 		try {
-			this.tidyColumns(poemESSColname);
+			this.tidyColumns(poemESSColname, poemWeightColname);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new IllegalArgumentException("Error tidying attributes");
@@ -109,8 +106,6 @@ public class BuildPoetrees extends Runnable {
 		int classIndex = WekaUtils.getIndexOfColumn(trainingSet, poemESSColname);
 		Attribute poemESSColumn = trainingSet.attribute(classIndex);
 		trainingSet.setClass(poemESSColumn);
-		
-		
 		
 		
 		try {
@@ -137,11 +132,9 @@ public class BuildPoetrees extends Runnable {
 		
 
 		// Find weight column
-		//colNum = WekaUtils.getIndexOfColumn(trainingSet, poemWeightColname);
-		//if (colNum == -1) throw new IllegalArgumentException("Error cannot locate " + poemWeightColname + " column in " + trainingFile.getPath());
-		//poemWeightColumn = trainingSet.attribute(colNum);
+		weightColNum = WekaUtils.getIndexOfColumn(trainingSet, poemWeightColname);
+		if (weightColNum == -1) throw new IllegalArgumentException("Error cannot locate " + poemWeightColname + " column in " + trainingFile.getPath());
 		
-
 		
 		
 		// Make output directory
@@ -154,16 +147,33 @@ public class BuildPoetrees extends Runnable {
 	@Override
 	public void run() throws Exception {
 		
-		// Full dataset out
-		ArffSaver saver = new ArffSaver();
-		saver.setInstances(trainingSet);
-		saver.setFile(new File("test.arff"));
-		saver.writeBatch();
-		
 
+		// Test
+		RandomForest rf = new RandomForest();
+		RandomLinearTree rlt = new RandomLinearTree();
+		rlt.setOptions(new String[] { "-x",  "" + (weightColNum) });
+		rlt.buildClassifier(trainingSet);
+		//rf.setClassifier(rlt);
+		//WekaUtils.removeCol(trainingSet, "xml");
+		//rf.buildClassifier(trainingSet);
+		
+		File out2 = Paths.get(outputDir.getPath(), "tree.txt").toFile();
+		Log.warning("Saving tree to " + out2.getPath());
+		PrintWriter pw2 = new PrintWriter(out2);
+		pw2.println(rlt.toString());
+		pw2.close();
+		
+		Evaluation eval = new Evaluation(trainingSet);
+		eval.evaluateModel(rlt, trainingSet);
+		double corr_f = eval.correlationCoefficient();
 		
 		
-		final int nfolds = 1;
+		//double c1 = WekaUtils.kFoldCrossValidationReplicates(trainingSet, rlt, nfolds);
+		//double c2 = WekaUtils.kFoldCrossValidationSafe(trainingSet, rlt, nfolds);
+		Log.warning("RandomLinearTree:");
+		System.out.println("Cross-validation correlation: " + corr_f);
+		//System.out.println("Cross-validation correlation (reps): " + c1);
+		
 		
 		Log.warning("Building models...");
 		Log.warning("Total Number of Instances: " + trainingSet.size());
@@ -188,9 +198,9 @@ public class BuildPoetrees extends Runnable {
 			
 			
 			// Print tree to file
-			if (model instanceof REPTree) {
+			if (false && model instanceof RandomTree) {
 				
-				REPTree tree = (REPTree) model;
+				RandomTree tree = (RandomTree) model;
 				Instances training2 = new Instances(trainingSet);
 				WekaUtils.removeCol(training2, "xml");
 				tree.setOptions(new String[] { "-M", "" + minInstancesPerLeafInput.get() });
@@ -227,7 +237,7 @@ public class BuildPoetrees extends Runnable {
 	 * Convert all data into the appropriate formats
 	 * @throws Exception 
 	 */
-	protected void tidyColumns(String poemESSColname) throws Exception {
+	protected void tidyColumns(String poemESSColname, String poemWeightColname) throws Exception {
 		
 		Log.warning("Tidying attributes...");
 		
@@ -236,6 +246,7 @@ public class BuildPoetrees extends Runnable {
 		Instances data = trainingSet;
 		
 		// Remove unwanted columns
+		WekaUtils.removeCol(data, "nspecies"); // Temp
 		WekaUtils.removeCol(data, "replicate");
 		WekaUtils.removeCol(data, "dataset");
 		WekaUtils.removeCol(data, "nstates");
@@ -253,7 +264,7 @@ public class BuildPoetrees extends Runnable {
 		List<Attribute> poems = WekaUtils.getAttributesWithSubstring(data, POEM.getESSColname(""));
 		poems.addAll(WekaUtils.getAttributesWithSubstring(data, POEM.getWeightColname("")));
 		for (Attribute attr : poems) {
-			if (attr.name().equals(poemESSColname)) continue;
+			if (attr.name().equals(poemESSColname) | attr.name().equals(poemWeightColname)) continue;
 			WekaUtils.removeCol(data, attr.name());
 		}
 	
