@@ -2,6 +2,8 @@ package poetry.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -15,6 +17,7 @@ import beast.util.Randomizer;
 import poetry.learning.RandomLinearTree;
 import weka.classifiers.Classifier;
 import weka.classifiers.evaluation.Evaluation;
+import weka.classifiers.trees.RandomForest;
 import weka.core.Attribute;
 import weka.core.Instance;
 import weka.core.Instances;
@@ -116,8 +119,33 @@ public class WekaUtils {
 	 */
 	public static int getIndexOfColumn(Instances data, String name) {
 		
+		
+		
 		// Get the index number of this attribute
 		Enumeration<Attribute> attributes = data.enumerateAttributes();
+		Attribute attr;
+		int i = 0;
+		while (attributes.hasMoreElements()) {
+			attr = attributes.nextElement();
+			if (attr.name().equals(name)) return i;
+			i++;
+		}
+		return -1;
+		
+	}
+	
+	
+	/**
+	 * Get the index of a column
+	 * @param instance
+	 * @param name
+	 * @return
+	 */
+	public static int getIndexOfColumn(Instance instance, String name) {
+		
+		
+		// Get the index number of this attribute
+		Enumeration<Attribute> attributes = instance.enumerateAttributes();
 		Attribute attr;
 		int i = 0;
 		while (attributes.hasMoreElements()) {
@@ -179,11 +207,11 @@ public class WekaUtils {
 	 * @return
 	 * @throws Exception
 	 */
-	public static double kFoldCrossValidationReplicates(Instances data, Classifier model, int nfolds) throws Exception {
+	public static double kFoldCrossValidationReplicates(Instances data, Classifier model, int nfolds, double[][] fits) throws Exception {
 		
 		double correlation = 0;
 		for (int i = 0; i < nfolds; i ++) {
-			correlation += crossValidateReplicates(data, model);
+			correlation += crossValidateReplicates(data, model, fits);
 		}
 		return correlation / nfolds;
 		
@@ -209,6 +237,7 @@ public class WekaUtils {
 	
 	
 	
+
 
 	/**
 	 * Performs cross-validation but it does not throw an error when 'GaussianProcesses' is the classifier
@@ -276,8 +305,14 @@ public class WekaUtils {
 				
 				// New model
 				Classifier freshModel = model.getClass().getConstructor().newInstance();
-				if (freshModel instanceof RandomLinearTree) {
-					//((RandomLinearTree) freshModel).setOptions(new String[] { "-x",  "" + (24) });
+				if (freshModel instanceof RandomForest) {
+					
+					// Tree
+					RandomLinearTree rlt = new RandomLinearTree();
+					
+					// Forest
+					((RandomForest)freshModel).setClassifier(rlt);
+					
 				}
 				freshModel.buildClassifier(training);
 				
@@ -312,10 +347,14 @@ public class WekaUtils {
 	 * @param model
 	 * @return
 	 */
-	public static double crossValidateReplicates(Instances data, Classifier model) throws Exception {
+	public static double crossValidateReplicates(Instances data, Classifier model, double[][] fits) throws Exception {
 		
-		
-		
+		// True vs fit values
+		double[] trueX = new double[data.size()];
+		double[] predX = new double[data.size()];
+		fits[0] = trueX;
+		fits[1] = predX;
+		int instanceNum = 0;
 	
 		final int nfolds = 10;
 		double correlation = 0;
@@ -367,8 +406,14 @@ public class WekaUtils {
 				
 				// New model
 				Classifier freshModel = model.getClass().getConstructor().newInstance();
-				if (freshModel instanceof RandomLinearTree) {
-					//((RandomLinearTree) freshModel).setOptions(new String[] { "-x",  "" + (24) });
+				if (freshModel instanceof RandomForest) {
+					
+					// Tree
+					RandomLinearTree rlt = new RandomLinearTree();
+					
+					// Forest
+					((RandomForest)freshModel).setClassifier(rlt);
+					
 				}
 				freshModel.buildClassifier(training);
 				
@@ -377,6 +422,16 @@ public class WekaUtils {
 				eval.evaluateModel(freshModel, test);
 				double corr_f = eval.correlationCoefficient();
 				correlation += corr_f;
+				
+				
+				// Fit
+				for (Instance inst : test) {
+					double truth = inst.classValue();
+					double pred = freshModel.classifyInstance(inst);
+					trueX[instanceNum] = truth;
+					predX[instanceNum] = pred;
+					instanceNum++;
+				}
 				
 				//Log.warning("Fold " + (f+1) + ": training on " + training.size() + " and testing on " + test.size() + ". p = " + corr_f);
 				

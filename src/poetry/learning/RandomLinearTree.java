@@ -4,6 +4,11 @@ import java.util.Collections;
 import java.util.Random;
 import java.util.Vector;
 
+import beast.core.util.Log;
+import poetry.util.WekaUtils;
+import weka.classifiers.evaluation.RegressionAnalysis;
+import weka.classifiers.functions.LinearRegression;
+import weka.classifiers.functions.SimpleLinearRegression;
 import weka.classifiers.trees.RandomTree;
 import weka.core.Attribute;
 import weka.core.Capabilities;
@@ -30,9 +35,10 @@ public class RandomLinearTree extends RandomTree {
 	
 	/** The attribute to use as a linear predictor at the leaves */
 	protected int m_xPredictorNum = -1;
+	protected String m_xPredictorName = "";
 	
 	/** Minimum number of instances for leaf. */
-	protected double m_MinNum = 50.0;
+	protected double m_MinNum = 40.0;
 
     
 	protected class LinearTree extends Tree {
@@ -44,7 +50,6 @@ public class RandomLinearTree extends RandomTree {
 	    /** For serialization */
 		private static final long serialVersionUID = 2467164046376174619L;
 		
-	
 
 	    /**
 	     * Computes size of the tree.
@@ -121,34 +126,7 @@ public class RandomLinearTree extends RandomTree {
 	     */
 		@Override
 	    protected String leafString() throws Exception {
-
-	      double sum = 0, maxCount = 0;
-	      int maxIndex = 0;
-	      double classMean = 0;
-	      double avgError = 0;
-	      if (m_ClassDistribution != null) {
-	        if (m_Info.classAttribute().isNominal()) {
-	          sum = Utils.sum(m_ClassDistribution);
-	          maxIndex = Utils.maxIndex(m_ClassDistribution);
-	          maxCount = m_ClassDistribution[maxIndex];
-	        } else {
-	          classMean = m_ClassDistribution[0];
-	          if (m_Distribution != null && m_Distribution[1] > 0) {
-	            avgError = m_Distribution[0] / m_Distribution[1];
-	          }
-	        }
-	      }
-
-	      if (m_Info.classAttribute().isNumeric()) {
-	        return " : " + Utils.doubleToString(classMean, getNumDecimalPlaces())
-	          + " ("
-	          + (m_Distribution == null ? "" : Utils.doubleToString(m_Distribution[1], getNumDecimalPlaces()))
-	          + "/" + Utils.doubleToString(avgError, getNumDecimalPlaces()) + ")";
-	      }
-
-	      return " : " + m_Info.classAttribute().value(maxIndex) + " ("
-	        + Utils.doubleToString(sum, getNumDecimalPlaces()) + "/"
-	        + Utils.doubleToString(sum - maxCount, getNumDecimalPlaces()) + ")";
+			return " : (" + m_Distribution[0] + " + " + m_Distribution[1] + "w + " + m_Distribution[2] + "w^2) : " + m_Distribution[3];
 	    }
 
 		
@@ -202,11 +180,11 @@ public class RandomLinearTree extends RandomTree {
 	        return text.toString();
 	      } catch (Exception e) {
 	        e.printStackTrace();
-	        return "RandomTree: tree can't be printed";
+	        return "RandomLinearTree: tree can't be printed";
 	      }
 	    }
 		
-		
+
 		
 		 /**
 	     * Computes class distribution of an instance using the decision tree.
@@ -218,6 +196,8 @@ public class RandomLinearTree extends RandomTree {
 		@Override
 	    public double[] distributionForInstance(Instance instance) throws Exception {
 
+			
+			
 	      double[] returnedDist = null;
 
 	      if (m_Attribute > -1) {
@@ -239,6 +219,9 @@ public class RandomLinearTree extends RandomTree {
 	          }
 	        } else if (m_Info.attribute(m_Attribute).isNominal()) {
 
+	        	
+	        	double val = instance.value(m_Attribute);
+	        	
 	          // For nominal attributes
 	          returnedDist =
 	            m_Successors[(int) instance.value(m_Attribute)]
@@ -298,6 +281,9 @@ public class RandomLinearTree extends RandomTree {
 	      Attribute attribute = data.attribute(att);
 	      double[][] dist = null;
 	      
+	      // Split
+	      Instances[] dataSplits = null;
+	      
 	      // Weights
 	      double[] sumOfWeights = null;
 	      
@@ -323,6 +309,7 @@ public class RandomLinearTree extends RandomTree {
 	        sumSquaredX = new double[attribute.numValues()];
 	        sumsXY = new double[attribute.numValues()];
 	        sumOfWeights = new double[attribute.numValues()];
+	        dataSplits = new Instances[attribute.numValues()];
 	        int attVal;
 	        
 	        double x,y;
@@ -372,18 +359,33 @@ public class RandomLinearTree extends RandomTree {
 	        }
 	        
 	        
+	        // Copy data splits
+	        for (int i = 0; i < dataSplits.length; i ++) {
+	        	
+	        	Instances instancesSplit = new Instances(data);
+	        	instancesSplit.clear();
+	        	for (int j = 0; j < data.size(); j ++) {
+	        		Instance inst = data.get(j);
+	        		attVal = (int) inst.value(att);
+	        		if (attVal == i) instancesSplit.add(inst);
+	        	}
+	        	dataSplits[i] = instancesSplit;
+	        	
+	        }
 	        
 	        
 	      } else {
 	    	  
+	    	  
+	    	  
 	        // For numeric attributes
-	    	
 	        sumsY = new double[2];
 	        sumSquaredY = new double[2];
 	        sumsX = new double[2];
 	        sumSquaredX = new double[2];
 	        sumOfWeights = new double[2];
 	        sumsXY = new double[2];
+	        dataSplits = new Instances[2];
 	        
 	        double[] currSumOfWeights = new double[2];
 	        double[] currSumsY = new double[2];
@@ -391,7 +393,11 @@ public class RandomLinearTree extends RandomTree {
 	        double[] currSumsX = new double[2];
 	        double[] currSumSquaredX = new double[2];
 	        double[] currSumXY = new double[2];
-
+	        Instances[] currDataSplit = new Instances[2];
+	        currDataSplit[0] = new Instances(data);
+	        currDataSplit[0].clear();
+	        currDataSplit[1] = new Instances(data);
+	        
 	        // Sort data
 	        data.sort(att);
 
@@ -434,6 +440,10 @@ public class RandomLinearTree extends RandomTree {
 	        sumSquaredX[1] = currSumSquaredX[1];
 	        sumOfWeights[1] = currSumOfWeights[1];
 	        sumsXY[1] = currSumXY[1];
+	        //dataSplits[1] = currDataSplit[1];
+	        
+	        
+
 
 	        // Try all possible split points
 	        double currSplit = data.instance(0).value(att);
@@ -442,13 +452,14 @@ public class RandomLinearTree extends RandomTree {
 	        for (int i = 0; i < indexOfFirstMissingValue; i++) {
 	          Instance inst = data.instance(i);
 	          
-	          // Is the split too small?
+	          
 	          if (inst.value(att) > currSplit) {
 	        	  
-
 	        	  
-	            //currVal = RandomLinearTree.variance(currSumsY, currSumSquaredY, currSumOfWeights);
 	            currVal = correlation(currSumsY, currSumSquaredY, currSumsX, currSumSquaredX, currSumXY, currSumOfWeights);
+	            //currVal = calculateR2(currDataSplit, currSumOfWeights, m_xPredictorNum);
+	            
+	            // Is the split too small?
 	            if (currSumOfWeights[0] >= minLeafSize && currSumOfWeights[1] >= minLeafSize && currVal < bestVal) {
 	              bestVal = currVal;
 	              splitPoint = (inst.value(att) + currSplit) / 2.0;
@@ -465,6 +476,7 @@ public class RandomLinearTree extends RandomTree {
 	                sumSquaredX[j] = currSumSquaredX[j];
 	                sumOfWeights[j] = currSumOfWeights[j];
 	                sumsXY[j] = currSumXY[j];
+	                dataSplits[j] = currDataSplit[j];
 	              }
 	            }
 	          }
@@ -489,6 +501,7 @@ public class RandomLinearTree extends RandomTree {
 	          currSumSquaredX[0] += xsquared;
 	          currSumXY[0] += XY;
 	          currSumOfWeights[0] += inst.weight();
+	          currDataSplit[0].add(inst);
 	          
 
 	          currSumsY[1] -= classVal;
@@ -497,6 +510,11 @@ public class RandomLinearTree extends RandomTree {
 	          currSumSquaredX[1] -= xsquared;
 	          currSumXY[0] -= XY;
 	          currSumOfWeights[1] -= inst.weight();
+	          currDataSplit[1].remove(inst);
+	          
+	          
+	          
+	          
 	        }
 	      }
 
@@ -566,20 +584,13 @@ public class RandomLinearTree extends RandomTree {
 	      
 	        double correlationBefore = singleCorrelation(totalSumY, totalSumSquaredY, totalSumX, totalSumSquaredX, totalSumXY, totalSumOfWeights);
 	        double correlationAfter = correlation(sumsY, sumSquaredY, sumsX, sumSquaredX, sumsXY, sumOfWeights);
-	      
-	      // Compute correlation prior to split
-	      //double priorCovar = singleCovariance(totalSumXY, sumX, totalSum, totalSumOfWeights);
-	      //double priorVar = singleVariance(totalSum, totalSumSquared, totalSumOfWeights);
-	      //double correlationPrior = Math.abs(priorCovar/(priorVar*varX));
-	        System.out.println("" + correlationBefore + "->" + correlationAfter);
-	      
-	      // Correlation after split
-	      //double covar = 0;//singleVariance(totalSum, totalSumSquared, totalSumOfWeights);
-	     // double var = variance(sumsY, sumSquaredY, sumOfWeights);
-	      //double correlation = Math.abs(covar/var*varX);
-	      
-	      
 	        double gain = correlationAfter - correlationBefore;
+	        
+	        
+	        double R2before = calculateSingleR2(data, m_xPredictorNum);
+	        double R2after = calculateR2(dataSplits, sumOfWeights, m_xPredictorNum);
+	        //gain = R2after - R2before;
+	        //System.out.println(R2before + "->" + R2after);
 	      
 
 	      // Return distribution and split point
@@ -615,7 +626,7 @@ public class RandomLinearTree extends RandomTree {
 	        m_Prop = null;
 
 	        if (data.classAttribute().isNumeric()) {
-	          m_Distribution = new double[2];
+	          m_Distribution = new double[4];
 	        }
 	        return;
 	      }
@@ -653,11 +664,8 @@ public class RandomLinearTree extends RandomTree {
 	        // Make leaf
 	        m_Attribute = -1;
 	        m_ClassDistribution = classProbs.clone();
-	        if (data.classAttribute().isNumeric()) {
-	          m_Distribution = new double[2];
-	          m_Distribution[0] = priorVar;
-	          m_Distribution[1] = totalWeight;
-	        }
+	        m_Distribution = new double[4];
+		    buildLinearModel(data, m_xPredictorNum, m_Distribution); 
 
 	        m_Prop = null;
 	        return;
@@ -687,6 +695,10 @@ public class RandomLinearTree extends RandomTree {
 	        int chosenIndex = random.nextInt(windowSize);
 	        attIndex = attIndicesWindow[chosenIndex];
 	        Attribute attr = data.attribute(attIndex);
+	        
+	        if (attr.name().equals("NodeHeightPOEM.min.ESS.m")) {
+	        	int x = 5;
+	        }
 
 	        // shift chosen attIndex out of window
 	        attIndicesWindow[chosenIndex] = attIndicesWindow[windowSize - 1];
@@ -767,6 +779,7 @@ public class RandomLinearTree extends RandomTree {
           //m_Distribution[1] = totalWeight;
 	      }
 	      
+	      m_Distribution = new double[4];
 	      buildLinearModel(data, m_xPredictorNum, m_Distribution); // tmp
 	    }
 
@@ -788,6 +801,25 @@ public class RandomLinearTree extends RandomTree {
 	    if (m_computeImpurityDecreases) {
 	      m_impurityDecreasees = new double[data.numAttributes()][2];
 	    }
+	    
+	    
+	    // X predictor column name
+	    if (!m_xPredictorName.isEmpty()) {
+	    	m_xPredictorNum = WekaUtils.getIndexOfColumn(data, m_xPredictorName);
+	    	if (m_xPredictorNum == -1) throw new Exception("Cannot find column " + m_xPredictorName + " in instances");
+	    }
+	    
+	    // By default the predictor is the attribute before the class
+	    else {
+	    	//String x = data.classAttribute().name();
+	    	//int y = WekaUtils.getIndexOfColumn(data, x);
+	    	m_xPredictorNum = data.classIndex() - 1;
+	    	m_xPredictorName = data.attribute(m_xPredictorNum).name();
+	    	if (!data.attribute(m_xPredictorNum).isNumeric()) {
+	    		throw new Exception("Trying to use " + m_xPredictorName + " as a predictor but it is not numeric");
+	    	}
+	    }
+	    
 	
 	    // Make sure K value is in range
 	    if (m_KValue > data.numAttributes() - 1) {
@@ -833,12 +865,12 @@ public class RandomLinearTree extends RandomTree {
 	    int[] attIndicesWindow = new int[data.numAttributes() - (m_xPredictorNum < 0 ? 1 : 2)];
 	    int j = 0;
 	    for (int i = 0; i < attIndicesWindow.length; i++) {
-	      if (j == data.classIndex() || j == m_xPredictorNum) {
+	      while (j == data.classIndex() || j == m_xPredictorNum) {
 	        j++; // do not include the class or leaf predictor
 	      }
 	      attIndicesWindow[i] = j++;
 	    }
-	
+	    
 	    double totalWeight = 0;
 	    double totalSumSquared = 0;
 	
@@ -869,10 +901,67 @@ public class RandomLinearTree extends RandomTree {
 	    }
 	  }
 	
+	  
+	  public static double calculateR2(Instances[] data, double[] weight, int predXIndex) throws Exception {
+		  
+		  double wsum = Utils.sum(weight);
+		  double meanR2 = 0;
+		  double maxR2 = Double.NEGATIVE_INFINITY;
+		  for (int i = 0; i < data.length; i ++) {
+			  
+			  double R2 = calculateSingleR2(data[i], predXIndex);
+			  meanR2 += R2 * weight[i];
+			  if (R2 > maxR2) maxR2 = R2;
+		  }
+		  
+		  if (true) return maxR2;
+		  return meanR2 / wsum;
+		  
+	  }
+	  
+	  
 	
+	  /**
+	   * Calculate R2 of current node using the predictor
+	   * @param data
+	   * @param predXIndex
+	   * @return
+	   * @throws Exception
+	   */
+	  public static double calculateSingleR2(Instances data, int predXIndex) throws Exception {
+		  
+		  if (data == null || data.size() == 0) return 0;
+		  
+		  // Slope
+		  double meanSlope = 0;
+		  double weightSum = 0;
+		  for (int i = 0; i < data.size(); i ++) {
+			  Instance inst = data.get(i);
+			  double x = inst.value(predXIndex);
+			  double y = inst.classValue();
+			  meanSlope += y/x * inst.weight();
+			  weightSum += inst.weight();
+		  }
+		  meanSlope = meanSlope / weightSum;
+		  
+		  
+		  
+		 // LinearRegression lm = new LinearRegression();
+		 // lm.buildClassifier(data);
+		 // double[] coeff = lm.coefficients();
+		 // double intercept = coeff[coeff.length-1];
+		 // double slope = coeff[predXIndex];
+		  
+		  double ssr = RegressionAnalysis.calculateSSR(data, data.attribute(predXIndex), meanSlope, 0);
+		  return ssr / weightSum;
+		  //double r2 = RegressionAnalysis.calculateRSquared(data, ssr);
+		 // return r2;
+		  
+	  }
+	  
 	  
 	  /**
-	   * Calculate correlation for an array of sums and sum-of-squares
+	   * Calculate weighted-average correlation for an array of sums and sum-of-squares
 	   * @param sy
 	   * @param ssy
 	   * @param sx
@@ -883,13 +972,18 @@ public class RandomLinearTree extends RandomTree {
 	   */
 	  public static double correlation(double[] sy, double[] ssy, double[] sx, double[] ssx, double[] sxy, double[] weight) {
 		 //if (true) return -variance(sy, ssy, weight);
+		 
+		 double maxCorr = Double.NEGATIVE_INFINITY;
 		 double wsum = Utils.sum(weight);
-		  
-		 double sdX = Math.sqrt(variance(sx, ssx, weight) / wsum);
-		 double sdY = Math.sqrt(variance(sy, ssy, weight) / wsum);
-		 double covXY = covariance(sxy, sx, sy, weight) / wsum;
-		 double correlation = covXY / (sdX * sdY);
-		 return correlation;
+		 double meanCorr = 0;
+		 for (int i = 0; i < sy.length; i++) {
+			 double corr = singleCorrelation(sy[i], ssy[i], sx[i], ssx[i], sxy[i], weight[i]);
+			 meanCorr += corr*weight[i];
+			 if (corr > maxCorr) maxCorr = corr;
+		 }
+		 if (true) return maxCorr;
+		 return meanCorr / wsum;
+
 	}
 
 
@@ -908,12 +1002,12 @@ public class RandomLinearTree extends RandomTree {
 	   * @return
 	   */
 	  protected static double singleCorrelation(double sumY, double ssY, double sumX, double ssX, double sumXY, double weight) {
-		 // if (true) return -singleVariance(sumY, ssY, weight);
+		  //if (true) return -singleVariance(sumY, ssY, weight);
 		  double sdX = Math.sqrt(singleVariance(sumX, ssX, weight) / weight);
 		  double sdY = Math.sqrt(singleVariance(sumY, ssY, weight) / weight);
 		  double covXY = singleCovariance(sumXY, sumX, sumY, weight) / weight;
 		  double correlation = covXY / (sdX * sdY);
-		  return correlation;
+		  return Math.abs(correlation);
 	  }
 	  
 	  
@@ -958,32 +1052,15 @@ public class RandomLinearTree extends RandomTree {
 		  String tmpStr;
 		  tmpStr = Utils.getOption('x', options);
 		  if (tmpStr.length() != 0) {
-			  m_xPredictorNum = Integer.parseInt(tmpStr);
+			  m_xPredictorName = tmpStr;
 		  } else {
+			  m_xPredictorName = "";
 			  m_xPredictorNum = -1;
 		  }
 		  
 		  super.setOptions(options);
 		  
-	  
-	  }
-	  
-	  
-	  /**
-	   * Computes class distribution of an instance using the tree.
-	   * 
-	   * @param instance the instance to compute the distribution for
-	   * @return the computed class probabilities
-	   * @throws Exception if computation fails
-	   */
-	  @Override
-	  public double[] distributionForInstance(Instance instance) throws Exception {
-
-	    if (m_zeroR != null) {
-	      return m_zeroR.distributionForInstance(instance);
-	    } else {
-	      return m_Tree.distributionForInstance(instance);
-	    }
+		  
 	  }
 	  
 	  
@@ -998,6 +1075,28 @@ public class RandomLinearTree extends RandomTree {
 		  return result.toArray(new String[result.size()]);
 	  }
 	  
+	  
+	  
+	  /**
+	   * Computes class distribution of an instance using the tree.
+	   * 
+	   * @param instance the instance to compute the distribution for
+	   * @return the computed class probabilities
+	   * @throws Exception if computation fails
+	   */
+	  @Override
+	  public double[] distributionForInstance(Instance instance) throws Exception {
+
+  
+	    if (m_zeroR != null) {
+	      return m_zeroR.distributionForInstance(instance);
+	    } else {
+	      return m_Tree.distributionForInstance(instance);
+	    }
+	  }
+	  
+	  
+
 	  /**
 	   * Do not allow nominal classes
 	   * @return the capabilities of this classifier
@@ -1040,30 +1139,24 @@ public class RandomLinearTree extends RandomTree {
 	  }
 
 	  
-	  
-	  /**
-	   * Predict using model
-	   * @param inst
-	   * @param model
-	   * @return
-	   */
-	  public static double getValueFromModel(Instance inst, int predictorColnum, double[] model) {
-		  double x = inst.value(predictorColnum);
-		  return model[0] + x*model[1];
-	  }
-	  
+
 	  
 	  /**
 	   * Build a model
 	   * @param data
 	   * @param model
+	 * @throws Exception 
 	   */
-	  public static void buildLinearModel(Instances data, int predictorColnum, double[] model) {
+	  public static void buildLinearModel(Instances data, int predictorColnum, double[] model) throws Exception {
 		  
-		  model = new double[2];
+		  
+		  
+		  
 		  if (predictorColnum <= 0) return;
-		  model[0] = 0.0;
 		  
+		  
+		  // Estimate slope but not intercept
+		  model[0] = 0.0;
 		  double meanSlope = 0;
 		  double weightSum = 0;
 		  for (int i = 0; i < data.size(); i ++) {
@@ -1076,9 +1169,83 @@ public class RandomLinearTree extends RandomTree {
 		  }
 		  meanSlope /= weightSum;
 		  model[1] = meanSlope;
+		  model[2] = 0;
+		  
+		  //if (true) return;
+		  
+		  
+		  String predictorName = data.attribute(predictorColnum).name();
+		  
+		  // Subset the attributes
+		  Instances subset = new Instances(data);
+		  for (int i = subset.numAttributes()-1; i >= 0; i--) {
+			  
+			  // Keep the predictor
+			  if (i == predictorColnum) continue;
+			  
+			  // Keep the class
+			  if (subset.attribute(i) == subset.classAttribute()) continue;
+			  
+			  // Remove the rest
+			  subset.deleteAttributeAt(i);
+			  
+		  }
+		  
+		  Attribute squared = new Attribute("squared");
+		  int predictorIndex = WekaUtils.getIndexOfColumn(subset, predictorName);
+		  int squaredIndex = -1;
+		  if (false) {
+			  
+			  // Create a polynomial term
+			  subset.insertAttributeAt(squared, 1);
+			  squaredIndex = WekaUtils.getIndexOfColumn(subset, squared.name());
+			  for (int i = 0; i < subset.size(); i ++) {
+				  
+				  Instance inst = subset.get(i);
+				  double weight = inst.value(predictorIndex);
+				  double weight2 = weight*weight;
+				  inst.setValue(squaredIndex, weight2);
+				  
+			  }
+		  }
+		  
+		  // Linear regression
+		  LinearRegression lm = new LinearRegression();
+		  lm.buildClassifier(subset);
+		  double[] coeff = lm.coefficients();
+		  
+		  double intercept = coeff[coeff.length-1];
+		  double slope1 = coeff[predictorIndex];
+		  double slope2 = squaredIndex == -1 ? 0 : coeff[squaredIndex];
+		  model[0] = intercept;
+		  model[1] = slope1;
+		  model[2] = slope2;
+		  model[3] = 0; 
+		  
+		  double ssr = RegressionAnalysis.calculateSSR(subset, subset.attribute(predictorIndex), slope1, intercept);
+		  double r2 = RegressionAnalysis.calculateRSquared(subset, ssr);
+		  model[3] = r2;
+		 // System.out.println(ssr + ", " + r2);
+		  
+		  //model[0] = lm.getIntercept();
+		  //model[1] = lm.getSlope();
+		  //model[2] = lm.slop
 		  
 	  }
 	
+	  
+	  
+	  /**
+	   * Predict using model
+	   * @param inst
+	   * @param model
+	   * @return
+	   */
+	  public static double getValueFromModel(Instance inst, int predictorColnum, double[] model) {
+		  double x = inst.value(predictorColnum);
+		  return model[0] + x*model[1] + x*x*model[2];
+	  }
+	  
 }
 
 

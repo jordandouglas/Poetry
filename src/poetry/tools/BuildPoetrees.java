@@ -32,6 +32,7 @@ import weka.core.Attribute;
 import weka.core.Instances;
 import weka.core.converters.ConverterUtils.DataSource;
 import weka.filters.Filter;
+import weka.filters.unsupervised.attribute.NumericTransform;
 import weka.filters.unsupervised.instance.RemoveWithValues;
 
 
@@ -47,16 +48,17 @@ public class BuildPoetrees extends Runnable {
 	final public Input<Integer> minInstancesPerLeafInput = new Input<>("min", "Minimum number of instances per leaf in decision tree", 20);
 	
 	
-	final int nfolds = 5;
+	final int nfolds = 1;
 	String poemName;
 	File outputDir;
 	Instances trainingSet;
-	int weightColNum;
+	//int weightColNum;
+	String weightColName;
 	
 	// The classifiers
-	final protected Class<?>[] classifiers = new Class[] { 	REPTree.class, RandomTree.class, RandomForest.class, 
-															LinearRegression.class, GaussianProcesses.class,
-															SMOreg.class, KStar.class  };
+	final protected Class<?>[] classifiers = new Class[] { 	REPTree.class, RandomLinearTree.class, RandomForest.class, 
+															LinearRegression.class, KStar.class };// GaussianProcesses.class,
+															//SMOreg.class,   };
 
 	@Override
 	public void initAndValidate() {
@@ -81,7 +83,7 @@ public class BuildPoetrees extends Runnable {
 		
 		// Find poem columns
 		String poemESSColname = POEM.getESSColname(poemName);
-		String poemWeightColname = POEM.getWeightColname(poemName);
+		weightColName = POEM.getWeightColname(poemName);
 		
 		
 		// Find ESS or ESS.m column
@@ -96,7 +98,7 @@ public class BuildPoetrees extends Runnable {
 		// Tidy the columns
 		poemName = poemNameInput.get();
 		try {
-			this.tidyColumns(poemESSColname, poemWeightColname);
+			this.tidyColumns(poemESSColname, weightColName);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new IllegalArgumentException("Error tidying attributes");
@@ -106,15 +108,16 @@ public class BuildPoetrees extends Runnable {
 		int classIndex = WekaUtils.getIndexOfColumn(trainingSet, poemESSColname);
 		Attribute poemESSColumn = trainingSet.attribute(classIndex);
 		trainingSet.setClass(poemESSColumn);
-		
+		classIndex = trainingSet.classIndex();
 		
 		try {
 			
 			// Remove with missing class
 			Filter filter = new RemoveWithValues();
-			filter.setOptions(new String[] {"-C", "" + classIndex, "-M" });
+			filter.setOptions(new String[] {"-C", "" + (classIndex+1), "-M" });
 			filter.setInputFormat(trainingSet);
 			trainingSet = Filter.useFilter(trainingSet, filter);
+			
 			
 			// Log transform
 			/*
@@ -132,8 +135,8 @@ public class BuildPoetrees extends Runnable {
 		
 
 		// Find weight column
-		weightColNum = WekaUtils.getIndexOfColumn(trainingSet, poemWeightColname);
-		if (weightColNum == -1) throw new IllegalArgumentException("Error cannot locate " + poemWeightColname + " column in " + trainingFile.getPath());
+		int weightColNum = WekaUtils.getIndexOfColumn(trainingSet, weightColName);
+		if (weightColNum == -1) throw new IllegalArgumentException("Error cannot locate " + weightColName + " column in " + trainingFile.getPath());
 		
 		
 		
@@ -147,37 +150,49 @@ public class BuildPoetrees extends Runnable {
 	@Override
 	public void run() throws Exception {
 		
-
-		// Test
-		RandomForest rf = new RandomForest();
-		RandomLinearTree rlt = new RandomLinearTree();
-		rlt.setOptions(new String[] { "-x",  "" + (weightColNum) });
-		rlt.buildClassifier(trainingSet);
-		//rf.setClassifier(rlt);
-		//WekaUtils.removeCol(trainingSet, "xml");
-		//rf.buildClassifier(trainingSet);
+		Log.warning("Building models...");
+		Log.warning("Total Number of Instances: " + trainingSet.size());
 		
-		File out2 = Paths.get(outputDir.getPath(), "tree.txt").toFile();
+		
+		/*
+		WekaUtils.removeCol(trainingSet, "xml");
+		
+		// Tree
+		RandomLinearTree rlt = new RandomLinearTree();
+		//rlt.setOptions(new String[] { "-x",  weightColName });
+		rlt.buildClassifier(trainingSet);
+		
+		// Print
+		File out2 = Paths.get(outputDir.getPath(), "RandomLinearTree.txt").toFile();
 		Log.warning("Saving tree to " + out2.getPath());
 		PrintWriter pw2 = new PrintWriter(out2);
 		pw2.println(rlt.toString());
 		pw2.close();
 		
+		// Forest
+		RandomForest rf1 = new RandomForest();
+		rf1.setClassifier(rlt);
+		rf1.buildClassifier(trainingSet);
+		
+
+		
 		Evaluation eval = new Evaluation(trainingSet);
-		eval.evaluateModel(rlt, trainingSet);
+		eval.evaluateModel(rf1, trainingSet);
 		double corr_f = eval.correlationCoefficient();
 		
 		
 		//double c1 = WekaUtils.kFoldCrossValidationReplicates(trainingSet, rlt, nfolds);
 		//double c2 = WekaUtils.kFoldCrossValidationSafe(trainingSet, rlt, nfolds);
 		Log.warning("RandomLinearTree:");
-		System.out.println("Cross-validation correlation: " + corr_f);
+		System.out.println("Training set correlation: " + corr_f);
 		//System.out.println("Cross-validation correlation (reps): " + c1);
 		
 		
-		Log.warning("Building models...");
-		Log.warning("Total Number of Instances: " + trainingSet.size());
 		
+		if (true) return;
+		*/
+
+
 		// Print out
 		File tableOut = Paths.get(outputDir.getPath(), "correlation.tsv").toFile();
 		Log.warning("Saving results to " + tableOut.getPath());
@@ -193,17 +208,19 @@ public class BuildPoetrees extends Runnable {
 			String modelName = model.getClass().getSimpleName();
 			
 			
+			double[][] fits = new double[2][];
+			
 			// 10-fold cross-validation while accounting for replicates
-			double corr_reps = WekaUtils.kFoldCrossValidationReplicates(trainingSet, model, nfolds);
+			double corr_reps = WekaUtils.kFoldCrossValidationReplicates(trainingSet, model, nfolds, fits);
 			
 			
 			// Print tree to file
-			if (false && model instanceof RandomTree) {
+			if (model instanceof RandomLinearTree) {
 				
-				RandomTree tree = (RandomTree) model;
+				RandomLinearTree tree = new RandomLinearTree();
 				Instances training2 = new Instances(trainingSet);
 				WekaUtils.removeCol(training2, "xml");
-				tree.setOptions(new String[] { "-M", "" + minInstancesPerLeafInput.get() });
+				//tree.setOptions(new String[] { "-M", "" + minInstancesPerLeafInput.get() });
 				tree.buildClassifier(training2);
 				File out = Paths.get(outputDir.getPath(), "tree.txt").toFile();
 				Log.warning("Saving tree to " + out.getPath());
@@ -222,6 +239,20 @@ public class BuildPoetrees extends Runnable {
 			System.out.println("Cross-validation correlation (reps): " + corr_reps);
 			
 			writer.println(modelName + "\t" + corr + "\t" + corr_reps);
+			
+			if (model instanceof RandomForest) {
+				
+				File out = Paths.get(outputDir.getPath(), "randomforest.txt").toFile();
+				Log.warning("Saving random forest predictions to " + out.getPath());
+				PrintWriter pw = new PrintWriter(out);
+				pw.println("true\tpred");
+				for (int i = 0; i < fits[0].length; i ++) {
+					pw.println(fits[0][i] + "\t" + fits[1][i]);
+				}
+				pw.close();
+				
+				
+			}
 			
 			
 		}
