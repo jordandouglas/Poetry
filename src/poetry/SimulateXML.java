@@ -61,6 +61,7 @@ public class SimulateXML extends Runnable {
 	final public Input<List<XMLFunction>> functionsInput = new Input<>("function", "Functions which can be called during xml simulation", new ArrayList<>());
 	final public Input<File> outFolderInput = new Input<>("out", "A folder to save the results into", Input.Validate.REQUIRED);
 	final public Input<List<POEM>> poemsInput = new Input<>("poem", "A map between operators and log outputs", new ArrayList<>());
+	final public Input<Boolean> coordinateWeightsInput = new Input<>("coordinateWeights", "Whether to coordinate weights with replicate 1 (default true)", true);
 	
 	
 	final public Input<StateNode> placeholderInput = new Input<>("placeholder", "A temporary state node which will be removed from all operators when MCMC "
@@ -488,6 +489,7 @@ public class SimulateXML extends Runnable {
 	    scheduler.setAttribute("runtime", RUNTIME_LOGNAME);
 	    scheduler.setAttribute("number", "" + sampleNum);
 	    scheduler.setAttribute("updateEvery", updateEvery2);
+	    scheduler.setAttribute("coordinateWeights", "" + coordinateWeightsInput.get());
 	    if (placeholderInput.get() != null) scheduler.setAttribute("placeholder", "@" + placeholderInput.get().getID());
 	    runner.appendChild(scheduler);
 	    

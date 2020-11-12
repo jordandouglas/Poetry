@@ -4,23 +4,19 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.List;
-import java.util.Random;
+
 
 import beast.app.util.Application;
 import beast.core.Description;
 import beast.core.Input;
 import beast.core.Runnable;
 import beast.core.util.Log;
-import beast.util.Randomizer;
 import poetry.learning.RandomLinearTree;
 import poetry.sampler.POEM;
 import poetry.util.WekaUtils;
 import beast.core.Input.Validate;
 import weka.classifiers.Classifier;
-import weka.classifiers.evaluation.Evaluation;
 import weka.classifiers.functions.GaussianProcesses;
 import weka.classifiers.functions.LinearRegression;
 import weka.classifiers.functions.SMOreg;
@@ -56,8 +52,8 @@ public class BuildPoetrees extends Runnable {
 	String weightColName;
 	
 	// The classifiers
-	final protected Class<?>[] classifiers = new Class[] { 	REPTree.class, RandomLinearTree.class, RandomForest.class, 
-															LinearRegression.class, KStar.class };// GaussianProcesses.class,
+	final protected Class<?>[] classifiers = new Class[] { 	REPTree.class, RandomTree.class, RandomLinearTree.class, RandomForest.class, 
+															LinearRegression.class, GaussianProcesses.class, KStar.class  };
 															//SMOreg.class,   };
 
 	@Override
@@ -86,10 +82,14 @@ public class BuildPoetrees extends Runnable {
 		weightColName = POEM.getWeightColname(poemName);
 		
 		
-		// Find ESS or ESS.m column
+		// Find ESS or ESS.hr or ESS.m column
 		int colNum = WekaUtils.getIndexOfColumn(trainingSet, poemESSColname);
 		if (colNum == -1) {
-			poemESSColname =  poemESSColname + ".m";
+			poemESSColname =  POEM.getESSColname(poemName) + ".hr";
+			colNum = WekaUtils.getIndexOfColumn(trainingSet, poemESSColname);
+		}
+		if (colNum == -1) {
+			poemESSColname =  POEM.getESSColname(poemName) + ".m";
 			colNum = WekaUtils.getIndexOfColumn(trainingSet, poemESSColname);
 		}
 		if (colNum == -1) throw new IllegalArgumentException("Error cannot locate " + poemESSColname + " column in " + trainingFile.getPath());
@@ -120,12 +120,12 @@ public class BuildPoetrees extends Runnable {
 			
 			
 			// Log transform
-			/*
+			
 			filter = new NumericTransform(); 
 			filter.setOptions(new String[] {"-M", "log" });
 			filter.setInputFormat(trainingSet);
 			trainingSet = Filter.useFilter(trainingSet, filter);
-			*/
+			
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -153,7 +153,16 @@ public class BuildPoetrees extends Runnable {
 		Log.warning("Building models...");
 		Log.warning("Total Number of Instances: " + trainingSet.size());
 		
-		
+		/*
+		Rengine re = new Rengine (new String [] {"--vanilla"}, false, null);
+		if (!re.waitForR()) {
+		    return;
+		}
+		re.assign("x", new double[] {1.5, 2.5, 3.5});
+		REXP result = re.eval("(sum(x))");
+		System.out.println(result.asDouble());
+		re.end();
+*/
 		/*
 		WekaUtils.removeCol(trainingSet, "xml");
 		
@@ -199,6 +208,7 @@ public class BuildPoetrees extends Runnable {
 		PrintWriter writer = new PrintWriter(tableOut);
 		writer.println("Algorithm\tCorrelation\tCorrelationReps");
 		
+
 		
 		for (Class<?> c : classifiers) {
 			
@@ -208,16 +218,16 @@ public class BuildPoetrees extends Runnable {
 			String modelName = model.getClass().getSimpleName();
 			
 			
-			double[][] fits = new double[2][];
+			double[][] fits = new double[3][];
 			
 			// 10-fold cross-validation while accounting for replicates
 			double corr_reps = WekaUtils.kFoldCrossValidationReplicates(trainingSet, model, nfolds, fits);
 			
 			
 			// Print tree to file
-			if (model instanceof RandomLinearTree) {
+			if (model instanceof RandomTree & !(model instanceof RandomLinearTree)) {
 				
-				RandomLinearTree tree = new RandomLinearTree();
+				RandomTree tree = new RandomTree();
 				Instances training2 = new Instances(trainingSet);
 				WekaUtils.removeCol(training2, "xml");
 				//tree.setOptions(new String[] { "-M", "" + minInstancesPerLeafInput.get() });
@@ -226,6 +236,22 @@ public class BuildPoetrees extends Runnable {
 				Log.warning("Saving tree to " + out.getPath());
 				PrintWriter pw = new PrintWriter(out);
 				pw.println(tree.toString());
+				pw.close();
+			}
+			
+			
+			// Print linear model to file
+			if (model instanceof LinearRegression) {
+				
+				LinearRegression lm = new LinearRegression();
+				Instances training2 = new Instances(trainingSet);
+				WekaUtils.removeCol(training2, "xml");
+				//tree.setOptions(new String[] { "-M", "" + minInstancesPerLeafInput.get() });
+				lm.buildClassifier(training2);
+				File out = Paths.get(outputDir.getPath(), "lm.txt").toFile();
+				Log.warning("Saving linear model to " + out.getPath());
+				PrintWriter pw = new PrintWriter(out);
+				pw.println(lm.toString());
 				pw.close();
 			}
 			
@@ -240,19 +266,17 @@ public class BuildPoetrees extends Runnable {
 			
 			writer.println(modelName + "\t" + corr + "\t" + corr_reps);
 			
-			if (model instanceof RandomForest) {
 				
-				File out = Paths.get(outputDir.getPath(), "randomforest.txt").toFile();
-				Log.warning("Saving random forest predictions to " + out.getPath());
-				PrintWriter pw = new PrintWriter(out);
-				pw.println("true\tpred");
-				for (int i = 0; i < fits[0].length; i ++) {
-					pw.println(fits[0][i] + "\t" + fits[1][i]);
-				}
-				pw.close();
-				
-				
+			File out = Paths.get(outputDir.getPath(), modelName + ".tsv").toFile();
+			Log.warning("Saving predictions to " + out.getPath());
+			PrintWriter pw = new PrintWriter(out);
+			pw.println("xml\ttrue\tpred");
+			for (int i = 0; i < fits[0].length; i ++) {
+				pw.println(fits[0][i] + "\t" + fits[1][i] + "\t" + fits[2][i]);
 			}
+			pw.close();
+				
+				
 			
 			
 		}
@@ -288,7 +312,9 @@ public class BuildPoetrees extends Runnable {
 		WekaUtils.removeCol(data, "ESS.mean.m");
 		WekaUtils.removeCol(data, "ESS.sd.m");
 		WekaUtils.removeCol(data, "ESS.cov.m");
-	
+		WekaUtils.removeCol(data, "ESS.mean.hr");
+		WekaUtils.removeCol(data, "ESS.sd.hr");
+		WekaUtils.removeCol(data, "ESS.cov.hr");	
 	
 	
 		// Remove all poem weights and esses except for the current ess
@@ -296,6 +322,7 @@ public class BuildPoetrees extends Runnable {
 		poems.addAll(WekaUtils.getAttributesWithSubstring(data, POEM.getWeightColname("")));
 		for (Attribute attr : poems) {
 			if (attr.name().equals(poemESSColname) | attr.name().equals(poemWeightColname)) continue;
+			//if (attr.name().contains(".weight")) continue;
 			WekaUtils.removeCol(data, attr.name());
 		}
 	

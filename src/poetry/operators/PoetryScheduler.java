@@ -42,6 +42,7 @@ public class PoetryScheduler extends OperatorSchedule {
 	
 	final public Input<Boolean> noMCMC = new Input<>("noMCMC", "Set to true to only run the poetry analyser (and update the database) without"
 			+ " actually doing any MCMC. BEAST2 will exit afterwards (default false)", false);
+	final public Input<Boolean> coordinateWeightsInput = new Input<>("coordinateWeights", "Whether to coordinate weights with replicate 1 (default true)", true);
 	
 	
 	long numCalls;
@@ -67,7 +68,8 @@ public class PoetryScheduler extends OperatorSchedule {
 		 File runtimeLog = new File(this.runtimeLoggerInput.get());
 
 		
-		 this.poetry = new PoetryAnalyser(this.sampleNumInput.get(),  this.database, this.poemsInput.get(), runtimeLog, this.burninInput.get());
+		 this.poetry = new PoetryAnalyser(this.sampleNumInput.get(),  this.database, this.poemsInput.get(), 
+				 					runtimeLog, this.burninInput.get(), this.coordinateWeightsInput.get());
 		
 		
 		 // Update the database and then exit

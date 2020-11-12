@@ -13,6 +13,9 @@
               class="poetry.tools.BuildPoetrees"
               args=""
             />
-
+    <packageapp description="Compute the minimum ESS of a logfile"
+              class="poetry.tools.MinESS"
+              args=""
+            />
 
 </package>

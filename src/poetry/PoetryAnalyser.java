@@ -21,6 +21,7 @@ import java.util.Scanner;
 
 import org.apache.commons.math3.random.EmpiricalDistribution;
 
+import beast.app.util.Application;
 import beast.core.Input;
 import beast.core.Runnable;
 import beast.core.parameter.Map;
@@ -43,13 +44,18 @@ public class PoetryAnalyser extends Runnable {
 	
 	final public Input<File> databaseFileInput = new Input<>("database", "The location of a the database (tsv)", Input.Validate.REQUIRED);
 	final public Input<Integer> sampleNumInput = new Input<>("number", "The row number in the database of this sample", Input.Validate.REQUIRED);
+	
+	
 	final public Input<List<POEM>> poemsInput = new Input<>("poem", "A map between operators and log outputs", new ArrayList<>());
 	final public Input<File> runtimeLoggerInput = new Input<>("runtime", "Lof file containing runtimes");
 	final public Input<Integer> burninInput = new Input<>("burnin", "Burnin percentage for ESS computation (default 10)", 10);
-
+	final public Input<Boolean> coordinateWeightsInput = new Input<>("coordinateWeights", "Whether to coordinate weights with replicate 1 (default true)", true);
+	
+	
 	
 	
 	boolean verbose;
+	boolean coordinateWeights;
 	int sampleNum;
 	int replicateNum;
 	int rowNum;
@@ -63,11 +69,15 @@ public class PoetryAnalyser extends Runnable {
 	
 	Lock lock;
 	
-	public PoetryAnalyser(int sampleNum, File database, List<POEM> poems, File runtimeLogfile) {
-		this(sampleNum, database, poems, runtimeLogfile, 10);
+	public PoetryAnalyser() {
+		
 	}
 	
-	public PoetryAnalyser(int sampleNum, File database, List<POEM> poems, File runtimeLogfile, int burnin) {
+	public PoetryAnalyser(int sampleNum, File database, List<POEM> poems, File runtimeLogfile) {
+		this(sampleNum, database, poems, runtimeLogfile, 10, true);
+	}
+	
+	public PoetryAnalyser(int sampleNum, File database, List<POEM> poems, File runtimeLogfile, int burnin, boolean coordinateWeights) {
 		this.sampleNum = sampleNum;
 		this.replicateNum = this.getReplicateNumber();
 		this.database = database;
@@ -77,6 +87,7 @@ public class PoetryAnalyser extends Runnable {
 		this.runtimeLogfile = runtimeLogfile;
 		this.burnin = burnin;
 		this.verbose = false;
+		this.coordinateWeights = coordinateWeights;
 		
 		// File validation
 		if (!this.database.exists()) throw new IllegalArgumentException("Could not locate database " + this.database.getPath());
@@ -99,6 +110,7 @@ public class PoetryAnalyser extends Runnable {
 		this.burnin = burninInput.get();
 		this.rowNum = -1;
 		this.verbose = true;
+		this.coordinateWeights = coordinateWeightsInput.get();
 		
 		//if (this.poems.isEmpty()) throw new IllegalArgumentException("Please provide at least 1 poem");
 		
@@ -346,9 +358,15 @@ public class PoetryAnalyser extends Runnable {
 		}
 		
 		
+		
+		
+		// Do not coordinate weights. All sessions will sample independently.
+		if (!coordinateWeights) {
+			Log.warning("Sampling POEM weights independently. There will be no coordination between xml files.");
+			return;
+		}
+		
 		File weightFile = new File("../weights.tsv");
-		
-		
 		try {
 			
 			
@@ -728,6 +746,8 @@ public class PoetryAnalyser extends Runnable {
 		
 	}
 	
+	
+
 
 }
 

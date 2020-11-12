@@ -38,7 +38,7 @@ public class RandomLinearTree extends RandomTree {
 	protected String m_xPredictorName = "";
 	
 	/** Minimum number of instances for leaf. */
-	protected double m_MinNum = 40.0;
+	protected double m_MinNum = 30.0;
 
     
 	protected class LinearTree extends Tree {
@@ -220,12 +220,8 @@ public class RandomLinearTree extends RandomTree {
 	        } else if (m_Info.attribute(m_Attribute).isNominal()) {
 
 	        	
-	        	double val = instance.value(m_Attribute);
-	        	
-	          // For nominal attributes
-	          returnedDist =
-	            m_Successors[(int) instance.value(m_Attribute)]
-	              .distributionForInstance(instance);
+	        	// For nominal attributes
+	        	returnedDist = m_Successors[(int) instance.value(m_Attribute)].distributionForInstance(instance);
 	        } else {
 
 	          // For numeric attributes
@@ -246,7 +242,7 @@ public class RandomLinearTree extends RandomTree {
 	        }
 
 	        
-	        return new double[] { getValueFromModel(instance, m_xPredictorNum, m_Distribution)};
+	        return new double[] { getValueFromModel(instance, m_xPredictorNum, m_Distribution) };
 	        
 	        // Else return normalized distribution
 	        //double[] normalizedDistribution = m_ClassDistribution.clone();
@@ -560,15 +556,7 @@ public class RandomLinearTree extends RandomTree {
 	          }
 	      }
 
-	      // Compute final distribution
-	      dist = new double[sumsY.length][data.numClasses()];
-	      for (int j = 0; j < sumsY.length; j++) {
-	        if (sumOfWeights[j] > 0) {
-	          dist[j][0] = sumsY[j] / sumOfWeights[j];
-	        } else {
-	          dist[j][0] = totalSumY / totalSumOfWeights;
-	        }
-	      }
+
 	      
 	      
     	  
@@ -579,21 +567,37 @@ public class RandomLinearTree extends RandomTree {
 	      	      	return Double.NaN;
 	        	}
 	        }
-	      
-	      
-	      
+	        
+	        
 	        double correlationBefore = singleCorrelation(totalSumY, totalSumSquaredY, totalSumX, totalSumSquaredX, totalSumXY, totalSumOfWeights);
 	        double correlationAfter = correlation(sumsY, sumSquaredY, sumsX, sumSquaredX, sumsXY, sumOfWeights);
 	        double gain = correlationAfter - correlationBefore;
 	        
 	        
-	        double R2before = calculateSingleR2(data, m_xPredictorNum);
-	        double R2after = calculateR2(dataSplits, sumOfWeights, m_xPredictorNum);
-	        //gain = R2after - R2before;
+	        
+		    // Compute final distribution
+		    dist = new double[sumsY.length][data.numClasses()];
+		    for (int j = 0; j < sumsY.length; j++) {
+		    	if (sumOfWeights[j] > 0) {
+		    		double corr = singleCorrelation(sumsY[j], sumSquaredY[j], sumsX[j], sumSquaredX[j], sumsXY[j], sumOfWeights[j]);
+		    		dist[j][0] = corr;
+		    	} else {
+		    		dist[j][0] = 0;
+		    	}
+		    }
+	      
+	      
+	      
+	      
+	        
+	        
+	        //double R2before = calculateSingleR2(data, m_xPredictorNum);
+	        //double R2after = calculateR2(dataSplits, sumOfWeights, m_xPredictorNum);
+	       // gain = R2after - R2before;
 	        //System.out.println(R2before + "->" + R2after);
 	      
 
-	      // Return distribution and split point
+	        // Return distribution and split point
 	        subsetWeights[att] = sumOfWeights;
 	        dists[0] = dist;
 	        vals[att] = gain;
@@ -632,33 +636,12 @@ public class RandomLinearTree extends RandomTree {
 	      }
 	      
 	      
-	    
-
-	      double priorVar = 0;
-	      if (data.classAttribute().isNumeric()) {
-
-	        // Compute prior variance
-	        double totalSum = 0, totalSumSquared = 0, totalSumOfWeights = 0;
-	        for (int i = 0; i < data.numInstances(); i++) {
-	          Instance inst = data.instance(i);
-	          totalSum += inst.classValue() * inst.weight();
-	          totalSumSquared += inst.classValue() * inst.classValue() * inst.weight();
-	          totalSumOfWeights += inst.weight();
-	        }
-	        priorVar = RandomLinearTree.singleVariance(totalSum, totalSumSquared, totalSumOfWeights);
-	      }
 
 	      // System.err.println("Total weight " + totalWeight);
 	      // double sum = Utils.sum(classProbs);
 	      if (totalWeight < 2 * m_MinNum ||
 
 
-	        // Numeric case
-	        (data.classAttribute().isNumeric() && priorVar / totalWeight < minVariance)
-
-	        ||
-
-	        // check tree depth
 	        ((getMaxDepth() > 0) && (depth >= getMaxDepth()))) {
 
 	        // Make leaf
@@ -695,10 +678,6 @@ public class RandomLinearTree extends RandomTree {
 	        int chosenIndex = random.nextInt(windowSize);
 	        attIndex = attIndicesWindow[chosenIndex];
 	        Attribute attr = data.attribute(attIndex);
-	        
-	        if (attr.name().equals("NodeHeightPOEM.min.ESS.m")) {
-	        	int x = 5;
-	        }
 
 	        // shift chosen attIndex out of window
 	        attIndicesWindow[chosenIndex] = attIndicesWindow[windowSize - 1];
@@ -714,8 +693,7 @@ public class RandomLinearTree extends RandomTree {
 	          gainFound = true;
 	        }
 
-	        if ((currVal > val)
-	          || ((!getBreakTiesRandomly()) && (currVal == val) && (attIndex < bestIndex))) {
+	        if ((currVal > val) || ((!getBreakTiesRandomly()) && (currVal == val) && (attIndex < bestIndex))) {
 	          val = currVal;
 	          bestIndex = attIndex;
 	          split = currSplit;
@@ -802,7 +780,7 @@ public class RandomLinearTree extends RandomTree {
 	      m_impurityDecreasees = new double[data.numAttributes()][2];
 	    }
 	    
-	    
+
 	    // X predictor column name
 	    if (!m_xPredictorName.isEmpty()) {
 	    	m_xPredictorNum = WekaUtils.getIndexOfColumn(data, m_xPredictorName);
@@ -914,7 +892,7 @@ public class RandomLinearTree extends RandomTree {
 			  if (R2 > maxR2) maxR2 = R2;
 		  }
 		  
-		  if (true) return maxR2;
+		  //if (true) return maxR2;
 		  return meanR2 / wsum;
 		  
 	  }
@@ -932,30 +910,27 @@ public class RandomLinearTree extends RandomTree {
 		  
 		  if (data == null || data.size() == 0) return 0;
 		  
-		  // Slope
-		  double meanSlope = 0;
+		  double sumxy = 0;
+		  double sumxSquared = 0;
 		  double weightSum = 0;
 		  for (int i = 0; i < data.size(); i ++) {
 			  Instance inst = data.get(i);
+			  if (inst.isMissing(predXIndex)) continue;
 			  double x = inst.value(predXIndex);
 			  double y = inst.classValue();
-			  meanSlope += y/x * inst.weight();
+			  sumxy += x*y*inst.weight();
+			  sumxSquared += x*x*inst.weight();
 			  weightSum += inst.weight();
 		  }
-		  meanSlope = meanSlope / weightSum;
+		  double slope = sumxy/sumxSquared;
+		  double intercept = 0;
 		  
 		  
-		  
-		 // LinearRegression lm = new LinearRegression();
-		 // lm.buildClassifier(data);
-		 // double[] coeff = lm.coefficients();
-		 // double intercept = coeff[coeff.length-1];
-		 // double slope = coeff[predXIndex];
-		  
-		  double ssr = RegressionAnalysis.calculateSSR(data, data.attribute(predXIndex), meanSlope, 0);
-		  return ssr / weightSum;
+		  // Regression through the origin (RTO)
+		  double ssr = RegressionAnalysis.calculateSSR(data, data.attribute(predXIndex), slope, intercept);
+		  return -ssr / weightSum;
 		  //double r2 = RegressionAnalysis.calculateRSquared(data, ssr);
-		 // return r2;
+		  //return r2;
 		  
 	  }
 	  
@@ -974,14 +949,17 @@ public class RandomLinearTree extends RandomTree {
 		 //if (true) return -variance(sy, ssy, weight);
 		 
 		 double maxCorr = Double.NEGATIVE_INFINITY;
+		 double minCorr = Double.POSITIVE_INFINITY;
 		 double wsum = Utils.sum(weight);
 		 double meanCorr = 0;
 		 for (int i = 0; i < sy.length; i++) {
 			 double corr = singleCorrelation(sy[i], ssy[i], sx[i], ssx[i], sxy[i], weight[i]);
 			 meanCorr += corr*weight[i];
 			 if (corr > maxCorr) maxCorr = corr;
+			 if (corr < minCorr) minCorr = corr;
 		 }
 		 if (true) return maxCorr;
+		 //if (true) return minCorr;
 		 return meanCorr / wsum;
 
 	}
@@ -1007,7 +985,7 @@ public class RandomLinearTree extends RandomTree {
 		  double sdY = Math.sqrt(singleVariance(sumY, ssY, weight) / weight);
 		  double covXY = singleCovariance(sumXY, sumX, sumY, weight) / weight;
 		  double correlation = covXY / (sdX * sdY);
-		  return Math.abs(correlation);
+		  return correlation; //*correlation;
 	  }
 	  
 	  
@@ -1155,23 +1133,28 @@ public class RandomLinearTree extends RandomTree {
 		  if (predictorColnum <= 0) return;
 		  
 		  
-		  // Estimate slope but not intercept
-		  model[0] = 0.0;
-		  double meanSlope = 0;
+		  // Estimate slope but not intercept using least squares
 		  double weightSum = 0;
+		  double sumy = 0;
+		  double sumxy = 0;
+		  double sumxSquared = 0;
 		  for (int i = 0; i < data.size(); i ++) {
 			  Instance inst = data.get(i);
 			  if (inst.isMissing(predictorColnum)) continue;
 			  double x = inst.value(predictorColnum);
 			  double y = inst.classValue();
-			  meanSlope += y/x * inst.weight();
+			  //meanSlope += y/x * inst.weight();
+			  sumy += y*inst.weight();
 			  weightSum += inst.weight();
+			  sumxy += x*y*inst.weight();
+			  sumxSquared += x*x*inst.weight();
 		  }
-		  meanSlope /= weightSum;
-		  model[1] = meanSlope;
+		  //meanSlope /= weightSum;
+		  model[0] = 0; //sumy/weightSum; //0.0;
+		  model[1] = sumxy/sumxSquared;
 		  model[2] = 0;
 		  
-		  //if (true) return;
+		  if (true) return;
 		  
 		  
 		  String predictorName = data.attribute(predictorColnum).name();

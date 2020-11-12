@@ -311,7 +311,7 @@ public class WekaUtils {
 					RandomLinearTree rlt = new RandomLinearTree();
 					
 					// Forest
-					((RandomForest)freshModel).setClassifier(rlt);
+					//((RandomForest)freshModel).setClassifier(rlt);
 					
 				}
 				freshModel.buildClassifier(training);
@@ -350,10 +350,14 @@ public class WekaUtils {
 	public static double crossValidateReplicates(Instances data, Classifier model, double[][] fits) throws Exception {
 		
 		// True vs fit values
+		double[] xmlNum = new double[data.size()];
 		double[] trueX = new double[data.size()];
 		double[] predX = new double[data.size()];
-		fits[0] = trueX;
-		fits[1] = predX;
+		if (fits != null && fits.length >= 3) {
+			fits[0] = xmlNum;
+			fits[1] = trueX;
+			fits[2] = predX;
+		}
 		int instanceNum = 0;
 	
 		final int nfolds = 10;
@@ -396,11 +400,23 @@ public class WekaUtils {
 					trainingXMLs.addAll(splits.get(j));
 				}
 				Instances training = splitDataAndSaveArff(data, trainingXMLs, null);
-				WekaUtils.removeCol(training, "xml");
+				
 				
 				// The test set
 				List<Double> testXMLs = splits.get(f);
 				Instances test = splitDataAndSaveArff(data, testXMLs, null);
+				
+				
+				// Store xml number
+				double[] xmlsNames = new double[test.size()];
+				int xmlColNum = WekaUtils.getIndexOfColumn(test, "xml");
+				for (int j = 0; j < test.size(); j++) {
+					Instance inst = test.get(j);
+					xmlsNames[j] = inst.value(xmlColNum);
+				}
+				
+				// Remove xml column
+				WekaUtils.removeCol(training, "xml");
 				WekaUtils.removeCol(test, "xml");
 				
 				
@@ -412,7 +428,7 @@ public class WekaUtils {
 					RandomLinearTree rlt = new RandomLinearTree();
 					
 					// Forest
-					((RandomForest)freshModel).setClassifier(rlt);
+					//((RandomForest)freshModel).setClassifier(rlt);
 					
 				}
 				freshModel.buildClassifier(training);
@@ -425,12 +441,15 @@ public class WekaUtils {
 				
 				
 				// Fit
+				int xmlIndex = 0;
 				for (Instance inst : test) {
 					double truth = inst.classValue();
 					double pred = freshModel.classifyInstance(inst);
+					xmlNum[instanceNum] = xmlsNames[xmlIndex];
 					trueX[instanceNum] = truth;
 					predX[instanceNum] = pred;
 					instanceNum++;
+					xmlIndex++;
 				}
 				
 				//Log.warning("Fold " + (f+1) + ": training on " + training.size() + " and testing on " + test.size() + ". p = " + corr_f);
