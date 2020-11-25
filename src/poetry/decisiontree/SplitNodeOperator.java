@@ -6,7 +6,7 @@ import java.util.List;
 import beast.core.Input;
 import beast.core.Operator;
 import beast.core.StateNode;
-import beast.core.parameter.CompoundRealParameter;
+import beast.core.parameter.RealParameter;
 import beast.core.util.Log;
 import beast.util.Randomizer;
 
@@ -21,18 +21,17 @@ public class SplitNodeOperator extends Operator {
 	final public Input<DecisionTree> treeInput = new Input<>("tree", "the tree", Input.Validate.REQUIRED);
 	final public Input<DecisionTreeDistribution> treeDistrInput = new Input<>("dist", "the tree distribution", Input.Validate.REQUIRED);
 
-	DecisionTree tree;
-	DecisionTreeDistribution dist;
 	
 	
 	@Override
 	public void initAndValidate() {
-		this.tree = treeInput.get();
-		this.dist = treeDistrInput.get();
 	}
 
 	@Override
 	public double proposal() {
+		
+		DecisionTree tree = treeInput.get(this);
+		DecisionTreeDistribution dist = treeDistrInput.get();
 		
 		double logHR = 0;
 		int nleaves = tree.getLeafCount();
@@ -40,6 +39,10 @@ public class SplitNodeOperator extends Operator {
 		// Expand or shrink?
 		boolean expand = Randomizer.nextBoolean();
 		if (expand) {
+			
+			// Cannot expand a max-sized tree
+			if (tree.getLeafCount() >= dist.getMaxLeafCount()) return Double.NEGATIVE_INFINITY;
+			
 			
 			// Sample a leaf to expand
 			int nodeNum = Randomizer.nextInt(nleaves);
@@ -50,15 +53,10 @@ public class SplitNodeOperator extends Operator {
 			}
 			
 			// Create 2 new nodes
-			DecisionNode trueChild = this.dist.newNode();
-			DecisionNode falseChild = this.dist.newNode();
+			DecisionNode trueChild = dist.newNode();
+			DecisionNode falseChild = dist.newNode();
 			parent.setTrueChild(trueChild);
 			parent.setFalseChild(falseChild);
-			
-			
-			// Relabel the tree
-			tree.listNodes();
-			
 			
 			
 		} else {
@@ -66,26 +64,52 @@ public class SplitNodeOperator extends Operator {
 			// Cannot shrink a 1 node tree
 			if (nleaves == 0) return Double.NEGATIVE_INFINITY;
 			
+			
+			// Sample a cherry to shrink
+			List<DecisionNode> cherries = new ArrayList<>();
+			for (DecisionNode node : tree.getNodes()){
+				if (node.isCherry()) cherries.add(node);
+			}
+			if (cherries.size() == 0) return Double.NEGATIVE_INFINITY;
+			int nodeNum = Randomizer.nextInt(cherries.size());
+			DecisionNode parent = cherries.get(nodeNum);
+			
+			
+			// Delete its children
+			parent.removeChildren();
+			
 		}
 		
-		
-		// Update the parameter dimensions
-		this.dist.updateDimensions();
-		
-		
+		// Relabel the tree
+		tree.reset();
 		return logHR;
+		
 	}
 
 	
-
+	/*
     @Override
     public List<StateNode> listStateNodes() {
     	List<StateNode> stateNodes = new ArrayList<StateNode>(); 
-    	stateNodes.add(this.tree);
-    	stateNodes.addAll(this.dist.getStateNodes());
+    	stateNodes.add(treeInput.get());
+    	//stateNodes.addAll(treeDistrInput.get().getStateNodes());
     	return stateNodes;
     }
+    */
     
-
+    @Override
+    public void accept() {
+    	super.accept();	
+    }
+    
+    @Override
+    public void reject() {
+    	super.reject();	
+    }
 	
+    @Override
+    public void reject(int reason) {
+    	super.reject(reason);	
+    }
+    
 }

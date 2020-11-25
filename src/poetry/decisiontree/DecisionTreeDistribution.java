@@ -1,7 +1,6 @@
 package poetry.decisiontree;
 
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -12,11 +11,10 @@ import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import beast.core.Distribution;
 import beast.core.Input;
 import beast.core.State;
-import beast.core.StateNode;
 import beast.core.Input.Validate;
 import beast.core.parameter.IntegerParameter;
-import beast.core.parameter.Parameter;
 import beast.core.parameter.RealParameter;
+import beast.core.util.Log;
 import weka.core.Attribute;
 import weka.core.Instances;
 import weka.core.converters.ConverterUtils.DataSource;
@@ -25,15 +23,10 @@ import weka.core.converters.ConverterUtils.DataSource;
 
 public class DecisionTreeDistribution extends Distribution {
 	
+
 	
-	
-	final public Input<File> arffInput = new Input<>("data", "The .arff file which contains data", Validate.REQUIRED);
-	final public Input<String> targetInput = new Input<>("target", "The target feature", Validate.REQUIRED);
-	final public Input<String> predInput = new Input<>("pred", "The predictor feature for regression at the leaves", Validate.REQUIRED);
-	
-	
-	final public Input<RealParameter> treeSizeMeanInput = new Input<>("size", "Poisson mean number of nodes in the tree for prior", Validate.REQUIRED);
-	
+	final public Input<RealParameter> leafSizeMeanInput = new Input<>("size", "Poisson mean number of nodes in the tree for prior", Validate.REQUIRED);
+	final public Input<Integer> maxLeafCountInput = new Input<>("maxLeafCount", "Maximum tree leafset size (constant)", 100);
 	
 	final public Input<IntegerParameter> attributePointerInput = new Input<>("pointer", "points to attributes", Validate.REQUIRED);
 	final public Input<RealParameter> splitPointInput = new Input<>("split", "split point for numeric attributes", Validate.REQUIRED);
@@ -43,11 +36,17 @@ public class DecisionTreeDistribution extends Distribution {
 	final public Input<RealParameter> slopeInput = new Input<>("slope", "Regression slopes at the leaves", Validate.REQUIRED);
 	final public Input<RealParameter> sigmaInput = new Input<>("sigma", "Regression standard deviation (scalar)", Validate.REQUIRED);
 	
+	final public Input<String> arffInput = new Input<>("data", "The .arff file which contains data", Validate.REQUIRED);
+	final public Input<String> predInput = new Input<>("pred", "The predictor feature for regression at the leaves", Validate.REQUIRED);
+	final public Input<String> targetInput = new Input<>("target", "The target feature", Validate.REQUIRED);
+	
 	
 	List<Attribute> covariates;
 	Attribute predictor;
 	Attribute target;
 	DecisionTree tree;
+	
+	
 	
 	
 	// Which attribute does each split point to
@@ -56,11 +55,11 @@ public class DecisionTreeDistribution extends Distribution {
 	// For numeric attributes only: where is the split (between 0 and 1)
 	RealParameter splitPoints;
 	
-	RealParameter treeSizeMean;
+	RealParameter leafCountMean;
+	int maxLeafCount;
 	
 	// The data
 	Instances data;
-	
 	
 	// Slope and intercept
 	RealParameter slope, intercept, sigma;
@@ -71,13 +70,16 @@ public class DecisionTreeDistribution extends Distribution {
 	
 	@Override
     public void initAndValidate() {
+		
+
 		this.attributePointer = attributePointerInput.get();
 		this.splitPoints = splitPointInput.get();
 		this.tree = treeInput.get();
 		this.slope = slopeInput.get();
 		this.intercept = interceptInput.get();
 		this.sigma = sigmaInput.get();
-		this.treeSizeMean = treeSizeMeanInput.get();
+		this.leafCountMean = leafSizeMeanInput.get();
+		this.maxLeafCount = maxLeafCountInput.get();
 		
 		
 		// Lower bound of sigma as 0
@@ -87,15 +89,22 @@ public class DecisionTreeDistribution extends Distribution {
 		// Set min and max values of the numeric split to (0,1)
 		splitPoints.setBounds(0.0, 1.0);
 		
+		
+		// Set dimension
+		this.attributePointer.setDimension(this.maxLeafCount-1);
+		this.splitPoints.setDimension(this.maxLeafCount-1);
+		this.slope.setDimension(this.maxLeafCount);
+		this.intercept.setDimension(this.maxLeafCount);
+		
 		// Read the arff file
 		try {
 			
-			this.data = new DataSource(arffInput.get().getAbsolutePath()).getDataSet();
+			this.data = new DataSource(arffInput.get()).getDataSet();
 			
 			
 		} catch (Exception e) {
 			e.printStackTrace();
-			throw new IllegalArgumentException("Error opening arff file " + arffInput.get().getAbsolutePath());
+			throw new IllegalArgumentException("Error opening arff file " + arffInput.get());
 		}
 		
 		// Set class
@@ -106,14 +115,14 @@ public class DecisionTreeDistribution extends Distribution {
 		
 		// Find predictor feature
 		this.predictor = data.attribute(this.predInput.get());
-		if (this.predictor == null) throw new IllegalArgumentException("Could not find target feature " + this.predInput.get());
+		if (this.predictor == null) throw new IllegalArgumentException("Could not find predictor feature " + this.predInput.get());
 		if (!this.predictor.isNumeric()) throw new IllegalArgumentException("Predictor feature must be numeric");
 		
 		// Prepare for attributes
 		this.setAttributes(this.data);
 		
 		// Create the split helper class
-		this.split = new DecisionSplit(this.attributePointer, this.splitPoints, this.covariates, this.data);
+		this.split = new DecisionSplit(this.attributePointer, this.splitPoints, this.covariates, this.data, this.tree);
 		
 		// Initialise the tree
 		this.initTree();
@@ -131,7 +140,7 @@ public class DecisionTreeDistribution extends Distribution {
 		System.out.println("-------------------------------------");
 		System.out.println("Target feature: " + this.target.name());
 		System.out.println("Predictor at leaves: " + this.predictor.name());
-		System.out.print("Covraites: ");
+		System.out.print("Covariates: ");
 		for (int i = 0; i < this.covariates.size(); i ++) {
 			System.out.print(this.covariates.get(i).name());
 			if (i < this.covariates.size() - 1) System.out.print(", ");
@@ -140,43 +149,17 @@ public class DecisionTreeDistribution extends Distribution {
 		System.out.println("-------------------------------------");
 	}
 	
-	
-	protected void updateDimensions() {
-		
-		// The final dimension corresponds to the root and does not have any function
-		int nLeaves = this.tree.getLeafCount();
-		int nNodes = this.tree.getNodeCount();
-		
-		// One split for every node (the root will receive a split even though it's not used to avoid a 0-dimensional parameter)
-		this.attributePointer.setDimension(nNodes);
-		this.splitPoints.setDimension(nNodes);
-		
-		// One regressor for every leaf
-		this.slope.setDimension(nLeaves);
-		this.intercept.setDimension(nLeaves);
-		
-	}
-	
+
 
 	
 	/**
 	 * Initialise the tree
 	 */
 	protected void initTree() {
-		
-		
-		// Initialise at 1 dimension
-		this.attributePointer.setDimension(1);
-		this.splitPoints.setDimension(1);
-		this.slope.setDimension(1);
-		this.intercept.setDimension(1);
-		
-		
+
 		// Initialise as an empty tree
 		DecisionNode root = this.newNode();
 		this.tree.setRoot(root);
-		
-		
 		
 	}
 	
@@ -235,9 +218,16 @@ public class DecisionTreeDistribution extends Distribution {
 		 
 		 logP = 0;
 		 
+		 
+		 // Tree size exceeded?
+		 if (this.tree.getLeafCount() > this.maxLeafCount) {
+			 logP = Double.NEGATIVE_INFINITY;
+			 return logP;
+		 }
+		 
 		 // Ensure that the split is valid
 		 boolean valid = tree.splitData(this.data);
-		 if (!valid || treeSizeMean.getArrayValue() <= 0) {
+		 if (!valid || leafCountMean.getArrayValue() <= 0) {
 			 logP = Double.NEGATIVE_INFINITY;
 			 return logP;
 		 }
@@ -251,9 +241,9 @@ public class DecisionTreeDistribution extends Distribution {
 		 }
 		 
 		 
-		 // Tree prior on number of nodes
-		 int treeSize = tree.getNodeCount();
-		 org.apache.commons.math.distribution.PoissonDistribution dist = new PoissonDistributionImpl(treeSizeMean.getArrayValue());
+		 // Tree prior on number of leaves
+		 int treeSize = tree.getLeafCount();
+		 org.apache.commons.math.distribution.PoissonDistribution dist = new PoissonDistributionImpl(leafCountMean.getArrayValue());
 		 double ll = dist.probability(treeSize);
 		 logP += Math.log(ll);
 		 
@@ -264,15 +254,21 @@ public class DecisionTreeDistribution extends Distribution {
 
 	@Override
 	public List<String> getArguments() {
-		return null;
+		List<String> arguments = new ArrayList<>();
+		arguments.add(attributePointer.getID());
+		arguments.add(splitPoints.getID());
+		arguments.add(intercept.getID());
+		arguments.add(slope.getID());
+		arguments.add(sigma.getID());
+		arguments.add(tree.getID());
+		return arguments;
 	}
 
 	
     @Override
     public boolean requiresRecalculation() {
-        return true;
+    	return true; // treeInput.get().somethingIsDirty();
     }
-    
 
 
 	@Override
@@ -283,10 +279,11 @@ public class DecisionTreeDistribution extends Distribution {
 		arguments.add(intercept.getID());
 		arguments.add(slope.getID());
 		arguments.add(sigma.getID());
+		arguments.add(tree.getID());
 		return arguments;
 	}
 	
-	
+	/*
 	public List<StateNode> getStateNodes() {
 		List<StateNode> arguments = new ArrayList<>();
 		arguments.add(attributePointer);
@@ -296,7 +293,7 @@ public class DecisionTreeDistribution extends Distribution {
 		arguments.add(sigma);
 		return arguments;
 	}
-
+*/
 
 
 	@Override
@@ -312,15 +309,25 @@ public class DecisionTreeDistribution extends Distribution {
 	 */
 	public double[] getR2AndCorrelation() {
 		
+		if (!tree.splitData(this.data)) {
+			Log.warning("Dev error @getR2AndCorrelation: invalid split");
+			System.exit(1);
+		}
+		
 		double[] trueY = new double[this.data.size()];
 		double[] predY = new double[this.data.size()];
 		
+		//System.out.println(trueY.length + " total instances");
+		
 		// Calculate regression R2 at the leaves
 		int instNum = 0;
-		for (int nodeNum = 0; nodeNum < this.tree.getLeafCount(); nodeNum ++) {
+		int nleaves = this.tree.getLeafCount();
+		for (int nodeNum = 0; nodeNum < nleaves; nodeNum ++) {
 			DecisionNode leaf = this.tree.getNode(nodeNum);
 			double[] trueYLeaf = leaf.getTargetVals();
 			double[] predYLeaf = leaf.getPredictedTargetVals();
+			
+			//System.out.println(trueYLeaf.length + "/" + predYLeaf.length);
 			
 			
 			// Put leaf-wise values in main list
@@ -388,6 +395,15 @@ public class DecisionTreeDistribution extends Distribution {
 			SS += (x[i] - y[i])*(x[i] - y[i]);
 		}
 		return SS;
+	}
+
+
+	/**
+	 * The maximum size the tree can be
+	 * @return
+	 */
+	public int getMaxLeafCount() {
+		return this.maxLeafCount;
 	}
 
 	/*

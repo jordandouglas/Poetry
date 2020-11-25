@@ -14,6 +14,7 @@ public class DecisionSplit {
 	IntegerParameter pointers;
 	RealParameter splits;
 	List<Attribute> covariates;
+	DecisionTree tree;
 	
 	
 	// Min/max value of each numeric covariate
@@ -28,11 +29,12 @@ public class DecisionSplit {
 	 * @param covariates
 	 * @param data
 	 */
-	public DecisionSplit(IntegerParameter pointers, RealParameter splits, List<Attribute> covariates, Instances data) {
+	public DecisionSplit(IntegerParameter pointers, RealParameter splits, List<Attribute> covariates, Instances data, DecisionTree tree) {
 		
 		this.pointers = pointers;
 		this.splits = splits;
 		this.covariates = covariates;
+		this.tree = tree;
 		
 		// Min / max values
 		this.mins = new double[this.covariates.size()];
@@ -62,14 +64,18 @@ public class DecisionSplit {
 	 * @param trueChild
 	 * @return
 	 */
-	public Instances splitData(Instances preSplit, int index, Boolean trueChild) {
+	public Instances splitData(Instances preSplit, int index,  Boolean trueChild) {
 		
 		if (trueChild == null) return preSplit;
 		if (this.pointers.getDimension() <= index) return null;
 		
 		
+		// Since leaves do not have split parameters, the vectors are shifted by leafCount
+		int paramIndex = index - tree.getLeafCount();
+		
+		
 		// What attribute is being split on
-		int attrIndex = (int) this.pointers.getArrayValue(index);
+		int attrIndex = (int) this.pointers.getArrayValue(paramIndex);
 		Attribute splitAttr = this.covariates.get(attrIndex);
 		
 		
@@ -80,7 +86,7 @@ public class DecisionSplit {
 		}
 		
 		// Where to split
-		double splitPoint = this.splits.getArrayValue(index);
+		double splitPoint = this.splits.getArrayValue(paramIndex);
 		
 		
 		// Nomimal split

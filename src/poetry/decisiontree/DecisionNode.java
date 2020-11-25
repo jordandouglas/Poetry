@@ -50,11 +50,7 @@ public class DecisionNode extends BEASTObject {
 	
 	@Override
 	public void initAndValidate() {
-		this.children = new DecisionNode[2];
-		this.parent = null;
-		this.depth = 0;
-		this.isTrueChild = null;
-		this.splitData = null;
+
 	}
 
 	
@@ -75,7 +71,21 @@ public class DecisionNode extends BEASTObject {
 		this.targetAttr = targetAttr;
 		this.predAttr = predAttr;
 		this.children = new DecisionNode[2];
+		this.splitData = null;
 	}
+	
+	public DecisionNode copy() {
+        final DecisionNode node = new DecisionNode(split, slope, intercept, sigma, targetAttr, predAttr);
+        node.depth = depth;
+        node.nodeIndex = nodeIndex;
+        node.parent = null;
+        this.splitData = null;
+        if (!isLeaf()) {
+        	node.setTrueChild(children[0].copy());
+        	node.setFalseChild(children[1].copy());
+        }
+        return node;
+    } 
 	
 	
 	/**
@@ -93,21 +103,22 @@ public class DecisionNode extends BEASTObject {
 	public boolean splitData(Instances preSplitData) {
 		
 		
-		// Attempt to split the data
-		this.splitData = this.split.splitData(preSplitData, this.nodeIndex, this.isTrueChild);
-		if (this.splitData == null) return false;
-			
-		
-		// Pass the split data on to the children
+		this.splitData = preSplitData;
 		if (!this.isLeaf()) {
-			for (DecisionNode child : this.children) {
-				boolean valid = child.splitData(this.splitData);
-				if (!valid) return false;
-			}
+			
+			// Split for left and right children
+			Instances splitTrue = this.split.splitData(preSplitData, this.nodeIndex, true);
+			Instances splitFalse = this.split.splitData(preSplitData, this.nodeIndex, false);
+			
+			// Valid?
+			if (splitTrue == null || splitFalse == null) return false;
+			
+			if (!children[0].splitData(splitTrue)) return false;
+			if (!children[1].splitData(splitFalse)) return false;
+			
 		}
 		
 		return true;
-		
 		
 	}
 	
@@ -142,6 +153,18 @@ public class DecisionNode extends BEASTObject {
 		}
 		this.children[0] = child;
 		child.setParent(this, true);
+	}
+	
+	
+	/**
+	 * Node is a cherry if it is not a leaf, and its 2 children are leaves
+	 * @return
+	 */
+	public boolean isCherry() {
+		if (this.isLeaf()) return false;
+		if (!this.children[0].isLeaf()) return false;
+		if (!this.children[1].isLeaf()) return false;
+		return true;
 	}
 	
 	
@@ -316,7 +339,9 @@ public class DecisionNode extends BEASTObject {
 		
 		return predYVals;
 	}
-	
+
+
+
 	
 	
 	

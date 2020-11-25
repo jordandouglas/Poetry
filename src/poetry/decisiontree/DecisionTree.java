@@ -7,6 +7,7 @@ import java.util.List;
 import org.w3c.dom.Node;
 
 import beast.core.Description;
+import beast.core.Operator;
 import beast.core.StateNode;
 import weka.core.Instances;
 
@@ -16,48 +17,66 @@ public class DecisionTree extends StateNode  {
 
 	
 	DecisionNode root;
+	DecisionNode stored_root;
 	List<DecisionNode> nodes;
-	int numLeaves;
+	List<DecisionNode> stored_nodes;
 	
 	
 	public void setRoot(DecisionNode root) {
 		this.root = root;
-		this.listNodes();
+		this.nodes = this.listNodes(this.root);
+		this.updateNodeIndices(this.nodes);
 	}
+	
+	
+	/**
+	 * Refreshes the node numbering list and sets tree to dirty
+	 */
+	public void reset() {
+		this.nodes = this.listNodes(this.root);
+		this.updateNodeIndices(this.nodes);
+		//startEditing(null);
+	}
+	
+	
+	protected void updateNodeIndices(List<DecisionNode> nodes) {
+		for (int i = 0; i < nodes.size(); i ++) {
+			nodes.get(i).setIndex(i);
+		}
+	}
+	
 	
 	
 	/**
 	 * Reset the node ordering
 	 */
-	public void listNodes() {
+	protected List<DecisionNode> listNodes(DecisionNode theRoot) {
+		
+		List<DecisionNode> toReturn = new ArrayList<>();
 		
 		// Post order traversal
-		DecisionNode[] nodeArr = new DecisionNode[this.root.getNodeCount()];
-		DecisionTree.getNodesPostOrder(this.root, nodeArr, 0);
+		DecisionNode[] nodeArr = new DecisionNode[theRoot.getNodeCount()];
+		DecisionTree.getNodesPostOrder(theRoot, nodeArr, 0);
 		
 		// Leaves first, then internal, then root
-		this.numLeaves = 0;
-		this.nodes = new ArrayList<>();
 		for (DecisionNode node : nodeArr) {
 			if (node.isLeaf()) {
-				this.nodes.add(node);
-				this.numLeaves++;
+				toReturn.add(node);
 			}
 		}
 		for (DecisionNode node : nodeArr) {
-			if (!node.isLeaf() && node.getParent() != null) this.nodes.add(node);
+			if (!node.isLeaf() && node.getParent() != null) toReturn.add(node);
 		}
 		for (DecisionNode node : nodeArr) {
-			if (!node.isLeaf() && node.getParent() == null) this.nodes.add(node);
+			if (!node.isLeaf() && node.getParent() == null) toReturn.add(node);
 		}
 		
+		return toReturn;
 		
-		// Set node indices
-		for (int i = 0; i < this.nodes.size(); i ++) {
-			this.nodes.get(i).setIndex(i);
-		}
 		
 	}
+	
+	
 	
 	
 	@Override
@@ -132,16 +151,31 @@ public class DecisionTree extends StateNode  {
 
 	@Override
 	protected void store() {
-		// TODO Auto-generated method stub
-		
+		this.stored_root = this.root.copy();
+		this.stored_nodes = this.listNodes(stored_root);
+		this.updateNodeIndices(this.stored_nodes);
 	}
 
 	@Override
 	public void restore() {
-		// TODO Auto-generated method stub
 		
+		List<DecisionNode> tmp = this.stored_nodes;
+		this.stored_nodes = this.nodes;
+		this.nodes = tmp;
+		
+		DecisionNode tmp2 = this.stored_root;
+		this.stored_root = this.root;
+		this.root = tmp2;
+		
+		//hasStartedEditing = false;
 	}
 
+	
+	@Override
+    public void startEditing(final Operator operator) {
+		hasStartedEditing = false;
+        super.startEditing(operator);
+    }
 	
 	
     public static int getNodesPostOrder(final DecisionNode node, final DecisionNode[] nodes, int pos) {
@@ -159,7 +193,7 @@ public class DecisionTree extends StateNode  {
      * @return
      */
 	public int getLeafCount() {
-		return this.numLeaves;
+		return (nodes.size()+1) / 2;
 	}
 
 
@@ -190,6 +224,15 @@ public class DecisionTree extends StateNode  {
 		}
 		
 		return this.root.splitData(data);
+	}
+
+
+	/**
+	 * Return list of nodes
+	 * @return
+	 */
+	public List<DecisionNode> getNodes() {
+		return this.nodes;
 	}
 
 
