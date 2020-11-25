@@ -107,11 +107,17 @@ public class DecisionNode extends BEASTObject {
 		if (!this.isLeaf()) {
 			
 			// Split for left and right children
-			Instances splitTrue = this.split.splitData(preSplitData, this.nodeIndex, true);
-			Instances splitFalse = this.split.splitData(preSplitData, this.nodeIndex, false);
+			Instances[] splits = this.split.splitData(preSplitData, this.nodeIndex);
+			
 			
 			// Valid?
-			if (splitTrue == null || splitFalse == null) return false;
+			if (splits == null) return false;
+			
+			Instances splitTrue = splits[0];
+			Instances splitFalse = splits[1];
+			
+			// Do both sides have instances?
+			if (splitTrue.size() == 0 || splitFalse.size() == 0) return false;
 			
 			if (!children[0].splitData(splitTrue)) return false;
 			if (!children[1].splitData(splitFalse)) return false;
@@ -140,6 +146,17 @@ public class DecisionNode extends BEASTObject {
 	
 	public DecisionNode getParent() {
 		return this.parent;
+	}
+	
+	
+	public void swapChildren() {
+		if (!this.isLeaf()) {
+			DecisionNode tmp = this.children[0];
+			this.children[0] = this.children[1];
+			this.children[1] = tmp;
+			this.children[0].isTrueChild = true;
+			this.children[1].isTrueChild = false;
+		}
 	}
 	
 
@@ -339,6 +356,9 @@ public class DecisionNode extends BEASTObject {
 		
 		return predYVals;
 	}
+
+
+
 
 
 

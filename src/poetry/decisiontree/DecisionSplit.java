@@ -61,13 +61,13 @@ public class DecisionSplit {
 	 * Split the data and return the split, or return null if split is impossible
 	 * @param preSplit
 	 * @param index
-	 * @param trueChild
 	 * @return
 	 */
-	public Instances splitData(Instances preSplit, int index,  Boolean trueChild) {
+	public Instances[] splitData(Instances preSplit, int index) {
 		
-		if (trueChild == null) return preSplit;
 		if (this.pointers.getDimension() <= index) return null;
+		
+		
 		
 		
 		// Since leaves do not have split parameters, the vectors are shifted by leafCount
@@ -122,8 +122,10 @@ public class DecisionSplit {
 		
 		
 		// Do the split
-		Instances postSplit = new Instances(preSplit);
-		postSplit.clear();
+		Instances trueSplit = new Instances(preSplit);
+		Instances falseSplit = new Instances(preSplit);
+		trueSplit.clear();
+		falseSplit.clear();
 		for (int i = 0; i < preSplit.numInstances(); i ++) {
 			
 			Instance inst = preSplit.instance(i);
@@ -142,17 +144,18 @@ public class DecisionSplit {
 				success = value <= splitPoint;
 			}
 			
-			// Take the complement?
-			if (!trueChild) success = !success;
 			
 			// Accept the split?
 			if (success) {
-				postSplit.add(inst);
+				trueSplit.add(inst);
+			}else {
+				falseSplit.add(inst);
 			}
 			
 		}
 		
-		return postSplit;
+		
+		return new Instances[] { trueSplit,  falseSplit };
 		
 	}
 	

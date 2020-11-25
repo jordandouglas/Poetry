@@ -5,8 +5,6 @@ import java.util.List;
 
 import beast.core.Input;
 import beast.core.Operator;
-import beast.core.StateNode;
-import beast.core.parameter.RealParameter;
 import beast.core.util.Log;
 import beast.util.Randomizer;
 

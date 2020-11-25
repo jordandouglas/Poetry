@@ -309,6 +309,8 @@ public class DecisionTreeDistribution extends Distribution {
 	 */
 	public double[] getR2AndCorrelation() {
 		
+		
+		
 		if (!tree.splitData(this.data)) {
 			Log.warning("Dev error @getR2AndCorrelation: invalid split");
 			System.exit(1);

@@ -30,7 +30,7 @@
         <parameter id="AttributePointer" spec="parameter.IntegerParameter" name="stateNode">0</parameter>
         <parameter id="SplitPoint" spec="parameter.RealParameter" name="stateNode">0.5</parameter>
 
-        <parameter id="MeanTreeSize" spec="parameter.RealParameter" name="stateNode">50.0</parameter>
+        <parameter id="MeanTreeSize" spec="parameter.RealParameter" name="stateNode">10.0</parameter>
 
     </state>
 
@@ -56,10 +56,11 @@
         <distribution id="likelihood" spec="util.CompoundDistribution" useThreads="true">
 
             <distribution id="decisionTreeDistribution" spec="poetry.decisiontree.DecisionTreeDistribution" tree="@tree" maxLeafCount="100"
-            	 data="/home/jdou557/Documents/Marsden2019/papers/PoetryPaper/results/weka.arff" pred="SiteModelPOEM.weight" target="SiteModelPOEM.min.ESS.m" 
+            	 data="/home/jdou557/Documents/weka-3-8-4-azul-zulu-linux/weka-3-8-4/data/cpu.with.vendor.arff" pred="CHMAX" target="class"
             	>
 
-            	<!-- data="/home/jdou557/Documents/weka-3-8-4-azul-zulu-linux/weka-3-8-4/data/cpu.with.vendor.arff" pred="CHMAX" target="class"  -->
+            	<!--   -->
+            	<!-- data="/home/jdou557/Documents/Marsden2019/papers/PoetryPaper/results/weka.arff" pred="SiteModelPOEM.weight" target="SiteModelPOEM.min.ESS.m" -->
                 
             	<pointer idref="AttributePointer" />
             	<split idref="SplitPoint" />
@@ -83,12 +84,15 @@
 
 	<!-- Splits -->
     <!--<operator id="pointerSwapper" spec="SwapOperator" intparameter="@AttributePointer" weight="1"/>-->
-    <operator id="pointerRandomWalk" spec="IntRandomWalkOperator" parameter="@AttributePointer" windowSize="1" weight="1"/>
+    <operator id="pointerRandomWalk" spec="UniformOperator" parameter="@AttributePointer" weight="1"/>
     <operator id="splitPointUniform" spec="UniformOperator" parameter="@SplitPoint" weight="1"/>
 
     
-    <operator id="SplitNodeOperator" spec="poetry.decisiontree.SplitNodeOperator" tree="@tree" dist="@decisionTreeDistribution" weight="10"/>
-	
+    <operator id="SplitNodeOperator" spec="poetry.decisiontree.SplitNodeOperator" tree="@tree" dist="@decisionTreeDistribution" weight="5"/>
+	<operator id="ChildSwapper" spec="poetry.decisiontree.ChildSwapper" tree="@tree"  weight="5"/>
+
+
+
 
     <logger id="tracelog" spec="Logger" fileName="decisions.log" logEvery="10000" model="@posterior" sanitiseHeaders="true" sort="smart">
         <log idref="posterior"/>
