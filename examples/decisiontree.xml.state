@@ -1,0 +1,18 @@
+<itsabeastystatewerein version='2.0' sample='8749999'>
+<statenode id='tree'>tree</statenode>
+<statenode id='Slope'>Slope[1 1] (-Infinity,Infinity): 0.010159297699436944 </statenode>
+<statenode id='Intercept'>Intercept[1 1] (-Infinity,Infinity): 0.831878846986577 </statenode>
+<statenode id='Sigma'>Sigma[1 1] (0.0,Infinity): 78.61041988891452 </statenode>
+<statenode id='AttributePointer'>AttributePointer[1 1] (0,5): 3 </statenode>
+<statenode id='SplitPoint'>SplitPoint[1 1] (0.0,1.0): 0.8448657878135062 </statenode>
+<statenode id='MeanTreeSize'>MeanTreeSize[1 1] (-Infinity,Infinity): 10.0 </statenode>
+</itsabeastystatewerein>
+<!--
+{"operators":[
+{"id":"slopeScaler","p":0.7945641246805202,"accept":190986,"reject":781803,"acceptFC":190887,"rejectFC":780479,"rejectIv":0,"rejectOp":0},
+{"id":"sigmaScaler","p":0.7082063721880592,"accept":209272,"reject":763268,"acceptFC":209094,"rejectFC":762024,"rejectIv":0,"rejectOp":0},
+{"id":"interceptRandomWalk","p":6.585425620875534,"accept":1163872,"reject":3695295,"acceptFC":1158212,"rejectFC":3693798,"rejectIv":0,"rejectOp":0},
+{"id":"pointerRandomWalk","p":"NaN","accept":540883,"reject":430280,"acceptFC":540100,"rejectFC":429644,"rejectIv":430280,"rejectOp":430280},
+{"id":"splitPointUniform","p":"NaN","accept":974341,"reject":0,"acceptFC":972951,"rejectFC":0,"rejectIv":0,"rejectOp":0}
+]}
+-->

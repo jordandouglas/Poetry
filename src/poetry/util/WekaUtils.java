@@ -17,6 +17,7 @@ import beast.util.Randomizer;
 import poetry.learning.RandomLinearTree;
 import weka.classifiers.Classifier;
 import weka.classifiers.evaluation.Evaluation;
+import weka.classifiers.lazy.IBk;
 import weka.classifiers.trees.RandomForest;
 import weka.core.Attribute;
 import weka.core.Instance;
@@ -130,6 +131,9 @@ public class WekaUtils {
 			if (attr.name().equals(name)) return i;
 			i++;
 		}
+		
+		if (data.classAttribute().name().equals(name)) return data.classIndex();
+		
 		return -1;
 		
 	}
@@ -153,6 +157,9 @@ public class WekaUtils {
 			if (attr.name().equals(name)) return i;
 			i++;
 		}
+		
+		if (instance.classAttribute().name().equals(name)) return instance.classIndex();
+		
 		return -1;
 		
 	}
@@ -294,6 +301,8 @@ public class WekaUtils {
 					}
 				}
 				WekaUtils.removeCol(training, "xml");
+				WekaUtils.removeCol(training, "replicate");
+				
 				
 				// The test set
 				Instances test = new Instances(data);
@@ -302,6 +311,7 @@ public class WekaUtils {
 					test.add(data.instance(index));
 				}
 				WekaUtils.removeCol(test, "xml");
+				WekaUtils.removeCol(test, "replicate");
 				
 				// New model
 				Classifier freshModel = model.getClass().getConstructor().newInstance();
@@ -313,6 +323,9 @@ public class WekaUtils {
 					// Forest
 					//((RandomForest)freshModel).setClassifier(rlt);
 					
+				}
+				if (freshModel instanceof IBk) {
+					((IBk) freshModel).setOptions(new String[] { "-K", "50" });
 				}
 				freshModel.buildClassifier(training);
 				
@@ -351,12 +364,14 @@ public class WekaUtils {
 		
 		// True vs fit values
 		double[] xmlNum = new double[data.size()];
+		double[] repNum = new double[data.size()];
 		double[] trueX = new double[data.size()];
 		double[] predX = new double[data.size()];
-		if (fits != null && fits.length >= 3) {
+		if (fits != null && fits.length >= 4) {
 			fits[0] = xmlNum;
-			fits[1] = trueX;
-			fits[2] = predX;
+			fits[1] = repNum;
+			fits[2] = trueX;
+			fits[3] = predX;
 		}
 		int instanceNum = 0;
 	
@@ -407,17 +422,22 @@ public class WekaUtils {
 				Instances test = splitDataAndSaveArff(data, testXMLs, null);
 				
 				
-				// Store xml number
+				// Store xml/replicate numbers
 				double[] xmlsNames = new double[test.size()];
+				double[] repNums = new double[test.size()];
 				int xmlColNum = WekaUtils.getIndexOfColumn(test, "xml");
+				int repColNum = WekaUtils.getIndexOfColumn(test, "replicate");
 				for (int j = 0; j < test.size(); j++) {
 					Instance inst = test.get(j);
 					xmlsNames[j] = inst.value(xmlColNum);
+					repNums[j] = inst.value(repColNum);
 				}
 				
 				// Remove xml column
 				WekaUtils.removeCol(training, "xml");
 				WekaUtils.removeCol(test, "xml");
+				WekaUtils.removeCol(training, "replicate");
+				WekaUtils.removeCol(test, "replicate");
 				
 				
 				// New model
@@ -446,6 +466,7 @@ public class WekaUtils {
 					double truth = inst.classValue();
 					double pred = freshModel.classifyInstance(inst);
 					xmlNum[instanceNum] = xmlsNames[xmlIndex];
+					repNum[instanceNum] = repNums[xmlIndex];
 					trueX[instanceNum] = truth;
 					predX[instanceNum] = pred;
 					instanceNum++;
