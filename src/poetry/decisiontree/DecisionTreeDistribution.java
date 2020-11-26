@@ -24,7 +24,7 @@ public class DecisionTreeDistribution extends Distribution {
 	
 	
 	
-	final public Input<RealParameter> leafSizeMeanInput = new Input<>("size", "Poisson mean number of nodes in the tree for prior", Validate.REQUIRED);
+	
 	final public Input<Integer> maxLeafCountInput = new Input<>("maxLeafCount", "Maximum tree leafset size (constant)", 100);
 	
 	final public Input<IntegerParameter> attributePointerInput = new Input<>("pointer", "points to attributes", Validate.REQUIRED);
@@ -54,7 +54,6 @@ public class DecisionTreeDistribution extends Distribution {
 	// For numeric attributes only: where is the split (between 0 and 1)
 	RealParameter splitPoints;
 	
-	RealParameter leafCountMean;
 	int maxLeafCount;
 	
 	// The data
@@ -77,7 +76,6 @@ public class DecisionTreeDistribution extends Distribution {
 		this.slope = slopeInput.get();
 		this.intercept = interceptInput.get();
 		this.sigma = sigmaInput.get();
-		this.leafCountMean = leafSizeMeanInput.get();
 		this.maxLeafCount = maxLeafCountInput.get();
 		
 		
@@ -227,7 +225,7 @@ public class DecisionTreeDistribution extends Distribution {
 		 
 		 // Ensure that the split is valid
 		 boolean valid = tree.splitData(this.data);
-		 if (!valid || leafCountMean.getArrayValue() <= 0) {
+		 if (!valid) {
 			 logP = Double.NEGATIVE_INFINITY;
 			 return logP;
 		 }
@@ -241,15 +239,7 @@ public class DecisionTreeDistribution extends Distribution {
 		 }
 		 
 		 
-		 // Tree prior on number of leaves
-		 int treeSize = tree.getLeafCount();
-		 //org.apache.commons.math.distribution.PoissonDistribution dist = new PoissonDistributionImpl(leafCountMean.getArrayValue());
-		 //double ll = dist.probability(treeSize);
-		 //logP += Math.log(ll);
-		 
-		 // Geometric distribution
-		 double p = 1/leafCountMean.getArrayValue();
-		 logP += Math.log(p) + (treeSize-1)*Math.log(1-p);
+		
 		 
 		 return logP;
 	 }
@@ -257,14 +247,7 @@ public class DecisionTreeDistribution extends Distribution {
 
 	@Override
 	public List<String> getArguments() {
-		List<String> arguments = new ArrayList<>();
-		arguments.add(attributePointer.getID());
-		arguments.add(splitPoints.getID());
-		arguments.add(intercept.getID());
-		arguments.add(slope.getID());
-		arguments.add(sigma.getID());
-		arguments.add(tree.getID());
-		return arguments;
+		return null;
 	}
 
 	

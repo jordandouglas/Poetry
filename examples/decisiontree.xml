@@ -15,8 +15,8 @@
 <map name="OneOnX" >beast.math.distributions.OneOnX</map>
 
 
-<!--<run id="mcmc" spec="MCMC" chainLength="100000000">-->
-<run id="mcmc" spec="beast.coupledMCMC.CoupledMCMC" chainLength="10000000" chains="4" resampleEvery="100000" heatLikelihoodOnly="true">
+<run id="mcmc" spec="MCMC" chainLength="100000000">
+<!--<run id="mcmc" spec="beast.coupledMCMC.CoupledMCMC" chainLength="10000000" chains="4" resampleEvery="100000" heatLikelihoodOnly="true">-->
 
     <state id="state" spec="State" storeEvery="5000">
 
@@ -30,7 +30,7 @@
         <parameter id="AttributePointer" spec="parameter.IntegerParameter" name="stateNode">0</parameter>
         <parameter id="SplitPoint" spec="parameter.RealParameter" name="stateNode">0.5</parameter>
 
-        <parameter id="MeanTreeSize" spec="parameter.RealParameter" name="stateNode">10.0</parameter>
+        <parameter id="MeanTreeSize" spec="parameter.RealParameter" name="stateNode">10</parameter>
 
     </state>
 
@@ -51,6 +51,10 @@
                 <LogNormal name="distr" meanInRealSpace="true" M="1" S="1" />
             </prior>
 
+
+            <prior id="treePrior" spec="poetry.decisiontree.GeometricTreePrior" name="distribution" tree="@tree" mean="@MeanTreeSize"/>
+                
+
         </distribution>
 
         <distribution id="likelihood" spec="util.CompoundDistribution" useThreads="true">
@@ -67,7 +71,6 @@
             	<intercept idref="Intercept" />
             	<slope idref="Slope" />
             	<sigma idref="Sigma" />
-            	<size idref="MeanTreeSize" />
 
             	
 
@@ -130,7 +133,7 @@
         
     </logger>
 
-    <logger id="screenlog" spec="Logger" logEvery="100000">
+    <logger id="screenlog" spec="Logger" logEvery="10000">
         <log idref="posterior"/>
         <log idref="likelihood"/>
         <log idref="prior"/>
@@ -140,7 +143,7 @@
 
 
     
-    <logger id="DecisionTreeLogger" spec="Logger" fileName="decision.trees" logEvery="100000" mode="tree">
+    <logger id="DecisionTreeLogger" spec="Logger" fileName="decision.trees" logEvery="10000" mode="tree">
         <log id="DecisionTreeLog" spec="poetry.decisiontree.DecisionTreeLogger" tree="@tree" dist="@decisionTreeDistribution"/>
     </logger>
 
