@@ -15,8 +15,8 @@
 <map name="OneOnX" >beast.math.distributions.OneOnX</map>
 
 
-<run id="mcmc" spec="MCMC" chainLength="10000000">
-<!--<run id="mcmc" spec="beast.coupledMCMC.CoupledMCMC" chainLength="10000000" chains="4" resampleEvery="1000" >-->
+<run id="mcmc" spec="MCMC" chainLength="100000000">
+<!--<run id="mcmc" spec="beast.coupledMCMC.CoupledMCMC" chainLength="10000000" chains="4" resampleEvery="10000" heatLikelihoodOnly="true">-->
 
     <state id="state" spec="State" storeEvery="5000">
 
@@ -40,7 +40,7 @@
         <distribution id="prior" spec="util.CompoundDistribution">
 
             <prior id="slopePrior" name="distribution" x="@Slope">
-                <LogNormal name="distr" meanInRealSpace="true" M="1" S="1" />
+                <Normal name="distr" mean="0" sigma="1" />
             </prior>
 
             <prior id="interceptPrior" name="distribution" x="@Intercept">
@@ -55,8 +55,8 @@
 
         <distribution id="likelihood" spec="util.CompoundDistribution" useThreads="true">
 
-            <distribution id="decisionTreeDistribution" spec="poetry.decisiontree.DecisionTreeDistribution" tree="@tree" maxLeafCount="100"
-            	 data="/home/jdou557/Documents/weka-3-8-4-azul-zulu-linux/weka-3-8-4/data/cpu.with.vendor.arff" pred="CHMAX" target="class"
+            <distribution id="decisionTreeDistribution" spec="poetry.decisiontree.DecisionTreeDistribution" tree="@tree" maxLeafCount="10"
+            	 data="/home/jdou557/Documents/weka-3-8-4-azul-zulu-linux/weka-3-8-4/data/cpu.with.vendor.arff" pred="CHMAX" class="class"
             	>
 
             	<!--   -->
@@ -77,24 +77,42 @@
 
 
     <!-- Linear regression -->
-    <operator id="slopeScaler" spec="ScaleOperator" parameter="@Slope" scaleFactor="0.5" weight="1"/>
-    <operator id="sigmaScaler" spec="ScaleOperator" parameter="@Sigma" scaleFactor="0.5" weight="1"/>
-    <operator id="interceptRandomWalk" spec="RealRandomWalkOperator" parameter="@Intercept" weight="5.0" windowSize="1"/>
+     <operator allowNonsense="true" beta="0.05" burnin="500" id="regression.AVMVN" initial="1000" spec="AdaptableVarianceMultivariateNormalOperator" weight="5.0">
+        <transformations spec="beast.util.Transform$LogTransform">
+            <f idref="Sigma"/>
+        </transformations>
+        <transformations spec="beast.util.Transform$LogitTransform">
+            <f idref="SplitPoint"/>
+        </transformations>
+        <transformations spec="beast.util.Transform$NoTransform">
+            <f idref="Slope"/>
+            <f idref="Intercept"/>
+        </transformations>
+    </operator>
 
 
 	<!-- Splits -->
-    <!--<operator id="pointerSwapper" spec="SwapOperator" intparameter="@AttributePointer" weight="1"/>-->
+    <operator id="pointerSwapper" spec="SwapOperator" intparameter="@AttributePointer" weight="1"/>
+    <operator id="splitSwapper" spec="SwapOperator" parameter="@SplitPoint" weight="1"/>
     <operator id="pointerRandomWalk" spec="UniformOperator" parameter="@AttributePointer" weight="1"/>
     <operator id="splitPointUniform" spec="UniformOperator" parameter="@SplitPoint" weight="1"/>
 
     
-    <operator id="SplitNodeOperator" spec="poetry.decisiontree.SplitNodeOperator" tree="@tree" dist="@decisionTreeDistribution" weight="5"/>
+    <operator id="SplitNodeOperator" spec="poetry.decisiontree.SplitNodeOperator" tree="@tree" dist="@decisionTreeDistribution" weight="10">
+    	<!--
+		<pointer idref="AttributePointer" />
+    	<split idref="SplitPoint" />
+
+    	<intercept idref="Intercept" />
+    	<slope idref="Slope" />
+   -->
+    </operator>
+
+
 	<operator id="ChildSwapper" spec="poetry.decisiontree.ChildSwapper" tree="@tree"  weight="5"/>
 
 
-
-
-    <logger id="tracelog" spec="Logger" fileName="decisions.log" logEvery="10000" model="@posterior" sanitiseHeaders="true" sort="smart">
+    <logger id="tracelog" spec="Logger" fileName="decisions.log" logEvery="100000" model="@posterior" sanitiseHeaders="true" sort="smart">
         <log idref="posterior"/>
         <log idref="likelihood"/>
         <log idref="prior"/>
@@ -110,7 +128,7 @@
         
     </logger>
 
-    <logger id="screenlog" spec="Logger" logEvery="1000">
+    <logger id="screenlog" spec="Logger" logEvery="100000">
         <log idref="posterior"/>
         <log idref="likelihood"/>
         <log idref="prior"/>
@@ -119,11 +137,11 @@
     </logger>
 
 
-    <!--
-    <logger id="treelog.t:primates" spec="Logger" fileName="$(tree).trees" logEvery="1000" mode="tree">
-        <log id="TreeWithMetaDataLogger.t:primates" spec="beast.evolution.tree.TreeWithMetaDataLogger" branchratemodel="@FastRelaxedClock.c:primates" tree="@Tree.t:primates"/>
+    
+    <logger id="DecisionTreeLogger" spec="Logger" fileName="decision.trees" logEvery="100000" mode="tree">
+        <log id="DecisionTreeLog" spec="poetry.decisiontree.DecisionTreeLogger" tree="@tree" dist="@decisionTreeDistribution"/>
     </logger>
-	-->
+
 
 </run>
 

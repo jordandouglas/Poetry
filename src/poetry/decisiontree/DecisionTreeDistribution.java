@@ -14,7 +14,6 @@ import beast.core.State;
 import beast.core.Input.Validate;
 import beast.core.parameter.IntegerParameter;
 import beast.core.parameter.RealParameter;
-import beast.core.util.Log;
 import weka.core.Attribute;
 import weka.core.Instances;
 import weka.core.converters.ConverterUtils.DataSource;
@@ -23,7 +22,7 @@ import weka.core.converters.ConverterUtils.DataSource;
 
 public class DecisionTreeDistribution extends Distribution {
 	
-
+	
 	
 	final public Input<RealParameter> leafSizeMeanInput = new Input<>("size", "Poisson mean number of nodes in the tree for prior", Validate.REQUIRED);
 	final public Input<Integer> maxLeafCountInput = new Input<>("maxLeafCount", "Maximum tree leafset size (constant)", 100);
@@ -38,7 +37,7 @@ public class DecisionTreeDistribution extends Distribution {
 	
 	final public Input<String> arffInput = new Input<>("data", "The .arff file which contains data", Validate.REQUIRED);
 	final public Input<String> predInput = new Input<>("pred", "The predictor feature for regression at the leaves", Validate.REQUIRED);
-	final public Input<String> targetInput = new Input<>("target", "The target feature", Validate.REQUIRED);
+	final public Input<String> targetInput = new Input<>("class", "The target feature", Validate.REQUIRED);
 	
 	
 	List<Attribute> covariates;
@@ -132,6 +131,7 @@ public class DecisionTreeDistribution extends Distribution {
 		
 	}
 	
+
 	
 	/**
 	 * Print the attributes / class / predictor
@@ -243,10 +243,13 @@ public class DecisionTreeDistribution extends Distribution {
 		 
 		 // Tree prior on number of leaves
 		 int treeSize = tree.getLeafCount();
-		 org.apache.commons.math.distribution.PoissonDistribution dist = new PoissonDistributionImpl(leafCountMean.getArrayValue());
-		 double ll = dist.probability(treeSize);
-		 logP += Math.log(ll);
+		 //org.apache.commons.math.distribution.PoissonDistribution dist = new PoissonDistributionImpl(leafCountMean.getArrayValue());
+		 //double ll = dist.probability(treeSize);
+		 //logP += Math.log(ll);
 		 
+		 // Geometric distribution
+		 double p = 1/leafCountMean.getArrayValue();
+		 logP += Math.log(p) + (treeSize-1)*Math.log(1-p);
 		 
 		 return logP;
 	 }
@@ -301,6 +304,15 @@ public class DecisionTreeDistribution extends Distribution {
 		
 	}
 
+	
+	/**
+	 * Reset the training data stored at each node in the tree
+	 * @return
+	 */
+	public boolean split() {
+		return tree.splitData(this.data);
+	}
+	
 
 	/**
 	 * Computes R2 and correlation by comparing known target values with those predicted
@@ -312,8 +324,8 @@ public class DecisionTreeDistribution extends Distribution {
 		
 		
 		if (!tree.splitData(this.data)) {
-			Log.warning("Dev error @getR2AndCorrelation: invalid split");
-			System.exit(1);
+			//Log.warning("Dev error @getR2AndCorrelation: invalid split");
+			return new double[] { 0, 0 };
 		}
 		
 		double[] trueY = new double[this.data.size()];

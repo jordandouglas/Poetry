@@ -2,6 +2,7 @@ package poetry.decisiontree;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.w3c.dom.Node;
@@ -30,12 +31,11 @@ public class DecisionTree extends StateNode  {
 	
 	
 	/**
-	 * Refreshes the node numbering list and sets tree to dirty
+	 * Refreshes the node numbering list
 	 */
 	public void reset() {
 		this.nodes = this.listNodes(this.root);
 		this.updateNodeIndices(this.nodes);
-		//startEditing(null);
 	}
 	
 	
@@ -81,8 +81,78 @@ public class DecisionTree extends StateNode  {
 	
 	@Override
 	public void init(PrintStream out) {
+	
+		if (true) return;
+		
+        out.println("#NEXUS\n");
+        out.println("Begin taxa;");
+        out.println("\tDimensions ntax=" + this.getLeafCount() + ";");
+        out.println("\t\tTaxlabels");
+        printTaxa(this.root, out, this.getLeafCount());
+        out.println("\t\t\t;");
+        out.println("End;");
+
+        out.println("Begin trees;");
+        out.println("\tTranslate");
+        printTranslate(this.root, out, this.getLeafCount());
+        out.print(";");
 		
 	}
+	
+	
+    public static void printTaxa(final DecisionNode node, final PrintStream out, final int nodeCount) {
+        final List<String> translateLines = new ArrayList<>();
+        printTranslate(node, translateLines, nodeCount);
+        Collections.sort(translateLines);
+        for (String line : translateLines) {
+            line = line.substring(line.indexOf(" ", 5)).replace(',', ' ').trim();
+            out.println("\t\t\t" + line);
+        }
+    }
+	
+    /** Loggable interface implementation follows **/
+
+    /**
+     * print translate block for NEXUS beast.tree file
+     */
+    public static void printTranslate(final DecisionNode node, final PrintStream out, final int nodeCount) {
+        final List<String> translateLines = new ArrayList<>();
+        printTranslate(node, translateLines, nodeCount);
+        Collections.sort(translateLines);
+        for (final String line : translateLines) {
+            out.println(line);
+        }
+    }
+    
+    
+    static public int taxaTranslationOffset = 1;
+    
+    /**
+     * need this helper so that we can sort list of entries *
+     */
+    static void printTranslate(DecisionNode node, List<String> translateLines, int nodeCount) {
+        if (node.isLeaf()) {
+            final String nr = (node.getIndex() + taxaTranslationOffset) + "";
+            String line = "\t\t" + "    ".substring(nr.length()) + nr + " ";
+            if (node.getName().indexOf(' ') > 0) {
+            	char c = node.getName().charAt(0);
+            	if (c == '\"' || c == '\'') {
+                	line += node.getName();
+            	} else {
+            		line += '\"' + node.getName() + "\"";
+            	}
+            } else {
+            	line += node.getName();
+            }
+            if (node.getIndex() < nodeCount) {
+                line += ",";
+            }
+            translateLines.add(line);
+        } else {
+            printTranslate(node.getTrueChild(), translateLines, nodeCount);
+            printTranslate(node.getFalseChild(), translateLines, nodeCount);
+        }
+    }
 
 	@Override
 	public void close(PrintStream out) {
@@ -222,7 +292,6 @@ public class DecisionTree extends StateNode  {
 		for (DecisionNode node : this.nodes) {
 			node.resetData();
 		}
-		
 		return this.root.splitData(data);
 	}
 
@@ -234,6 +303,20 @@ public class DecisionTree extends StateNode  {
 	public List<DecisionNode> getNodes() {
 		return this.nodes;
 	}
+
+
+
+
+	/**
+	 * Get the root
+	 * @return
+	 */
+	public DecisionNode getRoot() {
+		return this.root;
+	}
+
+
+
 
 
 }

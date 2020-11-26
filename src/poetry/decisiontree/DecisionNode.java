@@ -3,6 +3,10 @@ package poetry.decisiontree;
 
 
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+
+
 import beast.core.BEASTObject;
 import beast.core.Description;
 import beast.core.parameter.RealParameter;
@@ -18,6 +22,7 @@ public class DecisionNode extends BEASTObject {
 
 	// Unique number of this node. The n leaves are numbered 0 - n-1
 	int nodeIndex;
+	int lastNodeIndex;
 	
 	// Depth of this node
 	int depth;
@@ -55,12 +60,72 @@ public class DecisionNode extends BEASTObject {
 
 	
 	/**
+	 * Meta data string for newick
+	 */
+	public void getMetaDataString(StringBuffer buf) {
+		
+		if (this.isLeaf()) {
+			
+			
+			double slope = this.getSlope();
+			double intercept = this.getIntercept();
+			
+			// Regression info if leaf
+			buf.append("slope=" + slope + ",");
+			buf.append("intercept=" + intercept + ",");
+			buf.append("sigma=" + this.getSigma() + ",");
+			buf.append("ninstances=" + this.splitData.size() + ",");
+			
+			
+			// Rounding to 3 sf
+			BigDecimal bd = new BigDecimal(slope);
+			bd = bd.round(new MathContext(3));
+			slope = bd.doubleValue();
+			
+			bd = new BigDecimal(intercept);
+			bd = bd.round(new MathContext(3));
+			intercept = bd.doubleValue();
+			
+			buf.append("eqn='y = " + slope + "x + " + intercept + "'");
+			
+			
+		}else {
+			
+			
+			
+			// Split info if non-leaf
+			buf.append("attribute=" + this.split.getAttributeName(this.nodeIndex) + ",");
+			buf.append("value=" + this.split.getSplitValue(this.nodeIndex, -1) + ",");
+			buf.append("eqn='" + this.split.getCondition(this.nodeIndex, 3) + "'");
+			
+		}
+		
+	}
+	
+
+
+
+	/**
+	 * The name of this node
+	 * @return
+	 */
+	public String getName() {
+		if (this.isLeaf()) {
+			return "Leaf" + this.nodeIndex;
+		}else {
+			return "Split" + this.nodeIndex;
+		}
+	}
+	
+	/**
 	 * Create a new node
 	 * @param index
 	 * @param split
 	 * @param data
 	 */
 	public DecisionNode(DecisionSplit split, RealParameter slope, RealParameter intercept, RealParameter sigma, Attribute targetAttr, Attribute predAttr) {
+		this.nodeIndex = -1;
+		this.lastNodeIndex = -1;
 		this.split = split;
 		this.slope = slope;
 		this.intercept = intercept;
@@ -117,7 +182,7 @@ public class DecisionNode extends BEASTObject {
 			Instances splitFalse = splits[1];
 			
 			// Do both sides have instances?
-			if (splitTrue.size() == 0 || splitFalse.size() == 0) return false;
+			//if (splitTrue.size() == 0 || splitFalse.size() == 0) return false;
 			
 			if (!children[0].splitData(splitTrue)) return false;
 			if (!children[1].splitData(splitFalse)) return false;
@@ -131,6 +196,7 @@ public class DecisionNode extends BEASTObject {
 
 
 	public void setIndex(int i) {
+		this.lastNodeIndex = nodeIndex;
 		this.nodeIndex = i;
 	}
 	
@@ -159,6 +225,27 @@ public class DecisionNode extends BEASTObject {
 		}
 	}
 	
+	
+
+	/**
+	 * Return the true child (left child)
+	 * @return
+	 */
+	public DecisionNode getTrueChild() {
+		if (this.isLeaf()) return null;
+		return this.children[0];
+	}
+	
+	/**
+	 * Return the false child (right child)
+	 * @return
+	 */
+	public DecisionNode getFalseChild() {
+		if (this.isLeaf()) return null;
+		return this.children[1];
+	}
+
+
 
 	/**
 	 * Set the true child (i.e. the child who will take the smaller numeric values (<=) or the specified nominal (==)
@@ -239,6 +326,33 @@ public class DecisionNode extends BEASTObject {
 	
 	
 	/**
+	 * The standard deviation
+	 * @return
+	 */
+	protected double getSigma() {
+		return this.sigma.getArrayValue();
+	}
+
+
+	/**
+	 * The intercept
+	 * @return
+	 */
+	protected double getIntercept() {
+		return this.intercept.getArrayValue(this.nodeIndex);
+	}
+
+
+	/**
+	 * The slope
+	 * @return
+	 */
+	protected double getSlope() {
+		return this.slope.getArrayValue(this.nodeIndex);
+	}
+	
+	
+	/**
 	 * Predict the target feature value using the predictor (if this is a leaf)
 	 * @param x
 	 * @return
@@ -246,8 +360,8 @@ public class DecisionNode extends BEASTObject {
 	public Double predict(double x) {
 		if (!this.isLeaf()) return null;
 		
-		double c = this.intercept.getArrayValue(this.nodeIndex);
-		double m = this.slope.getArrayValue(this.nodeIndex);
+		double c = this.getIntercept();
+		double m = this.getSlope();
 		return c + x*m;
 	}
 
@@ -282,7 +396,7 @@ public class DecisionNode extends BEASTObject {
 		
 		
 		double logP = 0;
-		double sigmaVal = this.sigma.getArrayValue();
+		double sigmaVal = this.getSlope();
 		for (int instNum = 0; instNum < this.splitData.numInstances(); instNum++) {
 			
 			double predY = predYVals[instNum];
@@ -358,7 +472,24 @@ public class DecisionNode extends BEASTObject {
 	}
 
 
+	
+	/**
+	 * Returns the current unique index of this node
+	 * @return
+	 */
+	public int getIndex() {
+		return this.nodeIndex;
+	}
 
+
+	
+	/**
+	 * Returns the previous index of this node before it was last changed
+	 * @return
+	 */
+	public int getLastIndex() {
+		return this.lastNodeIndex;
+	}
 
 
 

@@ -1,5 +1,7 @@
 package poetry.decisiontree;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.List;
 
 import beast.core.parameter.IntegerParameter;
@@ -68,8 +70,6 @@ public class DecisionSplit {
 		if (this.pointers.getDimension() <= index) return null;
 		
 		
-		
-		
 		// Since leaves do not have split parameters, the vectors are shifted by leafCount
 		int paramIndex = index - tree.getLeafCount();
 		
@@ -89,7 +89,7 @@ public class DecisionSplit {
 		double splitPoint = this.splits.getArrayValue(paramIndex);
 		
 		
-		// Nomimal split
+		// Nominal split
 		int splitPointNominal = -1;
 		if (splitAttr.isNominal()) {
 			
@@ -116,7 +116,6 @@ public class DecisionSplit {
 			double min = this.mins[attrIndex];
 			double max = this.maxs[attrIndex];
 			splitPoint = splitPoint*(max - min) + min;
-			
 			
 		}
 		
@@ -155,7 +154,120 @@ public class DecisionSplit {
 		}
 		
 		
+		//trueSplit.deleteAttributeAt(WekaUtils.getIndexOfColumn(trueSplit, splitAttr.name()));
+		//falseSplit.deleteAttributeAt(WekaUtils.getIndexOfColumn(falseSplit, splitAttr.name()));
 		return new Instances[] { trueSplit,  falseSplit };
+		
+	}
+	
+
+
+	/**
+	 * The name of this attribute
+	 * @param nodeIndex
+	 * @return
+	 */
+	public String getAttributeName(int nodeIndex) {
+		
+		int paramIndex = nodeIndex - tree.getLeafCount();
+		
+		// What attribute is being split on
+		int attrIndex = (int) this.pointers.getArrayValue(paramIndex);
+		Attribute splitAttr = this.covariates.get(attrIndex);
+		return splitAttr.name();
+	}
+
+
+	/**
+	 * Value of where to split
+	 * Returns a string of a number if attribute is numeric
+	 * Or the value if the attribute is nonimal
+	 * @param nodeIndex
+	 * @param sf rounds to sf (set to -1 for no rounding)
+	 * @return
+	 */
+	public String getSplitValue(int nodeIndex, int sf) {
+		
+		int paramIndex = nodeIndex - tree.getLeafCount();
+		
+		// What attribute is being split on
+		int attrIndex = (int) this.pointers.getArrayValue(paramIndex);
+		Attribute splitAttr = this.covariates.get(attrIndex);
+		
+		
+		// Where to split
+		double splitPoint = this.splits.getArrayValue(paramIndex);
+		
+		
+		// Nominal split
+		if (splitAttr.isNominal()) {
+			
+			int splitPointNominal = -1;
+			
+			// How many values?
+			int nvals = splitAttr.numValues();
+			
+			// Index the pointer (from double to integer)
+			// eg. if there are 5 values, then [0,0.2) -> 0, [0.2,0.4) -> 1, etc.
+			double cumulative = 1.0 / nvals;
+			for (int i = 0; i < nvals; i ++) {
+				if (splitPoint < cumulative){
+					splitPointNominal = i;
+					break;
+				}
+				cumulative += 1.0 / nvals;
+			}
+			
+			
+			// Value
+			return splitAttr.value(splitPointNominal);
+			
+		}
+		
+		// Numeric split
+		else {
+			
+			// Normalise splitPoint into [min,max] range
+			double min = this.mins[attrIndex];
+			double max = this.maxs[attrIndex];
+			splitPoint = splitPoint*(max - min) + min;
+			
+			
+			// Rounding to sf
+			if (sf >= 0) {
+				BigDecimal bd = new BigDecimal(splitPoint);
+				bd = bd.round(new MathContext(sf));
+				splitPoint = bd.doubleValue();
+			}
+			
+			
+			return "" + splitPoint;
+			
+		}
+		
+	}
+
+
+	/**
+	 * Returns a rule as a String
+	 * 		attr <= val (if numeric)
+	 * 		attr == val (if nominal)
+	 * @param nodeIndex
+	 * @return
+	 */
+	public String getCondition(int nodeIndex, int sf) {
+		
+		String attr = this.getAttributeName(nodeIndex);
+		String val = this.getSplitValue(nodeIndex, sf);
+		
+		
+		// What attribute is being split on
+		int attrIndex = (int) this.pointers.getArrayValue(nodeIndex - tree.getLeafCount());
+		Attribute splitAttr = this.covariates.get(attrIndex);
+		
+		String relationship = splitAttr.isNominal() ? " == " : " <= ";
+		return attr + relationship + val;
+			
 		
 	}
 	
