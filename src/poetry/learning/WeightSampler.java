@@ -24,8 +24,8 @@ public abstract class WeightSampler extends BEASTObject {
 			+ "of this class. This will enable the same operator weights to apply across parallel chains in coupled MCMC for example. Default: false", false);
 	
 	List<POEM> poems;
-	List<Operator> poeticOperators;
-	List<Operator> unpoeticOperators;
+	protected List<Operator> poeticOperators;
+	protected List<Operator> unpoeticOperators;
 	File database;
 	boolean isStatic;
 	private double poeticSumInit;
@@ -113,11 +113,17 @@ public abstract class WeightSampler extends BEASTObject {
 			}
 			
 			if (foundPoem) {
-				this.poeticOperators.add(op);
+				//this.poeticOperators.add(op);
 			}else {
 				this.unpoeticOperators.add(op);
 			}
 			
+		}
+		
+		
+		// Put operators in poem order
+		for (POEM poem : this.poems) {
+			this.poeticOperators.add(poem.getOperator());
 		}
 		
 		
@@ -132,6 +138,10 @@ public abstract class WeightSampler extends BEASTObject {
 				op.m_pWeight.set(0.0);
 			}
 		}
+		
+		
+		
+	
 
 		
 		

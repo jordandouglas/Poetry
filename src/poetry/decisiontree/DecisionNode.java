@@ -74,7 +74,7 @@ public class DecisionNode extends BEASTObject {
 			buf.append("slope=" + slope + ",");
 			buf.append("intercept=" + intercept + ",");
 			buf.append("sigma=" + this.getSigma() + ",");
-			buf.append("ninstances=" + this.splitData.size() + ",");
+			buf.append("ninstances=" + (this.splitData == null ? 0 : this.splitData.size()) + ",");
 			
 			
 			// Rounding to 3 sf
@@ -286,6 +286,8 @@ public class DecisionNode extends BEASTObject {
 	
 	
 	public void removeChildren() {
+		this.children[0].removeParent();
+		this.children[1].removeParent();
 		this.children[0] = null;
 		this.children[1] = null;
 	}

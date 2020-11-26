@@ -15,8 +15,8 @@
 <map name="OneOnX" >beast.math.distributions.OneOnX</map>
 
 
-<run id="mcmc" spec="MCMC" chainLength="100000000">
-<!--<run id="mcmc" spec="beast.coupledMCMC.CoupledMCMC" chainLength="10000000" chains="4" resampleEvery="10000" heatLikelihoodOnly="true">-->
+<!--<run id="mcmc" spec="MCMC" chainLength="100000000">-->
+<run id="mcmc" spec="beast.coupledMCMC.CoupledMCMC" chainLength="10000000" chains="4" resampleEvery="100000" heatLikelihoodOnly="true">
 
     <state id="state" spec="State" storeEvery="5000">
 
@@ -108,6 +108,8 @@
    -->
     </operator>
 
+
+    <operator id="Reroot" spec="poetry.decisiontree.Reroot" tree="@tree" dist="@decisionTreeDistribution" weight="5"/>
 
 	<operator id="ChildSwapper" spec="poetry.decisiontree.ChildSwapper" tree="@tree"  weight="5"/>
 

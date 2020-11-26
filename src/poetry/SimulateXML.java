@@ -29,6 +29,7 @@ import beast.core.util.Log;
 import beast.evolution.alignment.Alignment;
 import poetry.functions.XMLFunction;
 import poetry.functions.XMLInputSetter;
+import poetry.learning.DimensionalSampler;
 import poetry.learning.DirichletSampler;
 import poetry.operators.PoetryScheduler;
 import poetry.sampler.DatasetSampler;
@@ -46,6 +47,11 @@ import poetry.util.XMLUtils;
 public class SimulateXML extends Runnable {
 
 	
+	enum WeightSamplers {
+		Dirichlet, Dimensional 
+	}
+	
+	
 	private static final String DATABASE_FILENAME = "database.tsv";
 	private static final String RUNTIME_LOGNAME = "runtime.log";
 
@@ -62,6 +68,8 @@ public class SimulateXML extends Runnable {
 	final public Input<File> outFolderInput = new Input<>("out", "A folder to save the results into", Input.Validate.REQUIRED);
 	final public Input<List<POEM>> poemsInput = new Input<>("poem", "A map between operators and log outputs", new ArrayList<>());
 	final public Input<Boolean> coordinateWeightsInput = new Input<>("coordinateWeights", "Whether to coordinate weights with replicate 1 (default true)", true);
+	
+	final public Input<WeightSamplers> priorWeightSamplerInput = new Input<>("weightSampler", "The weight sampling method", WeightSamplers.Dirichlet, WeightSamplers.values());
 	
 	
 	final public Input<StateNode> placeholderInput = new Input<>("placeholder", "A temporary state node which will be removed from all operators when MCMC "
@@ -494,9 +502,26 @@ public class SimulateXML extends Runnable {
 	    runner.appendChild(scheduler);
 	    
 	    
-	    // Use a dirichlet sampler initially
+	    // Use a dirichlet/dimensional sampler initially
 	    Element sampler = doc.createElement("sampler");
-	    sampler.setAttribute("spec", DirichletSampler.class.getCanonicalName());
+	    switch (priorWeightSamplerInput.get()) {
+	    
+		    case Dirichlet:{
+		    	sampler.setAttribute("spec", DirichletSampler.class.getCanonicalName());
+		    	break;
+		    }
+		    
+		    
+		    case Dimensional:{
+		    	sampler.setAttribute("spec", DimensionalSampler.class.getCanonicalName());
+		    	break;
+		    }
+		    
+		    default:{
+		    	throw new IllegalArgumentException("Cannot handle " + priorWeightSamplerInput.get() + " samplers");
+		    }
+	    
+	    }
 	    sampler.setAttribute("static", "true");
 	    scheduler.appendChild(sampler);
 	    
