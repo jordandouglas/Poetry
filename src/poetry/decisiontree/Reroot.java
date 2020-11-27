@@ -6,11 +6,9 @@ import beast.core.Operator;
 import beast.util.Randomizer;
 
 @Description("Removes the root and one of its leaf-children, or adds a new root with one leaf child")
-public class Reroot extends Operator {
+public class Reroot extends SplitNodeOperator {
 
 	
-	final public Input<DecisionTree> treeInput = new Input<>("tree", "the tree", Input.Validate.REQUIRED);
-	final public Input<DecisionTreeDistribution> treeDistrInput = new Input<>("dist", "the tree distribution", Input.Validate.REQUIRED);
 
 	@Override
 	public void initAndValidate() {
@@ -27,6 +25,8 @@ public class Reroot extends Operator {
 		DecisionTreeDistribution dist = treeDistrInput.get();
 		DecisionNode root = tree.getRoot();
 		
+		
+		int nleaves = tree.getLeafCount();
 		
 		
 		// Expand or shrink?
@@ -75,11 +75,16 @@ public class Reroot extends Operator {
 			
 			
 		}
-		
 
 		
 		// Renumber the tree
 		tree.reset();
+		
+		// Reorder parameters
+		if (slopeInput.get() != null) this.reorganiseVector(slopeInput.get(this), tree, true, nleaves);
+		if (interceptInput.get() != null) this.reorganiseVector(interceptInput.get(this), tree, true, nleaves);
+		if (attributePointerInput.get() != null) this.reorganiseVector(attributePointerInput.get(this), tree, false, nleaves);
+		if (splitPointInput.get() != null) this.reorganiseVector(splitPointInput.get(this), tree, false, nleaves);
 		
 		
 		return logHR;

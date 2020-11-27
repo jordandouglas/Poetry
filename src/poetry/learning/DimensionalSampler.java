@@ -11,7 +11,7 @@ public class DimensionalSampler extends WeightSampler {
 
 	
 	final public Input<Double> scaleInput = new Input<>("scale", "Number to multiply (normalised) dimensions by when assigning Dirichlet alphas. "
-			+ "Large scale = small variance.", 5.0);
+			+ "Large scale = small variance.", 20.0);
 	
 	@Override
 	public void initAndValidate() {
@@ -93,7 +93,7 @@ public class DimensionalSampler extends WeightSampler {
 			// Number of node height dimensions is the number of non-leaf nodes, potentially plus the clock rate too
 			case "NodeHeightPOEM":{
 				double nnodesTimes2 = dimension;
-				return Math.round((nnodesTimes2+1.0)/2);
+				return Math.round((nnodesTimes2+1.0)/4);
 			}
 				
 			// Site model POEM is just the number of dimensions
@@ -108,7 +108,7 @@ public class DimensionalSampler extends WeightSampler {
 			}
 			
 			
-			// Branch rates same as node height poem
+			// Branch rates equal to number of nodes minus 1
 			case "ClockModelRatePOEM":{
 				double nnodesTimes2 = dimension;
 				return Math.round((nnodesTimes2+1.0)/2);

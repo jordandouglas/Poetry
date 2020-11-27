@@ -64,6 +64,9 @@ public class DecisionNode extends BEASTObject {
 	 */
 	public void getMetaDataString(StringBuffer buf) {
 		
+		buf.append("ninstances=" + (this.splitData == null ? 0 : this.splitData.size()) + ",");
+		buf.append("cond=" + this.isTrueChild + ",");
+		
 		if (this.isLeaf()) {
 			
 			
@@ -74,8 +77,6 @@ public class DecisionNode extends BEASTObject {
 			buf.append("slope=" + slope + ",");
 			buf.append("intercept=" + intercept + ",");
 			buf.append("sigma=" + this.getSigma() + ",");
-			buf.append("ninstances=" + (this.splitData == null ? 0 : this.splitData.size()) + ",");
-			
 			
 			// Rounding to 3 sf
 			BigDecimal bd = new BigDecimal(slope);
@@ -144,6 +145,7 @@ public class DecisionNode extends BEASTObject {
         node.depth = depth;
         node.nodeIndex = nodeIndex;
         node.parent = null;
+        node.isTrueChild = this.isTrueChild;
         this.splitData = null;
         if (!isLeaf()) {
         	node.setTrueChild(children[0].copy());
@@ -217,11 +219,11 @@ public class DecisionNode extends BEASTObject {
 	
 	public void swapChildren() {
 		if (!this.isLeaf()) {
-			DecisionNode tmp = this.children[0];
-			this.children[0] = this.children[1];
-			this.children[1] = tmp;
-			this.children[0].isTrueChild = true;
-			this.children[1].isTrueChild = false;
+			DecisionNode oldTrue = this.children[0];
+			DecisionNode oldFalse = this.children[1];
+			this.removeChildren();
+			this.setTrueChild(oldFalse);
+			this.setFalseChild(oldTrue);
 		}
 	}
 	
@@ -245,7 +247,17 @@ public class DecisionNode extends BEASTObject {
 		return this.children[1];
 	}
 
-
+	
+	/**
+	 * Node is a cherry if it is not a leaf, and its 2 children are leaves
+	 * @return
+	 */
+	public boolean isCherry() {
+		if (this.isLeaf()) return false;
+		if (!this.children[0].isLeaf()) return false;
+		if (!this.children[1].isLeaf()) return false;
+		return true;
+	}
 
 	/**
 	 * Set the true child (i.e. the child who will take the smaller numeric values (<=) or the specified nominal (==)
@@ -257,18 +269,6 @@ public class DecisionNode extends BEASTObject {
 		}
 		this.children[0] = child;
 		child.setParent(this, true);
-	}
-	
-	
-	/**
-	 * Node is a cherry if it is not a leaf, and its 2 children are leaves
-	 * @return
-	 */
-	public boolean isCherry() {
-		if (this.isLeaf()) return false;
-		if (!this.children[0].isLeaf()) return false;
-		if (!this.children[1].isLeaf()) return false;
-		return true;
 	}
 	
 	

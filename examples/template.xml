@@ -163,7 +163,7 @@
 		<substModel spec="JukesCantor" />
 	</siteModel>
 
-
+	
 	<!-- Placeholder clock model -->
   	<branchRateModel id="ClockModel.t:tree" spec="beast.evolution.branchratemodel.StrictClockModel" clock.rate="@overallClockRate.c:tree">
 			

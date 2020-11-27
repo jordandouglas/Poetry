@@ -97,7 +97,7 @@ public class SplitNodeOperator extends Operator {
 		tree.reset();
 		
 		
-		// Reorganise parameter orderings
+		// Reorder parameters
 		if (slopeInput.get() != null) this.reorganiseVector(slopeInput.get(this), tree, true, nleaves);
 		if (interceptInput.get() != null) this.reorganiseVector(interceptInput.get(this), tree, true, nleaves);
 		if (attributePointerInput.get() != null) this.reorganiseVector(attributePointerInput.get(this), tree, false, nleaves);
@@ -109,46 +109,74 @@ public class SplitNodeOperator extends Operator {
 	}
 	
 	// Reorganise the vector elements so that the old values are pointed to by the new node numbering
-	private void reorganiseVector(Parameter param, DecisionTree tree, boolean leaves, int nleavesBefore) {
+	protected void reorganiseVector(Parameter param, DecisionTree tree, boolean leaves, int nleavesBefore) {
 		
 		
 		// Create empty null array
 		Double[] newVals = new Double[param.getDimension()];
+		boolean[] oldIndicesTaken = new boolean[param.getDimension()];
 		
 		// Reorganise the vector elements so that the old values are pointed to by the new node numbering
 		List<DecisionNode> nodesAfter = tree.getNodes();
 		
-		int nfilled = 0;
+		
+		int paramIndexBefore, paramIndexAfter;
 		for (int indexAfter = 0; indexAfter < nodesAfter.size(); indexAfter ++) {
 			int indexBefore = nodesAfter.get(indexAfter).getLastIndex();
 			
-			// Leaves only?
-			if (leaves && indexAfter >= tree.getLeafCount()) break;
 			
-			// Non leaves only?
-			if (!leaves && indexAfter < tree.getLeafCount()) continue;
-			if (!leaves && indexBefore < nleavesBefore) continue;
 			
-			if (indexBefore != -1) {
+			
+			// Leaves only
+			if (leaves) {
+				paramIndexBefore = indexBefore;
+				paramIndexAfter = indexAfter;
+				if (indexBefore >= tree.getLeafCount()) continue;
+				if (indexAfter >= tree.getLeafCount()) break;
+			}
+			
+			
+			// Non leaves only (subtract leaf count)
+			else {
+				//Log.warning("leaves " + nleavesBefore + " -> " + tree.getLeafCount());
+				paramIndexBefore = indexBefore - nleavesBefore;
+				paramIndexAfter = indexAfter - tree.getLeafCount();
+				if (indexBefore >= tree.getNodeCount()) continue;
+				if (indexAfter >= tree.getNodeCount()) break;
+			}
+			
+			
+			if (indexBefore != -1 && paramIndexAfter >= 0 && paramIndexBefore >= 0) {
 				
 				// Preexisting node
-				int paramIndexBefore = indexBefore;
-				if (!leaves & nleavesBefore > 1) paramIndexBefore -= nleavesBefore;
+				
 				//Log.warning("a The value at " + indexBefore + "/" + paramIndexBefore + " will move to " + indexAfter);
 				double paramValBefore = param.getArrayValue(paramIndexBefore);
-				newVals[indexAfter] = paramValBefore;
-				nfilled++;
+				newVals[paramIndexAfter] = paramValBefore;
+				
+				
+				// This index has been taken
+				oldIndicesTaken[paramIndexBefore] = true;
 			}
 			
 		}
 		
-		int indexBefore = nfilled; //leaves ? tree.getLeafCount() : tree.getLeafCount() - 1;
-		for (int indexAfter = 0; indexAfter < newVals.length; indexAfter ++) {
-			if (newVals[indexAfter] == null) {
+		
+		// Fill remaining values in order
+		paramIndexBefore = 0;
+		for (paramIndexAfter = 0; paramIndexAfter < newVals.length; paramIndexAfter ++) {
+			if (newVals[paramIndexAfter] == null) {
 				
-				//Log.warning("b The value at " + indexBefore + " will move to " + indexAfter);
-				newVals[indexAfter] = param.getArrayValue(indexBefore);
-				indexBefore ++;
+				
+				// Find the first non-taken old index
+				while(oldIndicesTaken[paramIndexBefore]) {
+					paramIndexBefore++;
+				}
+				
+				
+				//Log.warning("b The value at " + paramIndexBefore + " will move to " + paramIndexAfter);
+				newVals[paramIndexAfter] = param.getArrayValue(paramIndexBefore);
+				paramIndexBefore ++;
 			}
 		}
 		

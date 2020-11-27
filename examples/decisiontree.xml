@@ -101,20 +101,30 @@
     <operator id="splitPointUniform" spec="UniformOperator" parameter="@SplitPoint" weight="1"/>
 
     
-    <operator id="SplitNodeOperator" spec="poetry.decisiontree.SplitNodeOperator" tree="@tree" dist="@decisionTreeDistribution" weight="10">
-    	<!--
+    <operator id="SplitNodeOperator" spec="poetry.decisiontree.SplitNodeOperator" tree="@tree" dist="@decisionTreeDistribution" weight="5">
+
+    	
+    	<slope idref="Slope" />
+    	<intercept idref="Intercept" />
 		<pointer idref="AttributePointer" />
     	<split idref="SplitPoint" />
-
-    	<intercept idref="Intercept" />
-    	<slope idref="Slope" />
-   -->
+   
     </operator>
 
 
-    <operator id="Reroot" spec="poetry.decisiontree.Reroot" tree="@tree" dist="@decisionTreeDistribution" weight="5"/>
+    <operator id="Reroot" spec="poetry.decisiontree.Reroot" tree="@tree" dist="@decisionTreeDistribution" weight="5">
 
-	<operator id="ChildSwapper" spec="poetry.decisiontree.ChildSwapper" tree="@tree"  weight="5"/>
+		<slope idref="Slope" />
+    	<intercept idref="Intercept" />
+
+    	<!--
+		<pointer idref="AttributePointer" />
+    	<split idref="SplitPoint" />
+		-->
+		
+    </operator>
+
+	<operator id="ChildSwapper" spec="poetry.decisiontree.ChildSwapper" tree="@tree"  weight="0"/>
 
 
     <logger id="tracelog" spec="Logger" fileName="decisions.log" logEvery="100000" model="@posterior" sanitiseHeaders="true" sort="smart">
@@ -133,7 +143,7 @@
         
     </logger>
 
-    <logger id="screenlog" spec="Logger" logEvery="10000">
+    <logger id="screenlog" spec="Logger" logEvery="100000">
         <log idref="posterior"/>
         <log idref="likelihood"/>
         <log idref="prior"/>
@@ -143,7 +153,7 @@
 
 
     
-    <logger id="DecisionTreeLogger" spec="Logger" fileName="decision.trees" logEvery="10000" mode="tree">
+    <logger id="DecisionTreeLogger" spec="Logger" fileName="decision.trees" logEvery="100000" mode="tree">
         <log id="DecisionTreeLog" spec="poetry.decisiontree.DecisionTreeLogger" tree="@tree" dist="@decisionTreeDistribution"/>
     </logger>
 
