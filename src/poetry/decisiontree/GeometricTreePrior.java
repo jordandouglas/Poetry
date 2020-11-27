@@ -12,6 +12,7 @@ import beast.core.Input.Validate;
 import beast.core.parameter.RealParameter;
 
 
+
 @Description("Places a geometric prior on the number of leaves in a decision tree")
 public class GeometricTreePrior extends Distribution {
 
@@ -39,12 +40,15 @@ public class GeometricTreePrior extends Distribution {
 		 logP = 0;
 		 
 		 
-		// Geometric distribution
+		 // Geometric distribution on leaf count
 		 int treeSize = treeInput.get().getLeafCount();
 		 double p = 1.0/(leafSizeMeanInput.get().getArrayValue());
 		 if (p <= 0 || p >= 1) return Double.NEGATIVE_INFINITY;
 		 logP += Math.log(p) + (treeSize-1)*Math.log(1-p);
 		 
+		 
+
+
 		 
 		 return logP;
 	}

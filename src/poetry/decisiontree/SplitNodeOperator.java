@@ -29,6 +29,8 @@ public class SplitNodeOperator extends Operator {
 	final public Input<RealParameter> splitPointInput = new Input<>("split", "split point for numeric attributes", Validate.OPTIONAL);
 
 	
+	final public Input<Double> maintainOrderInput = new Input<>("maintain", "probability of maintaining parameter ordering", 0.5);
+	
 	
 	@Override
 	public void initAndValidate() {
@@ -98,14 +100,25 @@ public class SplitNodeOperator extends Operator {
 		
 		
 		// Reorder parameters
-		if (slopeInput.get() != null) this.reorganiseVector(slopeInput.get(this), tree, true, nleaves);
-		if (interceptInput.get() != null) this.reorganiseVector(interceptInput.get(this), tree, true, nleaves);
-		if (attributePointerInput.get() != null) this.reorganiseVector(attributePointerInput.get(this), tree, false, nleaves);
-		if (splitPointInput.get() != null) this.reorganiseVector(splitPointInput.get(this), tree, false, nleaves);
+		if (Randomizer.nextDouble() < this.maintainOrderInput.get()) this.reorderParameters(tree, nleaves);
+		
 		
 		
 		return logHR;
 		
+	}
+	
+	
+	/**
+	 * Reorders the elements within a parameter vector to account for the moving around of tree node indices
+	 * @param tree
+	 * @param nleavesBefore
+	 */
+	protected void reorderParameters(DecisionTree tree, int nleavesBefore) {
+		if (slopeInput.get() != null) this.reorganiseVector(slopeInput.get(this), tree, true, nleavesBefore);
+		if (interceptInput.get() != null) this.reorganiseVector(interceptInput.get(this), tree, true, nleavesBefore);
+		if (attributePointerInput.get() != null) this.reorganiseVector(attributePointerInput.get(this), tree, false, nleavesBefore);
+		if (splitPointInput.get() != null) this.reorganiseVector(splitPointInput.get(this), tree, false, nleavesBefore);
 	}
 	
 	// Reorganise the vector elements so that the old values are pointed to by the new node numbering
@@ -141,8 +154,8 @@ public class SplitNodeOperator extends Operator {
 				//Log.warning("leaves " + nleavesBefore + " -> " + tree.getLeafCount());
 				paramIndexBefore = indexBefore - nleavesBefore;
 				paramIndexAfter = indexAfter - tree.getLeafCount();
-				if (indexBefore >= tree.getNodeCount()) continue;
-				if (indexAfter >= tree.getNodeCount()) break;
+				//if (indexBefore >= tree.getNodeCount()) continue;
+				//if (indexAfter >= tree.getNodeCount()) break;
 			}
 			
 			
@@ -167,16 +180,15 @@ public class SplitNodeOperator extends Operator {
 		for (paramIndexAfter = 0; paramIndexAfter < newVals.length; paramIndexAfter ++) {
 			if (newVals[paramIndexAfter] == null) {
 				
-				
 				// Find the first non-taken old index
 				while(oldIndicesTaken[paramIndexBefore]) {
 					paramIndexBefore++;
 				}
-				
+				oldIndicesTaken[paramIndexBefore] = true;
 				
 				//Log.warning("b The value at " + paramIndexBefore + " will move to " + paramIndexAfter);
 				newVals[paramIndexAfter] = param.getArrayValue(paramIndexBefore);
-				paramIndexBefore ++;
+				//paramIndexBefore ++;
 			}
 		}
 		

@@ -21,36 +21,36 @@ import weka.core.Instances;
 public class DecisionNode extends BEASTObject {
 
 	// Unique number of this node. The n leaves are numbered 0 - n-1
-	int nodeIndex;
-	int lastNodeIndex;
+	protected int nodeIndex;
+	protected int lastNodeIndex;
 	
 	// Depth of this node
-	int depth;
+	protected int depth;
 	
 	// The attribute which is split at the branch leading to this node (or null if this is root)
-	DecisionSplit split;
+	protected DecisionSplit split;
 	
 	// Children
-	DecisionNode[] children;
+	protected DecisionNode[] children;
 	
 	// Parent
-	DecisionNode parent;
+	protected DecisionNode parent;
 	
 	// The target feature
-	Attribute targetAttr;
+	protected Attribute targetAttr;
 	
 	// The predictor feature for regression at the leaves
-	Attribute predAttr;
+	protected Attribute predAttr;
 	
 	// Slope and intercept parameters. These are vectors and the values at 'nodeIndex' correspond to this node. Sigma is a scalar
-	RealParameter slope, intercept, sigma;
+	protected RealParameter slope, intercept, sigma;
 	
 	
 	// Is this the left child (true child) or the (right child) false child, or the root (null)
-	Boolean isTrueChild;
+	protected Boolean isTrueChild;
 	
 	// The split data
-	Instances splitData = null;
+	protected Instances splitData = null;
 	
 	
 	@Override
@@ -60,11 +60,21 @@ public class DecisionNode extends BEASTObject {
 
 	
 	/**
+	 * Number of instances at this node (if the split has occured yet)
+	 * @return
+	 */
+	public int getNumInstances() {
+		if (this.splitData == null) return 0;
+		return this.splitData.size();
+	}
+
+	
+	/**
 	 * Meta data string for newick
 	 */
 	public void getMetaDataString(StringBuffer buf) {
 		
-		buf.append("ninstances=" + (this.splitData == null ? 0 : this.splitData.size()) + ",");
+		buf.append("ninstances=" + this.getNumInstances() + ",");
 		buf.append("cond=" + this.isTrueChild + ",");
 		
 		if (this.isLeaf()) {
@@ -492,6 +502,27 @@ public class DecisionNode extends BEASTObject {
 	public int getLastIndex() {
 		return this.lastNodeIndex;
 	}
+
+
+	/**
+	 * Is this node an ancestor of 'node' ?
+	 * @param node
+	 * @return
+	 */
+	public boolean isAncestorOf(DecisionNode node) {
+		if (this.getIndex() == node.getIndex()) return true;
+		if (this.isLeaf()) return false;
+		if (this.children[0].isAncestorOf(node)) return true;
+		if (this.children[1].isAncestorOf(node)) return true;
+		return false;
+	}
+
+
+	public boolean isTrueChild() {
+		return this.isTrueChild;
+	}
+
+
 
 
 

@@ -77,16 +77,12 @@ public class Reroot extends SplitNodeOperator {
 		}
 
 		
-		// Renumber the tree
-		tree.reset();
-		
 		// Reorder parameters
-		if (slopeInput.get() != null) this.reorganiseVector(slopeInput.get(this), tree, true, nleaves);
-		if (interceptInput.get() != null) this.reorganiseVector(interceptInput.get(this), tree, true, nleaves);
-		if (attributePointerInput.get() != null) this.reorganiseVector(attributePointerInput.get(this), tree, false, nleaves);
-		if (splitPointInput.get() != null) this.reorganiseVector(splitPointInput.get(this), tree, false, nleaves);
+		if (Randomizer.nextDouble() < this.maintainOrderInput.get()) this.reorderParameters(tree, nleaves);
 		
 		
 		return logHR;
 	}
+	
+	
 }

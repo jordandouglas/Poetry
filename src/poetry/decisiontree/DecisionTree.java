@@ -25,8 +25,7 @@ public class DecisionTree extends StateNode  {
 	
 	public void setRoot(DecisionNode root) {
 		this.root = root;
-		this.nodes = this.listNodes(this.root);
-		this.updateNodeIndices(this.nodes);
+		this.reset();
 	}
 	
 	

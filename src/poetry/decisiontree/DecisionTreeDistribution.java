@@ -14,6 +14,7 @@ import beast.core.State;
 import beast.core.Input.Validate;
 import beast.core.parameter.IntegerParameter;
 import beast.core.parameter.RealParameter;
+import beast.util.Randomizer;
 import weka.core.Attribute;
 import weka.core.Instances;
 import weka.core.converters.ConverterUtils.DataSource;
@@ -38,6 +39,9 @@ public class DecisionTreeDistribution extends Distribution {
 	final public Input<String> arffInput = new Input<>("data", "The .arff file which contains data", Validate.REQUIRED);
 	final public Input<String> predInput = new Input<>("pred", "The predictor feature for regression at the leaves", Validate.REQUIRED);
 	final public Input<String> targetInput = new Input<>("class", "The target feature", Validate.REQUIRED);
+	
+	
+	final public Input<RealParameter> shapeInput = new Input<>("shape", "Dirichlet shape on the number of instances at each leaf. Set to 0 for uniform.", Validate.REQUIRED);
 	
 	
 	List<Attribute> covariates;
@@ -86,6 +90,8 @@ public class DecisionTreeDistribution extends Distribution {
 		// Set min and max values of the numeric split to (0,1)
 		splitPoints.setBounds(0.0, 1.0);
 		
+
+		
 		
 		// Set dimension
 		this.attributePointer.setDimension(this.maxLeafCount-1);
@@ -93,6 +99,7 @@ public class DecisionTreeDistribution extends Distribution {
 		this.slope.setDimension(this.maxLeafCount);
 		this.intercept.setDimension(this.maxLeafCount);
 		
+
 		// Read the arff file
 		try {
 			
@@ -123,6 +130,14 @@ public class DecisionTreeDistribution extends Distribution {
 		
 		// Initialise the tree
 		this.initTree();
+		
+		
+		// Set initial values 
+		for (int i = 0; i < splitPoints.getDimension(); i ++) {
+			splitPoints.setValue(i, Randomizer.nextDouble());
+			attributePointer.setValue(i, Randomizer.nextInt(attributePointer.getUpper()));
+		}
+		
 		
 		// Friendly printing
 		this.printAttributes();
@@ -239,9 +254,22 @@ public class DecisionTreeDistribution extends Distribution {
 		 }
 		 
 		 
-		
 		 
-		 return logP;
+		// Dirichlet distribution on instances per leaf
+		double alpha = shapeInput.get().getArrayValue();
+		double sumAlpha = alpha * this.tree.getLeafCount();
+		for (int i = 0; i < this.tree.getLeafCount(); i++) {
+			int ninstances = this.tree.getNode(i).getNumInstances();
+			if (ninstances == 0) {
+				 logP = Double.NEGATIVE_INFINITY;
+				 return logP;
+			}
+		    logP += (alpha - 1) * Math.log(ninstances);
+		    logP -= org.apache.commons.math.special.Gamma.logGamma(alpha);
+		}
+		logP += org.apache.commons.math.special.Gamma.logGamma(sumAlpha);
+		 
+		return logP;
 	 }
 
 
