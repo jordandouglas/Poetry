@@ -1,0 +1,26 @@
+<itsabeastystatewerein version='2.0' sample='129999'>
+<statenode id='tree'>(1[&amp;ninstances=352,cond=true,slope=2.0032844510090038,intercept=-1.6714277308056547,sigma=0.03365528065560501,eqn=&apos;y = 2.0x + -1.67&apos;]:1,2[&amp;ninstances=55,cond=false,slope=2.4786344301496683,intercept=-2.8029668791967017,sigma=0.03365528065560501,eqn=&apos;y = 2.48x + -2.8&apos;]:1)[&amp;ninstances=407,cond=null,attribute=npatterns,value=3168.041470106536,eqn=&apos;npatterns &lt;= 3170.0&apos;]:1</statenode>
+<statenode id='Slope'>Slope[30 1] (-Infinity,Infinity): 2.0032844510090038 2.4786344301496683 -10.62822475839753 16.402439758728352 11.230173794506793 -0.8225366039281488 17.51410939780913 0.05986734743960387 -5.26181124157642 -22.269858789852545 -7.137094682517553 -9.063091301964558 -4.311986986415922 8.99089032410448 9.936289494247479 -27.96434213910723 -10.845415855845994 -1.999502652495968 -10.475349684379472 16.348359827133244 15.174148603547348 3.821255653580888 1.8593163465836526 0.2626143701540622 -9.455671027196734 -10.759230829149391 -1.65488520633384 -6.271761066320575 11.821264406385662 9.669770082969848 </statenode>
+<statenode id='Intercept'>Intercept[30 1] (-Infinity,Infinity): -1.6714277308056547 -2.8029668791967017 1.330711884144387 6.737841321009595 13.131224633289749 0.1047131309090803 1.8729910161364511 -4.572401512690689 15.438979112205832 -7.032517843932821 -1.9713231156650037 -10.964679921383318 -26.425618137256514 -5.081084194881001 -1.3089704803830395 7.578846589485352 -2.20086675965508 3.135068385225262 -13.564410322317109 -9.948185313034086 -3.756986993417211 -4.768936192126067 -25.374334278858843 7.275899247294181 -8.791586754454082 7.284971668627408 10.053819235581022 -8.292814346011737 -5.833233713021713 -11.10981310188435 </statenode>
+<statenode id='Sigma'>Sigma[1 1] (0.0,Infinity): 0.03365528065560501 </statenode>
+<statenode id='AttributePointer'>AttributePointer[29 1] (0,25): 2 12 10 10 2 21 16 25 2 18 15 21 6 12 10 4 10 21 24 17 9 15 6 16 20 25 24 4 2 </statenode>
+<statenode id='SplitPoint'>SplitPoint[29 1] (0.0,1.0): 0.3798574761284963 0.017767390286342666 0.11432335441816055 0.9023059446748886 0.2776360611718184 0.8552140067121345 0.9891826824863347 0.2075540436230694 0.8307554762476644 0.6396538781843762 0.2668040364800487 0.007727166805963526 0.09588490143146378 0.9600894671075471 0.2623338822717177 0.16256686208412363 0.47913219682374286 0.9632694423533993 0.24843929758791017 0.9629788961082991 0.78979551349067 0.3809060653389553 0.7846780870717385 0.8020366376083872 0.46795268692381276 0.7305171108338465 0.5284996134360398 0.6790117335951943 0.9144830164765309 </statenode>
+</itsabeastystatewerein>
+<!--
+{"operators":[
+{"id":"SigmaScale","p":0.10000000000000002,"accept":2978,"reject":27,"acceptFC":0,"rejectFC":0,"rejectIv":0,"rejectOp":0},
+{"id":"InterceptRandomWalk","p":0.10000000000000002,"accept":2863,"reject":100,"acceptFC":0,"rejectFC":0,"rejectIv":0,"rejectOp":0},
+{"id":"SlopeRandomWalk","p":0.10000000000000002,"accept":2770,"reject":123,"acceptFC":0,"rejectFC":0,"rejectIv":0,"rejectOp":0},
+{"id":"CoupledSwapRegression","p":"NaN","accept":2333,"reject":516,"acceptFC":0,"rejectFC":0,"rejectIv":0,"rejectOp":0},
+{"id":"pointerSwapper","p":"NaN","accept":2542,"reject":360,"acceptFC":0,"rejectFC":0,"rejectIv":0,"rejectOp":0},
+{"id":"splitSwapper","p":"NaN","accept":2696,"reject":198,"acceptFC":0,"rejectFC":0,"rejectIv":0,"rejectOp":0},
+{"id":"pointerRandomWalk","p":"NaN","accept":2650,"reject":188,"acceptFC":0,"rejectFC":0,"rejectIv":0,"rejectOp":0},
+{"id":"splitPointUniform","p":"NaN","accept":2794,"reject":93,"acceptFC":0,"rejectFC":0,"rejectIv":0,"rejectOp":0},
+{"id":"CoupledSwapSplit","p":"NaN","accept":2453,"reject":345,"acceptFC":0,"rejectFC":0,"rejectIv":0,"rejectOp":0},
+{"id":"SplitNodeOperator","p":"NaN","accept":509,"reject":13867,"acceptFC":0,"rejectFC":0,"rejectIv":840,"rejectOp":840},
+{"id":"Reroot","p":"NaN","accept":275,"reject":14514,"acceptFC":0,"rejectFC":0,"rejectIv":3364,"rejectOp":3364},
+{"id":"DecisionWideExchange","p":"NaN","accept":1,"reject":14372,"acceptFC":0,"rejectFC":0,"rejectIv":3062,"rejectOp":3062},
+{"id":"DecisionNarrowExchange","p":"NaN","accept":0,"reject":14569,"acceptFC":0,"rejectFC":0,"rejectIv":3069,"rejectOp":3069},
+{"id":"ChildSwapper","p":"NaN","accept":3389,"reject":2475,"acceptFC":0,"rejectFC":0,"rejectIv":46,"rejectOp":46}
+]}
+-->

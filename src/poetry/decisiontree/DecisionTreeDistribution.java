@@ -14,7 +14,9 @@ import beast.core.State;
 import beast.core.Input.Validate;
 import beast.core.parameter.IntegerParameter;
 import beast.core.parameter.RealParameter;
+import beast.core.util.Log;
 import beast.util.Randomizer;
+import poetry.util.WekaUtils;
 import weka.core.Attribute;
 import weka.core.Instances;
 import weka.core.converters.ConverterUtils.DataSource;
@@ -41,6 +43,10 @@ public class DecisionTreeDistribution extends Distribution {
 	final public Input<String> targetInput = new Input<>("class", "The target feature", Validate.REQUIRED);
 	
 	
+	final public Input<Double> dataSplitInput = new Input<>("dataSplit", "Split the data into a training set with this percentage of the data", 70.0);
+	final public Input<Boolean> dataSplitByXMLInput = new Input<>("xmlSplit", "Split the data into training/test sets using the XML number?", true);
+	
+	
 	final public Input<RealParameter> shapeInput = new Input<>("shape", "Dirichlet shape on the number of instances at each leaf. Set to 0 for uniform.", Validate.REQUIRED);
 	
 	
@@ -50,7 +56,7 @@ public class DecisionTreeDistribution extends Distribution {
 	DecisionTree tree;
 	
 	
-	
+	double dataSplitProportion;
 	
 	// Which attribute does each split point to
 	IntegerParameter attributePointer;
@@ -61,7 +67,8 @@ public class DecisionTreeDistribution extends Distribution {
 	int maxLeafCount;
 	
 	// The data
-	Instances data;
+	Instances trainingData;
+	Instances testData;
 	
 	// Slope and intercept
 	RealParameter slope, intercept, sigma;
@@ -90,7 +97,6 @@ public class DecisionTreeDistribution extends Distribution {
 		// Set min and max values of the numeric split to (0,1)
 		splitPoints.setBounds(0.0, 1.0);
 		
-
 		
 		
 		// Set dimension
@@ -101,9 +107,10 @@ public class DecisionTreeDistribution extends Distribution {
 		
 
 		// Read the arff file
+		Instances data = null;
 		try {
 			
-			this.data = new DataSource(arffInput.get()).getDataSet();
+			data = new DataSource(arffInput.get()).getDataSet();
 			
 			
 		} catch (Exception e) {
@@ -115,7 +122,7 @@ public class DecisionTreeDistribution extends Distribution {
 		this.target = data.attribute(this.targetInput.get());
 		if (this.target == null) throw new IllegalArgumentException("Could not find target feature " + this.targetInput.get());
 		if (!this.target.isNumeric()) throw new IllegalArgumentException("Target feature must be numeric");
-		this.data.setClass(target);
+		data.setClass(target);
 		
 		// Find predictor feature
 		this.predictor = data.attribute(this.predInput.get());
@@ -123,10 +130,10 @@ public class DecisionTreeDistribution extends Distribution {
 		if (!this.predictor.isNumeric()) throw new IllegalArgumentException("Predictor feature must be numeric");
 		
 		// Prepare for attributes
-		this.setAttributes(this.data);
+		this.setAttributes(data);
 		
 		// Create the split helper class
-		this.split = new DecisionSplit(this.attributePointer, this.splitPoints, this.covariates, this.data, this.tree);
+		this.split = new DecisionSplit(this.attributePointer, this.splitPoints, this.covariates, data, this.tree);
 		
 		// Initialise the tree
 		this.initTree();
@@ -138,6 +145,14 @@ public class DecisionTreeDistribution extends Distribution {
 			attributePointer.setValue(i, Randomizer.nextInt(attributePointer.getUpper()));
 		}
 		
+		
+		// Training / test split
+		this.dataSplitProportion = dataSplitInput.get() / 100;
+		if (this.dataSplitProportion < 0) this.dataSplitProportion = 0;
+		if (this.dataSplitProportion > 1) this.dataSplitProportion = 1;
+		Instances[] res = WekaUtils.splitData(data, this.dataSplitProportion, dataSplitByXMLInput.get());
+		this.trainingData = res[0];
+		this.testData = res[1];
 		
 		// Friendly printing
 		this.printAttributes();
@@ -151,6 +166,7 @@ public class DecisionTreeDistribution extends Distribution {
 	 */
 	public void printAttributes() {
 		System.out.println("-------------------------------------");
+		System.out.println("Data organised into an " + this.trainingData.size() + "/" + this.testData.size() + " training/test split");
 		System.out.println("Target feature: " + this.target.name());
 		System.out.println("Predictor at leaves: " + this.predictor.name());
 		System.out.print("Covariates: ");
@@ -194,7 +210,8 @@ public class DecisionTreeDistribution extends Distribution {
 		this.covariates = new ArrayList<>();
 		for (int i = 0; i < data.numAttributes(); i ++) {
 			Attribute attr = data.attribute(i);
-			if (attr == this.target || attr == this.predictor) continue;
+			if (attr == this.target) continue;
+			if (attr == this.predictor) continue;
 			
 			// Check that every attribute is either numeric or nominal (no strings etc.)
 			if (!attr.isNominal() && !attr.isNumeric()) {
@@ -234,13 +251,15 @@ public class DecisionTreeDistribution extends Distribution {
 		 
 		 // Tree size exceeded?
 		 if (this.tree.getLeafCount() > this.maxLeafCount) {
+			 //Log.warning("too big");
 			 logP = Double.NEGATIVE_INFINITY;
 			 return logP;
 		 }
 		 
 		 // Ensure that the split is valid
-		 boolean valid = tree.splitData(this.data);
+		 boolean valid = tree.splitData(this.trainingData);
 		 if (!valid) {
+			 Log.warning("invalid");
 			 logP = Double.NEGATIVE_INFINITY;
 			 return logP;
 		 }
@@ -254,17 +273,22 @@ public class DecisionTreeDistribution extends Distribution {
 		 }
 		 
 		 
-		 
 		// Dirichlet distribution on instances per leaf
 		double alpha = shapeInput.get().getArrayValue();
 		double sumAlpha = alpha * this.tree.getLeafCount();
+		int ninstances = this.trainingData.size() + this.maxLeafCount; // Fudge factor
 		for (int i = 0; i < this.tree.getLeafCount(); i++) {
-			int ninstances = this.tree.getNode(i).getNumInstances();
-			if (ninstances == 0) {
-				 logP = Double.NEGATIVE_INFINITY;
-				 return logP;
+			double pinstances = 1.0 * (this.tree.getNode(i).getNumInstances()+1) / ninstances;
+			if (pinstances == 0) {
+				logP = Double.NEGATIVE_INFINITY;
+				return logP;
 			}
-		    logP += (alpha - 1) * Math.log(ninstances);
+			if (pinstances == 1) {
+				 //logP = Double.NEGATIVE_INFINITY;
+				 //return logP;
+				continue;
+			}
+		    logP += (alpha - 1) * Math.log(pinstances);
 		    logP -= org.apache.commons.math.special.Gamma.logGamma(alpha);
 		}
 		logP += org.apache.commons.math.special.Gamma.logGamma(sumAlpha);
@@ -321,10 +345,13 @@ public class DecisionTreeDistribution extends Distribution {
 	 * @return
 	 */
 	public boolean split() {
-		return tree.splitData(this.data);
+		return tree.splitData(this.trainingData);
 	}
 	
 
+	
+
+	
 	/**
 	 * Computes R2 and correlation by comparing known target values with those predicted
 	 * Returns a double[] { R2, rho }
@@ -333,53 +360,71 @@ public class DecisionTreeDistribution extends Distribution {
 	public double[] getR2AndCorrelation() {
 		
 		
+		double R2_train = 0;
+		double rho_train = 0;
+		double R2_test = 0;
+		double rho_test = 0;
 		
-		if (!tree.splitData(this.data)) {
-			//Log.warning("Dev error @getR2AndCorrelation: invalid split");
-			return new double[] { 0, 0 };
-		}
 		
-		double[] trueY = new double[this.data.size()];
-		double[] predY = new double[this.data.size()];
+		for (int t = 0; t < 2; t ++) {
 		
-		//System.out.println(trueY.length + " total instances");
-		
-		// Calculate regression R2 at the leaves
-		int instNum = 0;
-		int nleaves = this.tree.getLeafCount();
-		for (int nodeNum = 0; nodeNum < nleaves; nodeNum ++) {
-			DecisionNode leaf = this.tree.getNode(nodeNum);
-			double[] trueYLeaf = leaf.getTargetVals();
-			double[] predYLeaf = leaf.getPredictedTargetVals();
+			Instances data = t == 0 ? this.trainingData : this.testData;
+			if (data == null || data.size() == 0 || !tree.splitData(data)) continue;
 			
-			//System.out.println(trueYLeaf.length + "/" + predYLeaf.length);
+			double[] trueY = new double[data.size()];
+			double[] predY = new double[data.size()];
+			
+			//System.out.println(trueY.length + " total instances");
 			
 			
-			// Put leaf-wise values in main list
-			for (int i = 0; i < trueYLeaf.length; i ++) {
-				trueY[instNum] = trueYLeaf[i];
-				predY[instNum] = predYLeaf[i];
-				instNum++;
+			
+			// Calculate regression R2 at the leaves
+			int instNum = 0;
+			int nleaves = this.tree.getLeafCount();
+			for (int nodeNum = 0; nodeNum < nleaves; nodeNum ++) {
+				DecisionNode leaf = this.tree.getNode(nodeNum);
+				double[] trueYLeaf = leaf.getTargetVals();
+				double[] predYLeaf = leaf.getPredictedTargetVals();
+				
+				//System.out.println(trueYLeaf.length + "/" + predYLeaf.length);
+				
+				
+				// Put leaf-wise values in main list
+				for (int i = 0; i < trueYLeaf.length; i ++) {
+					trueY[instNum] = trueYLeaf[i];
+					predY[instNum] = predYLeaf[i];
+					instNum++;
+				}
+				
 			}
 			
+			
+			// Total sum of squares
+			double TSS = getTSS(trueY);
+			
+			// Residual sum of squares
+			double RSS = getRSS(trueY, predY);
+			
+			// R squared
+			double R2 =  1 - RSS/TSS;
+			
+			// Correlation
+			PearsonsCorrelation pc = new PearsonsCorrelation();
+			double rho = pc.correlation(trueY, predY);
+			
+			if (t == 0) {
+				R2_train = R2;
+				rho_train = rho;
+			}else {
+				R2_test = R2;
+				rho_test = rho;
+			}
+			
+			
+		
 		}
 		
-		
-		
-		// Total sum of squares
-		double TSS = getTSS(trueY);
-		
-		// Residual sum of squares
-		double RSS = getRSS(trueY, predY);
-		
-		// R squared
-		double R2 =  1 - RSS/TSS;
-		
-		// Correlation
-		PearsonsCorrelation pc = new PearsonsCorrelation();
-		double rho = pc.correlation(trueY, predY);
-		
-		return new double[] { R2, rho };
+		return new double[] { R2_train, rho_train, R2_test, rho_test };
 	}
 
 
@@ -430,6 +475,8 @@ public class DecisionTreeDistribution extends Distribution {
 	public int getMaxLeafCount() {
 		return this.maxLeafCount;
 	}
+	
+
 
 	/*
 	public static double getCovariance(double[] x, double[] y) {

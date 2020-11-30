@@ -10,6 +10,8 @@ import org.w3c.dom.Node;
 import beast.core.Description;
 import beast.core.Operator;
 import beast.core.StateNode;
+import beast.core.util.Log;
+import beast.util.TreeParser;
 import weka.core.Instances;
 
 
@@ -21,10 +23,12 @@ public class DecisionTree extends StateNode  {
 	DecisionNode stored_root;
 	List<DecisionNode> nodes;
 	List<DecisionNode> stored_nodes;
+	DecisionSplit split;
 	
 	
 	public void setRoot(DecisionNode root) {
 		this.root = root;
+		this.split = root.getSplit();
 		this.reset();
 	}
 	
@@ -75,83 +79,18 @@ public class DecisionTree extends StateNode  {
 		
 	}
 	
-	
+	@Override
+	public String toString() {
+        return root.toString();
+    }
 	
 	
 	@Override
 	public void init(PrintStream out) {
-	
-		if (true) return;
-		
-        out.println("#NEXUS\n");
-        out.println("Begin taxa;");
-        out.println("\tDimensions ntax=" + this.getLeafCount() + ";");
-        out.println("\t\tTaxlabels");
-        printTaxa(this.root, out, this.getLeafCount());
-        out.println("\t\t\t;");
-        out.println("End;");
 
-        out.println("Begin trees;");
-        out.println("\tTranslate");
-        printTranslate(this.root, out, this.getLeafCount());
-        out.print(";");
 		
 	}
-	
-	
-    public static void printTaxa(final DecisionNode node, final PrintStream out, final int nodeCount) {
-        final List<String> translateLines = new ArrayList<>();
-        printTranslate(node, translateLines, nodeCount);
-        Collections.sort(translateLines);
-        for (String line : translateLines) {
-            line = line.substring(line.indexOf(" ", 5)).replace(',', ' ').trim();
-            out.println("\t\t\t" + line);
-        }
-    }
-	
-    /** Loggable interface implementation follows **/
 
-    /**
-     * print translate block for NEXUS beast.tree file
-     */
-    public static void printTranslate(final DecisionNode node, final PrintStream out, final int nodeCount) {
-        final List<String> translateLines = new ArrayList<>();
-        printTranslate(node, translateLines, nodeCount);
-        Collections.sort(translateLines);
-        for (final String line : translateLines) {
-            out.println(line);
-        }
-    }
-    
-    
-    static public int taxaTranslationOffset = 1;
-    
-    /**
-     * need this helper so that we can sort list of entries *
-     */
-    static void printTranslate(DecisionNode node, List<String> translateLines, int nodeCount) {
-        if (node.isLeaf()) {
-            final String nr = (node.getIndex() + taxaTranslationOffset) + "";
-            String line = "\t\t" + "    ".substring(nr.length()) + nr + " ";
-            if (node.getName().indexOf(' ') > 0) {
-            	char c = node.getName().charAt(0);
-            	if (c == '\"' || c == '\'') {
-                	line += node.getName();
-            	} else {
-            		line += '\"' + node.getName() + "\"";
-            	}
-            } else {
-            	line += node.getName();
-            }
-            if (node.getIndex() < nodeCount) {
-                line += ",";
-            }
-            translateLines.add(line);
-        } else {
-            printTranslate(node.getTrueChild(), translateLines, nodeCount);
-            printTranslate(node.getFalseChild(), translateLines, nodeCount);
-        }
-    }
 
 	@Override
 	public void close(PrintStream out) {
@@ -184,8 +123,10 @@ public class DecisionTree extends StateNode  {
 
 	@Override
 	public StateNode copy() {
-		// TODO Auto-generated method stub
-		return null;
+		DecisionTree tree = new DecisionTree();
+		tree.setID(this.getID());
+		tree.setRoot(this.root.copy());
+		return tree;
 	}
 
 	@Override
@@ -206,9 +147,32 @@ public class DecisionTree extends StateNode  {
 		
 	}
 
+	/**
+    * Reconstruct tree from XML fragment in the form of a DOM node *
+    */
 	@Override
 	public void fromXML(Node node) {
-		// TODO Auto-generated method stub
+		
+		//Log.warning(this.root.);
+		
+		
+		final String newick = node.getTextContent();
+        final TreeParser parser = new TreeParser();
+        try {
+            parser.thresholdInput.setValue(1e-10, parser);
+        } catch (Exception e1) {
+            e1.printStackTrace();
+        }
+        try {
+            parser.offsetInput.setValue(0, parser);
+            beast.evolution.tree.Node rootNode = parser.parseNewick(newick);
+            this.root.parseFromNode(rootNode);
+            this.setRoot(this.root);
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+        	Log.warning(newick);
+            e.printStackTrace();
+        }
 		
 	}
 
@@ -249,7 +213,7 @@ public class DecisionTree extends StateNode  {
 	
     public static int getNodesPostOrder(final DecisionNode node, final DecisionNode[] nodes, int pos) {
     	if (!node.isLeaf()) {
-	        for (final DecisionNode child : node.getChildren()) {
+	        for (final DecisionNode child : node.getDecisionChildren()) {
 	            pos = getNodesPostOrder(child, nodes, pos);
 	        }
     	}

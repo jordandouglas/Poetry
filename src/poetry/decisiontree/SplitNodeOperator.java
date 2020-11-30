@@ -29,7 +29,8 @@ public class SplitNodeOperator extends Operator {
 	final public Input<RealParameter> splitPointInput = new Input<>("split", "split point for numeric attributes", Validate.OPTIONAL);
 
 	
-	final public Input<Double> maintainOrderInput = new Input<>("maintain", "probability of maintaining parameter ordering", 0.5);
+	final public Input<Double> maintainOrderInput = new Input<>("maintain", "probability of maintaining parameter ordering", 1.0);
+	final public Input<Double> extendInput = new Input<>("extend", "probability of iteratively extending the split by 1", 0.5);
 	
 	
 	@Override
@@ -43,67 +44,76 @@ public class SplitNodeOperator extends Operator {
 		DecisionTreeDistribution dist = treeDistrInput.get();
 		
 		double logHR = 0;
-		int nleaves = tree.getLeafCount();
 		
 		
 		
+		long numIterations = 1 + Randomizer.nextGeometric(1 - this.extendInput.get());
 		
-		// Expand or shrink?
-		boolean expand = Randomizer.nextBoolean();
-		if (expand) {
+		
+		
+		for (int i = 0; i < numIterations; i ++) {
 			
-			// Cannot expand a max-sized tree
-			if (tree.getLeafCount() >= dist.getMaxLeafCount()) return Double.NEGATIVE_INFINITY;
+			// Expand or shrink?
+			boolean expand = Randomizer.nextBoolean();
 			
+			int nleaves = tree.getLeafCount();
 			
-			// Sample a leaf to expand
-			int nodeIndex = Randomizer.nextInt(nleaves);
-			DecisionNode parent = tree.getNode(nodeIndex);
-			if (!parent.isLeaf()) {
-				Log.warning("Dev error @SplitNodeOperator: this node is not a leaf");
-				System.exit(0);
+			if (expand) {
+				
+				// Cannot expand a max-sized tree
+				if (tree.getLeafCount() >= dist.getMaxLeafCount()) {
+					//Log.warning("op too big");
+					return Double.NEGATIVE_INFINITY;
+				}
+				
+				
+				// Sample a leaf to expand
+				int nodeIndex = Randomizer.nextInt(nleaves);
+				DecisionNode parent = tree.getNode(nodeIndex);
+				if (!parent.isLeaf()) {
+					Log.warning("Dev error @SplitNodeOperator: this node is not a leaf");
+					System.exit(0);
+				}
+				
+				// Create 2 new nodes
+				DecisionNode trueChild = dist.newNode();
+				DecisionNode falseChild = dist.newNode();
+				parent.setTrueChild(trueChild);
+				parent.setFalseChild(falseChild);
+				
+				
+				
+			} else {
+				
+				// Cannot shrink a 1 node tree
+				if (nleaves == 0) return Double.NEGATIVE_INFINITY;
+				
+				
+				// Sample a cherry to shrink
+				List<DecisionNode> cherries = new ArrayList<>();
+				for (DecisionNode node : tree.getNodes()){
+					if (node.isCherry()) cherries.add(node);
+				}
+				if (cherries.size() == 0) return Double.NEGATIVE_INFINITY;
+				int nodeNum = Randomizer.nextInt(cherries.size());
+				DecisionNode parent = cherries.get(nodeNum);
+				
+				
+				// Delete its children
+				parent.removeChildren();
+				
 			}
 			
-			// Create 2 new nodes
-			DecisionNode trueChild = dist.newNode();
-			DecisionNode falseChild = dist.newNode();
-			parent.setTrueChild(trueChild);
-			parent.setFalseChild(falseChild);
+			// Relabel the tree
+			tree.reset();
 			
-			
-			
-		} else {
-			
-			// Cannot shrink a 1 node tree
-			if (nleaves == 0) return Double.NEGATIVE_INFINITY;
-			
-			
-			// Sample a cherry to shrink
-			List<DecisionNode> cherries = new ArrayList<>();
-			for (DecisionNode node : tree.getNodes()){
-				if (node.isCherry()) cherries.add(node);
-			}
-			if (cherries.size() == 0) return Double.NEGATIVE_INFINITY;
-			int nodeNum = Randomizer.nextInt(cherries.size());
-			DecisionNode parent = cherries.get(nodeNum);
-			
-			
-			// Delete its children
-			parent.removeChildren();
+			// Reorder parameters
+			if (Randomizer.nextDouble() < this.maintainOrderInput.get()) this.reorderParameters(tree, nleaves);
 			
 		}
 		
 		
-		
-		// Relabel the tree
-		tree.reset();
-		
-		
-		// Reorder parameters
-		if (Randomizer.nextDouble() < this.maintainOrderInput.get()) this.reorderParameters(tree, nleaves);
-		
-		
-		
+		//Log.warning("Expanded " + expand + " " + numIterations + " times");
 		return logHR;
 		
 	}

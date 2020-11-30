@@ -15,17 +15,21 @@
 <map name="OneOnX" >beast.math.distributions.OneOnX</map>
 
 
-<!--<run id="mcmc" spec="MCMC" chainLength="100000000">-->
-<run id="mcmc" spec="beast.coupledMCMC.CoupledMCMC" chainLength="10000000" chains="4" resampleEvery="10000" heatLikelihoodOnly="false">
+<run id="mcmc" spec="MCMC" chainLength="100000000">
+<!--<run id="mcmc" spec="beast.coupledMCMC.CoupledMCMC" chainLength="100000000" chains="8" resampleEvery="10000" deltaTemperature="0.05" heatLikelihoodOnly="false">-->
+<!--<run id="mcmc" spec="beast.coupledMCMC.SerialMCMC" chainLength="100000000" chains="4" resampleEvery="10000" deltaTemperature="0.05">-->
+<!--<run id="mcmc" spec="beast.inference.SimulatedAnnealing" chainLength="10000000" startTemp="1.0" endTemp="0.0001">-->
+
+
 
     <state id="state" spec="State" storeEvery="5000">
 
         <tree id="tree" spec="poetry.decisiontree.DecisionTree" name="stateNode">
         </tree>
 
-        <parameter id="Slope" spec="parameter.RealParameter" name="stateNode">10</parameter>
-        <parameter id="Intercept" spec="parameter.RealParameter" name="stateNode">10</parameter>
-        <parameter id="Sigma" spec="parameter.RealParameter" name="stateNode">10</parameter>
+        <parameter id="Slope" spec="parameter.RealParameter" name="stateNode">1</parameter>
+        <parameter id="Intercept" spec="parameter.RealParameter" name="stateNode">1</parameter>
+        <parameter id="Sigma" spec="parameter.RealParameter" name="stateNode">1</parameter>
 
         <parameter id="AttributePointer" spec="parameter.IntegerParameter" name="stateNode">0</parameter>
         <parameter id="SplitPoint" spec="parameter.RealParameter" name="stateNode">0.5</parameter>
@@ -41,6 +45,7 @@
 
             <prior id="slopePrior" name="distribution" x="@Slope">
                 <Normal name="distr" mean="0" sigma="10" />
+                <!--<LogNormal name="distr" meanInRealSpace="true" M="1" S="2" />-->
             </prior>
 
             <prior id="interceptPrior" name="distribution" x="@Intercept">
@@ -52,22 +57,22 @@
             </prior>
 
 
-            <!--
+            
             <prior id="treePrior" spec="poetry.decisiontree.GeometricTreePrior" name="distribution" tree="@tree">
         		<parameter spec="parameter.RealParameter" name="mean">10</parameter>
             </prior>
-            -->
+            
 
         </distribution>
 
         <distribution id="likelihood" spec="util.CompoundDistribution">
 
-            <distribution id="decisionTreeDistribution" spec="poetry.decisiontree.DecisionTreeDistribution" tree="@tree" maxLeafCount="10"
-            	data="/home/jdou557/Documents/weka-3-8-4-azul-zulu-linux/weka-3-8-4/data/cpu.with.vendor.arff" pred="CACH" class="class"
+            <distribution id="decisionTreeDistribution" spec="poetry.decisiontree.DecisionTreeDistribution" tree="@tree" maxLeafCount="30" xmlSplit="false"
+            			data="/home/jdou557/Documents/Marsden2019/papers/PoetryPaper/results/weka.arff" pred="SpeciesTreePriorPOEM.weight" class="SpeciesTreePriorPOEM.min.ESS.p"  
             	>
 
-            	<!--   -->
-            	<!-- data="/home/jdou557/Documents/Marsden2019/papers/PoetryPaper/results/weka.arff" pred="SiteModelPOEM.weight" class="SiteModelPOEM.min.ESS.m"  -->
+            	<!--  data="/home/jdou557/Documents/weka-3-8-4-azul-zulu-linux/weka-3-8-4/data/cpu.with.vendor.arff" pred="CHMAX" class="class" -->
+            	<!--  -->
                 
             	<pointer idref="AttributePointer" />
             	<split idref="SplitPoint" />
@@ -75,7 +80,7 @@
             	<slope idref="Slope" />
             	<sigma idref="Sigma" />
 
-            	<parameter spec="parameter.RealParameter" name="shape">2</parameter>
+            	<parameter spec="parameter.RealParameter" name="shape">5</parameter>
             	
 
             </distribution>
@@ -83,19 +88,22 @@
     </distribution>
 
 
-    <!-- Linear regression -->
-     <operator allowNonsense="true" beta="0.05" burnin="500" id="regression.AVMVN" initial="1000" spec="AdaptableVarianceMultivariateNormalOperator" weight="2">
-        <transformations spec="beast.util.Transform$LogTransform">
-            <f idref="Sigma"/>
-        </transformations>
-        <transformations spec="beast.util.Transform$LogitTransform">
-            <f idref="SplitPoint"/>
-        </transformations>
-        <transformations spec="beast.util.Transform$NoTransform">
-            <f idref="Slope"/>
-            <f idref="Intercept"/>
-        </transformations>
-    </operator>
+
+    <!-- Regression -->
+	<operator id="SigmaScale" parameter="@Sigma" scaleFactor="0.1" spec="BactrianScaleOperator" weight="1">
+		<kernelDistribution m="0.95" mode="bactrian_normal" spec="beast.evolution.operators.KernelDistribution$Bactrian"/>
+	</operator>
+		<operator id="InterceptRandomWalk" parameter="@Intercept" scaleFactor="0.1" spec="BactrianRandomWalkOperator" weight="1">
+		<kernelDistribution m="0.95" mode="bactrian_normal" spec="beast.evolution.operators.KernelDistribution$Bactrian"/>
+	</operator>
+	<operator id="SlopeRandomWalk" parameter="@Slope" scaleFactor="0.1" spec="BactrianRandomWalkOperator" weight="1">
+		<kernelDistribution m="0.95" mode="bactrian_normal" spec="beast.evolution.operators.KernelDistribution$Bactrian"/>
+	</operator>
+	<operator id="CoupledSwapRegression" spec="poetry.decisiontree.CoupledSwap" weight="1">
+		<parameter idref="Slope" />
+		<parameter idref="Intercept" />
+	</operator>
+
 
 
 	<!-- Splits -->
@@ -104,8 +112,11 @@
     <operator id="pointerRandomWalk" spec="UniformOperator" parameter="@AttributePointer" weight="1"/>
     <operator id="splitPointUniform" spec="UniformOperator" parameter="@SplitPoint" weight="1"/>
 
+    <operator id="CoupledSwapSplit" spec="poetry.decisiontree.CoupledSwap" parameter="@SplitPoint" intparameter="@AttributePointer" weight="1"/>
+
+
     
-    <operator id="SplitNodeOperator" spec="poetry.decisiontree.SplitNodeOperator" tree="@tree" dist="@decisionTreeDistribution" weight="5">
+    <operator id="SplitNodeOperator" spec="poetry.decisiontree.SplitNodeOperator" tree="@tree" dist="@decisionTreeDistribution" extend="0.5" weight="5">
     	<slope idref="Slope" />
     	<intercept idref="Intercept" />
 		<pointer idref="AttributePointer" />
@@ -113,7 +124,7 @@
     </operator>
 
 
-    <operator id="Reroot" spec="poetry.decisiontree.Reroot" tree="@tree" dist="@decisionTreeDistribution" weight="5">
+    <operator id="Reroot" spec="poetry.decisiontree.Reroot" tree="@tree" dist="@decisionTreeDistribution"  extend="0.5" weight="5">
 		<slope idref="Slope" />
     	<intercept idref="Intercept" />
 		<pointer idref="AttributePointer" />
@@ -141,7 +152,7 @@
 	<operator id="ChildSwapper" spec="poetry.decisiontree.ChildSwapper" tree="@tree"  weight="2"/>
 
 
-    <logger id="tracelog" spec="Logger" fileName="decisions.log" logEvery="1000" model="@posterior" sanitiseHeaders="true" sort="smart">
+    <logger id="tracelog" spec="Logger" fileName="decisions.log" logEvery="10000" model="@posterior" sanitiseHeaders="true" sort="smart">
         <log idref="posterior"/>
         <log idref="likelihood"/>
         <log idref="prior"/>
@@ -156,7 +167,7 @@
         
     </logger>
 
-    <logger id="screenlog" spec="Logger" logEvery="1000">
+    <logger id="screenlog" spec="Logger" logEvery="10000">
         <log idref="posterior"/>
         <log idref="likelihood"/>
         <log idref="prior"/>
@@ -166,7 +177,7 @@
 
 
     
-    <logger id="DecisionTreeLogger" spec="Logger" fileName="decision.trees" logEvery="1000" mode="tree">
+    <logger id="DecisionTreeLogger" spec="Logger" fileName="decision.trees" logEvery="10000" mode="tree">
         <log id="DecisionTreeLog" spec="poetry.decisiontree.DecisionTreeLogger" tree="@tree" dist="@decisionTreeDistribution"/>
     </logger>
 

@@ -132,7 +132,7 @@ public class WekaUtils {
 			i++;
 		}
 		
-		if (data.classAttribute().name().equals(name)) return data.classIndex();
+		if (data.classIndex() >=0 && data.classAttribute().name().equals(name)) return data.classIndex();
 		
 		return -1;
 		
@@ -158,7 +158,7 @@ public class WekaUtils {
 			i++;
 		}
 		
-		if (instance.classAttribute().name().equals(name)) return instance.classIndex();
+		if (instance.classIndex() >=0 && instance.classAttribute().name().equals(name)) return instance.classIndex();
 		
 		return -1;
 		
@@ -501,6 +501,84 @@ public class WekaUtils {
 		
 		return 0;
 		
+	}
+
+
+	
+	/**
+	 * Split into training and test set 
+	 * @param dataSplitProportion
+	 * @param splitByXML
+	 * @return
+	 */
+	public static Instances[] splitData(Instances data, double dataSplitProportion, boolean splitByXML) {
+		
+		// Prepare
+		Instances training = new Instances(data);
+		training.clear();
+		Instances test = new Instances(data);
+		test.clear();
+		
+		
+		
+		
+		if (splitByXML) {
+			
+			
+			int xmlIndex = WekaUtils.getIndexOfColumn(data, "xml");
+			if (xmlIndex == -1) throw new IllegalArgumentException("Error: cannot find the xml column");
+		
+			// Get unique list of xml files
+			List<Double> xmls = WekaUtils.getVals(data, "xml");
+			xmls = xmls.stream().distinct().collect(Collectors.toList());
+			
+			// Shuffle
+			Collections.shuffle(xmls, new Random(Randomizer.nextInt()));
+			int xmlCutoff = (int) (xmls.size() * dataSplitProportion);
+			
+			// Split into 2 groups
+			for (int i = 0; i < data.size(); i ++) {
+				
+				Instance inst = data.instance(i);
+				
+				// What is the xml?
+				double xml = inst.value(xmlIndex);
+				int xmlLoc = xmls.indexOf(xml);
+				if (xmlLoc < xmlCutoff) training.add(inst);
+				else test.add(inst);
+				
+				
+			}
+			
+			
+			// Remove the xml column
+			training.deleteAttributeAt(xmlIndex);
+			test.deleteAttributeAt(xmlIndex);
+			
+		
+		}else {
+			
+			
+			// Shuffle indices
+			List<Integer> indices = new ArrayList<>();
+			for (int i = 0; i < data.size(); i ++) indices.add(i);
+			Collections.shuffle(indices, new Random(Randomizer.nextInt()));
+			int trainingSize = (int) (data.size() * dataSplitProportion);
+			
+			// Split into 2 groups
+			for (int i = 0; i < data.size(); i ++) {
+				Instance inst = data.instance(i);
+				int index = indices.get(i);
+				if (index < trainingSize) training.add(inst);
+				else test.add(inst);
+			}
+			
+			
+		}
+		
+		
+		
+		return new Instances[] { training, test };
 	}
 	
 	

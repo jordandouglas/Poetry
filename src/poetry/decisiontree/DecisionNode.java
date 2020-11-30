@@ -10,6 +10,7 @@ import java.math.MathContext;
 import beast.core.BEASTObject;
 import beast.core.Description;
 import beast.core.parameter.RealParameter;
+import beast.evolution.tree.Node;
 import poetry.util.WekaUtils;
 import weka.core.Attribute;
 import weka.core.Instance;
@@ -18,7 +19,7 @@ import weka.core.Instances;
 
 
 @Description("A node which acts as linear regression at the leaf or can split over an attribute to give two or more children")
-public class DecisionNode extends BEASTObject {
+public class DecisionNode extends Node {
 
 	// Unique number of this node. The n leaves are numbered 0 - n-1
 	protected int nodeIndex;
@@ -66,6 +67,11 @@ public class DecisionNode extends BEASTObject {
 	public int getNumInstances() {
 		if (this.splitData == null) return 0;
 		return this.splitData.size();
+	}
+	
+
+	public DecisionSplit getSplit() {
+		return this.split;
 	}
 
 	
@@ -150,6 +156,45 @@ public class DecisionNode extends BEASTObject {
 		this.splitData = null;
 	}
 	
+
+
+	public void parseFromNode(Node node) throws Exception {
+		
+		
+		if (node.getChildCount() != 0 && node.getChildCount() != 2) {
+			throw new Exception("Error: binary trees only. Node " + node.getID() + " has " + node.getChildCount() + " children");
+		}
+		
+		this.removeChildren();
+		
+		if (!node.isLeaf()) {
+			
+			Node tchild = node.getChild(0);
+			Node fchild = node.getChild(1);
+			
+			DecisionNode tchild2 = this.copy();
+			DecisionNode fchild2 = this.copy();
+			
+			this.setTrueChild(tchild2);
+			this.setFalseChild(fchild2);
+			
+			tchild2.parseFromNode(tchild);
+			fchild2.parseFromNode(fchild);
+			
+			
+		}
+		
+		
+		
+	}
+
+	
+	@Override
+	public String toString() {
+		return DecisionTreeLogger.toNewick(this);
+	}
+
+
 	public DecisionNode copy() {
         final DecisionNode node = new DecisionNode(split, slope, intercept, sigma, targetAttr, predAttr);
         node.depth = depth;
@@ -218,7 +263,7 @@ public class DecisionNode extends BEASTObject {
 		return this.depth;
 	}
 	
-	public DecisionNode[] getChildren(){
+	public DecisionNode[] getDecisionChildren(){
 		return this.children;
 	}
 	
@@ -296,6 +341,7 @@ public class DecisionNode extends BEASTObject {
 	
 	
 	public void removeChildren() {
+		if (this.isLeaf()) return;
 		this.children[0].removeParent();
 		this.children[1].removeParent();
 		this.children[0] = null;
@@ -521,6 +567,11 @@ public class DecisionNode extends BEASTObject {
 	public boolean isTrueChild() {
 		return this.isTrueChild;
 	}
+
+
+
+
+
 
 
 

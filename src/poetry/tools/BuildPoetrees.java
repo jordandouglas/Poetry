@@ -88,16 +88,16 @@ public class BuildPoetrees extends Runnable {
 		
 		
 		// Find ESS or ESS.hr or ESS.m column
-		int colNum = WekaUtils.getIndexOfColumn(trainingSet, poemESSColname);
-		if (colNum == -1) {
+		int classIndex = WekaUtils.getIndexOfColumn(trainingSet, poemESSColname);
+		if (classIndex == -1) {
 			poemESSColname =  POEM.getESSColname(poemName) + ".p";
-			colNum = WekaUtils.getIndexOfColumn(trainingSet, poemESSColname);
+			classIndex = WekaUtils.getIndexOfColumn(trainingSet, poemESSColname);
 		}
-		if (colNum == -1) {
+		if (classIndex == -1) {
 			poemESSColname =  POEM.getESSColname(poemName) + ".m";
-			colNum = WekaUtils.getIndexOfColumn(trainingSet, poemESSColname);
+			classIndex = WekaUtils.getIndexOfColumn(trainingSet, poemESSColname);
 		}
-		if (colNum == -1) throw new IllegalArgumentException("Error cannot locate " + poemESSColname + " column in " + trainingFile.getPath());
+		if (classIndex == -1) throw new IllegalArgumentException("Error cannot locate " + poemESSColname + " column in " + trainingFile.getPath());
 		
 		
 		// Tidy the columns
@@ -110,7 +110,7 @@ public class BuildPoetrees extends Runnable {
 		}
 		
 		// Set the target class
-		int classIndex = WekaUtils.getIndexOfColumn(trainingSet, poemESSColname);
+		classIndex = WekaUtils.getIndexOfColumn(trainingSet, poemESSColname);
 		Attribute poemESSColumn = trainingSet.attribute(classIndex);
 		trainingSet.setClass(poemESSColumn);
 		classIndex = trainingSet.classIndex();

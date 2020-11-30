@@ -6,6 +6,7 @@ import java.util.List;
 
 import beast.core.parameter.IntegerParameter;
 import beast.core.parameter.RealParameter;
+import beast.core.util.Log;
 import poetry.util.WekaUtils;
 import weka.core.Attribute;
 import weka.core.Instance;
@@ -67,11 +68,11 @@ public class DecisionSplit {
 	 */
 	public Instances[] splitData(Instances preSplit, int index) {
 		
-		if (this.pointers.getDimension() <= index) return null;
-		
 		
 		// Since leaves do not have split parameters, the vectors are shifted by leafCount
 		int paramIndex = index - tree.getLeafCount();
+		
+		if (this.pointers.getDimension() <= paramIndex) return null;
 		
 		
 		// What attribute is being split on
