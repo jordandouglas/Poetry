@@ -5,11 +5,12 @@ package poetry.decisiontree;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
-
+import java.util.List;
 
 import beast.core.BEASTObject;
 import beast.core.Description;
 import beast.core.parameter.RealParameter;
+import beast.core.util.Log;
 import beast.evolution.tree.Node;
 import poetry.util.WekaUtils;
 import weka.core.Attribute;
@@ -40,8 +41,8 @@ public class DecisionNode extends Node {
 	// The target feature
 	protected Attribute targetAttr;
 	
-	// The predictor feature for regression at the leaves
-	protected Attribute predAttr;
+	// The predictor features for regression at the leaves
+	protected List<Attribute> predAttr;
 	
 	// Slope and intercept parameters. These are vectors and the values at 'nodeIndex' correspond to this node. Sigma is a scalar
 	protected RealParameter slope, intercept, sigma;
@@ -61,7 +62,7 @@ public class DecisionNode extends Node {
 
 	
 	/**
-	 * Number of instances at this node (if the split has occured yet)
+	 * Number of instances at this node (if the split has occurred yet)
 	 * @return
 	 */
 	public int getNumInstances() {
@@ -85,25 +86,23 @@ public class DecisionNode extends Node {
 		
 		if (this.isLeaf()) {
 			
-			
-			double slope = this.getSlope();
-			double intercept = this.getIntercept();
-			
 			// Regression info if leaf
-			buf.append("slope=" + slope + ",");
-			buf.append("intercept=" + intercept + ",");
+			double intercept = this.getIntercept();
 			buf.append("sigma=" + this.getSigma() + ",");
-			
-			// Rounding to 3 sf
-			BigDecimal bd = new BigDecimal(slope);
-			bd = bd.round(new MathContext(3));
-			slope = bd.doubleValue();
-			
-			bd = new BigDecimal(intercept);
-			bd = bd.round(new MathContext(3));
-			intercept = bd.doubleValue();
-			
-			buf.append("eqn='y = " + slope + "x + " + intercept + "'");
+			buf.append("intercept=" + intercept + ",");
+			String eqn = "eqn='" + WekaUtils.roundToSF(intercept, 3);
+			for (int i = 0; i < this.predAttr.size(); i ++) {
+				
+				// Log the slope
+				double slope = this.getSlope(i);
+				buf.append("slope" + (i+1) + "=" + slope + ",");
+				
+				// Round to 3 sf for the equation
+				eqn += " + " + WekaUtils.roundToSF(slope, 3) + "x" + (i+1);
+				
+			}
+			eqn += "'";
+			buf.append(eqn);
 			
 			
 		}else {
@@ -140,7 +139,7 @@ public class DecisionNode extends Node {
 	 * @param split
 	 * @param data
 	 */
-	public DecisionNode(DecisionSplit split, RealParameter slope, RealParameter intercept, RealParameter sigma, Attribute targetAttr, Attribute predAttr) {
+	public DecisionNode(DecisionSplit split, RealParameter slope, RealParameter intercept, RealParameter sigma, Attribute targetAttr, List<Attribute> predAttr) {
 		this.nodeIndex = -1;
 		this.lastNodeIndex = -1;
 		this.split = split;
@@ -397,30 +396,47 @@ public class DecisionNode extends Node {
 	 * @return
 	 */
 	protected double getIntercept() {
+		if (!this.isLeaf()) throw new IllegalArgumentException("Error: there is no intercept because this is not a leaf!");
 		return this.intercept.getArrayValue(this.nodeIndex);
 	}
 
 
 	/**
-	 * The slope
+	 * The slope of predictor i
+	 * [m11, m12, ..., m1n, m21, ..., mkn]
+	 * Where mij is leaf i attribute j
+	 * i is the nodeindex of this leaf and j is parsed below
+	 * @param j 
 	 * @return
 	 */
-	protected double getSlope() {
-		return this.slope.getArrayValue(this.nodeIndex);
+	protected double getSlope(int j) {
+		if (!this.isLeaf()) throw new IllegalArgumentException("Error: there is no slope because this is not a leaf!");
+		int index = this.intercept.getDimension() * j + this.nodeIndex;
+		//Log.warning(this.nodeIndex + "," + j + "," + index + "|" + this.intercept.getDimension() + "," + this.slope.getDimension());
+		return this.slope.getArrayValue(index);
 	}
 	
 	
 	/**
 	 * Predict the target feature value using the predictor (if this is a leaf)
-	 * @param x
+	 * @param inst
 	 * @return
 	 */
-	public Double predict(double x) {
+	public Double predict(Instance inst) {
 		if (!this.isLeaf()) return null;
 		
-		double c = this.getIntercept();
-		double m = this.getSlope();
-		return c + x*m;
+		double y =  this.getIntercept();
+		for (int i = 0; i < this.predAttr.size(); i ++) {
+			
+			int xIndex = WekaUtils.getIndexOfColumn(inst, this.predAttr.get(i).name());
+			double x = inst.value(xIndex);
+			double m = this.getSlope(i);
+			if (Double.isNaN(x)) continue;
+			y = y + m*x;
+			
+		}
+		
+		return y;
 	}
 
 
@@ -454,7 +470,7 @@ public class DecisionNode extends Node {
 		
 		
 		double logP = 0;
-		double sigmaVal = this.getSlope();
+		double sigmaVal = this.getSigma();
 		for (int instNum = 0; instNum < this.splitData.numInstances(); instNum++) {
 			
 			double predY = predYVals[instNum];
@@ -516,13 +532,12 @@ public class DecisionNode extends Node {
 		if (this.splitData == null) return null;
 		
 		double[] predYVals = new double[this.splitData.numInstances()];
-		int xIndex = WekaUtils.getIndexOfColumn(this.splitData, this.predAttr.name());
+		
 		for (int instNum = 0; instNum < this.splitData.numInstances(); instNum++) {
 			
 			// Get predicted y
 			Instance inst = this.splitData.instance(instNum);
-			double x = inst.value(xIndex);
-			double predY = this.predict(x);
+			double predY = this.predict(inst);
 			predYVals[instNum] = predY;
 		}
 		

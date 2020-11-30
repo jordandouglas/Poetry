@@ -125,14 +125,20 @@ public class SplitNodeOperator extends Operator {
 	 * @param nleavesBefore
 	 */
 	protected void reorderParameters(DecisionTree tree, int nleavesBefore) {
-		if (slopeInput.get() != null) this.reorganiseVector(slopeInput.get(this), tree, true, nleavesBefore);
-		if (interceptInput.get() != null) this.reorganiseVector(interceptInput.get(this), tree, true, nleavesBefore);
-		if (attributePointerInput.get() != null) this.reorganiseVector(attributePointerInput.get(this), tree, false, nleavesBefore);
-		if (splitPointInput.get() != null) this.reorganiseVector(splitPointInput.get(this), tree, false, nleavesBefore);
+		
+		 
+		if (slopeInput.get() != null && interceptInput.get() != null) {
+			int nrepeats = slopeInput.get().getDimension() / interceptInput.get().getDimension();
+			if (nrepeats >= 1) this.reorganiseVector(slopeInput.get(this), nrepeats, tree, true, nleavesBefore);
+		}
+		if (interceptInput.get() != null) this.reorganiseVector(interceptInput.get(this), 1, tree, true, nleavesBefore);
+		
+		if (attributePointerInput.get() != null) this.reorganiseVector(attributePointerInput.get(this), 1, tree, false, nleavesBefore);
+		if (splitPointInput.get() != null) this.reorganiseVector(splitPointInput.get(this), 1, tree, false, nleavesBefore);
 	}
 	
 	// Reorganise the vector elements so that the old values are pointed to by the new node numbering
-	protected void reorganiseVector(Parameter param, DecisionTree tree, boolean leaves, int nleavesBefore) {
+	protected void reorganiseVector(Parameter param, int nrepeats, DecisionTree tree, boolean leaves, int nleavesBefore) {
 		
 		
 		// Create empty null array
@@ -142,12 +148,10 @@ public class SplitNodeOperator extends Operator {
 		// Reorganise the vector elements so that the old values are pointed to by the new node numbering
 		List<DecisionNode> nodesAfter = tree.getNodes();
 		
-		
+		int unitSize = param.getDimension() / nrepeats;
 		int paramIndexBefore, paramIndexAfter;
 		for (int indexAfter = 0; indexAfter < nodesAfter.size(); indexAfter ++) {
 			int indexBefore = nodesAfter.get(indexAfter).getLastIndex();
-			
-			
 			
 			
 			// Leaves only
@@ -174,12 +178,22 @@ public class SplitNodeOperator extends Operator {
 				// Preexisting node
 				
 				//Log.warning("a The value at " + indexBefore + "/" + paramIndexBefore + " will move to " + indexAfter);
-				double paramValBefore = param.getArrayValue(paramIndexBefore);
-				newVals[paramIndexAfter] = paramValBefore;
 				
+				// Special case: slope can be multivariate 
+				for (int rep = 0; rep < nrepeats; rep ++) {
+					
+					int paramIndexBeforeRep = paramIndexBefore + rep*unitSize;
+					int paramIndexAfterRep = paramIndexAfter + rep*unitSize;
+					double paramValBefore = param.getArrayValue(paramIndexBeforeRep);
+					newVals[paramIndexAfterRep] = paramValBefore;
+					
+					// This index has been taken
+					oldIndicesTaken[paramIndexBeforeRep] = true;
+					
+					
+				}
 				
-				// This index has been taken
-				oldIndicesTaken[paramIndexBefore] = true;
+			
 			}
 			
 		}
@@ -207,6 +221,7 @@ public class SplitNodeOperator extends Operator {
 
 		// Transfer over
 		for (int i = 0; i < newVals.length; i ++) {
+			
 			if (param instanceof RealParameter) {
 				((RealParameter)param).setValue(i, newVals[i]);
 			}
@@ -214,6 +229,7 @@ public class SplitNodeOperator extends Operator {
 			else if (param instanceof IntegerParameter) {
 				((IntegerParameter)param).setValue(i,  (int)(double)newVals[i]);
 			}
+			
 		}
 		
 		

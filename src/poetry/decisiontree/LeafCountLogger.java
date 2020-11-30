@@ -21,11 +21,11 @@ public class LeafCountLogger extends CalculationNode implements Loggable, Functi
 	
 	@Override
 	public void init(PrintStream out) {
-		out.print(getColname() + "\t");
+		out.print(getLeafColname() + "\t");
 	}
 
 	
-	public static String getColname() {
+	public static String getLeafColname() {
 		return "leafcount";
 	}
 	

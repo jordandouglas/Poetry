@@ -3,6 +3,8 @@ package poetry.util;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -503,6 +505,18 @@ public class WekaUtils {
 		
 	}
 
+	
+	/**
+	 * Round a double to sf significant figures
+	 * @param num
+	 * @param sf
+	 * @return
+	 */
+	public static double roundToSF(double num, int sf) {
+		BigDecimal bd = new BigDecimal(num);
+		bd = bd.round(new MathContext(sf));
+		return bd.doubleValue();
+	}
 
 	
 	/**

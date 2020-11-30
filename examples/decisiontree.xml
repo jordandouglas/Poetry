@@ -16,9 +16,9 @@
 
 
 <run id="mcmc" spec="MCMC" chainLength="100000000">
-<!--<run id="mcmc" spec="beast.coupledMCMC.CoupledMCMC" chainLength="100000000" chains="8" resampleEvery="10000" deltaTemperature="0.05" heatLikelihoodOnly="false">-->
+<!--<run id="mcmc" spec="beast.coupledMCMC.CoupledMCMC" chainLength="100000000" chains="4" resampleEvery="10000" deltaTemperature="0.05" heatLikelihoodOnly="false">-->
 <!--<run id="mcmc" spec="beast.coupledMCMC.SerialMCMC" chainLength="100000000" chains="4" resampleEvery="10000" deltaTemperature="0.05">-->
-<!--<run id="mcmc" spec="beast.inference.SimulatedAnnealing" chainLength="10000000" startTemp="1.0" endTemp="0.0001">-->
+<!--<run id="mcmc" spec="beast.inference.SimulatedAnnealing" chainLength="100000000" startTemp="5.0" endTemp="0.0001">-->
 
 
 
@@ -67,20 +67,47 @@
 
         <distribution id="likelihood" spec="util.CompoundDistribution">
 
-            <distribution id="decisionTreeDistribution" spec="poetry.decisiontree.DecisionTreeDistribution" tree="@tree" maxLeafCount="30" xmlSplit="false"
-            			data="/home/jdou557/Documents/Marsden2019/papers/PoetryPaper/results/weka.arff" pred="SpeciesTreePriorPOEM.weight" class="SpeciesTreePriorPOEM.min.ESS.p"  
+            <distribution id="decisionTreeDistribution" spec="poetry.decisiontree.DecisionTreeDistribution" tree="@tree" maxLeafCount="30" minInstances="1" dataSplit="50" xmlSplit="true"
+            			data="/home/jdou557/Documents/Marsden2019/papers/PoetryPaper/results/weka.arff" pred="NodeHeightPOEM.weight"
             	>
 
-            	<!--  data="/home/jdou557/Documents/weka-3-8-4-azul-zulu-linux/weka-3-8-4/data/cpu.with.vendor.arff" pred="CHMAX" class="class" -->
-            	<!--  -->
+
+            	<class spec="beast.util.Transform$NoTransform">
+            		<f spec="poetry.decisiontree.Feature" attr="NodeHeightPOEM.min.ESS.p" value="0.5"/>
+            	</class>
+
+            	<!--
+            	<pred spec="beast.util.Transform$LogitTransform">
+            		<f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="NodeHeightPOEM.weight"  value="0.5"/>
+            		<f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="TopologyPOEM.weight"  value="0.5"/>
+            		<f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="SpeciesTreePriorPOEM.weight"  value="0.5"/>
+
+            
+            	</pred>
+-->
+
+        				<!--
+            		<f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="SiteModelPOEM.weight"  value="0.5"/>
+        			<f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="ClockModelRatePOEM.weight"  value="0.5"/>
+        			<f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="ClockModelSDPOEM.weight"  value="0.5"/>
+        		-->
+
+            	<!--
+            	<pred spec="beast.util.Transform$NoTransform">
+            		<f spec="poetry.decisiontree.Feature" attr="ntaxa" value="1.0" />
+            	</pred>
+				-->
+
+            	<!--  data="/home/jdou557/Documents/weka-3-8-4-azul-zulu-linux/weka-3-8-4/data/cpu.with.vendor.arff" class='class' CHMAX  -->
+            	<!--    -->
                 
             	<pointer idref="AttributePointer" />
             	<split idref="SplitPoint" />
             	<intercept idref="Intercept" />
-            	<slope idref="Slope" />
+            	<!--<slope idref="Slope" />-->
             	<sigma idref="Sigma" />
 
-            	<parameter spec="parameter.RealParameter" name="shape">5</parameter>
+            	<parameter spec="parameter.RealParameter" name="shape">2</parameter>
             	
 
             </distribution>
@@ -99,11 +126,13 @@
 	<operator id="SlopeRandomWalk" parameter="@Slope" scaleFactor="0.1" spec="BactrianRandomWalkOperator" weight="1">
 		<kernelDistribution m="0.95" mode="bactrian_normal" spec="beast.evolution.operators.KernelDistribution$Bactrian"/>
 	</operator>
+
+	<!--
 	<operator id="CoupledSwapRegression" spec="poetry.decisiontree.CoupledSwap" weight="1">
 		<parameter idref="Slope" />
 		<parameter idref="Intercept" />
 	</operator>
-
+	-->
 
 
 	<!-- Splits -->
@@ -112,11 +141,12 @@
     <operator id="pointerRandomWalk" spec="UniformOperator" parameter="@AttributePointer" weight="1"/>
     <operator id="splitPointUniform" spec="UniformOperator" parameter="@SplitPoint" weight="1"/>
 
+    
     <operator id="CoupledSwapSplit" spec="poetry.decisiontree.CoupledSwap" parameter="@SplitPoint" intparameter="@AttributePointer" weight="1"/>
-
+	
 
     
-    <operator id="SplitNodeOperator" spec="poetry.decisiontree.SplitNodeOperator" tree="@tree" dist="@decisionTreeDistribution" extend="0.5" weight="5">
+    <operator id="SplitNodeOperator" spec="poetry.decisiontree.SplitNodeOperator" tree="@tree" dist="@decisionTreeDistribution" extend="0.5" maintain="1" weight="5">
     	<slope idref="Slope" />
     	<intercept idref="Intercept" />
 		<pointer idref="AttributePointer" />
@@ -124,7 +154,7 @@
     </operator>
 
 
-    <operator id="Reroot" spec="poetry.decisiontree.Reroot" tree="@tree" dist="@decisionTreeDistribution"  extend="0.5" weight="5">
+    <operator id="Reroot" spec="poetry.decisiontree.Reroot" tree="@tree" dist="@decisionTreeDistribution"  extend="0.5" maintain="1" weight="5">
 		<slope idref="Slope" />
     	<intercept idref="Intercept" />
 		<pointer idref="AttributePointer" />
@@ -132,7 +162,7 @@
     </operator>
 
 
-    <operator id="DecisionWideExchange" spec="poetry.decisiontree.DecisionExchange" tree="@tree" dist="@decisionTreeDistribution" weight="5" wide="true">
+    <operator id="DecisionWideExchange" spec="poetry.decisiontree.DecisionExchange" tree="@tree" dist="@decisionTreeDistribution" maintain="1" wide="true"  weight="5">
 		<slope idref="Slope" />
     	<intercept idref="Intercept" />
 		<pointer idref="AttributePointer" />
@@ -140,7 +170,7 @@
     </operator>
 
 
-    <operator id="DecisionNarrowExchange" spec="poetry.decisiontree.DecisionExchange" tree="@tree" dist="@decisionTreeDistribution" weight="5" wide="false">
+    <operator id="DecisionNarrowExchange" spec="poetry.decisiontree.DecisionExchange" tree="@tree" dist="@decisionTreeDistribution" maintain="1" wide="false" weight="5" >
 		<slope idref="Slope" />
     	<intercept idref="Intercept" />
 		<pointer idref="AttributePointer" />

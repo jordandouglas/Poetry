@@ -1,26 +1,98 @@
-<itsabeastystatewerein version='2.0' sample='129999'>
-<statenode id='tree'>(1[&amp;ninstances=352,cond=true,slope=2.0032844510090038,intercept=-1.6714277308056547,sigma=0.03365528065560501,eqn=&apos;y = 2.0x + -1.67&apos;]:1,2[&amp;ninstances=55,cond=false,slope=2.4786344301496683,intercept=-2.8029668791967017,sigma=0.03365528065560501,eqn=&apos;y = 2.48x + -2.8&apos;]:1)[&amp;ninstances=407,cond=null,attribute=npatterns,value=3168.041470106536,eqn=&apos;npatterns &lt;= 3170.0&apos;]:1</statenode>
-<statenode id='Slope'>Slope[30 1] (-Infinity,Infinity): 2.0032844510090038 2.4786344301496683 -10.62822475839753 16.402439758728352 11.230173794506793 -0.8225366039281488 17.51410939780913 0.05986734743960387 -5.26181124157642 -22.269858789852545 -7.137094682517553 -9.063091301964558 -4.311986986415922 8.99089032410448 9.936289494247479 -27.96434213910723 -10.845415855845994 -1.999502652495968 -10.475349684379472 16.348359827133244 15.174148603547348 3.821255653580888 1.8593163465836526 0.2626143701540622 -9.455671027196734 -10.759230829149391 -1.65488520633384 -6.271761066320575 11.821264406385662 9.669770082969848 </statenode>
-<statenode id='Intercept'>Intercept[30 1] (-Infinity,Infinity): -1.6714277308056547 -2.8029668791967017 1.330711884144387 6.737841321009595 13.131224633289749 0.1047131309090803 1.8729910161364511 -4.572401512690689 15.438979112205832 -7.032517843932821 -1.9713231156650037 -10.964679921383318 -26.425618137256514 -5.081084194881001 -1.3089704803830395 7.578846589485352 -2.20086675965508 3.135068385225262 -13.564410322317109 -9.948185313034086 -3.756986993417211 -4.768936192126067 -25.374334278858843 7.275899247294181 -8.791586754454082 7.284971668627408 10.053819235581022 -8.292814346011737 -5.833233713021713 -11.10981310188435 </statenode>
-<statenode id='Sigma'>Sigma[1 1] (0.0,Infinity): 0.03365528065560501 </statenode>
-<statenode id='AttributePointer'>AttributePointer[29 1] (0,25): 2 12 10 10 2 21 16 25 2 18 15 21 6 12 10 4 10 21 24 17 9 15 6 16 20 25 24 4 2 </statenode>
-<statenode id='SplitPoint'>SplitPoint[29 1] (0.0,1.0): 0.3798574761284963 0.017767390286342666 0.11432335441816055 0.9023059446748886 0.2776360611718184 0.8552140067121345 0.9891826824863347 0.2075540436230694 0.8307554762476644 0.6396538781843762 0.2668040364800487 0.007727166805963526 0.09588490143146378 0.9600894671075471 0.2623338822717177 0.16256686208412363 0.47913219682374286 0.9632694423533993 0.24843929758791017 0.9629788961082991 0.78979551349067 0.3809060653389553 0.7846780870717385 0.8020366376083872 0.46795268692381276 0.7305171108338465 0.5284996134360398 0.6790117335951943 0.9144830164765309 </statenode>
+<itsabeastystatewerein version='2.0' sample='3689999'>
+<statenode id='tree'>(1[&amp;ninstances=44,cond=true,slope=0.9591724341687673,intercept=-1.3807003567188634,sigma=0.06432752101396254,eqn=&apos;y = 0.959x + -1.38&apos;]:1,((2[&amp;ninstances=62,cond=true,slope=1.1041227803024223,intercept=-1.6583913155110892,sigma=0.06432752101396254,eqn=&apos;y = 1.1x + -1.66&apos;]:1,3[&amp;ninstances=8,cond=false,slope=2.6424525507279952,intercept=-9.47384714945457,sigma=0.06432752101396254,eqn=&apos;y = 2.64x + -9.47&apos;]:1)[&amp;ninstances=70,cond=true,attribute=branch.model,value=RelaxedLN.model,eqn=&apos;branch.model == RelaxedLN.model&apos;]:1,(4[&amp;ninstances=5,cond=true,slope=0.38762529862675876,intercept=-5.038961870701954,sigma=0.06432752101396254,eqn=&apos;y = 0.388x + -5.04&apos;]:1,(5[&amp;ninstances=175,cond=true,slope=1.153056069607807,intercept=-1.4673635152138713,sigma=0.06432752101396254,eqn=&apos;y = 1.15x + -1.47&apos;]:1,(6[&amp;ninstances=26,cond=true,slope=2.3360739785221227,intercept=-2.1258626705867556,sigma=0.06432752101396254,eqn=&apos;y = 2.34x + -2.13&apos;]:1,7[&amp;ninstances=22,cond=false,slope=1.3207402685870289,intercept=-0.3174094527312761,sigma=0.06432752101396254,eqn=&apos;y = 1.32x + -0.317&apos;]:1)[&amp;ninstances=48,cond=false,attribute=site.heterogeneity.model,value=NoHet.model,eqn=&apos;site.heterogeneity.model == NoHet.model&apos;]:1)[&amp;ninstances=223,cond=false,attribute=TopologyPOEM.dim,value=240.60753883598915,eqn=&apos;TopologyPOEM.dim &lt;= 241.0&apos;]:1)[&amp;ninstances=228,cond=false,attribute=site.model,value=MTREV.model,eqn=&apos;site.model == MTREV.model&apos;]:1)[&amp;ninstances=298,cond=false,attribute=site.model,value=HKYf.model,eqn=&apos;site.model == HKYf.model&apos;]:1)[&amp;ninstances=342,cond=null,attribute=NodeHeightPOEM.dim,value=52.45698784182123,eqn=&apos;NodeHeightPOEM.dim &lt;= 52.5&apos;]:1</statenode>
+<statenode id='Slope'>Slope[50 1] (-Infinity,Infinity): 0.9591724341687673 1.1041227803024223 2.6424525507279952 0.38762529862675876 1.153056069607807 2.3360739785221227 1.3207402685870289 -19.156574943540924 -5.188560022306229 7.610334890913686 -9.86745338514717 -0.7135667976261848 4.809590258089404 -11.727440718738581 4.804474648418967 3.847634624610155 -2.5967751150413214 8.899157723397083 -4.355242786155271 28.001643749035196 -1.9700426494345926 2.7678383398027 -20.1497486102233 -9.484979467646205 7.860209639401038 -5.263649922077622 6.698040701169823 4.834127413781221 -0.46863321868360197 -1.4900387275456684 -10.23795495549674 3.734232130718281 6.300169228281577 1.3930994858855943 -8.894467935861105 -12.314885456441178 -6.452091491573752 12.791010644014357 15.397382782085103 25.164884710062292 -2.1591003091740255 -7.210003947160093 -9.803641254943196 16.105897202092024 13.70247767918316 4.4096827239320415 4.4801223643239965 17.597178400123223 20.864210074810202 -8.571702716196654 </statenode>
+<statenode id='Intercept'>Intercept[50 1] (-Infinity,Infinity): -1.3807003567188634 -1.6583913155110892 -9.47384714945457 -5.038961870701954 -1.4673635152138713 -2.1258626705867556 -0.3174094527312761 14.939309642140946 -21.506666116138405 -2.598302165689372 0.24091028385989333 -7.633497219915917 -7.390743517113497 10.404786431227206 3.2535071183133226 2.008037766610869 -7.933984351700715 -0.5189148211882184 -0.2018895063970625 11.71747802204439 -15.212444524400471 -6.9339753138256865 13.965497298276297 8.476238992317981 12.732782912295495 13.180728898535884 25.793382880071604 0.20825238813286262 -16.12037097192184 -2.760500347374986 -15.673425177063178 3.8256818966014343 -5.20740725161636 -0.7160544867195764 12.823682741141752 -8.195329051309265 1.7986254833125521 9.817318781978685 -4.047832723040816 2.934128600498079 -4.23900394097684 -9.925806940796075 0.9353190489300154 -2.341535522007277 0.04968001320675164 -9.80094374300967 1.611657657439837 28.85259329672194 -4.0155470435054195 1.607557852516102 </statenode>
+<statenode id='Sigma'>Sigma[1 1] (0.0,Infinity): 0.06432752101396254 </statenode>
+<statenode id='AttributePointer'>AttributePointer[49 1] (0,25): 11 10 14 9 9 17 25 21 0 1 16 25 8 6 3 2 16 5 11 11 15 17 3 14 0 14 23 25 20 16 4 24 2 20 9 12 21 14 23 3 22 20 25 18 21 4 2 10 14 </statenode>
+<statenode id='SplitPoint'>SplitPoint[49 1] (0.0,1.0): 0.45420296137154903 0.0320120876734854 0.4969860147965133 0.1808570965195555 0.2892109464617716 0.040276331012711 0.8566693174339497 0.4317439971501591 0.028148203602950006 0.9666266830434866 0.6276298978813668 0.058017010292878535 0.9073767953923175 0.9131368412422416 0.3584156485476935 0.26388788049122547 0.7892403524029888 0.5160102212927099 0.8042855108705567 0.4580091671609887 0.6148819941516432 0.4849069106504945 0.9892673672111131 0.7659295204739488 0.5709013626932534 0.08230880606290247 0.36483126559937407 0.7738114797033244 0.3924067321509759 0.7444890421815566 0.9839056742960243 0.5202317411598261 0.10951813015235845 0.5789829781995245 0.8739949194400563 0.056370678774968375 0.8091534478778236 0.6680987937660894 0.9660342746981886 0.40617102403093763 0.3653766423103282 0.18944256379347135 0.504766918469647 0.1414184171132754 0.25936884162470575 0.9491957978146971 0.47571397092771417 0.8692296177037355 0.45876762125596615 </statenode>
 </itsabeastystatewerein>
 <!--
 {"operators":[
-{"id":"SigmaScale","p":0.10000000000000002,"accept":2978,"reject":27,"acceptFC":0,"rejectFC":0,"rejectIv":0,"rejectOp":0},
-{"id":"InterceptRandomWalk","p":0.10000000000000002,"accept":2863,"reject":100,"acceptFC":0,"rejectFC":0,"rejectIv":0,"rejectOp":0},
-{"id":"SlopeRandomWalk","p":0.10000000000000002,"accept":2770,"reject":123,"acceptFC":0,"rejectFC":0,"rejectIv":0,"rejectOp":0},
-{"id":"CoupledSwapRegression","p":"NaN","accept":2333,"reject":516,"acceptFC":0,"rejectFC":0,"rejectIv":0,"rejectOp":0},
-{"id":"pointerSwapper","p":"NaN","accept":2542,"reject":360,"acceptFC":0,"rejectFC":0,"rejectIv":0,"rejectOp":0},
-{"id":"splitSwapper","p":"NaN","accept":2696,"reject":198,"acceptFC":0,"rejectFC":0,"rejectIv":0,"rejectOp":0},
-{"id":"pointerRandomWalk","p":"NaN","accept":2650,"reject":188,"acceptFC":0,"rejectFC":0,"rejectIv":0,"rejectOp":0},
-{"id":"splitPointUniform","p":"NaN","accept":2794,"reject":93,"acceptFC":0,"rejectFC":0,"rejectIv":0,"rejectOp":0},
-{"id":"CoupledSwapSplit","p":"NaN","accept":2453,"reject":345,"acceptFC":0,"rejectFC":0,"rejectIv":0,"rejectOp":0},
-{"id":"SplitNodeOperator","p":"NaN","accept":509,"reject":13867,"acceptFC":0,"rejectFC":0,"rejectIv":840,"rejectOp":840},
-{"id":"Reroot","p":"NaN","accept":275,"reject":14514,"acceptFC":0,"rejectFC":0,"rejectIv":3364,"rejectOp":3364},
-{"id":"DecisionWideExchange","p":"NaN","accept":1,"reject":14372,"acceptFC":0,"rejectFC":0,"rejectIv":3062,"rejectOp":3062},
-{"id":"DecisionNarrowExchange","p":"NaN","accept":0,"reject":14569,"acceptFC":0,"rejectFC":0,"rejectIv":3069,"rejectOp":3069},
-{"id":"ChildSwapper","p":"NaN","accept":3389,"reject":2475,"acceptFC":0,"rejectFC":0,"rejectIv":46,"rejectOp":46}
+{"id":"SigmaScale","p":4.636430759860249,"accept":40952,"reject":78325,"acceptFC":37713,"rejectFC":78282,"rejectIv":0,"rejectOp":0},
+{"id":"InterceptRandomWalk","p":17.21482946628867,"accept":44360,"reject":75778,"acceptFC":41025,"rejectFC":75732,"rejectIv":0,"rejectOp":0},
+{"id":"SlopeRandomWalk","p":18.19085031214777,"accept":43491,"reject":75991,"acceptFC":40174,"rejectFC":75970,"rejectIv":0,"rejectOp":0},
+{"id":"CoupledSwapRegression","p":"NaN","accept":72240,"reject":47608,"acceptFC":69039,"rejectFC":47464,"rejectIv":0,"rejectOp":0},
+{"id":"pointerSwapper","p":"NaN","accept":76472,"reject":42965,"acceptFC":73037,"rejectFC":42965,"rejectIv":28678,"rejectOp":0},
+{"id":"splitSwapper","p":"NaN","accept":88163,"reject":31010,"acceptFC":84774,"rejectFC":31009,"rejectIv":13649,"rejectOp":0},
+{"id":"pointerRandomWalk","p":"NaN","accept":94409,"reject":25529,"acceptFC":91055,"rejectFC":25528,"rejectIv":16802,"rejectOp":0},
+{"id":"splitPointUniform","p":"NaN","accept":101868,"reject":17590,"acceptFC":98420,"rejectFC":17589,"rejectIv":7521,"rejectOp":0},
+{"id":"CoupledSwapSplit","p":"NaN","accept":75322,"reject":43879,"acceptFC":71947,"rejectFC":43877,"rejectIv":29490,"rejectOp":0},
+{"id":"SplitNodeOperator","p":"NaN","accept":6006,"reject":592288,"acceptFC":4744,"rejectFC":576512,"rejectIv":244966,"rejectOp":13995},
+{"id":"Reroot","p":"NaN","accept":2039,"reject":595499,"acceptFC":2029,"rejectFC":578750,"rejectIv":276357,"rejectOp":141753},
+{"id":"DecisionWideExchange","p":"NaN","accept":111,"reject":599089,"acceptFC":111,"rejectFC":582085,"rejectIv":405611,"rejectOp":39989},
+{"id":"DecisionNarrowExchange","p":"NaN","accept":91,"reject":598775,"acceptFC":91,"rejectFC":581730,"rejectIv":303033,"rejectOp":40367},
+{"id":"ChildSwapper","p":"NaN","accept":93352,"reject":146798,"acceptFC":93329,"rejectFC":139835,"rejectIv":91066,"rejectOp":7342}
+]}
+-->
+<!--
+{"operators":[
+{"id":"SigmaScale","p":4.636624621250483,"accept":41010,"reject":78448,"acceptFC":37771,"rejectFC":78405,"rejectIv":0,"rejectOp":0},
+{"id":"InterceptRandomWalk","p":17.21162903761458,"accept":44387,"reject":75910,"acceptFC":41052,"rejectFC":75864,"rejectIv":0,"rejectOp":0},
+{"id":"SlopeRandomWalk","p":18.19049465256184,"accept":43527,"reject":76123,"acceptFC":40210,"rejectFC":76102,"rejectIv":0,"rejectOp":0},
+{"id":"CoupledSwapRegression","p":"NaN","accept":72276,"reject":47723,"acceptFC":69075,"rejectFC":47579,"rejectIv":0,"rejectOp":0},
+{"id":"pointerSwapper","p":"NaN","accept":76517,"reject":43088,"acceptFC":73082,"rejectFC":43088,"rejectIv":28777,"rejectOp":0},
+{"id":"splitSwapper","p":"NaN","accept":88217,"reject":31110,"acceptFC":84828,"rejectFC":31109,"rejectIv":13715,"rejectOp":0},
+{"id":"pointerRandomWalk","p":"NaN","accept":94490,"reject":25627,"acceptFC":91136,"rejectFC":25626,"rejectIv":16882,"rejectOp":0},
+{"id":"splitPointUniform","p":"NaN","accept":101965,"reject":17649,"acceptFC":98517,"rejectFC":17648,"rejectIv":7555,"rejectOp":0},
+{"id":"CoupledSwapSplit","p":"NaN","accept":75365,"reject":44020,"acceptFC":71990,"rejectFC":44018,"rejectIv":29609,"rejectOp":0},
+{"id":"SplitNodeOperator","p":"NaN","accept":6006,"reject":593079,"acceptFC":4744,"rejectFC":577303,"rejectIv":245419,"rejectOp":13995},
+{"id":"Reroot","p":"NaN","accept":2041,"reject":596266,"acceptFC":2031,"rejectFC":579517,"rejectIv":276743,"rejectOp":141914},
+{"id":"DecisionWideExchange","p":"NaN","accept":111,"reject":599913,"acceptFC":111,"rejectFC":582909,"rejectIv":406316,"rejectOp":39989},
+{"id":"DecisionNarrowExchange","p":"NaN","accept":91,"reject":599580,"acceptFC":91,"rejectFC":582535,"rejectIv":303535,"rejectOp":40367},
+{"id":"ChildSwapper","p":"NaN","accept":93432,"reject":147029,"acceptFC":93409,"rejectFC":140066,"rejectIv":91234,"rejectOp":7342}
+]}
+-->
+<!--
+{"operators":[
+{"id":"SigmaScale","p":4.636381919377566,"accept":41053,"reject":78572,"acceptFC":37814,"rejectFC":78529,"rejectIv":0,"rejectOp":0},
+{"id":"InterceptRandomWalk","p":17.20962935106294,"accept":44420,"reject":76038,"acceptFC":41085,"rejectFC":75992,"rejectIv":0,"rejectOp":0},
+{"id":"SlopeRandomWalk","p":18.189265706277777,"accept":43556,"reject":76253,"acceptFC":40239,"rejectFC":76232,"rejectIv":0,"rejectOp":0},
+{"id":"CoupledSwapRegression","p":"NaN","accept":72307,"reject":47839,"acceptFC":69106,"rejectFC":47695,"rejectIv":0,"rejectOp":0},
+{"id":"pointerSwapper","p":"NaN","accept":76557,"reject":43212,"acceptFC":73122,"rejectFC":43212,"rejectIv":28878,"rejectOp":0},
+{"id":"splitSwapper","p":"NaN","accept":88276,"reject":31201,"acceptFC":84887,"rejectFC":31200,"rejectIv":13772,"rejectOp":0},
+{"id":"pointerRandomWalk","p":"NaN","accept":94568,"reject":25710,"acceptFC":91214,"rejectFC":25709,"rejectIv":16952,"rejectOp":0},
+{"id":"splitPointUniform","p":"NaN","accept":102062,"reject":17702,"acceptFC":98614,"rejectFC":17701,"rejectIv":7587,"rejectOp":0},
+{"id":"CoupledSwapSplit","p":"NaN","accept":75395,"reject":44151,"acceptFC":72020,"rejectFC":44149,"rejectIv":29718,"rejectOp":0},
+{"id":"SplitNodeOperator","p":"NaN","accept":6009,"reject":593904,"acceptFC":4747,"rejectFC":578128,"rejectIv":245829,"rejectOp":13995},
+{"id":"Reroot","p":"NaN","accept":2043,"reject":597079,"acceptFC":2033,"rejectFC":580330,"rejectIv":277171,"rejectOp":142109},
+{"id":"DecisionWideExchange","p":"NaN","accept":113,"reject":600720,"acceptFC":113,"rejectFC":583716,"rejectIv":407002,"rejectOp":39989},
+{"id":"DecisionNarrowExchange","p":"NaN","accept":91,"reject":600381,"acceptFC":91,"rejectFC":583336,"rejectIv":303956,"rejectOp":40367},
+{"id":"ChildSwapper","p":"NaN","accept":93524,"reject":147264,"acceptFC":93501,"rejectFC":140301,"rejectIv":91382,"rejectOp":7342}
+]}
+-->
+<!--
+{"operators":[
+{"id":"SigmaScale","p":4.636281391564304,"accept":41105,"reject":78688,"acceptFC":37866,"rejectFC":78645,"rejectIv":0,"rejectOp":0},
+{"id":"InterceptRandomWalk","p":17.206964411096088,"accept":44448,"reject":76170,"acceptFC":41113,"rejectFC":76124,"rejectIv":0,"rejectOp":0},
+{"id":"SlopeRandomWalk","p":18.18796069988384,"accept":43586,"reject":76387,"acceptFC":40269,"rejectFC":76366,"rejectIv":0,"rejectOp":0},
+{"id":"CoupledSwapRegression","p":"NaN","accept":72338,"reject":47959,"acceptFC":69137,"rejectFC":47815,"rejectIv":0,"rejectOp":0},
+{"id":"pointerSwapper","p":"NaN","accept":76588,"reject":43325,"acceptFC":73153,"rejectFC":43325,"rejectIv":28973,"rejectOp":0},
+{"id":"splitSwapper","p":"NaN","accept":88325,"reject":31302,"acceptFC":84936,"rejectFC":31301,"rejectIv":13834,"rejectOp":0},
+{"id":"pointerRandomWalk","p":"NaN","accept":94654,"reject":25795,"acceptFC":91300,"rejectFC":25794,"rejectIv":17020,"rejectOp":0},
+{"id":"splitPointUniform","p":"NaN","accept":102169,"reject":17769,"acceptFC":98721,"rejectFC":17768,"rejectIv":7634,"rejectOp":0},
+{"id":"CoupledSwapSplit","p":"NaN","accept":75426,"reject":44295,"acceptFC":72051,"rejectFC":44293,"rejectIv":29834,"rejectOp":0},
+{"id":"SplitNodeOperator","p":"NaN","accept":6011,"reject":594704,"acceptFC":4749,"rejectFC":578928,"rejectIv":246219,"rejectOp":13995},
+{"id":"Reroot","p":"NaN","accept":2043,"reject":597878,"acceptFC":2033,"rejectFC":581129,"rejectIv":277612,"rejectOp":142301},
+{"id":"DecisionWideExchange","p":"NaN","accept":114,"reject":601512,"acceptFC":114,"rejectFC":584508,"rejectIv":407700,"rejectOp":39989},
+{"id":"DecisionNarrowExchange","p":"NaN","accept":91,"reject":601201,"acceptFC":91,"rejectFC":584156,"rejectIv":304451,"rejectOp":40367},
+{"id":"ChildSwapper","p":"NaN","accept":93630,"reject":147487,"acceptFC":93607,"rejectFC":140524,"rejectIv":91547,"rejectOp":7342}
+]}
+-->
+<!--
+{"operators":[
+{"id":"SigmaScale","p":4.636524171747256,"accept":41158,"reject":78785,"acceptFC":37919,"rejectFC":78742,"rejectIv":0,"rejectOp":0},
+{"id":"InterceptRandomWalk","p":17.204784109874794,"accept":44477,"reject":76291,"acceptFC":41142,"rejectFC":76245,"rejectIv":0,"rejectOp":0},
+{"id":"SlopeRandomWalk","p":18.186684452985943,"accept":43609,"reject":76523,"acceptFC":40292,"rejectFC":76502,"rejectIv":0,"rejectOp":0},
+{"id":"CoupledSwapRegression","p":"NaN","accept":72362,"reject":48085,"acceptFC":69161,"rejectFC":47941,"rejectIv":0,"rejectOp":0},
+{"id":"pointerSwapper","p":"NaN","accept":76625,"reject":43460,"acceptFC":73190,"rejectFC":43460,"rejectIv":29093,"rejectOp":0},
+{"id":"splitSwapper","p":"NaN","accept":88394,"reject":31389,"acceptFC":85005,"rejectFC":31388,"rejectIv":13900,"rejectOp":0},
+{"id":"pointerRandomWalk","p":"NaN","accept":94725,"reject":25892,"acceptFC":91371,"rejectFC":25891,"rejectIv":17096,"rejectOp":0},
+{"id":"splitPointUniform","p":"NaN","accept":102260,"reject":17832,"acceptFC":98812,"rejectFC":17831,"rejectIv":7676,"rejectOp":0},
+{"id":"CoupledSwapSplit","p":"NaN","accept":75459,"reject":44426,"acceptFC":72084,"rejectFC":44424,"rejectIv":29937,"rejectOp":0},
+{"id":"SplitNodeOperator","p":"NaN","accept":6014,"reject":595507,"acceptFC":4752,"rejectFC":579731,"rejectIv":246665,"rejectOp":13995},
+{"id":"Reroot","p":"NaN","accept":2043,"reject":598678,"acceptFC":2033,"rejectFC":581929,"rejectIv":278037,"rejectOp":142492},
+{"id":"DecisionWideExchange","p":"NaN","accept":114,"reject":602310,"acceptFC":114,"rejectFC":585306,"rejectIv":408414,"rejectOp":39989},
+{"id":"DecisionNarrowExchange","p":"NaN","accept":91,"reject":602036,"acceptFC":91,"rejectFC":584991,"rejectIv":305024,"rejectOp":40367},
+{"id":"ChildSwapper","p":"NaN","accept":93738,"reject":147717,"acceptFC":93715,"rejectFC":140754,"rejectIv":91717,"rejectOp":7342}
 ]}
 -->
