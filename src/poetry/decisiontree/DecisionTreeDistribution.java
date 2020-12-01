@@ -358,6 +358,23 @@ public class DecisionTreeDistribution extends Distribution {
 		 }
 		 
 		 
+		 // Dirichlet distribution on instances per leaf
+		 double alpha = shapeInput.get().getArrayValue();
+		 double sumAlpha = alpha * this.tree.getLeafCount();
+		 int ninstances = this.trainingData.size(); 
+		 for (int i = 0; i < this.tree.getLeafCount(); i++) {
+			 int n = this.tree.getNode(i).getNumInstances();
+			 double pinstances = 1.0 * n / ninstances;
+			 if (n < this.minInstancesPerLeaf) {
+				 logP = Double.NEGATIVE_INFINITY;
+				 return logP;
+			 }
+			 logP += (alpha - 1) * Math.log(pinstances);
+			 logP -= org.apache.commons.math.special.Gamma.logGamma(alpha);
+		 }
+		 logP += org.apache.commons.math.special.Gamma.logGamma(sumAlpha);
+		 
+		 
 		 // Calculate regression likelihood at the leaves
 		 for (int nodeNum = 0; nodeNum < this.tree.getLeafCount(); nodeNum ++) {
 			 DecisionNode leaf = this.tree.getNode(nodeNum);
@@ -365,27 +382,9 @@ public class DecisionTreeDistribution extends Distribution {
 			 logP += ll;
 		 }
 		 
-		 
-		// Dirichlet distribution on instances per leaf
-		double alpha = shapeInput.get().getArrayValue();
-		double sumAlpha = alpha * this.tree.getLeafCount();
-		int ninstances = this.trainingData.size(); 
-		for (int i = 0; i < this.tree.getLeafCount(); i++) {
-			int n = this.tree.getNode(i).getNumInstances();
-			double pinstances = 1.0 * n / ninstances;
-			if (n < this.minInstancesPerLeaf) {
-				logP = Double.NEGATIVE_INFINITY;
-				return logP;
-			}
-			if (pinstances == 1) {
-				continue;
-			}
-		    logP += (alpha - 1) * Math.log(pinstances);
-		    logP -= org.apache.commons.math.special.Gamma.logGamma(alpha);
-		}
-		logP += org.apache.commons.math.special.Gamma.logGamma(sumAlpha);
-		 
 		return logP;
+		
+		
 	 }
 
 

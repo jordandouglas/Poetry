@@ -75,7 +75,7 @@
 
         <distribution id="likelihood" spec="util.CompoundDistribution">
 
-            <distribution id="decisionTreeDistribution" spec="poetry.decisiontree.DecisionTreeDistribution" tree="@tree" maxLeafCount="30" minInstances="10" data="@wekaData">
+            <distribution id="decisionTreeDistribution" spec="poetry.decisiontree.DecisionTreeDistribution" tree="@tree" maxLeafCount="50" minInstances="30" data="@wekaData">
 
 
             	<class spec="beast.util.Transform$LogTransform">
