@@ -1,25 +1,10 @@
-<itsabeastystatewerein version='2.0' sample='34999'>
-<statenode id='tree'>(1[&amp;ninstances=1635,cond=true,sigma=1.1907147427157547,intercept=-1.0643020706714625,eqn=&apos;-1.06&apos;]:1,2[&amp;ninstances=100,cond=false,sigma=1.1907147427157547,intercept=0.16789104870547167,eqn=&apos;0.168&apos;]:1)[&amp;ninstances=1735,cond=null,attribute=TopologyPOEM.weight,value=1.3223743413029008,eqn=&apos;TopologyPOEM.weight &lt;= 1.32&apos;]:1</statenode>
-<statenode id='Slope'>Slope[1 1] (-Infinity,Infinity): -1.218737536394864 </statenode>
-<statenode id='Intercept'>Intercept[30 1] (-Infinity,Infinity): -1.0643020706714625 0.16789104870547167 0.9816960043026659 1.4501657825916678 0.5392047070036591 1.583791194954819 1.4358356272272266 0.9640770497057015 0.25763459112703646 1.0011709533014501 0.9718124979779263 1.821675377500355 0.3544334247759071 0.17547372517325724 1.5203435854189131 1.2091812008844696 1.0809846620737291 0.46418709155466387 1.2049757451000824 0.5262206420868087 -0.03266855348561434 1.0041918748147587 0.2508345267531323 0.5729230133555342 1.1933442309563724 1.5222084659991388 0.7492703692365867 0.19527118630817306 1.1770569923473424 1.2425071482963075 </statenode>
-<statenode id='Sigma'>Sigma[1 1] (0.0,Infinity): 1.1907147427157547 </statenode>
-<statenode id='AttributePointer'>AttributePointer[29 1] (0,26): 15 12 9 13 10 17 19 11 8 4 1 9 5 7 19 6 9 3 6 21 1 8 16 4 17 16 17 2 15 </statenode>
-<statenode id='SplitPoint'>SplitPoint[29 1] (0.0,1.0): 0.30524623395797423 0.6011580254316204 0.3666747367600226 0.8930444314190142 0.6011108332493168 0.8762888961930836 0.863709632342594 0.5865822232150646 0.990658118814308 0.07577414852299069 0.4402045049623111 0.9208746832030376 0.31170694350067285 0.9301471754846099 0.706807786648381 0.15973710804912622 0.35282455722663064 0.8927633191952546 0.5584980985343792 0.4873733574713688 0.9639172650605174 0.25336539300239747 0.3417827460130055 0.4759559235398447 0.7611747573180625 0.9717477720940926 0.457195818412084 0.7748798674092714 0.6603972776485577 </statenode>
-</itsabeastystatewerein>
-<!--
-{"operators":[
-{"id":"SigmaScale","p":0.10000000000000002,"accept":82,"reject":1070,"acceptFC":0,"rejectFC":0,"rejectIv":0,"rejectOp":0},
-{"id":"InterceptRandomWalk","p":0.10000000000000002,"accept":1148,"reject":38,"acceptFC":0,"rejectFC":0,"rejectIv":0,"rejectOp":0},
-{"id":"SlopeRandomWalk","p":0.10000000000000002,"accept":1212,"reject":0,"acceptFC":0,"rejectFC":0,"rejectIv":0,"rejectOp":0},
-{"id":"pointerSwapper","p":"NaN","accept":1055,"reject":49,"acceptFC":0,"rejectFC":0,"rejectIv":12,"rejectOp":0},
-{"id":"splitSwapper","p":"NaN","accept":1171,"reject":53,"acceptFC":0,"rejectFC":0,"rejectIv":5,"rejectOp":0},
-{"id":"pointerRandomWalk","p":"NaN","accept":1102,"reject":13,"acceptFC":0,"rejectFC":0,"rejectIv":3,"rejectOp":0},
-{"id":"splitPointUniform","p":"NaN","accept":1131,"reject":29,"acceptFC":0,"rejectFC":0,"rejectIv":3,"rejectOp":0},
-{"id":"CoupledSwapSplit","p":"NaN","accept":1079,"reject":54,"acceptFC":0,"rejectFC":0,"rejectIv":10,"rejectOp":0},
-{"id":"SplitNodeOperator","p":"NaN","accept":527,"reject":5364,"acceptFC":0,"rejectFC":0,"rejectIv":2722,"rejectOp":1900},
-{"id":"Reroot","p":"NaN","accept":212,"reject":5608,"acceptFC":0,"rejectFC":0,"rejectIv":3092,"rejectOp":2666},
-{"id":"DecisionWideExchange","p":"NaN","accept":21,"reject":5844,"acceptFC":0,"rejectFC":0,"rejectIv":5568,"rejectOp":5152},
-{"id":"DecisionNarrowExchange","p":"NaN","accept":39,"reject":5755,"acceptFC":0,"rejectFC":0,"rejectIv":5472,"rejectOp":5068},
-{"id":"ChildSwapper","p":"NaN","accept":988,"reject":1356,"acceptFC":0,"rejectFC":0,"rejectIv":1293,"rejectOp":1206}
-]}
--->
+sample=40000
+totalSwaps=4
+successfullSwaps=1
+successfullSwaps0=0
+deltaTemperature=0.05
+lastSwaps=[false, false, false, true]
+beta_chain.0=1.0
+beta_chain.1=0.9090909090909091
+beta_chain.2=0.9523809523809523
+beta_chain.3=0.8695652173913044

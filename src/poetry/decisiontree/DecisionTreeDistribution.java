@@ -28,7 +28,7 @@ import weka.core.converters.ConverterUtils.DataSource;
 public class DecisionTreeDistribution extends Distribution {
 	
 	
-	
+	final public Input<WekaData> dataInput = new Input<>("data", "The data", Validate.REQUIRED);
 	
 	final public Input<Integer> maxLeafCountInput = new Input<>("maxLeafCount", "Maximum tree leafset size (constant)", 100);
 	final public Input<Integer> minInstancesPerLeafInput = new Input<>("minInstances", "Minimum number of instances per leaf (constant)", 30);
@@ -41,7 +41,7 @@ public class DecisionTreeDistribution extends Distribution {
 	final public Input<RealParameter> slopeInput = new Input<>("slope", "Regression slopes at the leaves");
 	final public Input<RealParameter> sigmaInput = new Input<>("sigma", "Regression standard deviation (scalar)", Validate.REQUIRED);
 	
-	final public Input<String> arffInput = new Input<>("data", "The .arff file which contains data", Validate.REQUIRED);
+	
 	
 	
 	final public Input<List<Transform>> predInput = new Input<>("pred", 
@@ -53,13 +53,11 @@ public class DecisionTreeDistribution extends Distribution {
 	final public Input<Transform> targetInput = new Input<>("class", "The target feature and its transformation", Validate.REQUIRED);
 	
 	
-	final public Input<Double> dataSplitInput = new Input<>("dataSplit", "Split the data into a training set with this percentage of the data", 70.0);
-	final public Input<Boolean> dataSplitByXMLInput = new Input<>("xmlSplit", "Split the data into training/test sets using the XML number?", true);
-	
 	
 	final public Input<RealParameter> shapeInput = new Input<>("shape", "Dirichlet shape on the number of instances at each leaf. Set to 0 for uniform.", Validate.REQUIRED);
 	
 	
+	WekaData wekaData;
 	List<Attribute> covariates;
 	List<Attribute> predictors;
 	Attribute target;
@@ -67,7 +65,7 @@ public class DecisionTreeDistribution extends Distribution {
 	int nPredictors;
 	
 	
-	double dataSplitProportion;
+	
 	
 	// Which attribute does each split point to
 	IntegerParameter attributePointer;
@@ -102,7 +100,7 @@ public class DecisionTreeDistribution extends Distribution {
 		this.maxLeafCount = maxLeafCountInput.get();
 		if (this.maxLeafCount <= 0) this.maxLeafCount = 1;
 		this.minInstancesPerLeaf = minInstancesPerLeafInput.get();
-		
+		this.wekaData = dataInput.get();
 		
 
 		
@@ -114,26 +112,11 @@ public class DecisionTreeDistribution extends Distribution {
 		// Set min and max values of the numeric split to (0,1)
 		splitPoints.setBounds(0.0, 1.0);
 		
-		
-		
-	
-		
-
-		// Read the arff file
-		Instances data = null;
-		try {
-			
-			data = new DataSource(arffInput.get()).getDataSet();
-			
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new IllegalArgumentException("Error opening arff file " + arffInput.get());
-		}
-		
-		
 		// Load class/predictors and transform them
-		this.transform(data);
+		this.trainingData = wekaData.getTrainingData();
+		this.testData = wekaData.getTestData();
+		this.transform(this.trainingData);
+		this.transform(this.testData);
 		
 		// Slope is required iff there are predictors
 		this.nPredictors = this.predictors.size();
@@ -155,17 +138,8 @@ public class DecisionTreeDistribution extends Distribution {
 		this.intercept.setDimension(this.maxLeafCount);
 		
 		
-		// Training / test split
-		this.dataSplitProportion = dataSplitInput.get() / 100;
-		if (this.dataSplitProportion < 0) this.dataSplitProportion = 0;
-		if (this.dataSplitProportion > 1) this.dataSplitProportion = 1;
-		Instances[] res = WekaUtils.splitData(data, this.dataSplitProportion, dataSplitByXMLInput.get());
-		this.trainingData = res[0];
-		this.testData = res[1];
-		this.prepareTargetAndPredictor(this.trainingData);
-		
-		
 		// Prepare for attributes
+		this.prepareTargetAndPredictor(this.trainingData);
 		this.setAttributes(this.trainingData);
 		
 		// Create the split helper class
@@ -182,8 +156,6 @@ public class DecisionTreeDistribution extends Distribution {
 		}
 		
 		
-		
-		
 		// Friendly printing
 		this.printSummary();
 		
@@ -198,7 +170,7 @@ public class DecisionTreeDistribution extends Distribution {
 		// Target feature
 		Transform ttarget = this.targetInput.get();
 		Feature targetFeature = (Feature)(ttarget.getF().get(0));
-		targetFeature.setDataset(data);
+		//targetFeature.setDataset(data);
 		this.target = targetFeature.getAttribute();
 		data.setClass(target);
 		
@@ -208,7 +180,7 @@ public class DecisionTreeDistribution extends Distribution {
 		for (Transform t : this.predInput.get()) {
 			for (Function f : t.getF()) {
 				Feature predictorFeature = (Feature)f;
-				predictorFeature.setDataset(data);
+				//predictorFeature.setDataset(data);
 				this.predictors.add(predictorFeature.getAttribute());
 			}
 			
@@ -235,7 +207,7 @@ public class DecisionTreeDistribution extends Distribution {
 			throw new IllegalArgumentException("Error: please ensure that 'class' is a transformation of " + Feature.class.getCanonicalName());
 		}
 		Feature targetFeature = (Feature)func;
-		targetFeature.setDataset(data);
+		//targetFeature.setDataset(data);
 		this.target = targetFeature.getAttribute();
 		data.setClass(target);
 		targetFeature.transform(ttarget);
@@ -251,7 +223,7 @@ public class DecisionTreeDistribution extends Distribution {
 				}
 				
 				Feature predictorFeature = (Feature)f;
-				predictorFeature.setDataset(data);
+				//predictorFeature.setDataset(data);
 				this.predictors.add(predictorFeature.getAttribute());
 				predictorFeature.transform(t);
 				

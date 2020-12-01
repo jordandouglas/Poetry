@@ -15,10 +15,18 @@
 <map name="OneOnX" >beast.math.distributions.OneOnX</map>
 
 
-<run id="mcmc" spec="MCMC" chainLength="100000000">
-<!--<run id="mcmc" spec="beast.coupledMCMC.CoupledMCMC" chainLength="100000000" chains="4" resampleEvery="10000" deltaTemperature="0.05" heatLikelihoodOnly="false">-->
+<data id="wekaData" spec="poetry.decisiontree.WekaData" arff="/home/jdou557/Documents/Marsden2019/papers/PoetryPaper/results/weka.arff" dataSplit="50" xmlSplit="true"/>
+
+<!--
+<data id="wekaData" spec="poetry.decisiontree.WekaData" arff="/home/jdou557/Documents/weka-3-8-4-azul-zulu-linux/weka-3-8-4/data/cpu.with.vendor.arff" dataSplit="50" xmlSplit="false"/>
+-->
+
+
+
+<!--<run id="mcmc" spec="MCMC" chainLength="100000000">-->
+<run id="mcmc" spec="beast.coupledMCMC.CoupledMCMC" chainLength="100000000" chains="4" resampleEvery="10000" deltaTemperature="0.05" heatLikelihoodOnly="false">
 <!--<run id="mcmc" spec="beast.coupledMCMC.SerialMCMC" chainLength="100000000" chains="4" resampleEvery="10000" deltaTemperature="0.05">-->
-<!--<run id="mcmc" spec="beast.inference.SimulatedAnnealing" chainLength="100000000" startTemp="5.0" endTemp="0.0001">-->
+<!--<run id="mcmc" spec="beast.inference.SimulatedAnnealing" chainLength="100000000" startTemp="1.0" endTemp="0.0001">-->
 
 
 
@@ -44,8 +52,8 @@
         <distribution id="prior" spec="util.CompoundDistribution">
 
             <prior id="slopePrior" name="distribution" x="@Slope">
-                <Normal name="distr" mean="0" sigma="10" />
-                <!--<LogNormal name="distr" meanInRealSpace="true" M="1" S="2" />-->
+                 <!--<Normal name="distr" mean="0" sigma="10" />-->
+               	<LogNormal name="distr" meanInRealSpace="true" M="1" S="2" />
             </prior>
 
             <prior id="interceptPrior" name="distribution" x="@Intercept">
@@ -67,44 +75,46 @@
 
         <distribution id="likelihood" spec="util.CompoundDistribution">
 
-            <distribution id="decisionTreeDistribution" spec="poetry.decisiontree.DecisionTreeDistribution" tree="@tree" maxLeafCount="30" minInstances="1" dataSplit="50" xmlSplit="true"
-            			data="/home/jdou557/Documents/Marsden2019/papers/PoetryPaper/results/weka.arff" pred="NodeHeightPOEM.weight"
-            	>
+            <distribution id="decisionTreeDistribution" spec="poetry.decisiontree.DecisionTreeDistribution" tree="@tree" maxLeafCount="30" minInstances="10" data="@wekaData">
 
 
-            	<class spec="beast.util.Transform$NoTransform">
-            		<f spec="poetry.decisiontree.Feature" attr="NodeHeightPOEM.min.ESS.p" value="0.5"/>
+            	<class spec="beast.util.Transform$LogTransform">
+            		<f spec="poetry.decisiontree.Feature" attr="SiteModelPOEM.min.ESS.p" data="@wekaData"/>
             	</class>
 
-            	<!--
+            	<!-- LogConstrainedSumTransform - sum="1.0" 
+					<f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="SiteModelPOEM.weight" data="@wekaData"/>
+        			<f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="ClockModelRatePOEM.weight" data="@wekaData"/>
+        			<f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="ClockModelSDPOEM.weight" data="@wekaData"/>
+
+            	-->
             	<pred spec="beast.util.Transform$LogitTransform">
-            		<f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="NodeHeightPOEM.weight"  value="0.5"/>
-            		<f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="TopologyPOEM.weight"  value="0.5"/>
-            		<f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="SpeciesTreePriorPOEM.weight"  value="0.5"/>
-
-            
+            		<f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="NodeHeightPOEM.weight" data="@wekaData"/>
+            		<f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="TopologyPOEM.weight" data="@wekaData"/>
+            		<f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="SpeciesTreePriorPOEM.weight" data="@wekaData"/>
+            		<f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="SiteModelPOEM.weight" data="@wekaData"/>
+        			<f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="ClockModelRatePOEM.weight" data="@wekaData"/>
+        			<f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="ClockModelSDPOEM.weight" data="@wekaData"/>
             	</pred>
--->
 
-        				<!--
-            		<f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="SiteModelPOEM.weight"  value="0.5"/>
-        			<f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="ClockModelRatePOEM.weight"  value="0.5"/>
-        			<f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="ClockModelSDPOEM.weight"  value="0.5"/>
-        		-->
+
+        				
+            		
+        		
 
             	<!--
             	<pred spec="beast.util.Transform$NoTransform">
-            		<f spec="poetry.decisiontree.Feature" attr="ntaxa" value="1.0" />
+            		<f spec="poetry.decisiontree.Feature" attr="ntaxa"  data="@wekaData"/>
             	</pred>
 				-->
 
-            	<!--  data="/home/jdou557/Documents/weka-3-8-4-azul-zulu-linux/weka-3-8-4/data/cpu.with.vendor.arff" class='class' CHMAX  -->
+            	<!--  data="" class='class' CHMAX  -->
             	<!--    -->
                 
             	<pointer idref="AttributePointer" />
             	<split idref="SplitPoint" />
             	<intercept idref="Intercept" />
-            	<!--<slope idref="Slope" />-->
+            	<slope idref="Slope" />
             	<sigma idref="Sigma" />
 
             	<parameter spec="parameter.RealParameter" name="shape">2</parameter>
