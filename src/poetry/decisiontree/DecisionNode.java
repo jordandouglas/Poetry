@@ -26,6 +26,9 @@ public class DecisionNode extends Node {
 	protected int nodeIndex;
 	protected int lastNodeIndex;
 	
+	protected int treeNum;
+	protected int ntrees;
+	
 	// Depth of this node
 	protected int depth;
 	
@@ -53,6 +56,8 @@ public class DecisionNode extends Node {
 	
 	// The split data
 	protected Instances splitData = null;
+	
+	
 	
 	
 	@Override
@@ -139,7 +144,9 @@ public class DecisionNode extends Node {
 	 * @param split
 	 * @param data
 	 */
-	public DecisionNode(DecisionSplit split, RealParameter slope, RealParameter intercept, RealParameter sigma, Attribute targetAttr, List<Attribute> predAttr) {
+	public DecisionNode(int treeNum, int maxLeafCount, DecisionSplit split, RealParameter slope, RealParameter intercept, RealParameter sigma, Attribute targetAttr, List<Attribute> predAttr) {
+		this.treeNum = treeNum;
+		this.ntrees = maxLeafCount;
 		this.nodeIndex = -1;
 		this.lastNodeIndex = -1;
 		this.split = split;
@@ -195,7 +202,7 @@ public class DecisionNode extends Node {
 
 
 	public DecisionNode copy() {
-        final DecisionNode node = new DecisionNode(split, slope, intercept, sigma, targetAttr, predAttr);
+        final DecisionNode node = new DecisionNode(this.treeNum, this.ntrees, split, slope, intercept, sigma, targetAttr, predAttr);
         node.depth = depth;
         node.nodeIndex = nodeIndex;
         node.parent = null;
@@ -397,26 +404,35 @@ public class DecisionNode extends Node {
 	 */
 	protected double getIntercept() {
 		if (!this.isLeaf()) throw new IllegalArgumentException("Error: there is no intercept because this is not a leaf!");
-		return this.intercept.getArrayValue(this.nodeIndex);
+		int i = this.getTreeNum()*this.intercept.getDimension() / this.ntrees;
+		int j = this.nodeIndex;
+		return this.intercept.getArrayValue(i + j);
 	}
 
 
 	/**
 	 * The slope of predictor i
-	 * [m11, m12, ..., m1n, m21, ..., mkn]
-	 * Where mij is leaf i attribute j
-	 * i is the nodeindex of this leaf and j is parsed below
+	 * [m000, m011, ..., m00n, m010, ..., mtkn]
+	 * Where mijk is tree i leaf j attribute k
+	 * i is the number of this tree, j is the nodeindex of this leaf, and k is parsed below
 	 * @param j 
 	 * @return
 	 */
-	protected double getSlope(int j) {
+	protected double getSlope(int k) {
 		if (!this.isLeaf()) throw new IllegalArgumentException("Error: there is no slope because this is not a leaf!");
-		int index = this.intercept.getDimension() * j + this.nodeIndex;
-		//Log.warning(this.nodeIndex + "," + j + "," + index + "|" + this.intercept.getDimension() + "," + this.slope.getDimension());
+		int i = this.getTreeNum()*this.slope.getDimension() / this.ntrees;
+		int j = this.nodeIndex*this.intercept.getDimension() / this.ntrees;
+		int index = i + j + k;
+		//Log.warning(this.getTreeNum() + "," + this.nodeIndex + "," + k + "," + index + "|" + i + "," + j + "," + k + "|" + this.intercept.getDimension() + "," + this.slope.getDimension());
 		return this.slope.getArrayValue(index);
 	}
 	
 	
+	private int getTreeNum() {
+		return this.treeNum;
+	}
+
+
 	/**
 	 * Predict the target feature value using the predictor (if this is a leaf)
 	 * @param inst

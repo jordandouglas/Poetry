@@ -4,7 +4,9 @@ import beast.core.BEASTObject;
 import beast.core.Description;
 import beast.core.Input;
 import beast.core.Input.Validate;
+import beast.util.Randomizer;
 import poetry.util.WekaUtils;
+import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.converters.ConverterUtils.DataSource;
 
@@ -64,6 +66,28 @@ public class WekaData extends BEASTObject {
 	 */
 	public Instances getTestData() {
 		return this.testData;
+	}
+
+
+	
+	/**
+	 * Samples the training data with replacement
+	 * @return
+	 */
+	public Instances bootstrapTrainingData() {
+		
+		Instances copy = new Instances(this.trainingData);
+		Instances sample = new Instances(copy);
+		sample.clear();
+		
+		for (int i = 0; i < copy.size(); i ++) {
+			int randIndex = Randomizer.nextInt(copy.size());
+			Instance randInst = copy.get(randIndex);
+			sample.add(randInst);
+		}
+		
+		return sample;
+		
 	}
 	
 

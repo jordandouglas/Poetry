@@ -18,7 +18,7 @@ public class GeometricTreePrior extends Distribution {
 
 	
 	
-	final public Input<DecisionTree> treeInput = new Input<>("tree", "The decision tree", Validate.REQUIRED);
+	final public Input<DecisionTreeInterface> treeInput = new Input<>("tree", "The decision tree", Validate.REQUIRED);
 	final public Input<RealParameter> leafSizeMeanInput = new Input<>("mean", "Geometric mean number of leaves in the tree", Validate.REQUIRED);
 	
 	
@@ -39,14 +39,19 @@ public class GeometricTreePrior extends Distribution {
 		 
 		 logP = 0;
 		 
-		 
-		 // Geometric distribution on leaf count
-		 int treeSize = treeInput.get().getLeafCount();
 		 double p = 1.0/(leafSizeMeanInput.get().getArrayValue());
-		 if (p <= 0 || p >= 1) return Double.NEGATIVE_INFINITY;
-		 logP += Math.log(p) + (treeSize-1)*Math.log(1-p);
+		 if (p <= 0 || p >= 1) {
+			 logP = Double.NEGATIVE_INFINITY;
+			 return Double.NEGATIVE_INFINITY;
+		 }
 		 
+		 for (DecisionTree tree : treeInput.get().getTrees()) {
 		 
+			 // Geometric distribution on leaf count
+			 int treeSize = tree.getLeafCount();
+			 logP += Math.log(p) + (treeSize-1)*Math.log(1-p);
+		 
+		 }
 
 
 		 

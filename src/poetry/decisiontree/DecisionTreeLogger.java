@@ -14,7 +14,7 @@ import beast.core.Input.Validate;
 @Description("Logs decision tree annotated with splits at the internal nodes and regression at the leaves")
 public class DecisionTreeLogger extends BEASTObject implements Loggable { 
 
-	final public Input<DecisionTree> treeInput = new Input<>("tree", "Decision tree to be logged", Validate.REQUIRED);
+	final public Input<DecisionTreeInterface> treeInput = new Input<>("tree", "Decision tree to be logged", Validate.REQUIRED);
 	final public Input<DecisionTreeDistribution> treeDistrInput = new Input<>("dist", "the tree distribution", Input.Validate.REQUIRED);
 	
 	@Override
@@ -31,9 +31,13 @@ public class DecisionTreeLogger extends BEASTObject implements Loggable {
 	@Override
     public void log(long sample, PrintStream out) {
 		
-		DecisionTree tree = (DecisionTree) treeInput.get().getCurrent();
+		
+		// Log a random tree if there is more than one
+		DecisionTreeInterface treeI = treeInput.get();
+		DecisionTree tree = (DecisionTree) treeI.sampleTree().getCurrent();
+
+		
 		treeDistrInput.get().split();
-		//out.print("tree STATE_" + sample + " = ");
         out.print(toNewick(tree.getRoot()));
         out.print(";");
         

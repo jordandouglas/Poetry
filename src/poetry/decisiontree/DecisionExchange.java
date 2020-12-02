@@ -24,8 +24,12 @@ public class DecisionExchange extends SplitNodeOperator {
 		
 		double logHR = 0;
 		
-		DecisionTree tree = treeInput.get(this);
-		DecisionTreeDistribution dist = treeDistrInput.get();
+		DecisionTreeInterface treeI = treeInput.get(this);
+		//DecisionTreeDistribution dist = treeDistrInput.get();
+		
+		// Sample a tree (if random forest)
+		DecisionTree tree = treeI.editTree(this);
+		
 		boolean wide = wideInput.get();
 		
 		int nleaves = tree.getLeafCount();

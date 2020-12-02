@@ -35,7 +35,7 @@ public class DecisionTreeDistribution extends Distribution {
 	
 	final public Input<IntegerParameter> attributePointerInput = new Input<>("pointer", "points to attributes", Validate.REQUIRED);
 	final public Input<RealParameter> splitPointInput = new Input<>("split", "split point for numeric attributes", Validate.REQUIRED);
-	final public Input<DecisionTree> treeInput = new Input<>("tree", "The decision tree", Validate.REQUIRED);
+	final public Input<DecisionTreeInterface> treeInput = new Input<>("tree", "The decision tree", Validate.REQUIRED);
 	
 	final public Input<RealParameter> interceptInput = new Input<>("intercept", "Regression intercepts at the leaves", Validate.REQUIRED);
 	final public Input<RealParameter> slopeInput = new Input<>("slope", "Regression slopes at the leaves");
@@ -61,10 +61,12 @@ public class DecisionTreeDistribution extends Distribution {
 	List<Attribute> covariates;
 	List<Attribute> predictors;
 	Attribute target;
-	DecisionTree tree;
+	DecisionTreeInterface treeI;
 	int nPredictors;
 	
-	
+	// Number of trees (in case of random forest)
+	int ntrees;
+	boolean isRF;
 	
 	
 	// Which attribute does each split point to
@@ -77,14 +79,14 @@ public class DecisionTreeDistribution extends Distribution {
 	int minInstancesPerLeaf;
 	
 	// The data
-	Instances trainingData;
+	Instances[] trainingData;
 	Instances testData;
 	
 	// Slope and intercept
 	RealParameter slope, intercept, sigma;
 	
 	// Helper class for splitting
-	DecisionSplit split;
+	DecisionSplit[] splits;
 	
 	
 	@Override
@@ -93,7 +95,7 @@ public class DecisionTreeDistribution extends Distribution {
 
 		this.attributePointer = attributePointerInput.get();
 		this.splitPoints = splitPointInput.get();
-		this.tree = treeInput.get();
+		this.treeI = treeInput.get();
 		this.slope = slopeInput.get();
 		this.intercept = interceptInput.get();
 		this.sigma = sigmaInput.get();
@@ -102,8 +104,11 @@ public class DecisionTreeDistribution extends Distribution {
 		this.minInstancesPerLeaf = minInstancesPerLeafInput.get();
 		this.wekaData = dataInput.get();
 		
-
 		
+		// Random forest?
+		this.isRF = this.treeI instanceof RandomForest;
+		this.ntrees = this.treeI.getForestSize();
+		this.trainingData = new Instances[ntrees];
 		
 		// Lower bound of sigma as 0
 		this.sigma.setLower(0.0);
@@ -113,10 +118,22 @@ public class DecisionTreeDistribution extends Distribution {
 		splitPoints.setBounds(0.0, 1.0);
 		
 		// Load class/predictors and transform them
-		this.trainingData = wekaData.getTrainingData();
+		if (this.isRF) {
+			
+			// Bootstrapping
+			for (int i = 0; i < this.ntrees; i ++) {
+				this.trainingData[i] = wekaData.bootstrapTrainingData();
+			}
+			
+			
+			
+		}else {
+			this.trainingData[0] = wekaData.getTrainingData();
+		}
 		this.testData = wekaData.getTestData();
 		this.transform(this.trainingData);
 		this.transform(this.testData);
+		
 		
 		// Slope is required iff there are predictors
 		this.nPredictors = this.predictors.size();
@@ -132,21 +149,26 @@ public class DecisionTreeDistribution extends Distribution {
 		
 		
 		// Set dimension
-		this.attributePointer.setDimension(this.maxLeafCount-1);
-		this.splitPoints.setDimension(this.maxLeafCount-1);
-		if (this.slope != null) this.slope.setDimension(this.maxLeafCount * this.nPredictors);
-		this.intercept.setDimension(this.maxLeafCount);
+		this.attributePointer.setDimension((this.maxLeafCount-1)*this.ntrees);
+		this.splitPoints.setDimension((this.maxLeafCount-1)*this.ntrees);
+		if (this.slope != null) this.slope.setDimension(this.maxLeafCount * this.nPredictors * this.ntrees);
+		this.intercept.setDimension(this.maxLeafCount * this.ntrees);
 		
 		
 		// Prepare for attributes
-		this.prepareTargetAndPredictor(this.trainingData);
-		this.setAttributes(this.trainingData);
+		this.prepareTargetAndPredictor(this.trainingData[0]);
+		this.setAttributes(this.trainingData[0]);
 		
 		// Create the split helper class
-		this.split = new DecisionSplit(this.attributePointer, this.splitPoints, this.covariates, this.trainingData, this.tree);
+		this.splits = new DecisionSplit[this.ntrees];
+		for (int i = 0; i < this.ntrees; i ++) {
+			DecisionTree tree = this.treeI.getTree(i);
+			this.splits[i] = new DecisionSplit(this.attributePointer, this.splitPoints, this.covariates, this.trainingData[i], tree, treeI.getNAttr(), this.maxLeafCount);
+		}
+		
 		
 		// Initialise the tree
-		this.initTree();
+		this.initTrees();
 		
 		
 		// Set initial values 
@@ -190,6 +212,14 @@ public class DecisionTreeDistribution extends Distribution {
 
 
 
+	
+	
+	/**
+	 * Load and transform class and predictor(s)
+	 */
+	private void transform(Instances[] data) {
+		for (Instances d : data) this.transform(d);
+	}
 
 	/**
 	 * Load and transform class and predictor(s)
@@ -244,7 +274,8 @@ public class DecisionTreeDistribution extends Distribution {
 	 */
 	public void printSummary() {
 		System.out.println("-------------------------------------");
-		System.out.println("Data organised into an " + this.trainingData.size() + "/" + this.testData.size() + " training/test split");
+		System.out.println(this.isRF ? "RandomForest" : "DecisionTree");
+		System.out.println("Data organised into an " + this.trainingData[0].size() + "/" + this.testData.size() + " training/test split");
 		System.out.println("Maximum leaf count: " + this.maxLeafCount);
 		System.out.println("Minimum number of instances per leaf: " + this.minInstancesPerLeaf);
 		System.out.println("Target feature: " + this.target.name());
@@ -268,6 +299,7 @@ public class DecisionTreeDistribution extends Distribution {
 			if (i < this.covariates.size() - 1) System.out.print(", ");
 		}
 		System.out.println();
+		if (this.isRF) System.out.println("This is a RandomForest therefore " + ((RandomForest)treeI).getNAttr() + " of the above are sampled per tree");
 		System.out.println("-------------------------------------");
 	}
 	
@@ -277,21 +309,40 @@ public class DecisionTreeDistribution extends Distribution {
 	/**
 	 * Initialise the tree
 	 */
-	protected void initTree() {
+	protected void initTrees() {
 
-		// Initialise as an empty tree
-		DecisionNode root = this.newNode();
-		this.tree.setRoot(root);
+		
+		for (int treeNum = 0; treeNum < this.ntrees; treeNum++) {
+			
+			// Initialise an empty tree
+			DecisionNode root = this.newNode(treeNum);
+			
+			
+
+			// Decision tree? This is the tree
+			if (this.treeI instanceof DecisionTree) {
+				((DecisionTree)this.treeI).setRoot(root);
+			}
+			
+			
+			// Random forest? This is one of the trees
+			if (this.treeI instanceof RandomForest) {
+				((RandomForest) this.treeI).setRoot(treeNum, root);
+			}
+			
+		}
+	
 		
 	}
 	
 	
 	/**
 	 * Create a new node with access to all necessary objects
+	 * @param - the Tree which this node will be added to
 	 * @return
 	 */
-	public DecisionNode newNode() {
-		DecisionNode node = new DecisionNode(this.split, this.slope, this.intercept, this.sigma, this.target, this.predictors);
+	public DecisionNode newNode(int treeNum) {
+		DecisionNode node = new DecisionNode(treeNum, this.ntrees, this.splits[treeNum], this.slope, this.intercept, this.sigma, this.target, this.predictors);
 		return node;
 	}
 	
@@ -315,8 +366,15 @@ public class DecisionTreeDistribution extends Distribution {
 		}
 		
 		
+		
+		
 		// Set min and max values of the pointer to the number of attributes (excluding target and predictor)
 		int nattr = this.covariates.size();
+		this.treeI.setNumAttributes(nattr);
+		
+		// Check if a subsample of attributes are being used
+		nattr = this.treeI.getNAttr();
+		
 		if (nattr == 0) {
 			throw new IllegalArgumentException("Error: please ensure there is at least 1 covariate (excluding the target and predictor)");
 		}
@@ -342,45 +400,52 @@ public class DecisionTreeDistribution extends Distribution {
 		 logP = 0;
 		 
 		 
-		 // Tree size exceeded?
-		 if (this.tree.getLeafCount() > this.maxLeafCount) {
-			 //Log.warning("too big");
-			 logP = Double.NEGATIVE_INFINITY;
-			 return logP;
-		 }
+		 for (DecisionTree tree : this.treeI.getTrees()) {
 		 
-		 // Ensure that the split is valid
-		 boolean valid = tree.splitData(this.trainingData);
-		 if (!valid) {
-			 Log.warning("invalid");
-			 logP = Double.NEGATIVE_INFINITY;
-			 return logP;
-		 }
-		 
-		 
-		 // Dirichlet distribution on instances per leaf
-		 double alpha = shapeInput.get().getArrayValue();
-		 double sumAlpha = alpha * this.tree.getLeafCount();
-		 int ninstances = this.trainingData.size(); 
-		 for (int i = 0; i < this.tree.getLeafCount(); i++) {
-			 int n = this.tree.getNode(i).getNumInstances();
-			 double pinstances = 1.0 * n / ninstances;
-			 if (n < this.minInstancesPerLeaf) {
+			 
+			 // Tree size exceeded?
+			 if (tree.getLeafCount() > this.maxLeafCount) {
+				 //Log.warning("too big");
 				 logP = Double.NEGATIVE_INFINITY;
 				 return logP;
 			 }
-			 logP += (alpha - 1) * Math.log(pinstances);
-			 logP -= org.apache.commons.math.special.Gamma.logGamma(alpha);
-		 }
-		 logP += org.apache.commons.math.special.Gamma.logGamma(sumAlpha);
+			 
+			 // Ensure that the split is valid
+			 Instances data = this.trainingData[tree.getTreeNum()];
+			 boolean valid = tree.splitData(data);
+			 if (!valid) {
+				 Log.warning("invalid");
+				 logP = Double.NEGATIVE_INFINITY;
+				 return logP;
+			 }
+			 
+			 
+			 // Dirichlet distribution on instances per leaf
+			 double alpha = shapeInput.get().getArrayValue();
+			 double sumAlpha = alpha * tree.getLeafCount();
+			 int ninstances = data.size(); 
+			 for (int i = 0; i < tree.getLeafCount(); i++) {
+				 int n = tree.getNode(i).getNumInstances();
+				 double pinstances = 1.0 * n / ninstances;
+				 if (n < this.minInstancesPerLeaf) {
+					 logP = Double.NEGATIVE_INFINITY;
+					 return logP;
+				 }
+				 logP += (alpha - 1) * Math.log(pinstances);
+				 logP -= org.apache.commons.math.special.Gamma.logGamma(alpha);
+			 }
+			 logP += org.apache.commons.math.special.Gamma.logGamma(sumAlpha);
+			 
+			 
+			 // Calculate regression likelihood at the leaves
+			 for (int nodeNum = 0; nodeNum < tree.getLeafCount(); nodeNum ++) {
+				 DecisionNode leaf = tree.getNode(nodeNum);
+				 double ll = leaf.getLogLikelihood();
+				 logP += ll;
+			 }
+			 
 		 
-		 
-		 // Calculate regression likelihood at the leaves
-		 for (int nodeNum = 0; nodeNum < this.tree.getLeafCount(); nodeNum ++) {
-			 DecisionNode leaf = this.tree.getNode(nodeNum);
-			 double ll = leaf.getLogLikelihood();
-			 logP += ll;
-		 }
+		}
 		 
 		return logP;
 		
@@ -408,7 +473,7 @@ public class DecisionTreeDistribution extends Distribution {
 		arguments.add(intercept.getID());
 		arguments.add(slope.getID());
 		arguments.add(sigma.getID());
-		arguments.add(tree.getID());
+		arguments.add(treeI.getID());
 		return arguments;
 	}
 	
@@ -436,7 +501,11 @@ public class DecisionTreeDistribution extends Distribution {
 	 * @return
 	 */
 	public boolean split() {
-		return tree.splitData(this.trainingData);
+		boolean valid = true;
+		for (DecisionTree tree : this.treeI.getTrees()) {
+			valid = valid && tree.splitData(this.trainingData[tree.getTreeNum()]);
+		}
+		return valid;
 	}
 	
 
@@ -456,66 +525,84 @@ public class DecisionTreeDistribution extends Distribution {
 		double R2_test = 0;
 		double rho_test = 0;
 		
-		
+		int ntrains = 0;
+		int ntests = 0;
 		for (int t = 0; t < 2; t ++) {
 		
-			Instances data = t == 0 ? this.trainingData : this.testData;
-			if (data == null || data.size() == 0 || !tree.splitData(data)) continue;
-			
-			double[] trueY = new double[data.size()];
-			double[] predY = new double[data.size()];
 			
 			//System.out.println(trueY.length + " total instances");
 			
+			// Take mean prediction across all trees in the forest. Each tree should have different data
 			
+			for (DecisionTree tree : this.treeI.getTrees()) {
+				
+				
+				Instances data = t == 0 ? this.trainingData[tree.getTreeNum()] : this.testData;
+				if (data == null || data.size() == 0 || !tree.splitData(data)) continue;
+				
+				
+				double[] trueY = new double[data.size()];
+				double[] predY = new double[data.size()];
 			
-			// Calculate regression R2 at the leaves
-			int instNum = 0;
-			int nleaves = this.tree.getLeafCount();
-			for (int nodeNum = 0; nodeNum < nleaves; nodeNum ++) {
-				DecisionNode leaf = this.tree.getNode(nodeNum);
-				double[] trueYLeaf = leaf.getTargetVals();
-				double[] predYLeaf = leaf.getPredictedTargetVals();
 				
-				//System.out.println(trueYLeaf.length + "/" + predYLeaf.length);
-				
-				
-				// Put leaf-wise values in main list
-				for (int i = 0; i < trueYLeaf.length; i ++) {
-					trueY[instNum] = trueYLeaf[i];
-					predY[instNum] = predYLeaf[i];
-					instNum++;
+				// Calculate regression R2 at the leaves
+				int instNum = 0;
+				int nleaves = tree.getLeafCount();
+				for (int nodeNum = 0; nodeNum < nleaves; nodeNum ++) {
+					DecisionNode leaf = tree.getNode(nodeNum);
+					double[] trueYLeaf = leaf.getTargetVals();
+					double[] predYLeaf = leaf.getPredictedTargetVals();
+					
+					//System.out.println(trueYLeaf.length + "/" + predYLeaf.length);
+					
+					
+					// Put leaf-wise values in main list
+					for (int i = 0; i < trueYLeaf.length; i ++) {
+						trueY[instNum] = trueYLeaf[i];
+						predY[instNum] = predYLeaf[i];
+						instNum++;
+					}
+					
 				}
 				
+		
+				
+				
+				
+				
+				// Total sum of squares
+				double TSS = getTSS(trueY);
+				
+				// Residual sum of squares
+				double RSS = getRSS(trueY, predY);
+				
+				// R squared
+				double R2 =  1 - RSS/TSS;
+				
+				// Correlation
+				PearsonsCorrelation pc = new PearsonsCorrelation();
+				double rho = pc.correlation(trueY, predY);
+				
+				if (t == 0) {
+					R2_train += R2;
+					rho_train += rho;
+					ntrains++;
+				}else {
+					R2_test += R2;
+					rho_test += rho;
+					ntests++;
+				}
+				
+				
 			}
-			
-			
-			// Total sum of squares
-			double TSS = getTSS(trueY);
-			
-			// Residual sum of squares
-			double RSS = getRSS(trueY, predY);
-			
-			// R squared
-			double R2 =  1 - RSS/TSS;
-			
-			// Correlation
-			PearsonsCorrelation pc = new PearsonsCorrelation();
-			double rho = pc.correlation(trueY, predY);
-			
-			if (t == 0) {
-				R2_train = R2;
-				rho_train = rho;
-			}else {
-				R2_test = R2;
-				rho_test = rho;
-			}
-			
-			
 		
 		}
 		
-		return new double[] { R2_train, rho_train, R2_test, rho_test };
+		
+		// Take means
+		if (ntrains == 0) ntrains = 1;
+		if (ntests == 0) ntests = 1;
+		return new double[] { R2_train/ntrains, rho_train/ntrains, R2_test/ntests, rho_test/ntests };
 	}
 
 
@@ -566,7 +653,20 @@ public class DecisionTreeDistribution extends Distribution {
 	public int getMaxLeafCount() {
 		return this.maxLeafCount;
 	}
-	
+
+
+
+
+	public int getForestSize() {
+		return this.ntrees;
+	}
+
+
+
+
+
+
+
 
 
 	/*

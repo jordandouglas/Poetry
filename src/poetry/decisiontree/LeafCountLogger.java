@@ -15,13 +15,20 @@ import beast.core.Input.Validate;
 public class LeafCountLogger extends CalculationNode implements Loggable, Function {
 
 	
-	final public Input<DecisionTree> treeInput = new Input<>("tree", "The decision tree", Validate.REQUIRED);
+	final public Input<DecisionTreeInterface> treeInput = new Input<>("tree", "The decision tree", Validate.REQUIRED);
 	
 
 	
 	@Override
 	public void init(PrintStream out) {
-		out.print(getLeafColname() + "\t");
+		if (this.treeInput.get().getForestSize() > 1) {
+			for (int i = 1; i <= this.treeInput.get().getForestSize(); i ++) {
+				out.print(getLeafColname() + i + "\t");
+			}
+		}else {
+			out.print(getLeafColname() + "\t");
+		}
+		
 	}
 
 	
@@ -39,7 +46,9 @@ public class LeafCountLogger extends CalculationNode implements Loggable, Functi
 	
 	@Override
 	public void log(long sample, PrintStream out) {
-		out.print(treeInput.get().getLeafCount() + "\t");
+		for (DecisionTree tree : treeInput.get().getTrees()) {
+			out.print(tree.getLeafCount() + "\t");
+		}
 	}
 
 
@@ -52,13 +61,13 @@ public class LeafCountLogger extends CalculationNode implements Loggable, Functi
 
 	@Override
 	public int getDimension() {
-		return 1;
+		return this.treeInput.get().getForestSize();
 	}
 
 
 	@Override
 	public double getArrayValue(int dim) {
-		return treeInput.get().getNodeCount();
+		return treeInput.get().getTree(dim).getNodeCount();
 	}
 	
 	

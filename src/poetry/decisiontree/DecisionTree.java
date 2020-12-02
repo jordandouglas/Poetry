@@ -11,20 +11,38 @@ import beast.core.Description;
 import beast.core.Operator;
 import beast.core.StateNode;
 import beast.core.util.Log;
+import beast.util.Randomizer;
 import beast.util.TreeParser;
 import weka.core.Instances;
 
 
-@Description("A decision tree with regression at the leaves")
-public class DecisionTree extends StateNode  {
+@Description("A decision tree with lienar regression at the leaves")
+public class DecisionTree extends StateNode implements DecisionTreeInterface  {
 
 	
+	
+	int treeNum = 0;
 	DecisionNode root;
 	DecisionNode stored_root;
 	List<DecisionNode> nodes;
 	List<DecisionNode> stored_nodes;
 	DecisionSplit split;
+	int nattr;
 	
+	
+	public DecisionTree() {
+		
+	}
+	
+	public DecisionTree(int treeNum) {
+		this.treeNum = treeNum;
+	}
+
+
+	
+	public int getTreeNum() {
+		return this.treeNum;
+	}
 	
 	public void setRoot(DecisionNode root) {
 		this.root = root;
@@ -118,12 +136,11 @@ public class DecisionTree extends StateNode  {
 	@Override
 	public void setEverythingDirty(boolean isDirty) {
 		
-		
 	}
 
 	@Override
 	public StateNode copy() {
-		DecisionTree tree = new DecisionTree();
+		DecisionTree tree = new DecisionTree(this.treeNum);
 		tree.setID(this.getID());
 		tree.setRoot(this.root.copy());
 		return tree;
@@ -186,7 +203,7 @@ public class DecisionTree extends StateNode  {
 	protected void store() {
 		this.stored_root = this.root.copy();
 		this.stored_nodes = this.listNodes(stored_root);
-		this.updateNodeIndices(this.stored_nodes);
+		//this.updateNodeIndices(this.stored_nodes);
 	}
 
 	@Override
@@ -277,7 +294,58 @@ public class DecisionTree extends StateNode  {
 	public DecisionNode getRoot() {
 		return this.root;
 	}
+	
+	
+	@Override
+	public DecisionTree sampleTree() {
+		return this;
+	}
 
+
+	@Override
+	public int getForestSize() {
+		return 1;
+	}
+
+
+	@Override
+	public DecisionTree[] getTrees() {
+		return new DecisionTree[] { this };
+	}
+
+
+
+	@Override
+	public DecisionTree getTree(int i) {
+		return this;
+	}
+
+
+
+	@Override
+	public void setNumAttributes(int nattr) {
+		this.nattr = nattr;
+	}
+
+
+
+	@Override
+	public int getNAttr() {
+		return this.nattr;
+	}
+
+	@Override
+	public DecisionTree editTree(Operator operator) {
+		this.startEditing(operator);
+		return this;
+	}
+
+
+
+	@Override
+	public StateNode getStateNode() {
+		return this;
+	}
 
 
 

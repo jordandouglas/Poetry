@@ -2,11 +2,13 @@ package poetry.decisiontree;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.util.ArrayList;
 import java.util.List;
 
 import beast.core.parameter.IntegerParameter;
 import beast.core.parameter.RealParameter;
 import beast.core.util.Log;
+import beast.util.Randomizer;
 import poetry.util.WekaUtils;
 import weka.core.Attribute;
 import weka.core.Instance;
@@ -23,6 +25,7 @@ public class DecisionSplit {
 	// Min/max value of each numeric covariate
 	double[] mins;
 	double[] maxs;
+	int maxLeafCount;
 	
 	
 	/** 
@@ -31,13 +34,32 @@ public class DecisionSplit {
 	 * @param splits
 	 * @param covariates
 	 * @param data
+	 * @param nattr - number of attributes to subsample
 	 */
-	public DecisionSplit(IntegerParameter pointers, RealParameter splits, List<Attribute> covariates, Instances data, DecisionTree tree) {
+	public DecisionSplit(IntegerParameter pointers, RealParameter splits, List<Attribute> covariates, Instances data, DecisionTree tree, int nattr, int maxLeafCount) {
 		
 		this.pointers = pointers;
 		this.splits = splits;
 		this.covariates = covariates;
 		this.tree = tree;
+		this.maxLeafCount = maxLeafCount;
+		
+		
+		// Subsample covariates?
+		if (nattr < this.covariates.size()) {
+			
+			List<Attribute> copy  = new ArrayList<>();
+			copy.addAll(this.covariates);
+			List<Attribute> sample = new ArrayList<>();
+			for (int s = 0; s < nattr; s ++) {
+				int index = Randomizer.nextInt(copy.size());
+				sample.add(copy.get(index));
+				copy.remove(index);
+			}
+			
+			this.covariates = sample;
+			
+		}
 		
 		// Min / max values
 		this.mins = new double[this.covariates.size()];
@@ -69,8 +91,10 @@ public class DecisionSplit {
 	public Instances[] splitData(Instances preSplit, int index) {
 		
 		
+		
 		// Since leaves do not have split parameters, the vectors are shifted by leafCount
-		int paramIndex = index - tree.getLeafCount();
+		int treeAddon = this.tree.getTreeNum() * this.maxLeafCount;
+		int paramIndex = index - tree.getLeafCount() + treeAddon;
 		
 		if (this.pointers.getDimension() <= paramIndex) return null;
 		

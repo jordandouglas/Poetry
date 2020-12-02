@@ -9,7 +9,7 @@ import beast.util.Randomizer;
 public class ChildSwapper extends Operator {
 
 	
-	final public Input<DecisionTree> treeInput = new Input<>("tree", "the tree", Input.Validate.REQUIRED);
+	final public Input<DecisionTreeInterface> treeInput = new Input<>("tree", "the tree", Input.Validate.REQUIRED);
 	
 	
 	@Override
@@ -22,7 +22,7 @@ public class ChildSwapper extends Operator {
 	public double proposal() {
 		
 		
-		DecisionTree tree = treeInput.get(this);
+		DecisionTree tree = treeInput.get(this).editTree(this);
 		double logHR = 0;
 		
 		

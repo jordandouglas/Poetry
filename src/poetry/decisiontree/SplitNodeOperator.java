@@ -3,8 +3,10 @@ package poetry.decisiontree;
 import java.util.ArrayList;
 import java.util.List;
 
+import beast.core.BEASTInterface;
 import beast.core.Input;
 import beast.core.Operator;
+import beast.core.StateNode;
 import beast.core.Input.Validate;
 import beast.core.parameter.IntegerParameter;
 import beast.core.parameter.Parameter;
@@ -20,7 +22,7 @@ import beast.util.Randomizer;
 public class SplitNodeOperator extends Operator {
 	
 	
-	final public Input<DecisionTree> treeInput = new Input<>("tree", "the tree", Input.Validate.REQUIRED);
+	final public Input<DecisionTreeInterface> treeInput = new Input<>("tree", "the tree", Input.Validate.REQUIRED);
 	final public Input<DecisionTreeDistribution> treeDistrInput = new Input<>("dist", "the tree distribution", Input.Validate.REQUIRED);
 	
 	final public Input<RealParameter> interceptInput = new Input<>("intercept", "Regression intercepts at the leaves", Validate.OPTIONAL);
@@ -40,11 +42,12 @@ public class SplitNodeOperator extends Operator {
 	@Override
 	public double proposal() {
 		
-		DecisionTree tree = treeInput.get(this);
+		DecisionTreeInterface treeI = treeInput.get(this);
 		DecisionTreeDistribution dist = treeDistrInput.get();
 		
+		// Sample a tree (if random forest)
+		DecisionTree tree = treeI.editTree(this);
 		double logHR = 0;
-		
 		
 		
 		long numIterations = 1 + Randomizer.nextGeometric(1 - this.extendInput.get());
@@ -76,8 +79,8 @@ public class SplitNodeOperator extends Operator {
 				}
 				
 				// Create 2 new nodes
-				DecisionNode trueChild = dist.newNode();
-				DecisionNode falseChild = dist.newNode();
+				DecisionNode trueChild = dist.newNode(tree.getTreeNum());
+				DecisionNode falseChild = dist.newNode(tree.getTreeNum());
 				parent.setTrueChild(trueChild);
 				parent.setFalseChild(falseChild);
 				
@@ -119,6 +122,8 @@ public class SplitNodeOperator extends Operator {
 	}
 	
 	
+
+	
 	/**
 	 * Reorders the elements within a parameter vector to account for the moving around of tree node indices
 	 * @param tree
@@ -139,6 +144,10 @@ public class SplitNodeOperator extends Operator {
 	
 	// Reorganise the vector elements so that the old values are pointed to by the new node numbering
 	protected void reorganiseVector(Parameter param, int nrepeats, DecisionTree tree, boolean leaves, int nleavesBefore) {
+		
+		// Which tree?
+		int start = tree.getTreeNum() * param.getDimension();
+		int stop = start + param.getDimension();
 		
 		
 		// Create empty null array
@@ -173,6 +182,10 @@ public class SplitNodeOperator extends Operator {
 			}
 			
 			
+			paramIndexBefore += start;
+			paramIndexAfter += start;
+			
+			
 			if (indexBefore != -1 && paramIndexAfter >= 0 && paramIndexBefore >= 0) {
 				
 				// Preexisting node
@@ -200,8 +213,8 @@ public class SplitNodeOperator extends Operator {
 		
 		
 		// Fill remaining values in order
-		paramIndexBefore = 0;
-		for (paramIndexAfter = 0; paramIndexAfter < newVals.length; paramIndexAfter ++) {
+		paramIndexBefore = start;
+		for (paramIndexAfter = start; paramIndexAfter < stop; paramIndexAfter ++) {
 			if (newVals[paramIndexAfter] == null) {
 				
 				// Find the first non-taken old index

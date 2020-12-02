@@ -21,8 +21,11 @@ public class Reroot extends SplitNodeOperator {
 		
 		double logHR = 0;
 		
-		DecisionTree tree = treeInput.get(this);
+		DecisionTreeInterface treeI = treeInput.get(this);
 		DecisionTreeDistribution dist = treeDistrInput.get();
+		
+		// Sample a tree (if random forest)
+		DecisionTree tree = treeI.editTree(this);
 		DecisionNode root = tree.getRoot();
 		
 		
@@ -42,8 +45,8 @@ public class Reroot extends SplitNodeOperator {
 				if (tree.getLeafCount() >= dist.getMaxLeafCount()) return Double.NEGATIVE_INFINITY;
 				
 				// New root
-				DecisionNode newRoot = dist.newNode();
-				DecisionNode newLeaf = dist.newNode();
+				DecisionNode newRoot = dist.newNode(tree.getTreeNum());
+				DecisionNode newLeaf = dist.newNode(tree.getTreeNum());
 				
 				// New child is true or false?
 				boolean trueChild = Randomizer.nextBoolean();
