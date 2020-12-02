@@ -23,8 +23,8 @@
 
 
 
-<run id="mcmc" spec="MCMC" chainLength="100000000">
-<!--<run id="mcmc" spec="beast.coupledMCMC.CoupledMCMC" chainLength="100000000" chains="4" resampleEvery="10000" deltaTemperature="0.05" heatLikelihoodOnly="false">-->
+<!--<run id="mcmc" spec="MCMC" chainLength="100000000">-->
+<run id="mcmc" spec="beast.coupledMCMC.CoupledMCMC" chainLength="100000000" chains="4" resampleEvery="10000" deltaTemperature="0.05" heatLikelihoodOnly="false">
 <!--<run id="mcmc" spec="beast.coupledMCMC.SerialMCMC" chainLength="100000000" chains="4" resampleEvery="10000" deltaTemperature="0.05">-->
 <!--<run id="mcmc" spec="beast.inference.SimulatedAnnealing" chainLength="100000000" startTemp="1.0" endTemp="0.0001">-->
 
@@ -32,7 +32,7 @@
 
     <state id="state" spec="State" storeEvery="5000">
 
-        <tree id="tree" spec="poetry.decisiontree.RandomForest" name="stateNode" ntrees="10" >
+        <tree id="tree" spec="poetry.decisiontree.RandomForest" name="stateNode" ntrees="50" >
         </tree>
 
         <parameter id="Slope" spec="parameter.RealParameter" name="stateNode">1</parameter>
@@ -75,7 +75,7 @@
 
         <distribution id="likelihood" spec="util.CompoundDistribution">
 
-            <distribution id="decisionTreeDistribution" spec="poetry.decisiontree.DecisionTreeDistribution" tree="@tree" maxLeafCount="50" minInstances="30" data="@wekaData">
+            <distribution id="decisionTreeDistribution" spec="poetry.decisiontree.DecisionTreeDistribution" tree="@tree" maxLeafCount="30" minInstances="1" data="@wekaData">
 
 				
       

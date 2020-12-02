@@ -93,7 +93,7 @@ public class DecisionSplit {
 		
 		
 		// Since leaves do not have split parameters, the vectors are shifted by leafCount
-		int treeAddon = this.tree.getTreeNum() * this.maxLeafCount;
+		int treeAddon = this.tree.getTreeNum() * (this.maxLeafCount-1);
 		int paramIndex = index - tree.getLeafCount() + treeAddon;
 		
 		if (this.pointers.getDimension() <= paramIndex) return null;
