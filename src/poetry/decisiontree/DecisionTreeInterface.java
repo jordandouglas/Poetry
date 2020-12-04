@@ -2,12 +2,30 @@ package poetry.decisiontree;
 
 import java.io.PrintStream;
 
+import beast.core.Input;
 import beast.core.Operator;
 import beast.core.StateNode;
 import weka.core.Instances;
 
 public interface DecisionTreeInterface  {
 
+	
+	// Tree initialisation method
+	enum initTree{
+		root, reptree
+	}
+	
+	
+	// Regression at leaves
+	public enum regressionMode{
+		linear, logistic, test, log
+	}
+	
+	final public Input<initTree> initInput = new Input<>("init", "Method for initialising decision tree(s)", initTree.root, initTree.values());
+	final public Input<regressionMode> regressionInput = new Input<>("regression", "Regression model at the leaves", regressionMode.linear, regressionMode.values());
+	
+	
+	
 	
 	/**
 	 * Id of this object

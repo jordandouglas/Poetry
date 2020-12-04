@@ -27,7 +27,7 @@ public class Feature extends RealParameter  {
 	
 	
 	Instances data = null;
-	Attribute attr = null;
+	String attrName;
 	boolean isTransformed = false;
 	
 	public Feature(){
@@ -40,22 +40,23 @@ public class Feature extends RealParameter  {
 		
 		
 		this.data = dataInput.get().getTrainingData();
+		this.attrName = nameInput.get();
 		
 		// Confirm that this variable is in the dataset
-		int colnum = WekaUtils.getIndexOfColumn(data, this.nameInput.get());
+		int colnum = WekaUtils.getIndexOfColumn(data, attrName);
 		if (colnum == -1) throw new IllegalArgumentException("Error: cannot find " + this.nameInput.get() + " in dataset");
 		
 		// Confirm that it is numeric
 		if (!data.attribute(colnum).isNumeric()) throw new IllegalArgumentException("Error: " + this.nameInput.get() + " is not a numeric attribute");
 		
-		this.attr = data.attribute(colnum);
+		Attribute attr = data.attribute(colnum);
 		
 		
 		// Values
 		List<Double> vals = new ArrayList<>();
 		for (int i = 0; i < this.data.size(); i ++) {
 			Instance inst = this.data.instance(i);
-			double val = inst.value(this.attr);
+			double val = inst.value(attr);
 			vals.add(val);
 		}
 		this.valuesInput.set(vals);
@@ -63,6 +64,8 @@ public class Feature extends RealParameter  {
 		super.initAndValidate();
 		
 	}
+	
+	
 	
 
 
@@ -75,11 +78,12 @@ public class Feature extends RealParameter  {
 
 	@Override
 	public double getArrayValue(int dim) {
-		return this.data.instance(dim).value(this.attr);
+		return this.data.instance(dim).value(this.getAttribute());
 	}
 
 	public Attribute getAttribute() {
-		return this.attr;
+		int colnum = WekaUtils.getIndexOfColumn(data, attrName);
+		return data.attribute(colnum);
 	}
 
 	
@@ -90,7 +94,7 @@ public class Feature extends RealParameter  {
 	public void transform(Transform transform) {
 		//if (true) return;
 		
-		Log.warning("Transforming " + this.attr.name());
+		Log.warning("Transforming " + this.attrName);
 		
 		
 		
@@ -98,7 +102,7 @@ public class Feature extends RealParameter  {
 		double[] vals = new double[this.data.size()];
 		for (int i = 0; i < this.data.size(); i ++) {
 			Instance inst = this.data.instance(i);
-			double val = inst.value(this.attr);
+			double val = inst.value(this.getAttribute());
 			vals[i] = val;
 		}
 		
@@ -110,11 +114,15 @@ public class Feature extends RealParameter  {
 			Instance inst = this.data.instance(i);
 			double tval = tvals[i];
 			if (Double.isNaN(tval)) tval = 0;
-			inst.setValue(this.attr, tval);
+			inst.setValue(this.getAttribute(), tval);
 		}
 		
 		this.isTransformed = !isTransformed; 
 		
+	}
+
+	public String getAttrName() {
+		return this.attrName;
 	}
 	
 

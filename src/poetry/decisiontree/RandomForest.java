@@ -39,7 +39,7 @@ public class RandomForest extends StateNode implements DecisionTreeInterface {
 		this.trees = new DecisionTree[this.ntrees];
 		this.storedTrees = new DecisionTree[this.ntrees];
 		for (int i = 0; i < this.ntrees; i ++) {
-			this.trees[i] = new DecisionTree();
+			this.trees[i] = new DecisionTree(i, regressionInput.get());
 		}
 	}
 	
@@ -112,6 +112,14 @@ public class RandomForest extends StateNode implements DecisionTreeInterface {
 	 */
 	public void setRoot(int index, DecisionNode root) {
 		this.trees[index].setRoot(root);
+	}
+	
+	
+	/**
+	 * Sets the initial state of the tree after the root has been set
+	 */
+	public void initTree(int index, Instances data) {
+		this.trees[index].initTree(data);
 	}
 	
 

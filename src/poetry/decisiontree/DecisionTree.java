@@ -13,6 +13,7 @@ import beast.core.StateNode;
 import beast.core.util.Log;
 import beast.util.Randomizer;
 import beast.util.TreeParser;
+import weka.classifiers.trees.REPTree;
 import weka.core.Instances;
 
 
@@ -28,7 +29,14 @@ public class DecisionTree extends StateNode implements DecisionTreeInterface  {
 	List<DecisionNode> stored_nodes;
 	DecisionSplit split;
 	int nattr;
+	regressionMode regression;
 	
+	
+
+	@Override
+	public void initAndValidate() {
+		this.regression = regressionInput.get();
+	}
 	
 	public DecisionTree() {
 		
@@ -36,6 +44,12 @@ public class DecisionTree extends StateNode implements DecisionTreeInterface  {
 	
 	public DecisionTree(int treeNum) {
 		this.treeNum = treeNum;
+	}
+	
+	
+	public DecisionTree(int treeNum, regressionMode regression) {
+		this.treeNum = treeNum;
+		this.regression = regression;
 	}
 
 
@@ -46,9 +60,34 @@ public class DecisionTree extends StateNode implements DecisionTreeInterface  {
 	
 	public void setRoot(DecisionNode root) {
 		this.root = root;
+		this.root.setRegressionMode(this.regression);
 		this.split = root.getSplit();
 		this.reset();
 	}
+	
+	public void initTree(Instances data) {
+		
+		// Initialise from REPTree?
+		if (initInput.get() == initTree.reptree) {
+			REPTree reptree = this.split.getRepTree(data);
+			this.setFromWekaTree(reptree);
+		}
+		
+	}
+	
+	
+	/**
+	 * Sets this tree to the specified REPTree
+	 * @param reptree
+	 */
+	public void setFromWekaTree(REPTree reptree) {
+		
+		// TODO
+		Log.warning(reptree.toString());
+		
+		
+	}
+	
 	
 	
 	/**
@@ -127,11 +166,6 @@ public class DecisionTree extends StateNode implements DecisionTreeInterface  {
 		return 0;
 	}
 
-	@Override
-	public void initAndValidate() {
-		// TODO Auto-generated method stub
-		
-	}
 
 	@Override
 	public void setEverythingDirty(boolean isDirty) {
@@ -203,7 +237,7 @@ public class DecisionTree extends StateNode implements DecisionTreeInterface  {
 	protected void store() {
 		this.stored_root = this.root.copy();
 		this.stored_nodes = this.listNodes(stored_root);
-		//this.updateNodeIndices(this.stored_nodes);
+		this.updateNodeIndices(this.stored_nodes);
 	}
 
 	@Override

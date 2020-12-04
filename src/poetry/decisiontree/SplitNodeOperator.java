@@ -131,23 +131,31 @@ public class SplitNodeOperator extends Operator {
 	 */
 	protected void reorderParameters(DecisionTree tree, int nleavesBefore) {
 		
+		//if (true) return;
+		
 		 
 		if (slopeInput.get() != null && interceptInput.get() != null) {
+			int nparamsPerTree = treeDistrInput.get().getMaxLeafCount() * treeDistrInput.get().getNumPredictors();
 			int nrepeats = slopeInput.get().getDimension() / interceptInput.get().getDimension();
-			if (nrepeats >= 1) this.reorganiseVector(slopeInput.get(this), nrepeats, tree, true, nleavesBefore);
+			if (nrepeats >= 1) this.reorganiseVector(slopeInput.get(this), nrepeats, nparamsPerTree, tree, true, nleavesBefore);
 		}
-		if (interceptInput.get() != null) this.reorganiseVector(interceptInput.get(this), 1, tree, true, nleavesBefore);
 		
-		if (attributePointerInput.get() != null) this.reorganiseVector(attributePointerInput.get(this), 1, tree, false, nleavesBefore);
-		if (splitPointInput.get() != null) this.reorganiseVector(splitPointInput.get(this), 1, tree, false, nleavesBefore);
+		int nparamsPerTree = treeDistrInput.get().getMaxLeafCount();
+		if (interceptInput.get() != null) this.reorganiseVector(interceptInput.get(this), 1, nparamsPerTree, tree, true, nleavesBefore);
+		
+		if (attributePointerInput.get() != null) this.reorganiseVector(attributePointerInput.get(this), 1, nparamsPerTree-1, tree, false, nleavesBefore);
+		if (splitPointInput.get() != null) this.reorganiseVector(splitPointInput.get(this), 1, nparamsPerTree-1,  tree, false, nleavesBefore);
 	}
 	
 	// Reorganise the vector elements so that the old values are pointed to by the new node numbering
-	protected void reorganiseVector(Parameter param, int nrepeats, DecisionTree tree, boolean leaves, int nleavesBefore) {
+	protected void reorganiseVector(Parameter param, int nrepeats, int nparamsPerTree, DecisionTree tree, boolean leaves, int nleavesBefore) {
+		
+		
+		
 		
 		// Which tree?
-		int start = tree.getTreeNum() * param.getDimension();
-		int stop = start + param.getDimension();
+		int start = tree.getTreeNum() * nparamsPerTree;
+		int stop = start + nparamsPerTree;
 		
 		
 		// Create empty null array
@@ -182,11 +190,11 @@ public class SplitNodeOperator extends Operator {
 			}
 			
 			
-			paramIndexBefore += start;
-			paramIndexAfter += start;
-			
-			
 			if (indexBefore != -1 && paramIndexAfter >= 0 && paramIndexBefore >= 0) {
+				
+				
+				paramIndexBefore += start;
+				paramIndexAfter += start;
 				
 				// Preexisting node
 				
@@ -215,11 +223,21 @@ public class SplitNodeOperator extends Operator {
 		// Fill remaining values in order
 		paramIndexBefore = start;
 		for (paramIndexAfter = start; paramIndexAfter < stop; paramIndexAfter ++) {
+			
+			
+			
 			if (newVals[paramIndexAfter] == null) {
 				
 				// Find the first non-taken old index
 				while(oldIndicesTaken[paramIndexBefore]) {
+					
+					
+					
 					paramIndexBefore++;
+					
+					if (paramIndexBefore >= oldIndicesTaken.length) {
+						int x = 5;
+					}
 				}
 				oldIndicesTaken[paramIndexBefore] = true;
 				
@@ -233,7 +251,7 @@ public class SplitNodeOperator extends Operator {
 		
 
 		// Transfer over
-		for (int i = 0; i < newVals.length; i ++) {
+		for (int i = start; i < stop; i ++) {
 			
 			if (param instanceof RealParameter) {
 				((RealParameter)param).setValue(i, newVals[i]);
@@ -245,24 +263,7 @@ public class SplitNodeOperator extends Operator {
 			
 		}
 		
-		
-		
-		// If there are any elements that corresponded to nodes in the old state but they don't any more, then move from the end (in the same order)
-		/*
-		int endOfTree = leaves ? tree.getLeafCount() : tree.getLeafCount() - 1;
-		for (int i = 0; i < newVals.length; i ++) {
-			if (newVals[i] == null) {
-				double oldVal = param.getArrayValue(endOfTree);
-				newVals[i] = oldVal;
-				endOfTree++;
-			}
-		}
-		*/
-		
-		
-		// Do the swapping
-			
-		
+
 	}
 
 	

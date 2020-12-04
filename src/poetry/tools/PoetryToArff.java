@@ -30,7 +30,7 @@ public class PoetryToArff extends Runnable {
 	final public Input<Double> splitInput = new Input<>("split", "percentage of data which will be in the training set (default: 70)", 70.0);
 	
 	
-	File database, fullOut, trainingOut, testOut;
+	File database, fullOut, simpleOut, trainingOut, testOut;
 	double splitPercentage;
 	String[] columnsToRemove;
 	
@@ -53,6 +53,7 @@ public class PoetryToArff extends Runnable {
 		fullOut = new File(str + ".arff");
 		trainingOut = new File(str + ".training.arff");
 		testOut = new File(str  + ".test.arff");
+		simpleOut = new File(str + "simple.arff");
 		
 	
 
@@ -115,6 +116,46 @@ public class PoetryToArff extends Runnable {
 		ArffSaver saver = new ArffSaver();
 		saver.setInstances(data);
 		saver.setFile(new File(fullOut.getPath()));
+		saver.writeBatch();
+		
+		
+		
+		// Truncated dataset
+		WekaUtils.removeCol(data, "nspecies"); 
+		WekaUtils.removeCol(data, "dated"); 
+		WekaUtils.removeCol(data, "partition.model"); 
+		WekaUtils.removeCol(data, "replicate");
+		WekaUtils.removeCol(data, "dataset");
+		WekaUtils.removeCol(data, "nstates");
+		WekaUtils.removeCol(data, "runtime.smooth.hr");
+		WekaUtils.removeCol(data, "runtime.smooth.hr.m");
+		WekaUtils.removeCol(data, "runtime.raw.hr");
+		WekaUtils.removeCol(data, "runtime.raw.hr.m");
+		WekaUtils.removeCol(data, "ESS.mean.m");
+		WekaUtils.removeCol(data, "ESS.sd.m");
+		WekaUtils.removeCol(data, "ESS.cov.m");
+		WekaUtils.removeCol(data, "ESS.mean.hr");
+		WekaUtils.removeCol(data, "ESS.sd.hr");
+		WekaUtils.removeCol(data, "ESS.cov.hr");	
+		//WekaUtils.removeCol(data, "Pmean");
+		
+		WekaUtils.removeCol(data, "TopologyPOEM.min.ESS.hr");
+		WekaUtils.removeCol(data, "NodeHeightPOEM.min.ESS.hr");
+		WekaUtils.removeCol(data, "SiteModelPOEM.min.ESS.hr");
+		WekaUtils.removeCol(data, "ClockModelRatePOEM.min.ESS.hr");
+		WekaUtils.removeCol(data, "ClockModelSDPOEM.min.ESS.hr");
+		WekaUtils.removeCol(data, "SpeciesTreePriorPOEM.min.ESS.hr");
+		
+		WekaUtils.removeCol(data, "TopologyPOEM.min.ESS.m");
+		WekaUtils.removeCol(data, "NodeHeightPOEM.min.ESS.m");
+		WekaUtils.removeCol(data, "SiteModelPOEM.min.ESS.m");
+		WekaUtils.removeCol(data, "ClockModelRatePOEM.min.ESS.m");
+		WekaUtils.removeCol(data, "ClockModelSDPOEM.min.ESS.m");
+		WekaUtils.removeCol(data, "SpeciesTreePriorPOEM.min.ESS.m");
+				
+		saver = new ArffSaver();
+		saver.setInstances(data);
+		saver.setFile(new File(simpleOut.getPath()));
 		saver.writeBatch();
 		
 		

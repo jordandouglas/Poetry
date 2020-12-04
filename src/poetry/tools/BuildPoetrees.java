@@ -43,9 +43,8 @@ public class BuildPoetrees extends Runnable {
 	final public Input<String> poemNameInput = new Input<>("poem", "The name of the poem", Validate.REQUIRED);
 	final public Input<File> trainingInput = new Input<>("training", "arff file containing the training data", Validate.REQUIRED);
 	final public Input<File> outputInput = new Input<>("out", "A directory where the outputs will be stored", Validate.REQUIRED);
-	
-	
 	final public Input<Integer> minInstancesPerLeafInput = new Input<>("min", "Minimum number of instances per leaf in decision tree", 20);
+	
 	
 	
 	final int nfolds = 1;
@@ -292,7 +291,7 @@ public class BuildPoetrees extends Runnable {
 		WekaUtils.removeCol(data, "ESS.mean.hr");
 		WekaUtils.removeCol(data, "ESS.sd.hr");
 		WekaUtils.removeCol(data, "ESS.cov.hr");	
-		
+		WekaUtils.removeCol(data, "Pmean");	
 	
 		// Remove all poem weights and esses except for the current ess
 		List<Attribute> poems = WekaUtils.getAttributesWithSubstring(data, POEM.getESSColname(""));

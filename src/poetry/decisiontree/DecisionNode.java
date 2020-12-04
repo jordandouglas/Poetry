@@ -3,15 +3,12 @@ package poetry.decisiontree;
 
 
 
-import java.math.BigDecimal;
-import java.math.MathContext;
 import java.util.List;
 
-import beast.core.BEASTObject;
 import beast.core.Description;
 import beast.core.parameter.RealParameter;
-import beast.core.util.Log;
 import beast.evolution.tree.Node;
+import poetry.decisiontree.DecisionTreeInterface.regressionMode;
 import poetry.util.WekaUtils;
 import weka.core.Attribute;
 import weka.core.Instance;
@@ -56,6 +53,7 @@ public class DecisionNode extends Node {
 	
 	// The split data
 	protected Instances splitData = null;
+	private regressionMode regression;
 	
 	
 	
@@ -207,6 +205,7 @@ public class DecisionNode extends Node {
         node.nodeIndex = nodeIndex;
         node.parent = null;
         node.isTrueChild = this.isTrueChild;
+        node.regression = this.regression;
         this.splitData = null;
         if (!isLeaf()) {
         	node.setTrueChild(children[0].copy());
@@ -329,6 +328,7 @@ public class DecisionNode extends Node {
 			this.children[0].removeParent();
 		}
 		this.children[0] = child;
+		this.children[0].regression = this.regression;
 		child.setParent(this, true);
 	}
 	
@@ -342,6 +342,7 @@ public class DecisionNode extends Node {
 			this.children[1].removeParent();
 		}
 		this.children[1] = child;
+		this.children[1].regression = this.regression;
 		child.setParent(this, false);
 	}
 	
@@ -421,9 +422,12 @@ public class DecisionNode extends Node {
 	protected double getSlope(int k) {
 		if (!this.isLeaf()) throw new IllegalArgumentException("Error: there is no slope because this is not a leaf!");
 		int i = this.getTreeNum()*this.slope.getDimension() / this.ntrees;
-		int j = this.nodeIndex*this.intercept.getDimension() / this.ntrees;
+		int j = this.nodeIndex*this.predAttr.size();
 		int index = i + j + k;
-		//Log.warning(this.getTreeNum() + "," + this.nodeIndex + "," + k + "," + index + "|" + i + "," + j + "," + k + "|" + this.intercept.getDimension() + "," + this.slope.getDimension());
+		
+		// Tmp
+		//if (true) return this.slope.getArrayValue(k);
+		
 		return this.slope.getArrayValue(index);
 	}
 	
@@ -441,7 +445,7 @@ public class DecisionNode extends Node {
 	public Double predict(Instance inst) {
 		if (!this.isLeaf()) return null;
 		
-		double y =  this.getIntercept();
+		double y = this.getIntercept();
 		for (int i = 0; i < this.predAttr.size(); i ++) {
 			
 			int xIndex = WekaUtils.getIndexOfColumn(inst, this.predAttr.get(i).name());
@@ -451,6 +455,47 @@ public class DecisionNode extends Node {
 			y = y + m*x;
 			
 		}
+		
+		// Regression mode
+		switch (this.regression) {
+		
+			case logistic:{
+				y = 1 / (1 + Math.exp(y));
+				break;
+			}
+			
+			
+			case log:{
+				y = Math.log(y);
+				break;
+			}
+			
+			case test:{
+				
+				double v = 0;
+				for (int i = 0; i < this.predAttr.size(); i ++) {
+					
+					int xIndex = WekaUtils.getIndexOfColumn(inst, this.predAttr.get(i).name());
+					double x = inst.value(xIndex);
+					double m = this.getSlope(i);
+					if (Double.isNaN(x)) continue;
+					v = v + m/x;
+					
+				}
+				
+				y = this.getIntercept() / (1 + v);
+				break;
+			}
+			
+			default:{
+				break;
+			}
+		
+		
+		}
+	
+		
+		
 		
 		return y;
 	}
@@ -532,6 +577,7 @@ public class DecisionNode extends Node {
 			// Get true y
 			Instance inst = this.splitData.instance(instNum);
 			double trueY = inst.value(yIndex);
+			if (Double.isNaN(trueY)) trueY = 0;
 			trueYVals[instNum] = trueY;
 		}
 		
@@ -597,6 +643,14 @@ public class DecisionNode extends Node {
 
 	public boolean isTrueChild() {
 		return this.isTrueChild;
+	}
+
+
+	public void setRegressionMode(regressionMode regression) {
+		this.regression = regression;
+		if (this.isLeaf()) return;
+		this.children[0].setRegressionMode(regression);
+		this.children[1].setRegressionMode(regression);
 	}
 
 

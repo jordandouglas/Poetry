@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import org.apache.commons.math.distribution.PoissonDistributionImpl;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 
+import beast.core.Description;
 import beast.core.Distribution;
 import beast.core.Function;
 import beast.core.Input;
@@ -21,12 +21,14 @@ import beast.util.Transform;
 import poetry.util.WekaUtils;
 import weka.core.Attribute;
 import weka.core.Instances;
-import weka.core.converters.ConverterUtils.DataSource;
+import weka.filters.Filter;
+import weka.filters.unsupervised.instance.RemoveWithValues;
 
 
-
+@Description("Central decision tree / random forest distribution")
 public class DecisionTreeDistribution extends Distribution {
 	
+
 	
 	final public Input<WekaData> dataInput = new Input<>("data", "The data", Validate.REQUIRED);
 	
@@ -44,6 +46,7 @@ public class DecisionTreeDistribution extends Distribution {
 	
 	
 	
+	
 	final public Input<List<Transform>> predInput = new Input<>("pred", 
 			"one or more transformed features to be moved. Each feature must be a Feature object\n"
 			+ "For scale parameters use LogTransform (where e.g. scale operators were used).\n"
@@ -51,7 +54,7 @@ public class DecisionTreeDistribution extends Distribution {
 			+ "For parameters that sum to a constant use LogConstrainedSumTransform  (where e.g. delta-exchange operators were used).", new ArrayList<>()); 
 	
 	final public Input<Transform> targetInput = new Input<>("class", "The target feature and its transformation", Validate.REQUIRED);
-	
+	final public Input<List<Transform>> removeInput = new Input<>("remove", "Attributes to exclude from all analyses", new ArrayList<>());
 	
 	
 	final public Input<RealParameter> shapeInput = new Input<>("shape", "Dirichlet shape on the number of instances at each leaf. Set to 0 for uniform.", Validate.REQUIRED);
@@ -131,8 +134,14 @@ public class DecisionTreeDistribution extends Distribution {
 			this.trainingData[0] = wekaData.getTrainingData();
 		}
 		this.testData = wekaData.getTestData();
-		this.transform(this.trainingData);
-		this.transform(this.testData);
+		try {
+			this.trainingData = this.transform(this.trainingData);
+			this.testData = this.transform(this.testData);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new IllegalArgumentException("Error transforming data");
+		}
+		
 		
 		
 		// Slope is required iff there are predictors
@@ -143,7 +152,8 @@ public class DecisionTreeDistribution extends Distribution {
 			}
 		}else {
 			if (slopeInput.get() != null) {
-				throw new IllegalArgumentException("Error: do not provide slope because there are no predictors");
+				Log.warning("Warning no need to provide slope because there are no predictors");
+				slopeInput.set(null);
 			}
 		}
 		
@@ -163,7 +173,7 @@ public class DecisionTreeDistribution extends Distribution {
 		this.splits = new DecisionSplit[this.ntrees];
 		for (int i = 0; i < this.ntrees; i ++) {
 			DecisionTree tree = this.treeI.getTree(i);
-			this.splits[i] = new DecisionSplit(this.attributePointer, this.splitPoints, this.covariates, this.trainingData[i], tree, treeI.getNAttr(), this.maxLeafCount);
+			this.splits[i] = new DecisionSplit(this.attributePointer, this.splitPoints, this.covariates, this.target.name(), this.trainingData[i], tree, treeI.getNAttr(), this.maxLeafCount);
 		}
 		
 		
@@ -216,18 +226,22 @@ public class DecisionTreeDistribution extends Distribution {
 	
 	/**
 	 * Load and transform class and predictor(s)
+	 * @throws Exception 
 	 */
-	private void transform(Instances[] data) {
-		for (Instances d : data) this.transform(d);
+	private Instances[] transform(Instances[] data) throws Exception {
+		for (Instances d : data) {
+			d = this.transform(d);
+		}
+		return data;
 	}
 
 	/**
 	 * Load and transform class and predictor(s)
+	 * @throws Exception 
 	 */
-	private void transform(Instances data) {
+	private Instances transform(Instances data) throws Exception {
 		
 		
-		// Target feature
 		Transform ttarget = this.targetInput.get();
 		if (ttarget.getF().size() != 1) {
 			throw new IllegalArgumentException("Error: please ensure that 'class' has only one feature");
@@ -237,11 +251,49 @@ public class DecisionTreeDistribution extends Distribution {
 			throw new IllegalArgumentException("Error: please ensure that 'class' is a transformation of " + Feature.class.getCanonicalName());
 		}
 		Feature targetFeature = (Feature)func;
-		//targetFeature.setDataset(data);
+		
+		
+		// Remove some attributes
+		for (Transform t : this.removeInput.get()) {
+			for (Function f : t.getF()) {
+				if (!(f instanceof Feature)) {
+					throw new IllegalArgumentException("Error: please ensure that every attribute to remove is a transformation of " + Feature.class.getCanonicalName());
+				}
+				
+				Feature toRemove = (Feature)f;
+				if (toRemove.getAttrName().equals(targetFeature.getAttrName())) continue;
+				
+				int index = WekaUtils.getIndexOfColumn(data, toRemove.getAttrName());
+				if (index == -1) {
+					Log.warning("Warning: cannot remove " + toRemove.getAttrName() + " because it cannot be found in the dataset");
+				}
+				else {
+					Log.warning("Removing attribute " + toRemove.getAttrName());
+					data.deleteAttributeAt(index);
+				}
+			}
+			
+		}
+		
+		
+
+		// Target feature
 		this.target = targetFeature.getAttribute();
 		data.setClass(target);
 		targetFeature.transform(ttarget);
 
+
+		
+		
+		// Remove instances with missing class values
+		//Log.warning("Num instances before : " + data.size());
+		Filter filter = new RemoveWithValues();
+		filter.setOptions(new String[] {"-C", "" + (WekaUtils.getIndexOfColumn(data, this.target.name())+1), "-M", "-S", "" + -100000 });
+		filter.setInputFormat(data);
+		data = Filter.useFilter(data, filter);
+		//Log.warning("Num instances after : " + data.size());
+
+		
 		
 		// Predictor features
 		this.predictors = new ArrayList<>();
@@ -262,7 +314,7 @@ public class DecisionTreeDistribution extends Distribution {
 			
 		}
 		
-
+		return data;
 		
 		
 	}
@@ -321,13 +373,17 @@ public class DecisionTreeDistribution extends Distribution {
 
 			// Decision tree? This is the tree
 			if (this.treeI instanceof DecisionTree) {
-				((DecisionTree)this.treeI).setRoot(root);
+				DecisionTree tree = ((DecisionTree)this.treeI);
+				tree.setRoot(root);
+				tree.initTree(this.trainingData[treeNum]);
 			}
 			
 			
 			// Random forest? This is one of the trees
 			if (this.treeI instanceof RandomForest) {
-				((RandomForest) this.treeI).setRoot(treeNum, root);
+				RandomForest forest = ((RandomForest) this.treeI);
+				forest.setRoot(treeNum, root);
+				forest.initTree(treeNum, this.trainingData[treeNum]);
 			}
 			
 		}
@@ -354,8 +410,17 @@ public class DecisionTreeDistribution extends Distribution {
 		this.covariates = new ArrayList<>();
 		for (int i = 0; i < data.numAttributes(); i ++) {
 			Attribute attr = data.attribute(i);
-			if (attr == this.target) continue;
-			if (this.predictors.contains(attr)) continue;
+			if (attr.name().equals(this.target.name())) continue;
+			
+			boolean isPred = false;
+			for (Attribute pred : this.predictors) {
+				if (pred.name().equals(attr.name())) {
+					isPred = true;
+					break;
+				}
+			}
+			if (isPred) continue;
+			//if (this.predictors.contains(attr)) continue;
 			
 			// Check that every attribute is either numeric or nominal (no strings etc.)
 			if (!attr.isNominal() && !attr.isNumeric()) {
@@ -393,15 +458,18 @@ public class DecisionTreeDistribution extends Distribution {
 	}
 	
 
+
 	
 	 @Override
 	 public double calculateLogP() {
 		 
 		 logP = 0;
 		 
+		
 		 
 		 for (DecisionTree tree : this.treeI.getTrees()) {
 		 
+			 //Log.warning("tree size " + tree.getLeafCount());
 			 
 			 // Tree size exceeded?
 			 if (tree.getLeafCount() > this.maxLeafCount) {
@@ -423,11 +491,11 @@ public class DecisionTreeDistribution extends Distribution {
 			 // Dirichlet distribution on instances per leaf
 			 double alpha = shapeInput.get().getArrayValue();
 			 double sumAlpha = alpha * tree.getLeafCount();
-			 int ninstances = data.size(); 
+			 int ninstances = data.size() + tree.getLeafCount(); // Pseudocount 
 			 for (int i = 0; i < tree.getLeafCount(); i++) {
-				 int n = tree.getNode(i).getNumInstances();
+				 int n = tree.getNode(i).getNumInstances() + 1;
 				 double pinstances = 1.0 * n / ninstances;
-				 if (n < this.minInstancesPerLeaf) {
+				 if (n < this.minInstancesPerLeaf || n == 0) {
 					 logP = Double.NEGATIVE_INFINITY;
 					 return logP;
 				 }
@@ -579,9 +647,11 @@ public class DecisionTreeDistribution extends Distribution {
 				// R squared
 				double R2 =  1 - RSS/TSS;
 				
+			
 				// Correlation
 				PearsonsCorrelation pc = new PearsonsCorrelation();
 				double rho = pc.correlation(trueY, predY);
+				
 				
 				if (t == 0) {
 					R2_train += R2;
@@ -616,14 +686,18 @@ public class DecisionTreeDistribution extends Distribution {
 		
 		// Find the mean
 		double mean = 0;
+		int len = 0;
 		for (int i = 0; i < y.length; i ++) {
+			if (Double.isNaN(y[i])) continue;
 			mean += y[i];
+			len++;
 		}
-		mean /= y.length;
+		mean /= len;
 		
 		// Total sum of squares
 		double SS = 0;
 		for (int i = 0; i < y.length; i ++) {
+			if (Double.isNaN(y[i])) continue;
 			SS += (y[i] - mean)*(y[i] - mean);
 		}
 		
@@ -640,6 +714,7 @@ public class DecisionTreeDistribution extends Distribution {
 	public static double getRSS(double[] y, double[] x) {
 		double SS = 0;
 		for (int i = 0; i < y.length; i ++) {
+			if (Double.isNaN(y[i])) continue;
 			SS += (x[i] - y[i])*(x[i] - y[i]);
 		}
 		return SS;
@@ -659,6 +734,13 @@ public class DecisionTreeDistribution extends Distribution {
 
 	public int getForestSize() {
 		return this.ntrees;
+	}
+
+
+
+
+	public int getNumPredictors() {
+		return this.nPredictors;
 	}
 
 
