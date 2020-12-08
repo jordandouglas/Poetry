@@ -78,12 +78,11 @@ public class Feature extends RealParameter  {
 
 	@Override
 	public double getArrayValue(int dim) {
-		return this.data.instance(dim).value(this.getAttribute());
+		return 0; //this.data.instance(dim).value(this.getAttribute());
 	}
 
-	public Attribute getAttribute() {
-		int colnum = WekaUtils.getIndexOfColumn(data, attrName);
-		return data.attribute(colnum);
+	public String getAttributeName() {
+		return attrName;
 	}
 
 	
@@ -95,14 +94,14 @@ public class Feature extends RealParameter  {
 		//if (true) return;
 		
 		Log.warning("Transforming " + this.attrName);
-		
+		Attribute attr = this.data.attribute(this.attrName);
 		
 		
 		// Get values
 		double[] vals = new double[this.data.size()];
 		for (int i = 0; i < this.data.size(); i ++) {
 			Instance inst = this.data.instance(i);
-			double val = inst.value(this.getAttribute());
+			double val = inst.value(attr);
 			vals[i] = val;
 		}
 		
@@ -114,7 +113,7 @@ public class Feature extends RealParameter  {
 			Instance inst = this.data.instance(i);
 			double tval = tvals[i];
 			if (Double.isNaN(tval)) tval = 0;
-			inst.setValue(this.getAttribute(), tval);
+			inst.setValue(attr, tval);
 		}
 		
 		this.isTransformed = !isTransformed; 

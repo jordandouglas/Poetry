@@ -61,9 +61,9 @@ public class DecisionTreeDistribution extends Distribution {
 	
 	
 	WekaData wekaData;
-	List<Attribute> covariates;
-	List<Attribute> predictors;
-	Attribute target;
+	List<String> covariates;
+	List<String> predictors;
+	String target;
 	DecisionTreeInterface treeI;
 	int nPredictors;
 	
@@ -173,7 +173,7 @@ public class DecisionTreeDistribution extends Distribution {
 		this.splits = new DecisionSplit[this.ntrees];
 		for (int i = 0; i < this.ntrees; i ++) {
 			DecisionTree tree = this.treeI.getTree(i);
-			this.splits[i] = new DecisionSplit(this.attributePointer, this.splitPoints, this.covariates, this.target.name(), this.trainingData[i], tree, treeI.getNAttr(), this.maxLeafCount);
+			this.splits[i] = new DecisionSplit(this.attributePointer, this.splitPoints, this.covariates, this.target, this.trainingData[i], tree, treeI.getNAttr(), this.maxLeafCount);
 		}
 		
 		
@@ -203,8 +203,8 @@ public class DecisionTreeDistribution extends Distribution {
 		Transform ttarget = this.targetInput.get();
 		Feature targetFeature = (Feature)(ttarget.getF().get(0));
 		//targetFeature.setDataset(data);
-		this.target = targetFeature.getAttribute();
-		data.setClass(target);
+		this.target = targetFeature.getAttributeName();
+		data.setClass(data.attribute(this.target));
 		
 		
 		// Find predictor features
@@ -213,7 +213,7 @@ public class DecisionTreeDistribution extends Distribution {
 			for (Function f : t.getF()) {
 				Feature predictorFeature = (Feature)f;
 				//predictorFeature.setDataset(data);
-				this.predictors.add(predictorFeature.getAttribute());
+				this.predictors.add(predictorFeature.getAttributeName());
 			}
 			
 		}
@@ -278,8 +278,8 @@ public class DecisionTreeDistribution extends Distribution {
 		
 
 		// Target feature
-		this.target = targetFeature.getAttribute();
-		data.setClass(target);
+		this.target = targetFeature.getAttributeName();
+		data.setClass(data.attribute(this.target));
 		targetFeature.transform(ttarget);
 
 
@@ -288,7 +288,7 @@ public class DecisionTreeDistribution extends Distribution {
 		// Remove instances with missing class values
 		//Log.warning("Num instances before : " + data.size());
 		Filter filter = new RemoveWithValues();
-		filter.setOptions(new String[] {"-C", "" + (WekaUtils.getIndexOfColumn(data, this.target.name())+1), "-M", "-S", "" + -100000 });
+		filter.setOptions(new String[] {"-C", "" + (WekaUtils.getIndexOfColumn(data, this.target)+1), "-M", "-S", "" + -100000 });
 		filter.setInputFormat(data);
 		data = Filter.useFilter(data, filter);
 		//Log.warning("Num instances after : " + data.size());
@@ -306,7 +306,8 @@ public class DecisionTreeDistribution extends Distribution {
 				
 				Feature predictorFeature = (Feature)f;
 				//predictorFeature.setDataset(data);
-				this.predictors.add(predictorFeature.getAttribute());
+				System.out.println("Adding predictor " + predictorFeature.getAttributeName());
+				this.predictors.add(predictorFeature.getAttributeName());
 				predictorFeature.transform(t);
 				
 			}
@@ -330,14 +331,14 @@ public class DecisionTreeDistribution extends Distribution {
 		System.out.println("Data organised into an " + this.trainingData[0].size() + "/" + this.testData.size() + " training/test split");
 		System.out.println("Maximum leaf count: " + this.maxLeafCount);
 		System.out.println("Minimum number of instances per leaf: " + this.minInstancesPerLeaf);
-		System.out.println("Target feature: " + this.target.name());
+		System.out.println("Target feature: " + this.target);
 		
 		
 		// Predictors
 		if (!this.predictors.isEmpty()) {
 			System.out.print("Predictors at leaves: "); 
 			for (int i = 0; i < this.predictors.size(); i ++) {
-				System.out.print(this.predictors.get(i).name());
+				System.out.print(this.predictors.get(i));
 				if (i < this.predictors.size() - 1) System.out.print(", ");
 			}
 			System.out.println();
@@ -347,7 +348,7 @@ public class DecisionTreeDistribution extends Distribution {
 		// Covariates
 		System.out.print("Covariates at internal nodes: ");
 		for (int i = 0; i < this.covariates.size(); i ++) {
-			System.out.print(this.covariates.get(i).name());
+			System.out.print(this.covariates.get(i));
 			if (i < this.covariates.size() - 1) System.out.print(", ");
 		}
 		System.out.println();
@@ -410,24 +411,23 @@ public class DecisionTreeDistribution extends Distribution {
 		this.covariates = new ArrayList<>();
 		for (int i = 0; i < data.numAttributes(); i ++) {
 			Attribute attr = data.attribute(i);
-			if (attr.name().equals(this.target.name())) continue;
+			if (attr.name().equals(this.target)) continue;
 			
 			boolean isPred = false;
-			for (Attribute pred : this.predictors) {
-				if (pred.name().equals(attr.name())) {
+			for (String pred : this.predictors) {
+				if (pred.equals(attr.name())) {
 					isPred = true;
 					break;
 				}
 			}
 			if (isPred) continue;
-			//if (this.predictors.contains(attr)) continue;
 			
 			// Check that every attribute is either numeric or nominal (no strings etc.)
 			if (!attr.isNominal() && !attr.isNumeric()) {
 				throw new IllegalArgumentException("Error: every attribute must be either numeric or nominal - " + attr.name());
 			}
 			
-			this.covariates.add(data.attribute(i));
+			this.covariates.add(data.attribute(i).name());
 		}
 		
 		
@@ -454,7 +454,9 @@ public class DecisionTreeDistribution extends Distribution {
 	 * @return
 	 */
 	public boolean isNumeric(int index) {
-		return this.covariates.get(index).isNumeric();
+		String attrName = this.covariates.get(index);
+		Attribute attr = this.trainingData[0].attribute(attrName);
+		return attr.isNumeric();
 	}
 	
 

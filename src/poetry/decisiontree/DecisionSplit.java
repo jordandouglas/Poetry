@@ -39,11 +39,14 @@ public class DecisionSplit {
 	 * @param data
 	 * @param nattr - number of attributes to subsample
 	 */
-	public DecisionSplit(IntegerParameter pointers, RealParameter splits, List<Attribute> covariates, String targetFeature, Instances data, DecisionTree tree, int nattr, int maxLeafCount) {
+	public DecisionSplit(IntegerParameter pointers, RealParameter splits, List<String> covariates, String targetFeature, Instances data, DecisionTree tree, int nattr, int maxLeafCount) {
 		
 		this.pointers = pointers;
 		this.splits = splits;
-		this.covariates = covariates;
+		this.covariates = new ArrayList<>();
+		for (String cov : covariates) {
+			this.covariates.add(data.attribute(cov));
+		}
 		this.tree = tree;
 		this.maxLeafCount = maxLeafCount;
 		this.targetFeature = targetFeature;
@@ -108,22 +111,25 @@ public class DecisionSplit {
 		int paramIndex = index - nleaves + treeAddon;
 		
 		if (this.pointers.getDimension() <= paramIndex) return null;
-		
-		
-		if (paramIndex < 0) {
-			int x = 5;
-		}
+
 		
 		// What attribute is being split on
 		int attrIndex = (int) this.pointers.getArrayValue(paramIndex);
 		Attribute splitAttr = this.covariates.get(attrIndex);
 		
 		
-		// If attribute is missing, return null
-		int attrNum = WekaUtils.getIndexOfColumn(preSplit, splitAttr.name());
-		if (attrNum == -1) {
-			return null;
+		// Test
+		if (splitAttr.name().equals(this.targetFeature)) {
+			Log.warning("Fatal error: splitting on target feature! " + this.targetFeature);
+			System.exit(0);
 		}
+		
+		
+		// If attribute is missing, return null
+		//int attrNum = WekaUtils.getIndexOfColumn(preSplit, splitAttr.name());
+		//if (attrNum == -1) {
+			//return null;
+		//}
 		
 		// Where to split
 		double splitPoint = this.splits.getArrayValue(paramIndex);
@@ -173,13 +179,13 @@ public class DecisionSplit {
 			
 			// Nominal split
 			if (splitAttr.isNominal()) {
-				int value = splitAttr.indexOfValue(inst.stringValue(attrNum));
+				int value = splitAttr.indexOfValue(inst.stringValue(splitAttr));
 				success = value == splitPointNominal;
 			}
 			
 			// Numeric split
 			else {
-				double value = inst.value(attrNum);
+				double value = inst.value(splitAttr);
 				success = value <= splitPoint;
 			}
 			
@@ -341,7 +347,7 @@ public class DecisionSplit {
 			
 			
 			// Remove all other attributes including leaf predictors
-			subset.deleteAttributeAt(WekaUtils.getIndexOfColumn(subset, attr.name()));
+			//subset.deleteAttributeAt(WekaUtils.getIndexOfColumn(subset, attr.name()));
 			
 		}
 		

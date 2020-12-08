@@ -82,7 +82,7 @@ public class BuildPoetrees extends Runnable {
 		
 		// Find poem columns
 		String poemESSColname = POEM.getESSColname(poemName);
-		weightColName = POEM.getWeightColname(poemName);
+		weightColName = POEM.getWeightColname(poemName) + ".d";
 		
 		
 		

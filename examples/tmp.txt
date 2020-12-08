@@ -1,0 +1,68 @@
+
+                   BEAST v2.6.3 Prerelease, 2002-2020
+             Bayesian Evolutionary Analysis Sampling Trees
+                       Designed and developed by
+ Remco Bouckaert, Alexei J. Drummond, Andrew Rambaut & Marc A. Suchard
+                                    
+                   Centre for Computational Evolution
+                         University of Auckland
+                       r.bouckaert@auckland.ac.nz
+                        alexei@cs.auckland.ac.nz
+                                    
+                   Institute of Evolutionary Biology
+                        University of Edinburgh
+                           a.rambaut@ed.ac.uk
+                                    
+                    David Geffen School of Medicine
+                 University of California, Los Angeles
+                           msuchard@ucla.edu
+                                    
+                      Downloads, Help & Resources:
+                           http://beast2.org/
+                                    
+  Source code distributed under the GNU Lesser General Public License:
+                   http://github.com/CompEvol/beast2
+                                    
+                           BEAST developers:
+   Alex Alekseyenko, Trevor Bedford, Erik Bloomquist, Joseph Heled, 
+ Sebastian Hoehna, Denise Kuehnert, Philippe Lemey, Wai Lok Sibon Li, 
+Gerton Lunter, Sidney Markowitz, Vladimir Minin, Michael Defoin Platel, 
+          Oliver Pybus, Tim Vaughan, Chieh-Hsi Wu, Walter Xie
+                                    
+                               Thanks to:
+          Roald Forsberg, Beth Shapiro and Korbinian Strimmer
+
+Random number seed: 1234
+
+Adding predictor TopologyPOEM.weight.d
+Adding predictor NodeHeightPOEM.weight.d
+Adding predictor SiteModelPOEM.weight.d
+Adding predictor TopologyPOEM.weight.d
+Adding predictor NodeHeightPOEM.weight.d
+Adding predictor SiteModelPOEM.weight.d
+-------------------------------------
+DecisionTree
+Data organised into an 813/3357 training/test split
+Maximum leaf count: 20
+Minimum number of instances per leaf: 50
+Target feature: NodeHeightPOEM.min.ESS.p
+Predictors at leaves: TopologyPOEM.weight.d, NodeHeightPOEM.weight.d, SiteModelPOEM.weight.d
+Covariates at internal nodes: ntaxa, nsites, npatterns, npartitions, ncalibrations, pgaps, nchar, NJtree.height, treeclock.model, site.model, site.heterogeneity.model, branch.model, tree.model, search.mode, TopologyPOEM.dim, NodeHeightPOEM.dim, SiteModelPOEM.dim, ClockModelRatePOEM.dim, ClockModelSDPOEM.dim, SpeciesTreePriorPOEM.dim, ClockModelRatePOEM.weight.d, ClockModelSDPOEM.weight.d, SpeciesTreePriorPOEM.weight.d
+-------------------------------------
+===============================================================================
+Citations for this model:
+
+Bouckaert, Remco, Timothy G. Vaughan, Joëlle Barido-Sottani, Sebastián Duchêne, Mathieu Fourment, 
+Alexandra Gavryushkina, Joseph Heled, Graham Jones, Denise Kühnert, Nicola De Maio, Michael Matschiner, 
+Fábio K. Mendes, Nicola F. Müller, Huw A. Ogilvie, Louis du Plessis, Alex Popinga, Andrew Rambaut, 
+David Rasmussen, Igor Siveroni, Marc A. Suchard, Chieh-Hsi Wu, Dong Xie, Chi Zhang, Tanja Stadler, 
+Alexei J. Drummond 
+  BEAST 2.5: An advanced software platform for Bayesian evolutionary analysis. 
+  PLoS computational biology 15, no. 4 (2019): e1006650.
+
+===============================================================================
+Start likelihood: -5593.841392091554 
+         Sample      posterior     likelihood          prior DirichletShape      R2(train)     rho(train)       R2(test)      rho(test)      leafcount
+              0     -5594.1635      -761.5570     -4832.6065         2.0           -2.0719         0.1577        -1.8761         0.1974              2 --
+          10000     -3024.6268       440.0653     -3464.6922         2.5664        -0.7190         0.2104        -0.5575         0.2657              2 --
+          20000     -1487.7539       559.2583     -2047.0122         2.2457        -0.2824         0.3535        -0.2037         0.3954              2 --

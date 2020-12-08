@@ -125,13 +125,10 @@ public class WekaUtils {
 		
 		
 		// Get the index number of this attribute
-		Enumeration<Attribute> attributes = data.enumerateAttributes();
 		Attribute attr;
-		int i = 0;
-		while (attributes.hasMoreElements()) {
-			attr = attributes.nextElement();
+		for (int i = 0; i < data.numAttributes(); i ++) {
+			attr = data.attribute(i);
 			if (attr.name().equals(name)) return i;
-			i++;
 		}
 		
 		if (data.classIndex() >=0 && data.classAttribute().name().equals(name)) return data.classIndex();
@@ -151,13 +148,10 @@ public class WekaUtils {
 		
 		
 		// Get the index number of this attribute
-		Enumeration<Attribute> attributes = instance.enumerateAttributes();
 		Attribute attr;
-		int i = 0;
-		while (attributes.hasMoreElements()) {
-			attr = attributes.nextElement();
+		for (int i = 0; i < instance.numAttributes(); i ++) {
+			attr = instance.attribute(i);
 			if (attr.name().equals(name)) return i;
-			i++;
 		}
 		
 		if (instance.classIndex() >=0 && instance.classAttribute().name().equals(name)) return instance.classIndex();

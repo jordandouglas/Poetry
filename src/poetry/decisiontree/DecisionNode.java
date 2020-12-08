@@ -39,10 +39,10 @@ public class DecisionNode extends Node {
 	protected DecisionNode parent;
 	
 	// The target feature
-	protected Attribute targetAttr;
+	protected String targetAttr;
 	
 	// The predictor features for regression at the leaves
-	protected List<Attribute> predAttr;
+	protected List<String> predAttr;
 	
 	// Slope and intercept parameters. These are vectors and the values at 'nodeIndex' correspond to this node. Sigma is a scalar
 	protected RealParameter slope, intercept, sigma;
@@ -93,7 +93,7 @@ public class DecisionNode extends Node {
 			double intercept = this.getIntercept();
 			buf.append("sigma=" + this.getSigma() + ",");
 			buf.append("intercept=" + intercept + ",");
-			String eqn = "eqn='" + WekaUtils.roundToSF(intercept, 3);
+			String eqn = "eqn='" + WekaUtils.roundToSF(intercept, 3) + "/(1";
 			for (int i = 0; i < this.predAttr.size(); i ++) {
 				
 				// Log the slope
@@ -101,10 +101,10 @@ public class DecisionNode extends Node {
 				buf.append("slope" + (i+1) + "=" + slope + ",");
 				
 				// Round to 3 sf for the equation
-				eqn += " + " + WekaUtils.roundToSF(slope, 3) + "x" + (i+1);
+				eqn += " + " + WekaUtils.roundToSF(slope, 3) + "/x" + (i+1);
 				
 			}
-			eqn += "'";
+			eqn += ")'";
 			buf.append(eqn);
 			
 			
@@ -142,7 +142,7 @@ public class DecisionNode extends Node {
 	 * @param split
 	 * @param data
 	 */
-	public DecisionNode(int treeNum, int maxLeafCount, DecisionSplit split, RealParameter slope, RealParameter intercept, RealParameter sigma, Attribute targetAttr, List<Attribute> predAttr) {
+	public DecisionNode(int treeNum, int maxLeafCount, DecisionSplit split, RealParameter slope, RealParameter intercept, RealParameter sigma, String targetAttr, List<String> predAttr) {
 		this.treeNum = treeNum;
 		this.ntrees = maxLeafCount;
 		this.nodeIndex = -1;
@@ -448,8 +448,8 @@ public class DecisionNode extends Node {
 		double y = this.getIntercept();
 		for (int i = 0; i < this.predAttr.size(); i ++) {
 			
-			int xIndex = WekaUtils.getIndexOfColumn(inst, this.predAttr.get(i).name());
-			double x = inst.value(xIndex);
+			Attribute attr = inst.dataset().attribute(this.predAttr.get(i));
+			double x = inst.value(attr);
 			double m = this.getSlope(i);
 			if (Double.isNaN(x)) continue;
 			y = y + m*x;
@@ -475,8 +475,8 @@ public class DecisionNode extends Node {
 				double v = 0;
 				for (int i = 0; i < this.predAttr.size(); i ++) {
 					
-					int xIndex = WekaUtils.getIndexOfColumn(inst, this.predAttr.get(i).name());
-					double x = inst.value(xIndex);
+					Attribute attr = inst.dataset().attribute(this.predAttr.get(i));
+					double x = inst.value(attr);
 					double m = this.getSlope(i);
 					if (Double.isNaN(x)) continue;
 					v = v + m/x;
@@ -571,12 +571,12 @@ public class DecisionNode extends Node {
 		if (this.splitData == null) return null;
 		
 		double[] trueYVals = new double[this.splitData.numInstances()];
-		int yIndex = WekaUtils.getIndexOfColumn(this.splitData, this.targetAttr.name());
+		Attribute target = this.splitData.attribute(this.targetAttr);
 		for (int instNum = 0; instNum < this.splitData.numInstances(); instNum++) {
 			
 			// Get true y
 			Instance inst = this.splitData.instance(instNum);
-			double trueY = inst.value(yIndex);
+			double trueY = inst.value(target);
 			if (Double.isNaN(trueY)) trueY = 0;
 			trueYVals[instNum] = trueY;
 		}
