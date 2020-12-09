@@ -3,10 +3,12 @@ package poetry.decisiontree;
 
 
 
+import java.util.HashMap;
 import java.util.List;
 
 import beast.core.Description;
 import beast.core.parameter.RealParameter;
+import beast.core.util.Log;
 import beast.evolution.tree.Node;
 import poetry.decisiontree.DecisionTreeInterface.regressionMode;
 import poetry.util.WekaUtils;
@@ -56,6 +58,10 @@ public class DecisionNode extends Node {
 	private regressionMode regression;
 	
 	
+	// Metadata tokens if parsed from newick string
+	HashMap<String, String> metadataTokens;
+	
+	
 	
 	
 	@Override
@@ -69,6 +75,9 @@ public class DecisionNode extends Node {
 	 * @return
 	 */
 	public int getNumInstances() {
+		
+		// Metadata token?
+		if (this.metadataTokens.containsKey("ninstances")) return Integer.parseInt(this.metadataTokens.get("ninstances"));
 		if (this.splitData == null) return 0;
 		return this.splitData.size();
 	}
@@ -84,8 +93,9 @@ public class DecisionNode extends Node {
 	 */
 	public void getMetaDataString(StringBuffer buf) {
 		
-		buf.append("ninstances=" + this.getNumInstances() + ",");
+		
 		buf.append("cond=" + this.isTrueChild + ",");
+		buf.append("ninstances=" + this.getNumInstances() + ",");
 		
 		if (this.isLeaf()) {
 			
@@ -93,19 +103,21 @@ public class DecisionNode extends Node {
 			double intercept = this.getIntercept();
 			buf.append("sigma=" + this.getSigma() + ",");
 			buf.append("intercept=" + intercept + ",");
-			String eqn = "eqn='" + WekaUtils.roundToSF(intercept, 3) + "/(1";
-			for (int i = 0; i < this.predAttr.size(); i ++) {
-				
-				// Log the slope
-				double slope = this.getSlope(i);
-				buf.append("slope" + (i+1) + "=" + slope + ",");
-				
-				// Round to 3 sf for the equation
-				eqn += " + " + WekaUtils.roundToSF(slope, 3) + "/x" + (i+1);
-				
+			if (this.split != null) {
+				String eqn = "eqn='" + WekaUtils.roundToSF(intercept, 3) + "/(1";
+				for (int i = 0; i < this.predAttr.size(); i ++) {
+					
+					// Log the slope
+					double slope = this.getSlope(i);
+					buf.append("slope" + (i+1) + "=" + slope + ",");
+					
+					// Round to 3 sf for the equation
+					eqn += " + " + WekaUtils.roundToSF(slope, 3) + "/x" + (i+1);
+					
+				}
+				eqn += ")'";
+				buf.append(eqn);
 			}
-			eqn += ")'";
-			buf.append(eqn);
 			
 			
 		}else {
@@ -113,9 +125,11 @@ public class DecisionNode extends Node {
 			
 			
 			// Split info if non-leaf
-			buf.append("attribute=" + this.split.getAttributeName(this.nodeIndex) + ",");
-			buf.append("value=" + this.split.getSplitValue(this.nodeIndex, -1) + ",");
-			buf.append("eqn='" + this.split.getCondition(this.nodeIndex, 3) + "'");
+			String attribute = this.getAttributeName();
+			String value = this.getAttributeValueName();
+			buf.append("attribute=" + attribute + ",");
+			buf.append("value=" + value + ",");
+			if (this.split != null) buf.append("eqn='" + this.split.getCondition(this.nodeIndex, 3) + "'");
 			
 		}
 		
@@ -123,6 +137,28 @@ public class DecisionNode extends Node {
 	
 
 
+	/**
+	 * The name of this attribute
+	 * @return
+	 */
+	public String getAttributeName() {
+		if (this.isLeaf()) throw new IllegalArgumentException("Error: there is no attribute because this is a leaf!");
+		if (this.metadataTokens.containsKey("attribute")) return this.metadataTokens.get("attribute"); 
+		return this.split.getAttributeName(this.nodeIndex);
+	}
+	
+	
+	/**
+	 * The value of this attribute split
+	 * @return
+	 */
+	public String getAttributeValueName() {
+		if (this.isLeaf()) throw new IllegalArgumentException("Error: there is no attribute value because this is a leaf!");
+		if (this.metadataTokens.containsKey("value")) return this.metadataTokens.get("value"); 
+		return this.split.getSplitValue(this.nodeIndex, -1);
+	}
+	
+	
 
 	/**
 	 * The name of this node
@@ -158,12 +194,34 @@ public class DecisionNode extends Node {
 		this.predAttr = predAttr;
 		this.children = new DecisionNode[2];
 		this.splitData = null;
+		this.metadataTokens = new HashMap<>();
 	}
 	
 
 
+	public DecisionNode() {
+		this.children = new DecisionNode[2];
+		this.nodeIndex = -1;
+		this.lastNodeIndex = -1;
+		this.splitData = null;
+		this.isTrueChild = null;
+		this.splitData = null;
+		this.depth = 0;
+		this.metadataTokens = new HashMap<>();
+	}
+
+
 	public void parseFromNode(Node node) throws Exception {
 		
+		// Parse metadata
+		String metadata = node.metaDataString;
+		this.metadataTokens = new HashMap<>();
+		String[] bits = metadata.split(",");
+		for (String bit : bits) {
+			String key = bit.split("=")[0];
+			String value = bit.split("=")[1];
+			this.metadataTokens.put(key, value);
+		}
 		
 		if (node.getChildCount() != 0 && node.getChildCount() != 2) {
 			throw new Exception("Error: binary trees only. Node " + node.getID() + " has " + node.getChildCount() + " children");
@@ -211,6 +269,7 @@ public class DecisionNode extends Node {
         	node.setTrueChild(children[0].copy());
         	node.setFalseChild(children[1].copy());
         }
+        //node.metadataTokens = (HashMap<String, String>) this.metadataTokens.clone();
         return node;
     } 
 	
@@ -394,7 +453,8 @@ public class DecisionNode extends Node {
 	 * The standard deviation
 	 * @return
 	 */
-	protected double getSigma() {
+	public double getSigma() {
+		if (this.metadataTokens.containsKey("sigma")) return Double.parseDouble(this.metadataTokens.get("sigma"));
 		return this.sigma.getArrayValue();
 	}
 
@@ -403,8 +463,9 @@ public class DecisionNode extends Node {
 	 * The intercept
 	 * @return
 	 */
-	protected double getIntercept() {
+	public double getIntercept() {
 		if (!this.isLeaf()) throw new IllegalArgumentException("Error: there is no intercept because this is not a leaf!");
+		if (this.metadataTokens.containsKey("intercept")) return Double.parseDouble(this.metadataTokens.get("intercept"));
 		int i = this.getTreeNum()*this.intercept.getDimension() / this.ntrees;
 		int j = this.nodeIndex;
 		return this.intercept.getArrayValue(i + j);
@@ -419,8 +480,9 @@ public class DecisionNode extends Node {
 	 * @param j 
 	 * @return
 	 */
-	protected double getSlope(int k) {
+	public double getSlope(int k) {
 		if (!this.isLeaf()) throw new IllegalArgumentException("Error: there is no slope because this is not a leaf!");
+		if (this.metadataTokens.containsKey("slope" + (k+1))) return Double.parseDouble(this.metadataTokens.get("slope" + (k+1)));
 		int i = this.getTreeNum()*this.slope.getDimension() / this.ntrees;
 		int j = this.nodeIndex*this.predAttr.size();
 		int index = i + j + k;
@@ -651,6 +713,67 @@ public class DecisionNode extends Node {
 		if (this.isLeaf()) return;
 		this.children[0].setRegressionMode(regression);
 		this.children[1].setRegressionMode(regression);
+	}
+
+
+	/**
+	 * Find the instance corresponding to this leaf
+	 * @param inst - a single instance (in Instances object)
+	 * @return
+	 */
+	public DecisionNode getLeaf(Instances instances) {
+		
+		if (this.isLeaf()) return this;
+		if (instances.size() != 1) throw new IllegalArgumentException("Dev error: make sure there is exactly 1 instance");
+		
+		
+		if (this.split == null) {
+			
+			
+			String attribute = this.getAttributeName();
+			String value = this.getAttributeValueName();
+			DecisionNode child;
+			if (instances.attribute(attribute) == null) {
+				Log.warning("Cannot find attribute " + attribute + " in instances. Selecting false child..");
+				child = this.getFalseChild();
+			}else {
+				
+				Attribute attr = instances.attribute(attribute);
+				boolean match = true;
+				if (attr.isNominal()) {
+					
+					// Does the instance exactly match?
+					int instanceValue = attr.indexOfValue(instances.get(0).stringValue(attr));
+					match = instanceValue == attr.indexOfValue(value);
+					//Log.warning(attribute + (match ? "==" : "!=") + value);
+					
+				}else {
+					
+					double instanceValue = instances.get(0).value(attr);
+					match = instanceValue <= Double.parseDouble(value);
+					//Log.warning(attribute + (match ? "<=" : ">") + value);
+					
+				}
+				
+				child = match ? this.getTrueChild() : this.getFalseChild();
+				
+			}
+			
+			return child.getLeaf(instances);
+			
+			
+		}else {
+			
+			Instances[] splits = this.split.splitData(instances, this.nodeIndex);
+			Instances splitTrue = splits[0];
+			
+			if (splitTrue.size() == 1) return this.getTrueChild().getLeaf(instances);
+			else return this.getFalseChild().getLeaf(instances);
+			
+		}
+		
+		
+		
 	}
 
 

@@ -37,6 +37,7 @@ import beast.util.Randomizer;
 import beast.util.XMLProducer;
 import poetry.XMLSimProducer;
 import poetry.functions.XMLFunction;
+import poetry.util.BEAST2Weka;
 import poetry.util.WeightedFile;
 import poetry.util.XMLUtils;
 
@@ -861,21 +862,11 @@ public class DatasetSampler extends Alignment implements XMLSampler  {
 	 * @return
 	 */
 	public double getProportionGaps() {
-		if (this.partitions == null) return 0;
-		
-		int numGaps = 0;
-		int nsites = 0;
-		for (Alignment aln : this.partitions) {
-			for (String taxon : aln.getTaxaNames()) {
-				String seq = aln.getSequenceAsString(taxon);
-				numGaps += seq.length() - seq.replace("-", "").length();
-				nsites += seq.length();
-			}
-		}
-		
-		double proportion = 1.0 * numGaps / nsites;
-		return proportion;
+		return BEAST2Weka.getPgaps(this.partitions);
 	}
+	
+	
+	
 
 
 
@@ -896,27 +887,7 @@ public class DatasetSampler extends Alignment implements XMLSampler  {
 	 * @return
 	 */
 	public double getEstimatedTreeHeight() {
-		
-		if (this.partitions == null) return 0;
-		
-		// Take the weighted-mean height across all partitions
-		double weightedMeanHeight = 0;
-		int nsitesTotal = 0;
-		ClusterTree tree = new ClusterTree();
-		
-		for (Alignment aln : this.partitions) {
-			
-			// Set estimate to false so that the tree is still calculated even in -resume mode
-			tree.initByName("clusterType", "neighborjoining", "taxa", aln, "estimate", false);
-			
-			// Calculate height
-			double height = tree.getRoot().getHeight();
-			double nsites = aln.getSiteCount();
-			weightedMeanHeight += height * nsites;
-			nsitesTotal += nsites;
-		}
-		
-		return weightedMeanHeight / nsitesTotal;
+		return BEAST2Weka.getTreeHeight(this.partitions);
 	}
 
 

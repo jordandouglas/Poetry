@@ -37,6 +37,7 @@ import poetry.sampler.ModelSampler;
 import poetry.sampler.POEM;
 import poetry.sampler.RunnableSampler;
 import poetry.sampler.XMLSampler;
+import poetry.util.BEAST2Weka;
 import poetry.util.Lock;
 import poetry.util.RuntimeLoggable;
 import poetry.util.XMLUtils;
@@ -571,16 +572,16 @@ public class SimulateXML extends Runnable {
 		dbOut.print(POEM.getReplicateColumn() + "\t");
 		dbOut.print(POEM.getStartedColumn() + "\t");
 		dbOut.print("dataset\t");
-		dbOut.print("ntaxa\t");
-		dbOut.print("nsites\t");
-		dbOut.print("npatterns\t");
-		dbOut.print("npartitions\t");
-		dbOut.print("ncalibrations\t");
+		dbOut.print(BEAST2Weka.getNtaxaAttr().name() + "\t");
+		dbOut.print(BEAST2Weka.getNsitesAttr().name() + "\t");
+		dbOut.print(BEAST2Weka.getNpatternsAttr().name() + "\t");
+		dbOut.print(BEAST2Weka.getNpartitionsAttr().name() + "\t");
+		dbOut.print(BEAST2Weka.getNcalibrationsAttr().name() + "\t");
 		dbOut.print("nspecies\t");
-		dbOut.print("pgaps\t");
-		dbOut.print("nchar\t");
+		dbOut.print(BEAST2Weka.getPgapsAttr().name() + "\t");
+		dbOut.print(BEAST2Weka.getNcharAttr().name() + "\t");
 		dbOut.print("dated\t");
-		dbOut.print("NJtree.height\t");
+		dbOut.print(BEAST2Weka.getTreeHeightAttr().name() + "\t");
 		
 		
 		

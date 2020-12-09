@@ -45,6 +45,8 @@ public abstract class WeightSampler extends BEASTObject {
 	
 	// For accessing the database
 	PoetryAnalyser poetry;
+
+	protected boolean isMC3;
 	
 
 	/**
@@ -53,7 +55,7 @@ public abstract class WeightSampler extends BEASTObject {
 	 * @param operators
 	 * @param database
 	 */
-	public void initialise(List<POEM> poems,  File database, StateNode placeholder, PoetryAnalyser poetry) {
+	public void initialise(List<POEM> poems, File database, StateNode placeholder, PoetryAnalyser poetry, boolean isMC3) {
 		
 		this.poems = poems;
 		this.database = database;
@@ -64,6 +66,7 @@ public abstract class WeightSampler extends BEASTObject {
 		this.placeholder = placeholder;
 		this.invalidOps = new ArrayList<Integer>();
 		this.poetry = poetry;
+		this.isMC3 = isMC3;
 		
 		
 		// Check the database for weights
@@ -71,7 +74,13 @@ public abstract class WeightSampler extends BEASTObject {
 	}
 	
 	
-
+	public boolean isMC3() {
+		return this.isMC3;
+	}
+	
+	public List<POEM> getPoems(){
+		return this.poems;
+	}
 
 	/**
 	 * Add operators and validate
@@ -329,6 +338,11 @@ public abstract class WeightSampler extends BEASTObject {
 		}
 		
 		
+	}
+
+
+	public int getNumPoems() {
+		return this.poems.size();
 	}
 
 

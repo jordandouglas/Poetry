@@ -20,6 +20,7 @@ import beast.util.Randomizer;
 import beast.util.Transform;
 import poetry.util.WekaUtils;
 import weka.core.Attribute;
+import weka.core.Instance;
 import weka.core.Instances;
 import weka.filters.Filter;
 import weka.filters.unsupervised.instance.RemoveWithValues;
@@ -229,8 +230,8 @@ public class DecisionTreeDistribution extends Distribution {
 	 * @throws Exception 
 	 */
 	private Instances[] transform(Instances[] data) throws Exception {
-		for (Instances d : data) {
-			d = this.transform(d);
+		for (int i = 0; i < data.length; i ++) {
+			data[i] = this.transform(data[i]);
 		}
 		return data;
 	}
@@ -280,19 +281,19 @@ public class DecisionTreeDistribution extends Distribution {
 		// Target feature
 		this.target = targetFeature.getAttributeName();
 		data.setClass(data.attribute(this.target));
-		targetFeature.transform(ttarget);
-
-
 		
+
 		
 		// Remove instances with missing class values
 		//Log.warning("Num instances before : " + data.size());
 		Filter filter = new RemoveWithValues();
-		filter.setOptions(new String[] {"-C", "" + (WekaUtils.getIndexOfColumn(data, this.target)+1), "-M", "-S", "" + -100000 });
+		filter.setOptions(new String[] {"-C", "" + (WekaUtils.getIndexOfColumn(data, this.target)+1), "-M", "-S", "" + Double.NEGATIVE_INFINITY });
 		filter.setInputFormat(data);
 		data = Filter.useFilter(data, filter);
+		
+		// Transform
+		targetFeature.transform(ttarget);
 		//Log.warning("Num instances after : " + data.size());
-
 		
 		
 		// Predictor features

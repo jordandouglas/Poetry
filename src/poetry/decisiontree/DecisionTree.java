@@ -14,6 +14,7 @@ import beast.core.util.Log;
 import beast.util.Randomizer;
 import beast.util.TreeParser;
 import weka.classifiers.trees.REPTree;
+import weka.core.Instance;
 import weka.core.Instances;
 
 
@@ -203,29 +204,35 @@ public class DecisionTree extends StateNode implements DecisionTreeInterface  {
     */
 	@Override
 	public void fromXML(Node node) {
-		
-		//Log.warning(this.root.);
-		
-		
 		final String newick = node.getTextContent();
-        final TreeParser parser = new TreeParser();
-        try {
-            parser.thresholdInput.setValue(1e-10, parser);
-        } catch (Exception e1) {
-            e1.printStackTrace();
-        }
-        try {
-            parser.offsetInput.setValue(0, parser);
-            beast.evolution.tree.Node rootNode = parser.parseNewick(newick);
-            this.root.parseFromNode(rootNode);
-            this.setRoot(this.root);
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-        	Log.warning(newick);
-            e.printStackTrace();
-        }
-		
+		this.fromNewick(newick);
 	}
+	
+	
+	/**
+	 * Parse from a newick string
+	 * @param newick
+	 */
+	public void fromNewick(String newick) {
+		  final TreeParser parser = new TreeParser();
+	        try {
+	            parser.thresholdInput.setValue(1e-10, parser);
+	        } catch (Exception e1) {
+	            e1.printStackTrace();
+	        }
+	        try {
+	            parser.offsetInput.setValue(0, parser);
+	            beast.evolution.tree.Node rootNode = parser.parseNewick(newick);
+	            this.root = new DecisionNode();
+	            this.root.parseFromNode(rootNode);
+	            this.setRoot(this.root);
+	        } catch (Exception e) {
+	            // TODO Auto-generated catch block
+	        	Log.warning(newick);
+	            e.printStackTrace();
+	        }
+	}
+	
 
 	@Override
 	public int scale(double scale) {
@@ -379,6 +386,26 @@ public class DecisionTree extends StateNode implements DecisionTreeInterface  {
 	@Override
 	public StateNode getStateNode() {
 		return this;
+	}
+
+	public double predict(Instance inst) {
+		return this.root.predict(inst);
+	}
+	
+	
+	/**
+	 * Find the leaf corresponding to this instance
+	 * @param inst - a single instance in Instances obj
+	 * @return
+	 */
+	public DecisionNode getLeaf(Instances inst) {
+		if (inst.size() != 1) throw new IllegalArgumentException("Dev error: make sure there is exactly 1 instance");
+		return this.root.getLeaf(inst);
+	}
+
+	public void setRegressionMode(regressionMode regressionMode) {
+		this.regression = regressionMode;
+		this.root.setRegressionMode(this.regression);
 	}
 
 

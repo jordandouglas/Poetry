@@ -113,7 +113,7 @@ public class DecisionSplit {
 		if (this.pointers.getDimension() <= paramIndex) return null;
 
 		
-		// What attribute is being split on
+		// Which attribute is being split on
 		int attrIndex = (int) this.pointers.getArrayValue(paramIndex);
 		Attribute splitAttr = this.covariates.get(attrIndex);
 		

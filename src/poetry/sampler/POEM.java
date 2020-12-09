@@ -1,5 +1,6 @@
 package poetry.sampler;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +33,7 @@ public class POEM extends BEASTObject implements XMLSampler {
 	final public Input<Double> alphaInput = new Input<>("alpha", "The Dirichlet alpha term for the prior probability of this operator", 1.0);
 	final public Input<Integer> logEveryInput = new Input<>("logEvery", "How often to log", Input.Validate.REQUIRED);
 	
-	
+	final public Input<String> treesInput = new Input<>("trees", "A file containing decision trees. Required if BayesianDecisionTreeSampler is used");
 	
 	
 	double weight;
@@ -79,6 +80,8 @@ public class POEM extends BEASTObject implements XMLSampler {
 	public static String getESSColname(String poemName) {
 		return poemName + ".min.ESS";
 	}
+	
+	
 	
 	
 	/**
@@ -194,6 +197,15 @@ public class POEM extends BEASTObject implements XMLSampler {
 		
 	}
 	
+	
+	/**
+	 * Decision tree file
+	 * @return
+	 */
+	public File getDecisionTreeFile() {
+		if (treesInput.get() == null) return null;
+		return new File(treesInput.get());
+	}
 	
 
 	@Override

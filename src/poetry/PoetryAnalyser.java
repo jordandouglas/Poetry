@@ -217,9 +217,9 @@ public class PoetryAnalyser extends Runnable {
 			System.out.println("Poetry replicate number: " + replicateNum);
 			return replicateNum;
 		}catch(Exception e) {
-			Log.warning("Error: cannot find replicate number. Please ensure your working directory is within "
+			Log.warning("Warning: cannot find replicate number. Please ensure your working directory is within "
 					+ "the the replicateX folder where X is the replicate number. pwd: " + pwd);
-			throw e;
+			return -1;
 		}
 		
 	}

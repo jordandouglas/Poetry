@@ -56,7 +56,7 @@ public class MinESS extends Runnable {
 		LogAnalyser analyser = new LogAnalyser(logFile.getAbsolutePath(), this.burninInput.get(), true, null);
 		
 		// Get minimum ESS across all column names
-		int meanESS = 0;
+		double meanESS = 0;
 		int numCols = 0;
 		for (String colname : analyser.getLabels()) {
 			if (this.skip.contains(colname)) continue;
