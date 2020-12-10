@@ -421,7 +421,7 @@ public class DecisionTreeDistribution extends Distribution {
 					break;
 				}
 			}
-			if (isPred) continue;
+			//if (isPred) continue;
 			
 			// Check that every attribute is either numeric or nominal (no strings etc.)
 			if (!attr.isNominal() && !attr.isNumeric()) {
@@ -604,6 +604,14 @@ public class DecisionTreeDistribution extends Distribution {
 			//System.out.println(trueY.length + " total instances");
 			
 			// Take mean prediction across all trees in the forest. Each tree should have different data
+			if (t == 1 && this.testData == null) continue;
+			int ninstances = t == 0 ? this.trainingData[0].size() : this.testData.size();
+			
+			
+			// True values
+			double[] trueY = new double[ninstances];
+			double[] predY = new double[ninstances];
+			
 			
 			for (DecisionTree tree : this.treeI.getTrees()) {
 				
@@ -612,8 +620,7 @@ public class DecisionTreeDistribution extends Distribution {
 				if (data == null || data.size() == 0 || !tree.splitData(data)) continue;
 				
 				
-				double[] trueY = new double[data.size()];
-				double[] predY = new double[data.size()];
+				
 			
 				
 				// Calculate regression R2 at the leaves
@@ -635,10 +642,6 @@ public class DecisionTreeDistribution extends Distribution {
 					}
 					
 				}
-				
-		
-				
-				
 				
 				
 				// Total sum of squares

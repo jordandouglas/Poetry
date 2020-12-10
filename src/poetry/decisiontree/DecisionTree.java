@@ -61,7 +61,7 @@ public class DecisionTree extends StateNode implements DecisionTreeInterface  {
 	
 	public void setRoot(DecisionNode root) {
 		this.root = root;
-		this.root.setRegressionMode(this.regression);
+		this.root.setRegressionMode(this.regression, this.distributionInput.get());
 		this.split = root.getSplit();
 		this.reset();
 	}

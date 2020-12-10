@@ -562,8 +562,16 @@ GeneTreePriorPOEM is not applicable to this model
         	
         <operatorschedule coordinateWeights="false" placeholder="@PHStateNode" runtime="runtime.log" spec="poetry.operators.PoetryScheduler" updateEvery="10000000">
 
-            <sampler spec="poetry.learning.BayesianDecisionTreeSampler" static="true" tree="@tree" data="@alignment.$(partition)"/>
-            <!--<sampler spec="poetry.learning.DimensionalSampler" static="true" scale="100000"/>-->
+            <sampler spec="poetry.learning.BayesianDecisionTreeSampler" static="true" tree="@tree" data="@alignment.$(partition)">
+                <model spec="poetry.learning.ModelValue" model="treeclock.model" value="Calibrated.clock.model" />
+                <model spec="poetry.learning.ModelValue" model="site.model" value="JukesCantor.model" />
+                <model spec="poetry.learning.ModelValue" model="site.heterogeneity.model" value="GammaInvariant.model" />
+                <model spec="poetry.learning.ModelValue" model="branch.model" value="RelaxedLN.model" />
+                <model spec="poetry.learning.ModelValue" model="tree.model" value="BirthDeath.model" />
+                <model spec="poetry.learning.ModelValue" model="search.mode" value="MCMC.search" />
+            </sampler>
+            
+            <!--<sampler spec="poetry.learning.DimensionalSampler" static="true" scale="-1"/>-->
 
             <poem alpha="2.0" id="TopologyPOEM" logEvery="10000" operator="@species.tree.topology.operator" spec="poetry.sampler.POEM" trees="/home/jdou557/Documents/Marsden2019/Months/December2020/BDT_bu/topology/decision.trees" />
 

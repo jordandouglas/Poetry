@@ -120,6 +120,9 @@ public class PoetryScheduler extends OperatorSchedule {
 	  */
 	 public boolean isMC3() {
 		 
+		 // tmp
+		 if (true) return true;
+		 
 		 for (BEASTInterface obj : this.getOutputs()) {
 			 if (obj instanceof HeatedChain) {
 				 return true;
@@ -138,8 +141,8 @@ public class PoetryScheduler extends OperatorSchedule {
 	  */
 	 public boolean isColdChain() {
 		 
-		 //tmp
-		 //if (true) return true;
+		 // tmp
+		 if (true) return true;
 		 
 		 for (BEASTInterface obj : this.getOutputs()) {
 			 

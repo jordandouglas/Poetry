@@ -26,6 +26,9 @@ public class BayesianDecisionTreeSampler extends WeightSampler {
 	
 	final public Input<regressionMode> regressionInput = new Input<>("regression", "Regression model at the leaves", regressionMode.test, regressionMode.values());
 	
+	final public Input<List<ModelValue>> modelValuesInput = new Input<>("model", "List of models and their values -- for applying the decsion tree from the model", new ArrayList<>());
+	
+	
 	
 	@Override
 	public void initAndValidate() {
@@ -39,8 +42,11 @@ public class BayesianDecisionTreeSampler extends WeightSampler {
 	public void sampleWeights() throws Exception {
 		
 		
+		// Model values
+		List<ModelValue> modelValues = modelValuesInput.get();
+		
 		// Get the Weka Instance of this session
-		Instances instances = BEAST2Weka.getInstance(dataInput.get(), treeInput.get(), this);
+		Instances instances = BEAST2Weka.getInstance(dataInput.get(), treeInput.get(), this, modelValues);
 				
 		int dim = poems.size();
 		double[] weights = new double[dim];
@@ -72,7 +78,7 @@ public class BayesianDecisionTreeSampler extends WeightSampler {
 		}
 		
 		
-		weights = this.predictESS(decisionTrees, instances);
+		weights = this.getWeights(decisionTrees, instances);
 		
 		this.setWeights(weights);
 		
@@ -80,8 +86,51 @@ public class BayesianDecisionTreeSampler extends WeightSampler {
 	
 	
 	
-	protected double[] predictESS(DecisionTree[] trees, Instances inst) {
+	protected double[] getWeights(DecisionTree[] trees, Instances inst) {
 		
+		
+		// Get optimal weights from current state
+		double[] weights = new double[trees.length];
+		for (int j = 0; j < weights.length; j++) {
+			DecisionNode leaf = trees[j].getLeaf(inst);
+			POEM poem = this.poems.get(j);
+			
+			double slope = leaf.getSlope(0);
+			double dim = DimensionalSampler.modifyDimension(poem.getID(), poem.getDim());
+			double essVal = slope * dim;
+			weights[j] = essVal;
+			
+		}
+		
+		
+		return weights;
+		
+		
+	}
+	
+	
+	
+	/**
+	 * Attempts to optimise operator weights using the tree
+	 * @param trees
+	 * @param inst
+	 * @return
+	 */
+	protected double[] optimise(DecisionTree[] trees, Instances inst) {
+		
+		
+		return null;
+		
+	}
+	
+	
+	/**
+	 * Predict mean distance between fractional ESS and the ideal balance
+	 * @param trees
+	 * @param inst
+	 * @return
+	 */
+	protected double predictPMean(DecisionTree[] trees, Instances inst) {
 		
 		// Predict fractional ESSes
 		double essSum = 0;
@@ -93,27 +142,22 @@ public class BayesianDecisionTreeSampler extends WeightSampler {
 			double slope = leaf.getSlope(0);
 			double intercept = leaf.getIntercept();
 			double weightDim = inst.get(0).value(inst.attribute(BEAST2Weka.getPoemWeightDimensionAttr(poem).name()));
-			double dim = inst.get(0).value(inst.attribute(BEAST2Weka.getPoemDimensionAttr(poem).name()));
+			double dim = DimensionalSampler.modifyDimension(poem.getID(), poem.getDim());
 			double weight = weightDim * dim;
 			double essVal = intercept / (1 + slope/weight);
-			
-			// Tmp
-			essVal = slope * dim;
-			
 			essSum += essVal;
 			ess[j] = essVal;
-			
-			
 		}
 		
 		// Normalise
+		double perfectFraction = 1.0 / trees.length;
+		double pmean = 0;
 		for (int j = 0; j < ess.length; j++) {
 			ess[j] /= essSum;
+			pmean += Math.pow(ess[j] - perfectFraction, 2) / ess.length;
 		}
-		
-		return ess;
-		
-		
+				
+		return pmean;
 	}
 	
 	

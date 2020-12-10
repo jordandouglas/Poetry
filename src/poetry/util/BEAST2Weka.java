@@ -8,6 +8,8 @@ import beast.evolution.alignment.Alignment;
 import beast.evolution.tree.Tree;
 import beast.math.distributions.MRCAPrior;
 import beast.util.ClusterTree;
+import poetry.learning.DimensionalSampler;
+import poetry.learning.ModelValue;
 import poetry.learning.WeightSampler;
 import poetry.sampler.POEM;
 import weka.core.Attribute;
@@ -22,13 +24,9 @@ import weka.core.Instances;
  */
 public class BEAST2Weka {
 
-	public static Instances getInstance(Alignment dataset, Tree tree, WeightSampler weightSampler) {
+	public static Instances getInstance(Alignment dataset, Tree tree, WeightSampler weightSampler, List<ModelValue> modelValues) {
 
 		
-		// TODO dimension needs to be calculated properly not by using operator dimension
-		
-		final int nattr = weightSampler.getNumPoems()*2 + 8;
-		Instance instance = new DenseInstance(nattr);
 		
 		// Create attribute list
 		ArrayList<Attribute> attributes = new ArrayList<>();
@@ -44,7 +42,15 @@ public class BEAST2Weka {
 			attributes.add(getPoemWeightDimensionAttr(poem)); // Weight
 			attributes.add(getPoemDimensionAttr(poem)); // Dimension
 		}
+		for (ModelValue mv : modelValues) {
+			attributes.add(getModelValueAttr(mv)); // Model value
+		}
+		final int nattr = attributes.size();
 		Instances instances = new Instances("beast2", attributes,  nattr);
+		
+		
+		// Create the instance
+		Instance instance = new DenseInstance(nattr);
 		instance.setDataset(instances);
 		
 		// Partitions
@@ -86,11 +92,38 @@ public class BEAST2Weka {
 			
 		}
 		
+		// The model
+		for (ModelValue mv : modelValues) {
+			if (mv.isNumeric()) {
+				instance.setValue(instances.attribute(getModelValueAttr(mv).name()), getModelValueNumeric(mv));
+			}else {
+				instance.setValue(instances.attribute(getModelValueAttr(mv).name()), getModelValueNominal(mv));
+			}
+			
+		}
+		
 		instances.add(instance);
 		return instances;
 		
 	}
 	
+	
+	
+	
+	/** 
+	 * Get weight of a poem divided by its dimension attribute
+	 * @return
+	 */
+	public static Attribute getModelValueAttr(ModelValue mv) {
+		if (mv.isNumeric()) {
+			return new Attribute(mv.getModel()); // Numeric
+		}else {
+			ArrayList<String> values = new ArrayList<>();
+			values.add(mv.getValue());
+			return new Attribute(mv.getModel(), values); // Nominal
+		}
+		
+	}
 	
 	/** 
 	 * Get weight of a poem divided by its dimension attribute
@@ -315,8 +348,11 @@ public class BEAST2Weka {
 	 * @return
 	 */
 	public static double getPoemWeightDimension(POEM poem) {
-		return poem.getWeight() / poem.getDim();
+		double weight = poem.getWeight();
+		double dim = DimensionalSampler.modifyDimension(poem.getID(), poem.getDim());
+		return weight / dim;
 	}
+	
 	
 	
 	/** 
@@ -327,6 +363,22 @@ public class BEAST2Weka {
 		return poem.getDim();
 	}
 	
+	
+	/** 
+	 * Get the value of this model value
+	 * @return
+	 */
+	public static String getModelValueNominal(ModelValue mv) {
+		return mv.getValue();
+	}
+	
+	/** 
+	 * Get the value of this model value
+	 * @return
+	 */
+	public static double getModelValueNumeric(ModelValue mv) {
+		return Double.parseDouble(mv.getValue());
+	}
 
 	
 }

@@ -6,10 +6,13 @@ package poetry.decisiontree;
 import java.util.HashMap;
 import java.util.List;
 
+import org.apache.commons.math3.distribution.TDistribution;
+
 import beast.core.Description;
 import beast.core.parameter.RealParameter;
 import beast.core.util.Log;
 import beast.evolution.tree.Node;
+import poetry.decisiontree.DecisionTreeInterface.regressionDistribution;
 import poetry.decisiontree.DecisionTreeInterface.regressionMode;
 import poetry.util.WekaUtils;
 import weka.core.Attribute;
@@ -56,10 +59,11 @@ public class DecisionNode extends Node {
 	// The split data
 	protected Instances splitData = null;
 	private regressionMode regression;
-	
+	private regressionDistribution regressionDistribution;
 	
 	// Metadata tokens if parsed from newick string
 	HashMap<String, String> metadataTokens;
+	
 	
 	
 	
@@ -264,6 +268,7 @@ public class DecisionNode extends Node {
         node.parent = null;
         node.isTrueChild = this.isTrueChild;
         node.regression = this.regression;
+        node.regressionDistribution = this.regressionDistribution;
         this.splitData = null;
         if (!isLeaf()) {
         	node.setTrueChild(children[0].copy());
@@ -616,10 +621,34 @@ public class DecisionNode extends Node {
 	 * @param standardDeviation
 	 * @return
 	 */
-    public static double logDensity(double x, double mean, double standardDeviation) {
-        double a = 1.0 / (Math.sqrt(2.0 * Math.PI) * standardDeviation);
-        double b = -(x - mean) * (x - mean) / (2.0 * standardDeviation * standardDeviation);
-        return Math.log(a) + b;
+    public double logDensity(double x, double mean, double standardDeviation) {
+    	
+    	
+    	if (standardDeviation <= 0) return Double.NEGATIVE_INFINITY;
+    	
+    	// tmp hack
+    	if (this.regressionDistribution == null) this.regressionDistribution = regressionDistribution.student;
+    	
+    	switch (this.regressionDistribution) {
+    	
+	    	case normal:{
+	    		double a = 1.0 / (Math.sqrt(2.0 * Math.PI) * standardDeviation);
+    	        double b = -(x - mean) * (x - mean) / (2.0 * standardDeviation * standardDeviation);
+    	        return Math.log(a) + b;
+	    	}
+	    	
+	    	case student: {
+	    		TDistribution dist = new TDistribution(standardDeviation);
+	    		return Math.log(dist.density(x - mean));
+	    	}
+	    	
+    	
+    	}
+    	
+    	
+    	return 0;
+    	
+       
     }
 
 
@@ -714,6 +743,15 @@ public class DecisionNode extends Node {
 		this.children[0].setRegressionMode(regression);
 		this.children[1].setRegressionMode(regression);
 	}
+	
+	public void setRegressionMode(regressionMode regression, regressionDistribution regressionDistribution) {
+		this.regression = regression;
+		this.regressionDistribution = regressionDistribution;
+		if (this.isLeaf()) return;
+		this.children[0].setRegressionMode(regression, regressionDistribution);
+		this.children[1].setRegressionMode(regression, regressionDistribution);
+		
+	}
 
 
 	/**
@@ -734,8 +772,8 @@ public class DecisionNode extends Node {
 			String value = this.getAttributeValueName();
 			DecisionNode child;
 			if (instances.attribute(attribute) == null) {
-				Log.warning("Cannot find attribute " + attribute + " in instances. Selecting false child..");
-				child = this.getFalseChild();
+				Log.warning("Warning: cannot find attribute " + attribute + " in instances. Selecting largest subtree...");
+				child = this.getFalseChild().getNumInstances() > this.getTrueChild().getNumInstances() ? this.getFalseChild() : this.getTrueChild();
 			}else {
 				
 				Attribute attr = instances.attribute(attribute);
@@ -744,14 +782,19 @@ public class DecisionNode extends Node {
 					
 					// Does the instance exactly match?
 					int instanceValue = attr.indexOfValue(instances.get(0).stringValue(attr));
-					match = instanceValue == attr.indexOfValue(value);
-					//Log.warning(attribute + (match ? "==" : "!=") + value);
+					int index = attr.indexOfValue(value);
+					
+					// New value - take largest subtree
+					match = instanceValue == index;
+					
+					
+					Log.warning(attribute + (match ? " == " : " != ") + value);
 					
 				}else {
 					
 					double instanceValue = instances.get(0).value(attr);
 					match = instanceValue <= Double.parseDouble(value);
-					//Log.warning(attribute + (match ? "<=" : ">") + value);
+					Log.warning(attribute + (match ? " <= " : " > ") + value);
 					
 				}
 				
@@ -775,6 +818,9 @@ public class DecisionNode extends Node {
 		
 		
 	}
+
+
+	
 
 
 

@@ -11,20 +11,27 @@ public interface DecisionTreeInterface  {
 
 	
 	// Tree initialisation method
-	enum initTree{
+	enum initTree {
 		root, reptree
 	}
 	
 	
 	// Regression at leaves
-	public enum regressionMode{
+	public enum regressionMode {
 		linear, logistic, test, log
 	}
+	
+	
+	// Distribution
+	public enum regressionDistribution {
+		normal, student
+	}
+	
 	
 	final public Input<initTree> initInput = new Input<>("init", "Method for initialising decision tree(s)", initTree.root, initTree.values());
 	final public Input<regressionMode> regressionInput = new Input<>("regression", "Regression model at the leaves", regressionMode.linear, regressionMode.values());
 	
-	
+	final public Input<regressionDistribution> distributionInput = new Input<>("dist", "Regression distribution at the leaves", regressionDistribution.student, regressionDistribution.values());
 	
 	
 	/**

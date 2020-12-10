@@ -11,7 +11,7 @@ public class DimensionalSampler extends WeightSampler {
 
 	
 	final public Input<Double> scaleInput = new Input<>("scale", "Number to multiply (normalised) dimensions by when assigning Dirichlet alphas. "
-			+ "Large scale = small variance.", 20.0);
+			+ "Large scale = small variance. Set to -1 for deterministic sampling", 20.0);
 	
 	@Override
 	public void initAndValidate() {
@@ -43,21 +43,22 @@ public class DimensionalSampler extends WeightSampler {
 			POEM poem = poems.get(j);
 			int poemDim = poem.getDim();
 			if (poem.getAlpha() == 0) poemDim = 0;
-			weights[j] = this.modifyDimension(poem.getID(), poemDim);;
+			weights[j] = modifyDimension(poem.getID(), poemDim);;
 			dimensionSum += weights[j];
 		}
 		
 		
 		// Convert dimensions into alphas
+		double scale = scaleInput.get();
 		for (int j = 0; j < dim; j++) {	
 			
 			double val = weights[j] / dimensionSum;
-			val = val * scaleInput.get();
+			if (scale > 0) val = val * scale;
 			
 			
 			System.out.println(poems.get(j).getID() + ": alpha = " + val);
 			
-			if (val == 0) {
+			if (val == 0 || scale <= 0) {
 				weights[j] = val;
 			}else {
 				weights[j] = Randomizer.nextGamma(val, 1.0);
@@ -78,7 +79,7 @@ public class DimensionalSampler extends WeightSampler {
 	 * @param dimension
 	 * @return
 	 */
-	private double modifyDimension(String poemID, int dimension) {
+	public static double modifyDimension(String poemID, int dimension) {
 		
 		
 		switch (poemID) {
