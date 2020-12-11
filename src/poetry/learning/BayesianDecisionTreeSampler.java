@@ -2,7 +2,6 @@ package poetry.learning;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -13,7 +12,7 @@ import beast.evolution.alignment.Alignment;
 import beast.evolution.tree.Tree;
 import poetry.decisiontree.DecisionNode;
 import poetry.decisiontree.DecisionTree;
-import poetry.decisiontree.DecisionTreeInterface.regressionMode;
+import poetry.decisiontree.DecisionTreeDistribution.ResponseMode;
 import poetry.sampler.POEM;
 import poetry.util.BEAST2Weka;
 import weka.core.Instances;
@@ -24,7 +23,7 @@ public class BayesianDecisionTreeSampler extends WeightSampler {
 	final public Input<Tree> treeInput = new Input<>("tree", "The phylogenetic tree (used for machine learning)", Input.Validate.REQUIRED);
 	final public Input<Alignment> dataInput = new Input<>("data", "The alignment (used for machine learning)", Input.Validate.REQUIRED);
 	
-	final public Input<regressionMode> regressionInput = new Input<>("regression", "Regression model at the leaves", regressionMode.test, regressionMode.values());
+	final public Input<ResponseMode> regressionInput = new Input<>("regression", "Regression model at the leaves", ResponseMode.test, ResponseMode.values());
 	
 	final public Input<List<ModelValue>> modelValuesInput = new Input<>("model", "List of models and their values -- for applying the decsion tree from the model", new ArrayList<>());
 	

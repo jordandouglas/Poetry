@@ -32,8 +32,8 @@
 
     <state id="state" spec="State" storeEvery="5000">
 
-     <!-- <tree id="tree" spec="poetry.decisiontree.RandomForest" name="stateNode" ntrees="10" init="root" regression="test" />-->
-        <tree id="tree" spec="poetry.decisiontree.DecisionTree" name="stateNode"  init="root" regression="test" />
+     <!-- <tree id="tree" spec="poetry.decisiontree.RandomForest" name="stateNode" ntrees="10" init="root" />-->
+        <tree id="tree" spec="poetry.decisiontree.DecisionTree" name="stateNode"  init="root"  />
 
 
 
@@ -101,7 +101,7 @@
 
         <distribution id="likelihood" spec="util.CompoundDistribution">
 
-            <distribution id="decisionTreeDistribution" spec="poetry.decisiontree.DecisionTreeDistribution" tree="@tree" maxLeafCount="30" minInstances="50" data="@wekaData" shape="@DirichletShape">
+            <distribution id="decisionTreeDistribution" spec="poetry.decisiontree.DecisionTreeDistribution" tree="@tree" maxLeafCount="30" minInstances="50" data="@wekaData" shape="@DirichletShape" regression="test">
 
 				
       

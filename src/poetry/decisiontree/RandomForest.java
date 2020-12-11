@@ -9,6 +9,7 @@ import beast.core.Input;
 import beast.core.Operator;
 import beast.core.StateNode;
 import beast.util.Randomizer;
+import poetry.decisiontree.DecisionTreeDistribution.ResponseMode;
 import weka.core.Instances;
 
 
@@ -39,7 +40,7 @@ public class RandomForest extends StateNode implements DecisionTreeInterface {
 		this.trees = new DecisionTree[this.ntrees];
 		this.storedTrees = new DecisionTree[this.ntrees];
 		for (int i = 0; i < this.ntrees; i ++) {
-			this.trees[i] = new DecisionTree(i, regressionInput.get());
+			this.trees[i] = new DecisionTree(i);
 		}
 	}
 	
@@ -262,6 +263,13 @@ public class RandomForest extends StateNode implements DecisionTreeInterface {
 	@Override
 	public StateNode getStateNode() {
 		return this;
+	}
+
+
+	@Override
+	public void setRegressionMode(ResponseMode mode) {
+		//this.setRegressionMode(mode);
+		
 	}
 
 }

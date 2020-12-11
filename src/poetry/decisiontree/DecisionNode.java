@@ -6,14 +6,13 @@ package poetry.decisiontree;
 import java.util.HashMap;
 import java.util.List;
 
-import org.apache.commons.math3.distribution.TDistribution;
 
 import beast.core.Description;
 import beast.core.parameter.RealParameter;
 import beast.core.util.Log;
 import beast.evolution.tree.Node;
 import poetry.decisiontree.DecisionTreeInterface.regressionDistribution;
-import poetry.decisiontree.DecisionTreeInterface.regressionMode;
+import poetry.decisiontree.DecisionTreeDistribution.ResponseMode;
 import poetry.util.WekaUtils;
 import weka.core.Attribute;
 import weka.core.Instance;
@@ -44,7 +43,7 @@ public class DecisionNode extends Node {
 	protected DecisionNode parent;
 	
 	// The target feature
-	protected String targetAttr;
+	protected List<String> targetAttr;
 	
 	// The predictor features for regression at the leaves
 	protected List<String> predAttr;
@@ -58,7 +57,7 @@ public class DecisionNode extends Node {
 	
 	// The split data
 	protected Instances splitData = null;
-	private regressionMode regression;
+	protected ResponseMode regression;
 	private regressionDistribution regressionDistribution;
 	
 	// Metadata tokens if parsed from newick string
@@ -182,7 +181,7 @@ public class DecisionNode extends Node {
 	 * @param split
 	 * @param data
 	 */
-	public DecisionNode(int treeNum, int maxLeafCount, DecisionSplit split, RealParameter slope, RealParameter intercept, RealParameter sigma, String targetAttr, List<String> predAttr) {
+	public DecisionNode(int treeNum, int maxLeafCount, DecisionSplit split, RealParameter slope, RealParameter intercept, RealParameter sigma, List<String> targetAttr, List<String> predAttr, ResponseMode regression) {
 		this.treeNum = treeNum;
 		this.ntrees = maxLeafCount;
 		this.nodeIndex = -1;
@@ -199,6 +198,7 @@ public class DecisionNode extends Node {
 		this.children = new DecisionNode[2];
 		this.splitData = null;
 		this.metadataTokens = new HashMap<>();
+		this.regression = regression;
 	}
 	
 
@@ -262,12 +262,11 @@ public class DecisionNode extends Node {
 
 
 	public DecisionNode copy() {
-        final DecisionNode node = new DecisionNode(this.treeNum, this.ntrees, split, slope, intercept, sigma, targetAttr, predAttr);
+        final DecisionNode node = new DecisionNode(this.treeNum, this.ntrees, split, slope, intercept, sigma, targetAttr, predAttr, this.regression);
         node.depth = depth;
         node.nodeIndex = nodeIndex;
         node.parent = null;
         node.isTrueChild = this.isTrueChild;
-        node.regression = this.regression;
         node.regressionDistribution = this.regressionDistribution;
         this.splitData = null;
         if (!isLeaf()) {
@@ -509,62 +508,78 @@ public class DecisionNode extends Node {
 	 * @param inst
 	 * @return
 	 */
-	public Double predict(Instance inst) {
+	public double[] predict(Instance inst) {
 		if (!this.isLeaf()) return null;
 		
-		double y = this.getIntercept();
-		for (int i = 0; i < this.predAttr.size(); i ++) {
-			
-			Attribute attr = inst.dataset().attribute(this.predAttr.get(i));
-			double x = inst.value(attr);
-			double m = this.getSlope(i);
-			if (Double.isNaN(x)) continue;
-			y = y + m*x;
-			
-		}
 		
-		// Regression mode
-		switch (this.regression) {
+		double[] response = new double[this.targetAttr.size()];
 		
-			case logistic:{
-				y = 1 / (1 + Math.exp(y));
-				break;
-			}
+		for (int targetNum = 0; targetNum < response.length; targetNum ++) {
 			
-			
-			case log:{
-				y = Math.log(y);
-				break;
-			}
-			
-			case test:{
+			double y = this.getIntercept();
+			for (int i = 0; i < this.predAttr.size(); i ++) {
 				
-				double v = 0;
-				for (int i = 0; i < this.predAttr.size(); i ++) {
-					
-					Attribute attr = inst.dataset().attribute(this.predAttr.get(i));
-					double x = inst.value(attr);
-					double m = this.getSlope(i);
-					if (Double.isNaN(x)) continue;
-					v = v + m/x;
-					
+				Attribute attr = inst.dataset().attribute(this.predAttr.get(i));
+				double x = inst.value(attr);
+				double m = this.getSlope(i);
+				if (Double.isNaN(x)) continue;
+				y = y + m*x;
+				
+			}
+			
+			// Regression mode
+			switch (this.regression) {
+			
+				case logistic:{
+					y = 1 / (1 + Math.exp(y));
+					break;
 				}
 				
-				y = this.getIntercept() / (1 + v);
-				break;
-			}
+				
+				case log:{
+					y = Math.log(y);
+					break;
+				}
+				
+				case test:{
+					
+					double v = 0;
+					for (int i = 0; i < this.predAttr.size(); i ++) {
+						
+						Attribute attr = inst.dataset().attribute(this.predAttr.get(i));
+						double x = inst.value(attr);
+						double m = this.getSlope(i);
+						if (Double.isNaN(x)) continue;
+						v = v + m/x;
+						
+					}
+					
+					y = this.getIntercept() / (1 + v);
+					break;
+				}
+				
+				
+				case dirichlet:{
+					
+					// TODO
+					
+					break;
+				}
+				
+				default:{
+					break;
+				}
 			
-			default:{
-				break;
+			
 			}
 		
-		
+			
+			response[targetNum] = y;
+			
 		}
-	
 		
 		
-		
-		return y;
+		return response;
 	}
 
 
@@ -593,19 +608,37 @@ public class DecisionNode extends Node {
 		if (this.splitData == null) return 0;
 		
 		// Get true and predicted values
-		double[] trueYVals = this.getTargetVals();
-		double[] predYVals = this.getPredictedTargetVals();
+		double[][] trueYVals = this.getTargetVals();
+		double[][] predYVals = this.getPredictedTargetVals();
 		
 		
 		double logP = 0;
 		double sigmaVal = this.getSigma();
+    	if (sigmaVal <= 0) return Double.NEGATIVE_INFINITY;
+    	
+    	double a = -Math.log((Math.sqrt(2.0 * Math.PI) * sigmaVal));
+    	double b;
 		for (int instNum = 0; instNum < this.splitData.numInstances(); instNum++) {
 			
-			double predY = predYVals[instNum];
-			double trueY = trueYVals[instNum];
-			
 			// Likelihood 
-			logP += logDensity(trueY, predY, sigmaVal);
+			double[] predY = predYVals[instNum];
+			double[] trueY = trueYVals[instNum];
+			
+			if (this.regression == ResponseMode.dirichlet) {
+				
+				// TODO
+				
+				
+			}else {
+				
+				// Univariate normal distribution where the predicted value is the mean
+				b = -(trueY[0] - predY[0]) * (trueY[0] - predY[0]) / (2.0 * sigmaVal * sigmaVal);
+				logP += a + b;
+				
+			}
+			
+			
+			
 			
 		}
 		
@@ -626,15 +659,22 @@ public class DecisionNode extends Node {
     	
     	if (standardDeviation <= 0) return Double.NEGATIVE_INFINITY;
     	
+    	
+    	double a = 1.0 / (Math.sqrt(2.0 * Math.PI) * standardDeviation);
+        double b = -(x - mean) * (x - mean) / (2.0 * standardDeviation * standardDeviation);
+        return Math.log(a) + b;
+
+        /*
+        
     	// tmp hack
-    	if (this.regressionDistribution == null) this.regressionDistribution = regressionDistribution.student;
+    	if (this.regressionDistribution == null) this.regressionDistribution = regressionDistribution.normal;
     	
     	switch (this.regressionDistribution) {
     	
-	    	case normal:{
-	    		double a = 1.0 / (Math.sqrt(2.0 * Math.PI) * standardDeviation);
-    	        double b = -(x - mean) * (x - mean) / (2.0 * standardDeviation * standardDeviation);
-    	        return Math.log(a) + b;
+	    	case ndouble a = 1.0 / (Math.sqrt(2.0 * Math.PI) * standardDeviation);
+	        double b = -(x - mean) * (x - mean) / (2.0 * standardDeviation * standardDeviation);
+	        return Math.log(a) + b;ormal:{
+	    		
 	    	}
 	    	
 	    	case student: {
@@ -647,7 +687,7 @@ public class DecisionNode extends Node {
     	
     	
     	return 0;
-    	
+    	*/
        
     }
 
@@ -656,20 +696,28 @@ public class DecisionNode extends Node {
      * Get the true target values
      * @return
      */
-	public double[] getTargetVals() {
+	public double[][] getTargetVals() {
 		
 		if (!this.isLeaf()) return null;
 		if (this.splitData == null) return null;
 		
-		double[] trueYVals = new double[this.splitData.numInstances()];
-		Attribute target = this.splitData.attribute(this.targetAttr);
+		double[][] trueYVals = new double[this.splitData.numInstances()][];
+		
 		for (int instNum = 0; instNum < this.splitData.numInstances(); instNum++) {
 			
-			// Get true y
 			Instance inst = this.splitData.instance(instNum);
-			double trueY = inst.value(target);
-			if (Double.isNaN(trueY)) trueY = 0;
-			trueYVals[instNum] = trueY;
+			trueYVals[instNum] = new double[this.targetAttr.size()];
+			
+			// Get true y for each target
+			for (int targetNum = 0; targetNum < this.targetAttr.size(); targetNum ++) {
+				
+				Attribute target = this.splitData.attribute(this.targetAttr.get(targetNum));
+				double trueY = inst.value(target);
+				if (Double.isNaN(trueY)) trueY = 0;
+				trueYVals[instNum][targetNum] = trueY;
+				
+			}
+			
 		}
 		
 		return trueYVals;
@@ -679,19 +727,23 @@ public class DecisionNode extends Node {
 	 * Get the predicted target values at this leaf
 	 * @return
 	 */
-	public double[] getPredictedTargetVals() {
+	public double[][] getPredictedTargetVals() {
 		
 		if (!this.isLeaf()) return null;
 		if (this.splitData == null) return null;
 		
-		double[] predYVals = new double[this.splitData.numInstances()];
+		double[][] predYVals = new double[this.splitData.numInstances()][];
 		
 		for (int instNum = 0; instNum < this.splitData.numInstances(); instNum++) {
 			
-			// Get predicted y
+			predYVals[instNum] = new double[this.targetAttr.size()];
+			
+			// Get predicted y for each target
 			Instance inst = this.splitData.instance(instNum);
-			double predY = this.predict(inst);
+			double[] predY = this.predict(inst);
 			predYVals[instNum] = predY;
+			
+			
 		}
 		
 		return predYVals;
@@ -737,14 +789,14 @@ public class DecisionNode extends Node {
 	}
 
 
-	public void setRegressionMode(regressionMode regression) {
+	public void setRegressionMode(ResponseMode regression) {
 		this.regression = regression;
 		if (this.isLeaf()) return;
 		this.children[0].setRegressionMode(regression);
 		this.children[1].setRegressionMode(regression);
 	}
 	
-	public void setRegressionMode(regressionMode regression, regressionDistribution regressionDistribution) {
+	public void setRegressionMode(ResponseMode regression, regressionDistribution regressionDistribution) {
 		this.regression = regression;
 		this.regressionDistribution = regressionDistribution;
 		if (this.isLeaf()) return;
@@ -817,6 +869,11 @@ public class DecisionNode extends Node {
 		
 		
 		
+	}
+
+
+	public ResponseMode getRegressionMode() {
+		return this.regression;
 	}
 
 

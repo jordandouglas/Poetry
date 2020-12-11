@@ -30,6 +30,10 @@ import weka.filters.unsupervised.instance.RemoveWithValues;
 public class DecisionTreeDistribution extends Distribution {
 	
 
+	public enum ResponseMode {
+		linear, logistic, test, log, dirichlet
+	}
+	
 	
 	final public Input<WekaData> dataInput = new Input<>("data", "The data", Validate.REQUIRED);
 	
@@ -44,8 +48,7 @@ public class DecisionTreeDistribution extends Distribution {
 	final public Input<RealParameter> slopeInput = new Input<>("slope", "Regression slopes at the leaves");
 	final public Input<RealParameter> sigmaInput = new Input<>("sigma", "Regression standard deviation (scalar)", Validate.REQUIRED);
 	
-	
-	
+	final public Input<ResponseMode> responseInput = new Input<>("regression", "The model applied to the class", ResponseMode.linear, ResponseMode.values());
 	
 	
 	final public Input<List<Transform>> predInput = new Input<>("pred", 
@@ -54,7 +57,8 @@ public class DecisionTreeDistribution extends Distribution {
 			+ "For location parameter use NoTransform (where e.g. random walk operators were used).\n"
 			+ "For parameters that sum to a constant use LogConstrainedSumTransform  (where e.g. delta-exchange operators were used).", new ArrayList<>()); 
 	
-	final public Input<Transform> targetInput = new Input<>("class", "The target feature and its transformation", Validate.REQUIRED);
+	final public Input<List<Transform>> targetInput = new Input<>("class", "The target feature and its transformation. "
+			+ "Only one value if linear, a vector if dirichlet", new ArrayList<>());
 	final public Input<List<Transform>> removeInput = new Input<>("remove", "Attributes to exclude from all analyses", new ArrayList<>());
 	
 	
@@ -64,7 +68,7 @@ public class DecisionTreeDistribution extends Distribution {
 	WekaData wekaData;
 	List<String> covariates;
 	List<String> predictors;
-	String target;
+	List<String> targets;
 	DecisionTreeInterface treeI;
 	int nPredictors;
 	
@@ -72,6 +76,9 @@ public class DecisionTreeDistribution extends Distribution {
 	int ntrees;
 	boolean isRF;
 	
+	
+	// Response
+	ResponseMode responseMode;
 	
 	// Which attribute does each split point to
 	IntegerParameter attributePointer;
@@ -107,6 +114,7 @@ public class DecisionTreeDistribution extends Distribution {
 		if (this.maxLeafCount <= 0) this.maxLeafCount = 1;
 		this.minInstancesPerLeaf = minInstancesPerLeafInput.get();
 		this.wekaData = dataInput.get();
+		this.responseMode = responseInput.get();
 		
 		
 		// Random forest?
@@ -174,7 +182,7 @@ public class DecisionTreeDistribution extends Distribution {
 		this.splits = new DecisionSplit[this.ntrees];
 		for (int i = 0; i < this.ntrees; i ++) {
 			DecisionTree tree = this.treeI.getTree(i);
-			this.splits[i] = new DecisionSplit(this.attributePointer, this.splitPoints, this.covariates, this.target, this.trainingData[i], tree, treeI.getNAttr(), this.maxLeafCount);
+			this.splits[i] = new DecisionSplit(this.attributePointer, this.splitPoints, this.covariates, this.targets, this.trainingData[i], tree, treeI.getNAttr(), this.maxLeafCount);
 		}
 		
 		
@@ -200,12 +208,47 @@ public class DecisionTreeDistribution extends Distribution {
 	private void prepareTargetAndPredictor(Instances data) {
 		
 		
-		// Target feature
-		Transform ttarget = this.targetInput.get();
-		Feature targetFeature = (Feature)(ttarget.getF().get(0));
-		//targetFeature.setDataset(data);
-		this.target = targetFeature.getAttributeName();
-		data.setClass(data.attribute(this.target));
+		// Target feature(s)
+		this.targets= new ArrayList<>(); 
+		for (Transform t : this.targetInput.get()) {
+			for (Function f : t.getF()) {
+				Feature targetFeature = (Feature)f;
+				this.targets.add(targetFeature.getAttributeName());
+			}
+		}
+		if (this.targets.isEmpty()) {
+			throw new IllegalArgumentException("Please provide at least 1 target feature");
+		}
+		if (this.responseMode != ResponseMode.dirichlet && this.targets.size() != 1) {
+			throw new IllegalArgumentException("Error: for linear responses, only one target feature is required");
+		}
+		if (this.responseMode == ResponseMode.dirichlet) {
+			if (this.targets.size()  < 2) throw new IllegalArgumentException("Error: for dirichlet responses, more than 1 target feature is required");
+			
+			
+			// Check everything sums to ~1 
+			final double threshold = 1e-5;
+			for (int i = 0; i < data.size(); i ++) {
+				
+				Instance inst = data.get(i);
+				double sum = 0;
+				for (String target : this.targets) {
+					double val = inst.value(data.attribute(target));
+					if (Double.isNaN(val)) val = 0;
+					sum += val;
+				}
+				
+				if (Math.abs(sum - 1) > threshold) {
+					throw new IllegalArgumentException("Error: for dirichlet purposes please ensure that all instances target features sum to 1. Instance "
+							+ (i+1) + " sums to " + sum);
+				}
+				
+			}
+			
+		}
+		data.setClass(data.attribute(this.targets.get(0)));
+		
+		
 		
 		
 		// Find predictor features
@@ -213,10 +256,8 @@ public class DecisionTreeDistribution extends Distribution {
 		for (Transform t : this.predInput.get()) {
 			for (Function f : t.getF()) {
 				Feature predictorFeature = (Feature)f;
-				//predictorFeature.setDataset(data);
 				this.predictors.add(predictorFeature.getAttributeName());
 			}
-			
 		}
 		
 	}
@@ -242,16 +283,28 @@ public class DecisionTreeDistribution extends Distribution {
 	 */
 	private Instances transform(Instances data) throws Exception {
 		
+
 		
-		Transform ttarget = this.targetInput.get();
-		if (ttarget.getF().size() != 1) {
-			throw new IllegalArgumentException("Error: please ensure that 'class' has only one feature");
+		this.targets = new ArrayList<>();
+		List<Feature> targetFeatures = new ArrayList<>();
+		List<Transform> targetTransforms = new ArrayList<>();
+		for (Transform t : this.targetInput.get()) {
+			
+			for (Function f : t.getF()) {
+				if (!(f instanceof Feature)) {
+					throw new IllegalArgumentException("Error: please ensure that every target is a transformation of " + Feature.class.getCanonicalName());
+				}
+				
+				Feature targetFeature = (Feature)f;
+				System.out.println("Adding target " + targetFeature.getAttributeName());
+				this.targets.add(targetFeature.getAttributeName());
+				targetFeatures.add(targetFeature);
+				targetTransforms.add(t);
+				
+			}
+			
+			
 		}
-		Function func = ttarget.getF().get(0);
-		if (!(func instanceof Feature)) {
-			throw new IllegalArgumentException("Error: please ensure that 'class' is a transformation of " + Feature.class.getCanonicalName());
-		}
-		Feature targetFeature = (Feature)func;
 		
 		
 		// Remove some attributes
@@ -262,7 +315,18 @@ public class DecisionTreeDistribution extends Distribution {
 				}
 				
 				Feature toRemove = (Feature)f;
-				if (toRemove.getAttrName().equals(targetFeature.getAttrName())) continue;
+				
+				// Skip if it is a target
+				boolean isTarget = false;
+				for (String target : this.targets) {
+					if (toRemove.getAttrName().equals(target)) {
+						isTarget = true;
+						break;
+					}
+				}
+				if (isTarget) continue;
+				
+				
 				
 				int index = WekaUtils.getIndexOfColumn(data, toRemove.getAttrName());
 				if (index == -1) {
@@ -279,20 +343,26 @@ public class DecisionTreeDistribution extends Distribution {
 		
 
 		// Target feature
-		this.target = targetFeature.getAttributeName();
-		data.setClass(data.attribute(this.target));
+		data.setClass(data.attribute(this.targets.get(0)));
 		
 
 		
 		// Remove instances with missing class values
 		//Log.warning("Num instances before : " + data.size());
+		
+		
 		Filter filter = new RemoveWithValues();
-		filter.setOptions(new String[] {"-C", "" + (WekaUtils.getIndexOfColumn(data, this.target)+1), "-M", "-S", "" + Double.NEGATIVE_INFINITY });
+		filter.setOptions(new String[] {"-C", "" + (WekaUtils.getIndexOfColumn(data, this.targets.get(0))+1), "-M", "-S", "" + Double.NEGATIVE_INFINITY });
 		filter.setInputFormat(data);
 		data = Filter.useFilter(data, filter);
 		
-		// Transform
-		targetFeature.transform(ttarget);
+		// Transform target
+		for (int i = 0; i < targetFeatures.size(); i ++) {
+			Feature targetFeature = targetFeatures.get(i);
+			Transform ttarget = targetTransforms.get(i);
+			targetFeature.transform(ttarget);
+		}
+		
 		//Log.warning("Num instances after : " + data.size());
 		
 		
@@ -332,7 +402,12 @@ public class DecisionTreeDistribution extends Distribution {
 		System.out.println("Data organised into an " + this.trainingData[0].size() + "/" + this.testData.size() + " training/test split");
 		System.out.println("Maximum leaf count: " + this.maxLeafCount);
 		System.out.println("Minimum number of instances per leaf: " + this.minInstancesPerLeaf);
-		System.out.println("Target feature: " + this.target);
+		System.out.print("Target feature(s): ");
+		for (int i = 0; i < this.targets.size(); i ++) {
+			System.out.print(this.targets.get(i));
+			if (i < this.targets.size() - 1) System.out.print(", ");
+		}
+		System.out.println();
 		
 		
 		// Predictors
@@ -400,7 +475,7 @@ public class DecisionTreeDistribution extends Distribution {
 	 * @return
 	 */
 	public DecisionNode newNode(int treeNum) {
-		DecisionNode node = new DecisionNode(treeNum, this.ntrees, this.splits[treeNum], this.slope, this.intercept, this.sigma, this.target, this.predictors);
+		DecisionNode node = new DecisionNode(treeNum, this.ntrees, this.splits[treeNum], this.slope, this.intercept, this.sigma, this.targets, this.predictors, this.responseMode);
 		return node;
 	}
 	
@@ -412,8 +487,19 @@ public class DecisionTreeDistribution extends Distribution {
 		this.covariates = new ArrayList<>();
 		for (int i = 0; i < data.numAttributes(); i ++) {
 			Attribute attr = data.attribute(i);
-			if (attr.name().equals(this.target)) continue;
 			
+			// The target is not a covariate
+			boolean isTarget = false;
+			for (String target : this.targets) {
+				if (target.equals(attr.name())) {
+					isTarget = true;
+					break;
+				}
+			}
+			if (isTarget) continue;
+			
+			
+			// Neither are the leaf predictors
 			boolean isPred = false;
 			for (String pred : this.predictors) {
 				if (pred.equals(attr.name())) {
@@ -581,20 +667,34 @@ public class DecisionTreeDistribution extends Distribution {
 	
 
 	
-
+	/**
+	 * Number of target features
+	 * @return
+	 */
+	public int getNClasses() {
+		return this.targets.size();
+	}
+	
+	
 	
 	/**
 	 * Computes R2 and correlation by comparing known target values with those predicted
-	 * Returns a double[] { R2, rho }
+	 * Returns a double[] { R2_t1(train), rho_t1(train), R2_t1(test), rho_t1(test), R2_t2(train), ... } for target features t1, t2, ...
 	 * @return
 	 */
 	public double[] getR2AndCorrelation() {
 		
 		
-		double R2_train = 0;
-		double rho_train = 0;
-		double R2_test = 0;
-		double rho_test = 0;
+		int nTargets = this.targets.size();
+		
+		
+		// One value for each target
+		double R2_train[] = new double[nTargets];
+		double rho_train[] = new double[nTargets];
+		double R2_test[] = new double[nTargets];
+		double rho_test[] = new double[nTargets];
+		
+		PearsonsCorrelation pc = new PearsonsCorrelation();
 		
 		int ntrains = 0;
 		int ntests = 0;
@@ -609,8 +709,8 @@ public class DecisionTreeDistribution extends Distribution {
 			
 			
 			// True values
-			double[] trueY = new double[ninstances];
-			double[] predY = new double[ninstances];
+			double[][] trueY = new double[ninstances][];
+			double[][] predY = new double[ninstances][];
 			
 			
 			for (DecisionTree tree : this.treeI.getTrees()) {
@@ -619,8 +719,6 @@ public class DecisionTreeDistribution extends Distribution {
 				Instances data = t == 0 ? this.trainingData[tree.getTreeNum()] : this.testData;
 				if (data == null || data.size() == 0 || !tree.splitData(data)) continue;
 				
-				
-				
 			
 				
 				// Calculate regression R2 at the leaves
@@ -628,8 +726,8 @@ public class DecisionTreeDistribution extends Distribution {
 				int nleaves = tree.getLeafCount();
 				for (int nodeNum = 0; nodeNum < nleaves; nodeNum ++) {
 					DecisionNode leaf = tree.getNode(nodeNum);
-					double[] trueYLeaf = leaf.getTargetVals();
-					double[] predYLeaf = leaf.getPredictedTargetVals();
+					double[][] trueYLeaf = leaf.getTargetVals();
+					double[][] predYLeaf = leaf.getPredictedTargetVals();
 					
 					//System.out.println(trueYLeaf.length + "/" + predYLeaf.length);
 					
@@ -644,41 +742,68 @@ public class DecisionTreeDistribution extends Distribution {
 				}
 				
 				
-				// Total sum of squares
-				double TSS = getTSS(trueY);
+				if (t == 0) ntrains++;
+				if (t == 1) ntests++;
 				
-				// Residual sum of squares
-				double RSS = getRSS(trueY, predY);
+				// One R2 and one rho per class
+				double[] trueYTarget = new double[ninstances];
+				double[] predYTarget = new double[ninstances];
+				for (int targetNum = 0; targetNum < nTargets; targetNum ++) {
+					
+					// Reorganise array
+					for (int i = 0; i < ninstances; i ++) {
+						trueYTarget[i] = trueY[i][targetNum];
+						predYTarget[i] = predY[i][targetNum];
+					}
+					
+					// Total sum of squares
+					double TSS = getTSS(trueYTarget);
+					
+					// Residual sum of squares
+					double RSS = getRSS(trueYTarget, predYTarget);
+					
+					// R squared
+					double R2 =  1 - RSS/TSS;
+					
 				
-				// R squared
-				double R2 =  1 - RSS/TSS;
-				
-			
-				// Correlation
-				PearsonsCorrelation pc = new PearsonsCorrelation();
-				double rho = pc.correlation(trueY, predY);
-				
-				
-				if (t == 0) {
-					R2_train += R2;
-					rho_train += rho;
-					ntrains++;
-				}else {
-					R2_test += R2;
-					rho_test += rho;
-					ntests++;
+					// Correlation
+					
+					
+					double rho = pc.correlation(trueYTarget, predYTarget);
+					
+					
+					if (t == 0) {
+						R2_train[targetNum] += R2;
+						rho_train[targetNum] += rho;
+					}else {
+						R2_test[targetNum] += R2;
+						rho_test[targetNum] += rho;
+					}
+					
 				}
 				
 				
+					
 			}
 		
 		}
 		
-		
-		// Take means
 		if (ntrains == 0) ntrains = 1;
 		if (ntests == 0) ntests = 1;
-		return new double[] { R2_train/ntrains, rho_train/ntrains, R2_test/ntests, rho_test/ntests };
+		
+		// Return a vector of length 4 * ntargets
+		double[] result = new double[4 * nTargets];
+		int pos = 0;
+		for (int targetNum = 0; targetNum < nTargets; targetNum ++) {
+			result[pos++] = R2_train[targetNum] / ntrains;
+			result[pos++] = rho_train[targetNum] / ntrains;
+			result[pos++] = R2_test[targetNum] / ntests;;
+			result[pos++] = rho_test[targetNum] / ntests;;
+		}
+		
+		
+		return result; 
+		
 	}
 
 

@@ -13,6 +13,7 @@ import beast.core.StateNode;
 import beast.core.util.Log;
 import beast.util.Randomizer;
 import beast.util.TreeParser;
+import poetry.decisiontree.DecisionTreeDistribution.ResponseMode;
 import weka.classifiers.trees.REPTree;
 import weka.core.Instance;
 import weka.core.Instances;
@@ -30,13 +31,13 @@ public class DecisionTree extends StateNode implements DecisionTreeInterface  {
 	List<DecisionNode> stored_nodes;
 	DecisionSplit split;
 	int nattr;
-	regressionMode regression;
+	ResponseMode regression;
 	
 	
 
 	@Override
 	public void initAndValidate() {
-		this.regression = regressionInput.get();
+		
 	}
 	
 	public DecisionTree() {
@@ -48,7 +49,7 @@ public class DecisionTree extends StateNode implements DecisionTreeInterface  {
 	}
 	
 	
-	public DecisionTree(int treeNum, regressionMode regression) {
+	public DecisionTree(int treeNum, ResponseMode regression) {
 		this.treeNum = treeNum;
 		this.regression = regression;
 	}
@@ -61,7 +62,7 @@ public class DecisionTree extends StateNode implements DecisionTreeInterface  {
 	
 	public void setRoot(DecisionNode root) {
 		this.root = root;
-		this.root.setRegressionMode(this.regression, this.distributionInput.get());
+		this.setRegressionMode(root.getRegressionMode());
 		this.split = root.getSplit();
 		this.reset();
 	}
@@ -225,6 +226,7 @@ public class DecisionTree extends StateNode implements DecisionTreeInterface  {
 	            beast.evolution.tree.Node rootNode = parser.parseNewick(newick);
 	            this.root = new DecisionNode();
 	            this.root.parseFromNode(rootNode);
+	            this.root.setRegressionMode(this.regression);
 	            this.setRoot(this.root);
 	        } catch (Exception e) {
 	            // TODO Auto-generated catch block
@@ -388,7 +390,7 @@ public class DecisionTree extends StateNode implements DecisionTreeInterface  {
 		return this;
 	}
 
-	public double predict(Instance inst) {
+	public double[] predict(Instance inst) {
 		return this.root.predict(inst);
 	}
 	
@@ -403,11 +405,12 @@ public class DecisionTree extends StateNode implements DecisionTreeInterface  {
 		return this.root.getLeaf(inst);
 	}
 
-	public void setRegressionMode(regressionMode regressionMode) {
+	
+	@Override
+	public void setRegressionMode(ResponseMode regressionMode) {
 		this.regression = regressionMode;
 		this.root.setRegressionMode(this.regression);
 	}
-
 
 
 

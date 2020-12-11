@@ -21,7 +21,14 @@ public class RegressionLogger extends CalculationNode implements Loggable, Funct
 	
 	@Override
 	public void init(PrintStream out) {
-		out.print(getR2Colname() + "(train)\t" + getCorrelaionColname() + "(train)\t" + getR2Colname() + "(test)\t" + getCorrelaionColname() + "(test)\t");
+		if (distInput.get().getNClasses() == 1) {
+			out.print(getR2Colname() +  "(train)\t" + getCorrelaionColname() + "(train)\t" + getR2Colname()+ "(test)\t" + getCorrelaionColname() + "(test)\t");
+		}else {
+			for (int t = 1; t <=  distInput.get().getNClasses(); t++) {
+				out.print(getR2Colname() + t +  "(train)\t" + getCorrelaionColname() + t + 
+							"(train)\t" + getR2Colname() + t + "(test)\t" + getCorrelaionColname() + t + "(test)\t");
+			}
+		}
 	}
 
 	
@@ -43,8 +50,9 @@ public class RegressionLogger extends CalculationNode implements Loggable, Funct
 	@Override
 	public void log(long sample, PrintStream out) {
 		double[] res = distInput.get().getR2AndCorrelation();
-		out.print(res[0] + "\t" + res[1] + "\t" + res[2] + "\t" + res[3] + "\t");
-		
+		for (double r : res) {
+			out.print(r + "\t");
+		}
 	}
 
 
@@ -57,7 +65,7 @@ public class RegressionLogger extends CalculationNode implements Loggable, Funct
 
 	@Override
 	public int getDimension() {
-		return 4;
+		return 4 * distInput.get().getNumPredictors();
 	}
 
 

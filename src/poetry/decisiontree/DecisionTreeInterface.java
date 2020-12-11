@@ -5,6 +5,7 @@ import java.io.PrintStream;
 import beast.core.Input;
 import beast.core.Operator;
 import beast.core.StateNode;
+import poetry.decisiontree.DecisionTreeDistribution.ResponseMode;
 import weka.core.Instances;
 
 public interface DecisionTreeInterface  {
@@ -16,11 +17,6 @@ public interface DecisionTreeInterface  {
 	}
 	
 	
-	// Regression at leaves
-	public enum regressionMode {
-		linear, logistic, test, log
-	}
-	
 	
 	// Distribution
 	public enum regressionDistribution {
@@ -29,8 +25,6 @@ public interface DecisionTreeInterface  {
 	
 	
 	final public Input<initTree> initInput = new Input<>("init", "Method for initialising decision tree(s)", initTree.root, initTree.values());
-	final public Input<regressionMode> regressionInput = new Input<>("regression", "Regression model at the leaves", regressionMode.linear, regressionMode.values());
-	
 	final public Input<regressionDistribution> distributionInput = new Input<>("dist", "Regression distribution at the leaves", regressionDistribution.student, regressionDistribution.values());
 	
 	
@@ -112,5 +106,7 @@ public interface DecisionTreeInterface  {
 
 
 	public StateNode getStateNode();
+	
+	public void setRegressionMode(ResponseMode mode);
 	
 }

@@ -18,7 +18,7 @@ import weka.core.Instances;
 public class DecisionSplit {
 
 	
-	String targetFeature;
+	List<String> targetFeatures;
 	IntegerParameter pointers;
 	RealParameter splits;
 	List<Attribute> covariates;
@@ -39,7 +39,7 @@ public class DecisionSplit {
 	 * @param data
 	 * @param nattr - number of attributes to subsample
 	 */
-	public DecisionSplit(IntegerParameter pointers, RealParameter splits, List<String> covariates, String targetFeature, Instances data, DecisionTree tree, int nattr, int maxLeafCount) {
+	public DecisionSplit(IntegerParameter pointers, RealParameter splits, List<String> covariates, List<String> targetFeatures, Instances data, DecisionTree tree, int nattr, int maxLeafCount) {
 		
 		this.pointers = pointers;
 		this.splits = splits;
@@ -49,7 +49,7 @@ public class DecisionSplit {
 		}
 		this.tree = tree;
 		this.maxLeafCount = maxLeafCount;
-		this.targetFeature = targetFeature;
+		this.targetFeatures = targetFeatures;
 		
 		
 		// Subsample covariates?
@@ -119,10 +119,13 @@ public class DecisionSplit {
 		
 		
 		// Test
-		if (splitAttr.name().equals(this.targetFeature)) {
-			Log.warning("Fatal error: splitting on target feature! " + this.targetFeature);
-			System.exit(0);
+		for (String target : this.targetFeatures) {
+			if (splitAttr.name().equals(target)) {
+				Log.warning("Fatal error: splitting on target feature! " + target);
+				System.exit(0);
+			}
 		}
+		
 		
 		
 		// If attribute is missing, return null
@@ -333,7 +336,7 @@ public class DecisionSplit {
 			Attribute attr = data.attribute(i);
 			
 			// Keep the class
-			if (attr.name().equals(this.targetFeature)) continue;
+			if (attr.name().equals(this.targetFeatures)) continue;
 			
 			// Keep the covariates
 			boolean isCovariate = false;
