@@ -12,6 +12,7 @@ import beast.core.parameter.RealParameter;
 import beast.core.util.Log;
 import beast.evolution.tree.Node;
 import poetry.decisiontree.DecisionTreeInterface.regressionDistribution;
+import poetry.distribution.FlexibleDirichlet;
 import poetry.decisiontree.DecisionTreeDistribution.ResponseMode;
 import poetry.util.WekaUtils;
 import weka.core.Attribute;
@@ -49,7 +50,7 @@ public class DecisionNode extends Node {
 	protected List<String> predAttr;
 	
 	// Slope and intercept parameters. These are vectors and the values at 'nodeIndex' correspond to this node. Sigma is a scalar
-	protected RealParameter slope, intercept, sigma;
+	protected RealParameter slope, intercept, sigmaOrTau, multinomialP;
 	
 	
 	// Is this the left child (true child) or the (right child) false child, or the root (null)
@@ -181,7 +182,7 @@ public class DecisionNode extends Node {
 	 * @param split
 	 * @param data
 	 */
-	public DecisionNode(int treeNum, int maxLeafCount, DecisionSplit split, RealParameter slope, RealParameter intercept, RealParameter sigma, List<String> targetAttr, List<String> predAttr, ResponseMode regression) {
+	public DecisionNode(int treeNum, int maxLeafCount, DecisionSplit split, RealParameter slope, RealParameter intercept, RealParameter sigma, RealParameter multinomialP, List<String> targetAttr, List<String> predAttr, ResponseMode regression) {
 		this.treeNum = treeNum;
 		this.ntrees = maxLeafCount;
 		this.nodeIndex = -1;
@@ -189,7 +190,8 @@ public class DecisionNode extends Node {
 		this.split = split;
 		this.slope = slope;
 		this.intercept = intercept;
-		this.sigma = sigma;
+		this.sigmaOrTau = sigma;
+		this.multinomialP = multinomialP;
 		this.depth = 0;
 		this.isTrueChild = null;
 		this.splitData = null;
@@ -262,7 +264,7 @@ public class DecisionNode extends Node {
 
 
 	public DecisionNode copy() {
-        final DecisionNode node = new DecisionNode(this.treeNum, this.ntrees, split, slope, intercept, sigma, targetAttr, predAttr, this.regression);
+        final DecisionNode node = new DecisionNode(treeNum, ntrees, split, slope, intercept, sigmaOrTau, multinomialP, targetAttr, predAttr, regression);
         node.depth = depth;
         node.nodeIndex = nodeIndex;
         node.parent = null;
@@ -459,7 +461,7 @@ public class DecisionNode extends Node {
 	 */
 	public double getSigma() {
 		if (this.metadataTokens.containsKey("sigma")) return Double.parseDouble(this.metadataTokens.get("sigma"));
-		return this.sigma.getArrayValue();
+		return this.sigmaOrTau.getArrayValue();
 	}
 
 
@@ -502,22 +504,27 @@ public class DecisionNode extends Node {
 		return this.treeNum;
 	}
 
-
+	
+	
+	
 	/**
-	 * Predict the target feature value using the predictor (if this is a leaf)
-	 * @param inst
+	 * Return the value predicted by the slope and intercept
+	 * For normal this happens to also be the mean
+	 * For dirichlet, this is alpha
 	 * @return
 	 */
-	public double[] predict(Instance inst) {
-		if (!this.isLeaf()) return null;
+	private double[] getSlopeInterceptResponse(Instance inst) {
 		
-		
+
 		double[] response = new double[this.targetAttr.size()];
 		
 		for (int targetNum = 0; targetNum < response.length; targetNum ++) {
 			
 			double y = this.getIntercept();
 			for (int i = 0; i < this.predAttr.size(); i ++) {
+				
+				if (this.regression == ResponseMode.dirichlet && targetNum != i) continue; 
+				
 				
 				Attribute attr = inst.dataset().attribute(this.predAttr.get(i));
 				double x = inst.value(attr);
@@ -560,9 +567,7 @@ public class DecisionNode extends Node {
 				
 				
 				case dirichlet:{
-					
-					// TODO
-					
+					y = Math.exp(y);
 					break;
 				}
 				
@@ -580,6 +585,58 @@ public class DecisionNode extends Node {
 		
 		
 		return response;
+		
+	}
+	
+	
+
+	/**
+	 * Predict the target feature value using the predictor (if this is a leaf)
+	 * @param inst
+	 * @return
+	 */
+	public double[] predict(Instance inst) {
+		if (!this.isLeaf()) return null;
+		
+		double[] response = this.getSlopeInterceptResponse(inst);
+		
+		
+		// If this is Dirichlet, the response is just alpha and the mean values need to be calculated from the distribution
+		if (this.regression == ResponseMode.dirichlet) {
+			
+			double[] alpha = new double[response.length];
+			System.arraycopy(response, 0, alpha, 0, response.length);
+			for (int targetNum = 0; targetNum < response.length; targetNum ++) {
+				response[targetNum] = FlexibleDirichlet.getExpectation(targetNum, alpha, this.getMultinomialP(), this.getSigma());
+			}
+			
+			/*
+			System.out.print("alpha: ");
+			for (int targetNum = 0; targetNum < response.length; targetNum ++) {
+				System.out.print(alpha[targetNum] + " ");
+			}
+			System.out.print(", y: ");
+			for (int targetNum = 0; targetNum < response.length; targetNum ++) {
+				System.out.print(response[targetNum] + " ");
+			}
+			System.out.println();
+			
+			*/
+		}
+		
+		// For normal, the response IS the mean
+		
+		return response;
+	}
+
+
+	public double[] getMultinomialP() {
+		if (this.multinomialP == null) return null;
+		double[] probs = new double[this.multinomialP.getDimension()];
+		for (int p = 0; p < probs.length; p ++) {
+			probs[p] = this.multinomialP.getArrayValue(p);
+		}
+		return probs;
 	}
 
 
@@ -609,11 +666,13 @@ public class DecisionNode extends Node {
 		
 		// Get true and predicted values
 		double[][] trueYVals = this.getTargetVals();
-		double[][] predYVals = this.getPredictedTargetVals();
+		double[][] responseVals = this.getSlopeInterceptResponseVals();
 		
 		
 		double logP = 0;
 		double sigmaVal = this.getSigma();
+		double[] probs = this.getMultinomialP();
+		
     	if (sigmaVal <= 0) return Double.NEGATIVE_INFINITY;
     	
     	double a = -Math.log((Math.sqrt(2.0 * Math.PI) * sigmaVal));
@@ -621,18 +680,20 @@ public class DecisionNode extends Node {
 		for (int instNum = 0; instNum < this.splitData.numInstances(); instNum++) {
 			
 			// Likelihood 
-			double[] predY = predYVals[instNum];
+			double[] response = responseVals[instNum];
 			double[] trueY = trueYVals[instNum];
 			
+			
+			// Dirichlet: response is alpha
 			if (this.regression == ResponseMode.dirichlet) {
-				
-				// TODO
-				
-				
-			}else {
+				logP += FlexibleDirichlet.calcLogP(trueY, response, probs, sigmaVal);
+			}
+			
+			// Normal: response is mu (which happens to be the expected value)
+			else {
 				
 				// Univariate normal distribution where the predicted value is the mean
-				b = -(trueY[0] - predY[0]) * (trueY[0] - predY[0]) / (2.0 * sigmaVal * sigmaVal);
+				b = -(trueY[0] - response[0]) * (trueY[0] - response[0]) / (2.0 * sigmaVal * sigmaVal);
 				logP += a + b;
 				
 			}
@@ -654,6 +715,8 @@ public class DecisionNode extends Node {
 	 * @param standardDeviation
 	 * @return
 	 */
+	
+	/*
     public double logDensity(double x, double mean, double standardDeviation) {
     	
     	
@@ -687,10 +750,10 @@ public class DecisionNode extends Node {
     	
     	
     	return 0;
-    	*/
+    	
        
     }
-
+	*/
 
     /**
      * Get the true target values
@@ -724,10 +787,37 @@ public class DecisionNode extends Node {
 	}
 
 	/**
+	 * Get the response values at this leaf (not necessarily the mean)
+	 * @return
+	 */
+	public double[][] getSlopeInterceptResponseVals() {
+		
+		if (!this.isLeaf()) return null;
+		if (this.splitData == null) return null;
+		
+		double[][] predYVals = new double[this.splitData.numInstances()][];
+		
+		for (int instNum = 0; instNum < this.splitData.numInstances(); instNum++) {
+			
+			predYVals[instNum] = new double[this.targetAttr.size()];
+			
+			// Get predicted y for each target
+			Instance inst = this.splitData.instance(instNum);
+			double[] predY = this.getSlopeInterceptResponse(inst);
+			predYVals[instNum] = predY;
+			
+			
+		}
+		
+		return predYVals;
+	}
+	
+	
+	/**
 	 * Get the predicted target values at this leaf
 	 * @return
 	 */
-	public double[][] getPredictedTargetVals() {
+	public double[][] getPredictionVals() {
 		
 		if (!this.isLeaf()) return null;
 		if (this.splitData == null) return null;
@@ -748,6 +838,7 @@ public class DecisionNode extends Node {
 		
 		return predYVals;
 	}
+
 
 
 	

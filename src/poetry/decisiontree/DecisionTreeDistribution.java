@@ -46,7 +46,10 @@ public class DecisionTreeDistribution extends Distribution {
 	
 	final public Input<RealParameter> interceptInput = new Input<>("intercept", "Regression intercepts at the leaves", Validate.REQUIRED);
 	final public Input<RealParameter> slopeInput = new Input<>("slope", "Regression slopes at the leaves");
-	final public Input<RealParameter> sigmaInput = new Input<>("sigma", "Regression standard deviation (scalar)", Validate.REQUIRED);
+	final public Input<RealParameter> sigmaInput = new Input<>("sigma", "Regression standard deviation for linear, or modality tau for dirichlet (scalar)", Validate.REQUIRED);
+	final public Input<RealParameter> multinomialPInput = new Input<>("multinomialProb", "Multinomial probability vector for flexible dirichlet (if not provided then will use standard dirichlet)");
+	
+	
 	
 	final public Input<ResponseMode> responseInput = new Input<>("regression", "The model applied to the class", ResponseMode.linear, ResponseMode.values());
 	
@@ -94,7 +97,7 @@ public class DecisionTreeDistribution extends Distribution {
 	Instances testData;
 	
 	// Slope and intercept
-	RealParameter slope, intercept, sigma;
+	RealParameter slope, intercept, sigmaOrTau, multinomialP;
 	
 	// Helper class for splitting
 	DecisionSplit[] splits;
@@ -109,7 +112,8 @@ public class DecisionTreeDistribution extends Distribution {
 		this.treeI = treeInput.get();
 		this.slope = slopeInput.get();
 		this.intercept = interceptInput.get();
-		this.sigma = sigmaInput.get();
+		this.sigmaOrTau = sigmaInput.get();
+		this.multinomialP = multinomialPInput.get();
 		this.maxLeafCount = maxLeafCountInput.get();
 		if (this.maxLeafCount <= 0) this.maxLeafCount = 1;
 		this.minInstancesPerLeaf = minInstancesPerLeafInput.get();
@@ -123,7 +127,7 @@ public class DecisionTreeDistribution extends Distribution {
 		this.trainingData = new Instances[ntrees];
 		
 		// Lower bound of sigma as 0
-		this.sigma.setLower(0.0);
+		this.sigmaOrTau.setLower(0.0);
 		
 
 		// Set min and max values of the numeric split to (0,1)
@@ -167,16 +171,23 @@ public class DecisionTreeDistribution extends Distribution {
 		}
 		
 		
-		// Set dimension
-		this.attributePointer.setDimension((this.maxLeafCount-1)*this.ntrees);
-		this.splitPoints.setDimension((this.maxLeafCount-1)*this.ntrees);
-		if (this.slope != null) this.slope.setDimension(this.maxLeafCount * this.nPredictors * this.ntrees);
-		this.intercept.setDimension(this.maxLeafCount * this.ntrees);
-		
 		
 		// Prepare for attributes
 		this.prepareTargetAndPredictor(this.trainingData[0]);
 		this.setAttributes(this.trainingData[0]);
+		
+		
+		// Set dimension
+		this.attributePointer.setDimension((this.maxLeafCount-1)*this.ntrees);
+		this.splitPoints.setDimension((this.maxLeafCount-1)*this.ntrees);
+		if (this.slope != null) this.slope.setDimension(this.maxLeafCount * this.nPredictors * this.ntrees);
+		if (this.multinomialP != null) {
+			this.multinomialP.setDimension(this.targets.size());
+			for (int i = 0; i < this.multinomialP.getDimension(); i ++) {
+				this.multinomialP.setValue(i, 1.0 / this.multinomialP.getDimension());
+			}
+		}
+		this.intercept.setDimension(this.maxLeafCount * this.ntrees);
 		
 		// Create the split helper class
 		this.splits = new DecisionSplit[this.ntrees];
@@ -258,6 +269,13 @@ public class DecisionTreeDistribution extends Distribution {
 				Feature predictorFeature = (Feature)f;
 				this.predictors.add(predictorFeature.getAttributeName());
 			}
+		}
+		
+		
+		if (this.responseMode == ResponseMode.dirichlet) {
+			
+			
+			
 		}
 		
 	}
@@ -350,11 +368,13 @@ public class DecisionTreeDistribution extends Distribution {
 		// Remove instances with missing class values
 		//Log.warning("Num instances before : " + data.size());
 		
-		
+		// tmp
+		/*
 		Filter filter = new RemoveWithValues();
 		filter.setOptions(new String[] {"-C", "" + (WekaUtils.getIndexOfColumn(data, this.targets.get(0))+1), "-M", "-S", "" + Double.NEGATIVE_INFINITY });
 		filter.setInputFormat(data);
 		data = Filter.useFilter(data, filter);
+		*/
 		
 		// Transform target
 		for (int i = 0; i < targetFeatures.size(); i ++) {
@@ -376,7 +396,6 @@ public class DecisionTreeDistribution extends Distribution {
 				}
 				
 				Feature predictorFeature = (Feature)f;
-				//predictorFeature.setDataset(data);
 				System.out.println("Adding predictor " + predictorFeature.getAttributeName());
 				this.predictors.add(predictorFeature.getAttributeName());
 				predictorFeature.transform(t);
@@ -475,7 +494,7 @@ public class DecisionTreeDistribution extends Distribution {
 	 * @return
 	 */
 	public DecisionNode newNode(int treeNum) {
-		DecisionNode node = new DecisionNode(treeNum, this.ntrees, this.splits[treeNum], this.slope, this.intercept, this.sigma, this.targets, this.predictors, this.responseMode);
+		DecisionNode node = new DecisionNode(treeNum, this.ntrees, this.splits[treeNum], this.slope, this.intercept, this.sigmaOrTau, this.multinomialP, this.targets, this.predictors, this.responseMode);
 		return node;
 	}
 	
@@ -629,7 +648,7 @@ public class DecisionTreeDistribution extends Distribution {
 		arguments.add(splitPoints.getID());
 		arguments.add(intercept.getID());
 		arguments.add(slope.getID());
-		arguments.add(sigma.getID());
+		arguments.add(sigmaOrTau.getID());
 		arguments.add(treeI.getID());
 		return arguments;
 	}
@@ -727,7 +746,7 @@ public class DecisionTreeDistribution extends Distribution {
 				for (int nodeNum = 0; nodeNum < nleaves; nodeNum ++) {
 					DecisionNode leaf = tree.getNode(nodeNum);
 					double[][] trueYLeaf = leaf.getTargetVals();
-					double[][] predYLeaf = leaf.getPredictedTargetVals();
+					double[][] predYLeaf = leaf.getPredictionVals();
 					
 					//System.out.println(trueYLeaf.length + "/" + predYLeaf.length);
 					
@@ -767,10 +786,7 @@ public class DecisionTreeDistribution extends Distribution {
 					
 				
 					// Correlation
-					
-					
 					double rho = pc.correlation(trueYTarget, predYTarget);
-					
 					
 					if (t == 0) {
 						R2_train[targetNum] += R2;

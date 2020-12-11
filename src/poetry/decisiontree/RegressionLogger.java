@@ -25,8 +25,8 @@ public class RegressionLogger extends CalculationNode implements Loggable, Funct
 			out.print(getR2Colname() +  "(train)\t" + getCorrelaionColname() + "(train)\t" + getR2Colname()+ "(test)\t" + getCorrelaionColname() + "(test)\t");
 		}else {
 			for (int t = 1; t <=  distInput.get().getNClasses(); t++) {
-				out.print(getR2Colname() + t +  "(train)\t" + getCorrelaionColname() + t + 
-							"(train)\t" + getR2Colname() + t + "(test)\t" + getCorrelaionColname() + t + "(test)\t");
+				out.print(getR2Colname(t) +  "(train)\t" + getCorrelaionColname(t) + 
+							"(train)\t" + getR2Colname(t) + "(test)\t" + getCorrelaionColname(t) + "(test)\t");
 			}
 		}
 	}
@@ -38,6 +38,14 @@ public class RegressionLogger extends CalculationNode implements Loggable, Funct
 	
 	public static String getCorrelaionColname() {
 		return "rho";
+	}
+	
+	public static String getR2Colname(int index) {
+		return "R2_" + index;
+	}
+	
+	public static String getCorrelaionColname(int index) {
+		return "rho_" + index;
 	}
 	
 	@Override
