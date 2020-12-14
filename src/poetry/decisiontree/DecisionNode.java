@@ -476,6 +476,19 @@ public class DecisionNode extends Node {
 		int j = this.nodeIndex;
 		return this.intercept.getArrayValue(i + j);
 	}
+	
+	
+
+	public double getIntercept(int k) {
+		if (!this.isLeaf()) throw new IllegalArgumentException("Error: there is no intercept because this is not a leaf!");
+		if (this.metadataTokens.containsKey("slope" + (k+1))) return Double.parseDouble(this.metadataTokens.get("slope" + (k+1)));
+		int i = this.getTreeNum()*this.slope.getDimension() / this.ntrees;
+		int j = this.nodeIndex*this.predAttr.size();
+		int index = i + j + k;
+		
+		return this.slope.getArrayValue(index);
+	}
+
 
 
 	/**
@@ -488,15 +501,13 @@ public class DecisionNode extends Node {
 	 */
 	public double getSlope(int k) {
 		if (!this.isLeaf()) throw new IllegalArgumentException("Error: there is no slope because this is not a leaf!");
-		if (this.metadataTokens.containsKey("slope" + (k+1))) return Double.parseDouble(this.metadataTokens.get("slope" + (k+1)));
-		int i = this.getTreeNum()*this.slope.getDimension() / this.ntrees;
+		if (this.metadataTokens.containsKey("intercept" + (k+1))) return Double.parseDouble(this.metadataTokens.get("intercept" + (k+1)));
+		int i = this.getTreeNum()*this.intercept.getDimension() / this.ntrees;
 		int j = this.nodeIndex*this.predAttr.size();
 		int index = i + j + k;
 		
-		// Tmp
-		//if (true) return this.slope.getArrayValue(k);
 		
-		return this.slope.getArrayValue(index);
+		return this.intercept.getArrayValue(index);
 	}
 	
 	
@@ -567,7 +578,24 @@ public class DecisionNode extends Node {
 				
 				
 				case dirichlet:{
-					y = Math.exp(y);
+					
+					
+					double v = 0;
+						
+					Attribute attr = inst.dataset().attribute(this.predAttr.get(targetNum));
+					double x = inst.value(attr);
+					double m = this.getSlope(targetNum);
+					if (!Double.isNaN(x)) {
+						v = m/x;
+					}
+					
+					if (x == 0) y = 0;
+					//else y = m*x + 1; // + this.getIntercept(targetNum);
+					else y = this.getIntercept(targetNum) / (1 + v) + 1;
+					
+					//System.out.println(targetNum + ": " + this.getIntercept() + "," + x + "," + m + " alpha = " + y);
+					
+					
 					break;
 				}
 				
@@ -589,6 +617,7 @@ public class DecisionNode extends Node {
 	}
 	
 	
+
 
 	/**
 	 * Predict the target feature value using the predictor (if this is a leaf)

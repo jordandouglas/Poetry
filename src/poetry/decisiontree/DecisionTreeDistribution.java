@@ -22,8 +22,6 @@ import poetry.util.WekaUtils;
 import weka.core.Attribute;
 import weka.core.Instance;
 import weka.core.Instances;
-import weka.filters.Filter;
-import weka.filters.unsupervised.instance.RemoveWithValues;
 
 
 @Description("Central decision tree / random forest distribution")
@@ -187,7 +185,12 @@ public class DecisionTreeDistribution extends Distribution {
 				this.multinomialP.setValue(i, 1.0 / this.multinomialP.getDimension());
 			}
 		}
-		this.intercept.setDimension(this.maxLeafCount * this.ntrees);
+		if (this.responseMode == ResponseMode.dirichlet) {
+			this.intercept.setDimension(this.maxLeafCount * this.nPredictors * this.ntrees);
+		}else {
+			this.intercept.setDimension(this.maxLeafCount * this.ntrees);
+		}
+		
 		
 		// Create the split helper class
 		this.splits = new DecisionSplit[this.ntrees];
@@ -267,16 +270,25 @@ public class DecisionTreeDistribution extends Distribution {
 		for (Transform t : this.predInput.get()) {
 			for (Function f : t.getF()) {
 				Feature predictorFeature = (Feature)f;
+				
+				// Validate that this predictor is not a target
+				boolean isTarget = this.targets.contains(predictorFeature.getAttributeName());
+				if (isTarget) throw new IllegalArgumentException("Error: predictor " + predictorFeature.getAttributeName() + " must not be target feature");
+				
 				this.predictors.add(predictorFeature.getAttributeName());
+				
 			}
 		}
 		
 		
+		// If dirichlet, validate that num features = num predictors
 		if (this.responseMode == ResponseMode.dirichlet) {
-			
-			
-			
+			if (this.predictors.size() != this.targets.size()) {
+				throw new IllegalArgumentException("Error: the number of predictors must equal the number of targets for dirichlet " + this.predictors.size()  + " != " + this.targets.size());
+			}
 		}
+		
+
 		
 	}
 
@@ -526,7 +538,7 @@ public class DecisionTreeDistribution extends Distribution {
 					break;
 				}
 			}
-			//if (isPred) continue;
+			if (isPred) continue;
 			
 			// Check that every attribute is either numeric or nominal (no strings etc.)
 			if (!attr.isNominal() && !attr.isNumeric()) {

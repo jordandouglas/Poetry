@@ -38,12 +38,12 @@
 
 
 
-        <parameter id="EmaxMean" spec="parameter.RealParameter" name="stateNode">0.2</parameter>
+        <parameter id="EmaxMean" spec="parameter.RealParameter" name="stateNode">2</parameter>
         <parameter id="EhalfMean" spec="parameter.RealParameter" name="stateNode">0.001</parameter>
 
         <parameter id="Slope" spec="parameter.RealParameter" name="stateNode">0.5</parameter>
         <parameter id="Intercept" spec="parameter.RealParameter" name="stateNode" >0.5</parameter>
-        <parameter id="Tau" spec="parameter.RealParameter" name="stateNode">1</parameter>
+        <parameter id="Tau" spec="parameter.RealParameter" name="stateNode">0.01</parameter>
         <parameter id="MultinomialProb" spec="parameter.RealParameter" dimension="6" name="stateNode">0.5</parameter>
 
         <parameter id="AttributePointer" spec="parameter.IntegerParameter" name="stateNode">0</parameter>
@@ -63,30 +63,30 @@
 
 
             <prior id="EMaxMeanPrior" name="distribution" x="@EmaxMean">
-                <Normal name="distr" mean="0" sigma="1" />
-               <!-- <LogNormal name="distr" meanInRealSpace="true" M="0.2" S="0.5" />-->
+                <!-- <Normal name="distr" mean="0" sigma="1" />-->
+               <LogNormal name="distr" meanInRealSpace="true" M="5" S="0.5" />
             </prior>
 
             <prior id="EhalfMeanPrior" name="distribution" x="@EhalfMean">
-                <Normal name="distr" mean="0" sigma="1" />
-                <!--<LogNormal name="distr" meanInRealSpace="true" M="0.001" S="0.5" />-->
+                <!--<Normal name="distr" mean="0" sigma="1" />-->
+                <LogNormal name="distr" meanInRealSpace="true" M="0.001" S="1" />
             </prior>
 
 
             <prior id="slopePrior" name="distribution" x="@Slope">
-                 <Normal name="distr" mean="0" sigma="1" />
-              	<!--<LogNormal name="distr" meanInRealSpace="true" M="@EhalfMean" S="0.5" />-->
+                 <!--<Normal name="distr" mean="0" sigma="1" />-->
+              	<LogNormal name="distr" meanInRealSpace="true" M="@EhalfMean" S="1" />
             </prior>
 
             
             <prior id="interceptPrior" name="distribution" x="@Intercept">
-                 <Normal name="distr" mean="0" sigma="1" />
-                 <!--<LogNormal name="distr" meanInRealSpace="true" M="@EmaxMean" S="0.5" />-->
+                 <!--<Normal name="distr" mean="0" sigma="1" />-->
+                 <LogNormal name="distr" meanInRealSpace="true" M="@EmaxMean" S="1" />
             </prior>
       		  
 
             <prior id="tauPrior" name="distribution" x="@Tau">
-                <LogNormal name="distr" meanInRealSpace="true" M="2" S="0.6" />
+                <Exponential name="distr" mean="2" />
             </prior>
 
 
@@ -101,7 +101,7 @@
 
             
             <prior id="treePrior" spec="poetry.decisiontree.GeometricTreePrior" name="distribution" tree="@tree">
-        		<parameter spec="parameter.RealParameter" name="mean">5</parameter>
+        		<parameter spec="parameter.RealParameter" name="mean">10</parameter>
             </prior>
             
 
@@ -109,10 +109,10 @@
 
         <distribution id="likelihood" spec="util.CompoundDistribution">
 
-            <distribution id="decisionTreeDistribution" spec="poetry.decisiontree.DecisionTreeDistribution" tree="@tree" maxLeafCount="30" minInstances="50" data="@wekaData" shape="@DirichletShape" regression="dirichlet">
+            <distribution id="decisionTreeDistribution" spec="poetry.decisiontree.DecisionTreeDistribution" tree="@tree" maxLeafCount="30" minInstances="5" data="@wekaData" shape="@DirichletShape" regression="dirichlet">
 
 				
-      
+                
 				
 				
 				<class spec="beast.util.Transform$NoTransform">
@@ -125,26 +125,15 @@
             	</class>
 				
 				
-				<!--
-				<class spec="beast.util.Transform$NoTransform">
-            		<f spec="poetry.decisiontree.Feature" attr="class" data="@wekaData"/>
-            	</class>
-			
-
-            	<pred spec="beast.util.Transform$NoTransform">
-            		<f spec="poetry.decisiontree.Feature" attr="CHMAX" data="@wekaData"/>
-            		<f spec="poetry.decisiontree.Feature" attr="CHMIN" data="@wekaData"/>
-            	</pred>
-			-->
      
             	
             	<pred spec="beast.util.Transform$NoTransform">
-                    <f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="NodeHeightPOEM.weight.d" data="@wekaData"/>
-                    <f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="TopologyPOEM.weight.d" data="@wekaData"/>
-                    <f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="SpeciesTreePriorPOEM.weight.d" data="@wekaData"/>
-                    <f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="SiteModelPOEM.weight.d" data="@wekaData"/>
-                    <f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="ClockModelRatePOEM.weight.d" data="@wekaData"/>
-                    <f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="ClockModelSDPOEM.weight.d" data="@wekaData"/>
+                    <f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="NodeHeightPOEM.weight" data="@wekaData"/>
+                    <f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="TopologyPOEM.weight" data="@wekaData"/>
+                    <f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="SpeciesTreePriorPOEM.weight" data="@wekaData"/>
+                    <f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="SiteModelPOEM.weight" data="@wekaData"/>
+                    <f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="ClockModelRatePOEM.weight" data="@wekaData"/>
+                    <f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="ClockModelSDPOEM.weight" data="@wekaData"/>
             	</pred>
 
             	<!--
@@ -165,12 +154,15 @@
         			<f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="ClockModelSDPOEM.min.ESS.p" data="@wekaData"/>
 
 
-        			<f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="NodeHeightPOEM.weight" data="@wekaData"/>
-            		<f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="TopologyPOEM.weight" data="@wekaData"/>
-            		<f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="SpeciesTreePriorPOEM.weight" data="@wekaData"/>
-            		<f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="SiteModelPOEM.weight" data="@wekaData"/>
-        			<f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="ClockModelRatePOEM.weight" data="@wekaData"/>
-        			<f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="ClockModelSDPOEM.weight" data="@wekaData"/>
+
+
+
+                    <f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="NodeHeightPOEM.weight.d" data="@wekaData"/>
+                    <f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="TopologyPOEM.weight.d" data="@wekaData"/>
+                    <f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="SpeciesTreePriorPOEM.weight.d" data="@wekaData"/>
+                    <f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="SiteModelPOEM.weight.d" data="@wekaData"/>
+                    <f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="ClockModelRatePOEM.weight.d" data="@wekaData"/>
+                    <f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="ClockModelSDPOEM.weight.d" data="@wekaData"/>
 
 
         			<f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="Pmean" data="@wekaData"/>
@@ -186,7 +178,7 @@
             	<intercept idref="Intercept" />
             	<slope idref="Slope" />
             	<sigma idref="Tau" />
-               <!-- <multinomialProb idref="MultinomialProb" /> -->
+                <!--<multinomialProb idref="MultinomialProb" />-->
 
             	
             	
@@ -238,7 +230,7 @@
 	
 
     
-    <operator id="SplitNodeOperator" spec="poetry.decisiontree.SplitNodeOperator" tree="@tree" dist="@decisionTreeDistribution" extend="0.5"  maintain="1" weight="2">
+    <operator id="SplitNodeOperator" spec="poetry.decisiontree.SplitNodeOperator" tree="@tree" dist="@decisionTreeDistribution" extend="0.2"  maintain="1" weight="5">
     	<slope idref="Slope" />
     	<intercept idref="Intercept" />
 		<pointer idref="AttributePointer" />
@@ -246,7 +238,7 @@
     </operator>
 
 
-    <operator id="Reroot" spec="poetry.decisiontree.Reroot" tree="@tree" dist="@decisionTreeDistribution"  extend="0.5" maintain="1" weight="2">
+    <operator id="Reroot" spec="poetry.decisiontree.Reroot" tree="@tree" dist="@decisionTreeDistribution"  extend="0.2" maintain="1" weight="5">
 		<slope idref="Slope" />
     	<intercept idref="Intercept" />
 		<pointer idref="AttributePointer" />
@@ -296,7 +288,6 @@
         <log idref="EmaxMean"/>
         <log idref="EhalfMean"/>
         <log idref="Tau"/>
-        <log idref="MultinomialProb" />
         <log id="RegressionLogger" spec="poetry.decisiontree.RegressionLogger" dist="@decisionTreeDistribution" />
         <log id="LeafCountLogger" spec="poetry.decisiontree.LeafCountLogger" tree="@tree" />
     </logger>

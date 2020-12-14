@@ -56,7 +56,7 @@ public class FlexibleDirichlet {
         double sumAlpha = 0;
         for (int i = 0; i < X.length; i++) {
             double x = X[i];
-            if (x == 0 || x == 1) continue;
+            if (alpha[i] == 0) continue;
             logP += (alpha[i] - 1) * Math.log(x);
             logP -= org.apache.commons.math.special.Gamma.logGamma(alpha[i]);
             sumAlpha += alpha[i];
@@ -71,7 +71,7 @@ public class FlexibleDirichlet {
         	for (int i = 0; i < p.length; i ++) {
         		
         		double x = X[i];
-        		if (x == 0 || x == 1) continue;
+        		if (alpha[i] == 0) continue;
         		double prob = p[i];
         		if (prob < 0 || prob > 1) return Double.NEGATIVE_INFINITY;
         		double a = alpha[i];
