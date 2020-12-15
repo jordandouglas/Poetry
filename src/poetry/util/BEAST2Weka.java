@@ -85,7 +85,7 @@ public class BEAST2Weka {
 		for (POEM poem : weightSampler.getPoems()) {
 			
 			// Weight/dimension
-			instance.setValue(instances.attribute(getPoemWeightDimensionAttr(poem).name()), getPoemWeightDimension(poem));
+			instance.setValue(instances.attribute(getPoemWeightDimensionAttr(poem).name()), getPoemWeightDimension(poem, getNtaxa(partitions)));
 			
 			// Dimension
 			instance.setValue(instances.attribute(getPoemDimensionAttr(poem).name()), getPoemDimension(poem));
@@ -347,12 +347,64 @@ public class BEAST2Weka {
 	 * Get weight of a poem divided by its dimension attribute
 	 * @return
 	 */
-	public static double getPoemWeightDimension(POEM poem) {
+	public static double getPoemWeightDimension(POEM poem, int ntaxa) {
 		double weight = poem.getWeight();
-		double dim = DimensionalSampler.modifyDimension(poem.getID(), poem.getDim());
+		double dim = getDimension(poem.getID(), poem.getDim(), ntaxa);
 		return weight / dim;
 	}
 	
+	
+	/**
+	 * Incorporate prior knowledge about the poem to adjust for its effective dimension
+	 * @param poemID
+	 * @param dimension
+	 * @return
+	 */
+	public static double getDimension(String poemID, int dimension, int ntaxa) {
+		
+		
+		switch (poemID) {
+		
+			
+			// Number of topology dimensions is the number of non-root nodes
+			case "TopologyPOEM":{
+				return 2*ntaxa-2;
+			}
+			
+			// Number of node height dimensions is the number of non-leaf nodes, potentially plus the clock rate too
+			case "NodeHeightPOEM":{
+				return ntaxa-1;
+			}
+				
+			// Site model POEM is just the number of dimensions
+			case "SiteModelPOEM":{
+				return dimension;
+			}
+			
+			
+			// Tree prior POEM is also the number of dimensions
+			case "SpeciesTreePriorPOEM":{
+				return dimension;
+			}
+			
+			
+			// Branch rates equal to number of nodes minus 1
+			case "ClockModelRatePOEM":{
+				return 2*ntaxa-2;
+			}
+			
+			
+			// 1
+			case "ClockModelSDPOEM":{
+				return 1;
+			}
+		
+		}
+		
+		return dimension;
+		
+	}
+
 	
 	
 	/** 

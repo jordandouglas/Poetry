@@ -176,6 +176,7 @@ public class DecisionTreeDistribution extends Distribution {
 		
 		
 		// Set dimension
+		//this.sigmaOrTau.setDimension(2); // tmp
 		this.attributePointer.setDimension((this.maxLeafCount-1)*this.ntrees);
 		this.splitPoints.setDimension((this.maxLeafCount-1)*this.ntrees);
 		if (this.slope != null) this.slope.setDimension(this.maxLeafCount * this.nPredictors * this.ntrees);

@@ -16,7 +16,7 @@
 <map name="Dirichlet" >beast.math.distributions.Dirichlet</map>
 
 
-<data id="wekaData" spec="poetry.decisiontree.WekaData" arff="/home/jdou557/Documents/Marsden2019/papers/PoetryPaper/results/wekasimple.arff" dataSplit="50" xmlSplit="true"/>
+<data id="wekaData" spec="poetry.decisiontree.WekaData" arff="/home/jdou557/Documents/Marsden2019/papers/PoetryPaper/results/wekasimple.arff" dataSplit="80" xmlSplit="true"/>
 
 <!--
 <data id="wekaData" spec="poetry.decisiontree.WekaData" arff="/home/jdou557/Documents/Marsden2019/Starbeast3/Poetry/examples/cpu.with.vendor.arff" dataSplit="50" xmlSplit="false"/>
@@ -86,7 +86,7 @@
       		  
 
             <prior id="tauPrior" name="distribution" x="@Tau">
-                <Exponential name="distr" mean="2" />
+                <Exponential name="distr" mean="12" />
             </prior>
 
 
@@ -109,7 +109,7 @@
 
         <distribution id="likelihood" spec="util.CompoundDistribution">
 
-            <distribution id="decisionTreeDistribution" spec="poetry.decisiontree.DecisionTreeDistribution" tree="@tree" maxLeafCount="30" minInstances="5" data="@wekaData" shape="@DirichletShape" regression="dirichlet">
+            <distribution id="decisionTreeDistribution" spec="poetry.decisiontree.DecisionTreeDistribution" tree="@tree" maxLeafCount="30" minInstances="30" data="@wekaData" shape="@DirichletShape" regression="dirichlet">
 
 				
                 
@@ -128,12 +128,16 @@
      
             	
             	<pred spec="beast.util.Transform$NoTransform">
-                    <f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="NodeHeightPOEM.weight" data="@wekaData"/>
-                    <f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="TopologyPOEM.weight" data="@wekaData"/>
-                    <f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="SpeciesTreePriorPOEM.weight" data="@wekaData"/>
-                    <f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="SiteModelPOEM.weight" data="@wekaData"/>
-                    <f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="ClockModelRatePOEM.weight" data="@wekaData"/>
-                    <f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="ClockModelSDPOEM.weight" data="@wekaData"/>
+
+
+
+                    <f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="NodeHeightPOEM.weight.d" data="@wekaData"/>
+                    <f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="TopologyPOEM.weight.d" data="@wekaData"/>
+                    <f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="SpeciesTreePriorPOEM.weight.d" data="@wekaData"/>
+                    <f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="SiteModelPOEM.weight.d" data="@wekaData"/>
+                    <f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="ClockModelRatePOEM.weight.d" data="@wekaData"/>
+                    <f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="ClockModelSDPOEM.weight.d" data="@wekaData"/>
+
             	</pred>
 
             	<!--
@@ -154,15 +158,14 @@
         			<f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="ClockModelSDPOEM.min.ESS.p" data="@wekaData"/>
 
 
+                    <f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="NodeHeightPOEM.weight" data="@wekaData"/>
+                    <f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="TopologyPOEM.weight" data="@wekaData"/>
+                    <f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="SpeciesTreePriorPOEM.weight" data="@wekaData"/>
+                    <f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="SiteModelPOEM.weight" data="@wekaData"/>
+                    <f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="ClockModelRatePOEM.weight" data="@wekaData"/>
+                    <f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="ClockModelSDPOEM.weight" data="@wekaData"/>
 
 
-
-                    <f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="NodeHeightPOEM.weight.d" data="@wekaData"/>
-                    <f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="TopologyPOEM.weight.d" data="@wekaData"/>
-                    <f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="SpeciesTreePriorPOEM.weight.d" data="@wekaData"/>
-                    <f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="SiteModelPOEM.weight.d" data="@wekaData"/>
-                    <f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="ClockModelRatePOEM.weight.d" data="@wekaData"/>
-                    <f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="ClockModelSDPOEM.weight.d" data="@wekaData"/>
 
 
         			<f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="Pmean" data="@wekaData"/>

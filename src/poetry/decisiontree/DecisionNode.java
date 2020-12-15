@@ -113,7 +113,10 @@ public class DecisionNode extends Node {
 					
 					// Log the slope
 					double slope = this.getSlope(i);
-					buf.append("slope" + (i+1) + "=" + slope + ",");
+					buf.append("slope_" + this.targetAttr.get(i) + "=" + slope + ",");
+					
+					
+					buf.append("intercept_" + this.targetAttr.get(i) + "=" + this.getIntercept(i) + ",");
 					
 					// Round to 3 sf for the equation
 					eqn += " + " + WekaUtils.roundToSF(slope, 3) + "/x" + (i+1);
@@ -488,6 +491,8 @@ public class DecisionNode extends Node {
 		
 		return this.slope.getArrayValue(index);
 	}
+	
+	
 
 
 
@@ -581,17 +586,26 @@ public class DecisionNode extends Node {
 					
 					
 					double v = 0;
-						
+					double addOn = 1; //this.sigmaOrTau.getArrayValue(1);	
+					
 					Attribute attr = inst.dataset().attribute(this.predAttr.get(targetNum));
 					double x = inst.value(attr);
+					
 					double m = this.getSlope(targetNum);
 					if (!Double.isNaN(x)) {
 						v = m/x;
 					}
 					
 					if (x == 0) y = 0;
-					//else y = m*x + 1; // + this.getIntercept(targetNum);
-					else y = this.getIntercept(targetNum) / (1 + v) + 1;
+					/*
+					else {
+						x = Math.log(x / (1-x));
+						y = m*x + this.getIntercept(targetNum);
+						y = 1 / (1 + Math.exp(-y)); 
+						//System.out.println(x + "," + y);
+					}
+					*/
+					else y = this.getIntercept(targetNum) / (1 + v) + addOn;
 					
 					//System.out.println(targetNum + ": " + this.getIntercept() + "," + x + "," + m + " alpha = " + y);
 					
@@ -605,12 +619,24 @@ public class DecisionNode extends Node {
 			
 			
 			}
-		
+			
+
 			
 			response[targetNum] = y;
 			
 		}
 		
+		
+		
+		
+		// Normalise
+		if (this.regression == ResponseMode.dirichlet) {
+			double ysum = 0;
+			double newsum = this.getSigma();
+			for (int i = 0; i < response.length; i ++) ysum += response[i];
+			for (int i = 0; i < response.length; i ++) response[i] = newsum * response[i] / ysum;
+		}
+	
 		
 		return response;
 		
@@ -994,6 +1020,11 @@ public class DecisionNode extends Node {
 
 	public ResponseMode getRegressionMode() {
 		return this.regression;
+	}
+
+
+	public String getToken(String string) {
+		return this.metadataTokens.get(string);
 	}
 
 
