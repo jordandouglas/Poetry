@@ -1,6 +1,8 @@
 package poetry.learning;
 
 
+import java.util.List;
+
 import beast.core.Description;
 import beast.core.Input;
 import beast.util.Randomizer;
@@ -28,8 +30,23 @@ public class DimensionalSampler extends WeightSampler {
 	@Override
 	public void sampleWeights() throws Exception {
 		
+		double scale = scaleInput.get();
+		double[] weights = sampleWeights(this.poems, scale);
+		if (weights == null) return;
+		this.setWeights(weights);
 		
-		if (this.poems == null || this.poems.isEmpty()) return;
+	}
+	
+	
+	/**
+	 * Sample weight vector
+	 * @param poems
+	 * @return
+	 */
+	public static double[] sampleWeights(List<POEM> poems, double scale) {
+		
+
+		if (poems == null || poems.isEmpty()) return null;
 		
 		
 		int dim = poems.size();
@@ -49,25 +66,30 @@ public class DimensionalSampler extends WeightSampler {
 		
 		
 		// Convert dimensions into alphas
-		double scale = scaleInput.get();
+		double weightSum = 0;
 		for (int j = 0; j < dim; j++) {	
 			
 			double val = weights[j] / dimensionSum;
 			if (scale > 0) val = val * scale;
 			
 			
-			System.out.println(poems.get(j).getID() + ": alpha = " + val);
+			//System.out.println(poems.get(j).getID() + ": alpha = " + val);
 			
 			if (val == 0 || scale <= 0) {
 				weights[j] = val;
 			}else {
 				weights[j] = Randomizer.nextGamma(val, 1.0);
 			}
+			weightSum += weights[j];
 		}
 		
-
-		this.setWeights(weights);
 		
+		// Normalise
+		for (int j = 0; j < dim; j++) {
+			weights[j] /= weightSum;
+		}
+		
+		return weights;
 		
 	}
 

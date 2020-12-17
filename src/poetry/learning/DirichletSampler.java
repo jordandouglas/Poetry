@@ -1,6 +1,8 @@
 package poetry.learning;
 
 
+import java.util.List;
+
 import beast.core.Description;
 import beast.core.Operator;
 import beast.util.Randomizer;
@@ -25,9 +27,20 @@ public class DirichletSampler extends WeightSampler {
 	 */
 	@Override
 	public void sampleWeights() throws Exception {
+		double[] weights = sampleWeights(this.poems);
+		if (weights != null) this.setWeights(weights);
+	}
+
+	
+	
+	/**
+	 * Return an array of sampled weights
+	 * @param poems
+	 */
+	public static double[] sampleWeights(List<POEM> poems) {
 		
 		
-		if (this.poems == null || this.poems.isEmpty()) return;
+		if (poems == null || poems.isEmpty()) return null;
 		
 		
 		int dim = poems.size();
@@ -35,6 +48,7 @@ public class DirichletSampler extends WeightSampler {
 		
 		
 		// Sample a dirichlet vector
+		double weightSum = 0;
 		for (int j = 0; j < dim; j++) {
 			POEM poem = poems.get(j);
 			double a = poem.getAlpha();
@@ -43,14 +57,19 @@ public class DirichletSampler extends WeightSampler {
 			}else {
 				weights[j] = Randomizer.nextGamma(a, 1.0);
 			}
+			weightSum += weights[j];
 		}
 		
-
-		this.setWeights(weights);
+		
+		// Normalise
+		for (int j = 0; j < dim; j++) {
+			weights[j] /= weightSum;
+		}
+		
+		return weights;
 		
 		
 	}
-
 
 	
 

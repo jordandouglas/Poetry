@@ -586,7 +586,7 @@ public class DecisionNode extends Node {
 					
 					
 					double v = 0;
-					double addOn = 1; //this.sigmaOrTau.getArrayValue(1);	
+					double addOn = 0; //this.sigmaOrTau.getArrayValue(1);	
 					
 					Attribute attr = inst.dataset().attribute(this.predAttr.get(targetNum));
 					double x = inst.value(attr);
@@ -597,15 +597,15 @@ public class DecisionNode extends Node {
 					}
 					
 					if (x == 0) y = 0;
-					/*
+					
 					else {
 						x = Math.log(x / (1-x));
 						y = m*x + this.getIntercept(targetNum);
 						y = 1 / (1 + Math.exp(-y)); 
 						//System.out.println(x + "," + y);
 					}
-					*/
-					else y = this.getIntercept(targetNum) / (1 + v) + addOn;
+					
+					//else y = this.getIntercept(targetNum) / (1 + v) + addOn;
 					
 					//System.out.println(targetNum + ": " + this.getIntercept() + "," + x + "," + m + " alpha = " + y);
 					

@@ -9,39 +9,35 @@ import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.math3.analysis.MultivariateFunction;
-import org.apache.commons.math3.analysis.UnivariateFunction;
-import org.apache.commons.math3.geometry.euclidean.oned.Interval;
 import org.apache.commons.math3.optim.InitialGuess;
 import org.apache.commons.math3.optim.MaxEval;
 import org.apache.commons.math3.optim.MaxIter;
 import org.apache.commons.math3.optim.PointValuePair;
-import org.apache.commons.math3.optim.SimpleBounds;
 import org.apache.commons.math3.optim.linear.LinearConstraint;
 import org.apache.commons.math3.optim.linear.LinearConstraintSet;
-import org.apache.commons.math3.optim.linear.LinearObjectiveFunction;
 import org.apache.commons.math3.optim.linear.Relationship;
-import org.apache.commons.math3.optim.linear.SimplexSolver;
 import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
-import org.apache.commons.math3.optim.nonlinear.scalar.MultivariateOptimizer;
 import org.apache.commons.math3.optim.nonlinear.scalar.ObjectiveFunction;
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.NelderMeadSimplex;
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
-import org.apache.commons.math3.optim.univariate.BrentOptimizer;
-import org.apache.commons.math3.optim.univariate.SearchInterval;
-import org.apache.commons.math3.optim.univariate.UnivariateObjectiveFunction;
-import org.apache.commons.math3.optim.univariate.UnivariateOptimizer;
-import org.apache.commons.math3.optim.univariate.UnivariatePointValuePair;
 
 import beast.core.Input;
 import beast.core.util.Log;
 import beast.evolution.alignment.Alignment;
 import beast.evolution.tree.Tree;
+import beast.util.Randomizer;
 import poetry.decisiontree.DecisionNode;
 import poetry.decisiontree.DecisionTree;
 import poetry.decisiontree.DecisionTreeDistribution.ResponseMode;
 import poetry.sampler.POEM;
 import poetry.util.BEAST2Weka;
+import weka.classifiers.functions.GaussianProcesses;
+import weka.classifiers.functions.supportVector.RBFKernel;
+import weka.core.Attribute;
+import weka.core.DenseInstance;
+import weka.core.Instance;
 import weka.core.Instances;
+import weka.core.converters.ArffSaver;
 
 public class BayesianDecisionTreeSampler extends WeightSampler {
 
@@ -110,13 +106,15 @@ public class BayesianDecisionTreeSampler extends WeightSampler {
 		
 		
 		// Load decision tree
-		List<DecisionTree> trees = parseDecisionTrees(new File(treesInput.get()));
+		List<DecisionTree> trees = parseDecisionTrees(new File(treesInput.get()), 10);
 		DecisionTree decisionTree = trees.get(trees.size()-1);
 		decisionTree.setRegressionMode(regressionInput.get());
 		System.out.println("tree : " + decisionTree.toString());
 		
-		weights = this.getWeights(decisionTree, instances);
+		weights = this.getWeights(trees, instances);
 		
+		
+		System.exit(1);
 		
 		
 		this.setWeights(weights);
@@ -125,149 +123,234 @@ public class BayesianDecisionTreeSampler extends WeightSampler {
 	
 	
 	
-	protected double[] getWeights(DecisionTree tree, Instances inst) {
+	protected double[] getWeights(List<DecisionTree> trees, Instances inst) throws Exception {
 		
 		double[] weights = new double[this.poems.size()];
 		
 		int ntaxa = (int)(inst.instance(0).value(inst.attribute("ntaxa")));
 		
-		DecisionNode leaf = tree.getLeaf(inst);
+		SquaredAlphaDistance[] fns = new SquaredAlphaDistance[trees.size()];
 		
-		// Optimise
-		double tau = Double.parseDouble(leaf.getToken("sigma"));
-		double target = tau / this.getNumPoems();
-		double[] slopes = new double[this.poems.size()];
-		double[] intercepts = new double[this.poems.size()];
-		double[] dims  = new double[this.poems.size()];
-		for (int i = 0; i < this.getNumPoems(); i ++) {
-			POEM poem = this.poems.get(i);
+		for (int treeNum = 0; treeNum < trees.size(); treeNum ++) {
+				
+			DecisionTree tree = trees.get(treeNum);
+			DecisionNode leaf = tree.getLeaf(inst);
 			
-			
-			String slopeStr = leaf.getToken("slope_" + poem.getESSColname() + ".p");
-			String interceptStr = leaf.getToken("intercept_" + poem.getESSColname() + ".p");
-			double slope = Double.parseDouble(slopeStr);
-			double intercept = Double.parseDouble(interceptStr);
-			double dim = BEAST2Weka.getDimension(poem.getID(), poem.getDim(), ntaxa); 
-			
-			slopes[i] = slope;
-			intercepts[i] = intercept;
-			dims[i] = dim;
-			
-			
-			System.out.println(poem.getID() + " slope " + slope + " intercept " + intercept + " target " + target);
-			
-			
-			/*
-			// Find weight such that E = 1/tau
-			double weight;
-			if (intercept < target) {
-				double newTarget = 1.5;
-				weight = slope / (newTarget - 1);
-				Log.warning("Cannot reach emax");
-			}else {
-				weight = slope / (intercept/target - 1);
+			// Optimise
+			double tau = Double.parseDouble(leaf.getToken("sigma"));
+			double target = tau / this.getNumPoems();
+			double[] slopes = new double[this.poems.size()];
+			double[] intercepts = new double[this.poems.size()];
+			double[] dims  = new double[this.poems.size()];
+			for (int i = 0; i < this.getNumPoems(); i ++) {
+				POEM poem = this.poems.get(i);
+				
+				
+				String slopeStr = leaf.getToken("slope_" + poem.getESSColname() + ".p");
+				String interceptStr = leaf.getToken("intercept_" + poem.getESSColname() + ".p");
+				double slope = Double.parseDouble(slopeStr);
+				double intercept = Double.parseDouble(interceptStr);
+				double dim = BEAST2Weka.getDimension(poem.getID(), poem.getDim(), ntaxa); 
+				
+				slopes[i] = slope;
+				intercepts[i] = intercept;
+				dims[i] = dim;
+				
+				
+				if (treeNum == trees.size()-1) {
+					System.out.println(poem.getID() + " slope " + slope + " intercept " + intercept + " target " + target);
+				}
+				
+				
+				/*
+				// Find weight such that E = 1/tau
+				double weight;
+				if (intercept < target) {
+					double newTarget = 1.5;
+					weight = slope / (newTarget - 1);
+					Log.warning("Cannot reach emax");
+				}else {
+					weight = slope / (intercept/target - 1);
+				}
+				
+				
+				
+				
+				
+				// Multiply by dimension
+				
+				weights[i] = weight*dim;
+				*/
 			}
 			
 			
+			SquaredAlphaDistance fn = new SquaredAlphaDistance(slopes, intercepts, dims, tau);
+			fns[treeNum] = fn;
 			
+			if (treeNum == trees.size()-1) {
+				
+				double[] opt = optimiseSimplex(fn);
+				weights = fn.repairSticks(opt);
+				System.out.print("max: ");
+				for (double o : weights) System.out.print(o + ", ");
+				System.out.println(" eval: " + fn.value(opt));
+				
+				System.out.print("alpha: ");
+				for (double o : fn.getAlpha(opt)) System.out.print(o + ", ");
+				System.out.println();
+				
+			}
 			
-			
-			// Multiply by dimension
-			
-			weights[i] = weight*dim;
-			*/
 		}
-		
-		
-		SquaredAlphaDistance fn = new SquaredAlphaDistance(slopes, intercepts, dims, tau);
-		double[] opt = optimiseSimplex(fn);
-		weights = fn.repairSticks(opt);
-		System.out.print("max: ");
-		for (double o : weights) System.out.print(o + ", ");
-		System.out.println(" eval: " + fn.value(opt));
-		
-		System.out.print("alpha: ");
-		for (double o : fn.getAlpha(opt)) System.out.print(o + ", ");
-		System.out.println();
 
 		
-		return weights;
-	}
-	
-	
-	
-	protected double[] getWeights(DecisionTree[] trees, Instances inst) {
 		
-		int ntaxa = (int)(inst.instance(0).value(inst.attribute("ntaxa")));
-		
-		// Get optimal weights from current state
-		double[] weights = new double[trees.length];
-		for (int j = 0; j < weights.length; j++) {
-			DecisionNode leaf = trees[j].getLeaf(inst);
-			POEM poem = this.poems.get(j);
-			
-			double slope = leaf.getSlope(0);
-			double dim = BEAST2Weka.getDimension(poem.getID(), poem.getDim(), ntaxa); 
-			double essVal = slope * dim;
-			weights[j] = essVal;
-			
-		}
-		
+		buildEpsilonDistribution(fns, this.poems);
 		
 		return weights;
-		
-		
 	}
 	
 	
+
+
 	
-	/**
-	 * Attempts to optimise operator weights using the tree
-	 * @param trees
-	 * @param inst
-	 * @return
-	 */
-	protected double[] optimise(DecisionTree[] trees, Instances inst) {
+	public static void buildEpsilonDistribution(SquaredAlphaDistance[] fns, List<POEM> poems) throws Exception {
+		
+		final String className = "dist";
+		final int nsamples = 1000;
 		
 		
-		return null;
+		Log.warning("Building kernel density...");
 		
-	}
-	
-	
-	
-/*
-	protected double predictPMean(DecisionTree[] trees, Instances inst) {
+
 		
-		// Predict fractional ESSes
-		double essSum = 0;
-		double[] ess = new double[trees.length];
-		for (int j = 0; j < ess.length; j++) {
-			DecisionNode leaf = trees[j].getLeaf(inst);
-			POEM poem = this.poems.get(j);
+		// Create Instances object
+		ArrayList<Attribute> attributes = new ArrayList<>();
+		for (int i = 0; i < fns[0].getDimension()-1; i ++) {
+			Attribute tweight = new Attribute("tweight" + i);
+			attributes.add(tweight);
+		}
+		attributes.add(new Attribute(className));
+		int nattr = attributes.size();
+		Instances instances = new Instances("dirichlet", attributes,  attributes.size());
+		instances.setClass(instances.attribute(className));
+		
+		
+		
+		
+		// Sample weights using a dirichlet on the poem alphas
+		boolean isNaN = false;
+		for (int i = 0; i < 2*nsamples; i ++) {
 			
-			double slope = leaf.getSlope(0);
-			double intercept = leaf.getIntercept();
-			double weightDim = inst.get(0).value(inst.attribute(BEAST2Weka.getPoemWeightDimensionAttr(poem).name()));
-			double dim = getDimension(poem.getID(), poem.getDim(), ntaxa); 
-			double weight = weightDim * dim;
-			double essVal = intercept / (1 + slope/weight);
-			essSum += essVal;
-			ess[j] = essVal;
-		}
-		
-		// Normalise
-		double perfectFraction = 1.0 / trees.length;
-		double pmean = 0;
-		for (int j = 0; j < ess.length; j++) {
-			ess[j] /= essSum;
-			pmean += Math.pow(ess[j] - perfectFraction, 2) / ess.length;
-		}
+			SquaredAlphaDistance fn = fns[Randomizer.nextInt(fns.length)];
+			
+			double[] tweights;
+			if (i >= nsamples) {
 				
-		return pmean;
+				// Include the optimal weight with some jitter
+				tweights = optimiseSimplex(fn);
+				
+				
+				// Add some random jitter
+				for (int j = 0; j < fn.getDimension()-1; j ++) {
+					tweights[j] = tweights[j] + Randomizer.nextGaussian()*Randomizer.nextExponential(5);
+					//if (true || i != 2*nsamples -1)tweights[j] += Randomizer.nextGaussian()*Randomizer.nextExponential(5);
+				}
+				
+				
+				
+			}else {
+				
+				double[] weights = DimensionalSampler.sampleWeights(poems, Randomizer.nextExponential(0.1));
+				double weightSum = 0;
+				for (int j = 0; j < fn.getDimension(); j ++) {
+					weights[j] += 0.00001; // Prevent numerical instabilities from tiny weights
+					weightSum += weights[j];
+				}
+				for (int j = 0; j < fn.getDimension(); j ++) weights[j] /= weightSum;
+				//double[] weights = DirichletSampler.sampleWeights(poems);
+				tweights = fn.breakSticks(weights);
+				
+				
+				// Check for numerical instabilities
+				for (int j = 0; j < fn.getDimension()-1; j ++) {
+					//System.out.println("weight " + weights[j] + " tweight " + tweights[j]);
+					if (Double.isNaN(tweights[j])) isNaN = true;
+				}
+				//System.out.println("weight final " + weights[fn.getDimension()-1]);
+			}
+			
+			Instance instance = new DenseInstance(nattr);
+			instance.setDataset(instances);
+			
+			// Set the transformed weight (ie the broken stick)
+			for (int j = 0; j < fn.getDimension()-1; j ++) {
+				instance.setValue(instances.attribute("tweight" + j), tweights[j]);
+			}
+			//System.out.println("weight final " + weights[fn.getDimension()-1]);
+			
+			// Compute the distance in logspace
+			double dist = fn.value(tweights);
+			if (isNaN || Double.isNaN(dist)) continue;
+			dist = Math.log(dist);
+			instance.setValue(instances.attribute(className), dist);
+			instances.add(instance);
+			
+		}
+		
+		
+		Log.warning(instances.size() + " kernel samples");
+		SquaredAlphaDistance fn = fns[fns.length-1];
+		
+		
+		// Save the dataset
+		ArffSaver saver = new ArffSaver();
+		saver.setInstances(instances);
+		saver.setFile(new File("/home/jdou557/Documents/Marsden2019/Months/December2020/BDT/kernel.arff"));
+		saver.writeBatch();
+		
+		
+		
+		// Train the kernel
+		// No normalisation or standardisation. RBFKernel
+		GaussianProcesses kernel = new GaussianProcesses();
+		kernel.setOptions(new String[] { "-N", "2", "-K", RBFKernel.class.getCanonicalName() });
+		kernel.buildClassifier(instances);
+		
+		
+		
+		Instance instance = new DenseInstance(nattr);
+		instance.setDataset(instances);
+		double[] tweights = optimiseSimplex(fn); // fn.breakSticks(DirichletSampler.sampleWeights(poems));
+		
+		// Set the transformed weight (ie the broken stick)
+		for (int j = 0; j < fn.getDimension()-1; j ++) {
+			System.out.println("tweight " + tweights[j]);
+			instance.setValue(instances.attribute("tweight" + j), tweights[j]);
+		}
+		
+		
+		double sd = kernel.getStandardDeviation(instance);
+		double mean = kernel.classifyInstance(instance);
+		System.out.println("opt mean: " + mean + " sd: " + sd + " real space val " + Math.exp(mean) + " true " + fn.value(tweights));
+		
+		
+		
+		tweights = fn.breakSticks(DimensionalSampler.sampleWeights(poems, 20));
+		
+		// Set the transformed weight (ie the broken stick)
+		for (int j = 0; j < fn.getDimension()-1; j ++) {
+			instance.setValue(instances.attribute("tweight" + j), -1.0);
+		}
+		
+		
+		sd = kernel.getStandardDeviation(instance);
+		mean = kernel.classifyInstance(instance);
+		System.out.println("rand mean: " + mean + " sd: " + sd + " real space val " + Math.exp(mean) + " true " + fn.value(tweights));
+		
 	}
-	*/
 	
+
 	
 	/**
 	 * Parse decision trees from a newick file
@@ -275,7 +358,7 @@ public class BayesianDecisionTreeSampler extends WeightSampler {
 	 * @return
 	 * @throws IOException
 	 */
-	public static List<DecisionTree> parseDecisionTrees(File newickFile) throws IOException {
+	public static List<DecisionTree> parseDecisionTrees(File newickFile, int burnin) throws IOException {
 		BufferedReader fin = new BufferedReader(new FileReader(newickFile));
 		List<DecisionTree> trees = new ArrayList<>();
 		
@@ -293,15 +376,23 @@ public class BayesianDecisionTreeSampler extends WeightSampler {
 		fin.close();  
 		
 		
+		// Burnin
+		int desiredLen = (int)Math.ceil(1.0 * trees.size() * burnin / 100);
+		while (trees.size() > desiredLen) trees.remove(0);
+		
 		return trees;
 	}
 	
 	
 	
-	
-	public double[] optimiseSimplex(SquaredAlphaDistance fn) {
+	/**
+	 * Return weights which minimise the function
+	 * @param fn
+	 * @return
+	 */
+	public static double[] optimiseSimplex(SquaredAlphaDistance fn) {
 		
-		MaxIter maxIter = new MaxIter(100);
+		MaxIter maxIter = new MaxIter(1000);
 		MaxEval maxEval = new MaxEval(10000);
 		ObjectiveFunction objective = new ObjectiveFunction(fn);
 		//SearchInterval interval = new SearchInterval(0.0, 1.0, 0.5);
@@ -318,49 +409,54 @@ public class BayesianDecisionTreeSampler extends WeightSampler {
 		constraints.add(new LinearConstraint(new double[] { 1,1,1,1,1,1 }, Relationship.LEQ, 1.0));
 		LinearConstraintSet constraintSet = new LinearConstraintSet(constraints);
 		
-		PointValuePair max = opt.optimize(maxIter, maxEval, constraintSet, objective, init, simplex,  GoalType.MINIMIZE);		
 		
-		System.out.println(" init: " + fn.value(init.getInitialGuess()));
-		   
-		 
-		//BrentOptimizer bo = new BrentOptimizer(1e-5, 1e-5);
-		//UnivariatePointValuePair max = bo.optimize(	new MaxIter(maxIter), new MaxEval(maxEval), interval, 
-												//	new UnivariateObjectiveFunction(fn), GoalType.MINIMIZE);
-		
-		
-		
-		//System.out.print("alpha: ");
-		//for (double o : fn.getAlpha(max.getPoint())) System.out.print(o + ", ");
-		//System.out.println();
-		
-		/*
-		// Break sticks test
-		double[] weights = new double[] { 0.3, 0.2, 0.000001, 0.1, 0.1, 0.3-0.000001 };
-		double[] breaks = fn.breakSticks(weights);
-		double[] sticks = fn.repairSticks(breaks);
-		
-		System.out.print("breaks: ");
-		for (double o : breaks) System.out.print(o + ", ");
-		System.out.println();
-		
-		System.out.print("sticks: ");
-		for (double o : sticks) System.out.print(o + ", ");
-		System.out.println();
-		*/
-		
-		return max.getPoint();
+		try {
+			PointValuePair max = opt.optimize(maxIter, maxEval, constraintSet, objective, init, simplex,  GoalType.MINIMIZE);		
+			
+			//System.out.println(" init: " + fn.value(init.getInitialGuess()));
+			   
+			 
+			//BrentOptimizer bo = new BrentOptimizer(1e-5, 1e-5);
+			//UnivariatePointValuePair max = bo.optimize(	new MaxIter(maxIter), new MaxEval(maxEval), interval, 
+													//	new UnivariateObjectiveFunction(fn), GoalType.MINIMIZE);
+			
+			
+			
+			//System.out.print("alpha: ");
+			//for (double o : fn.getAlpha(max.getPoint())) System.out.print(o + ", ");
+			//System.out.println();
+			
+			/*
+			// Break sticks test
+			double[] weights = new double[] { 0.3, 0.2, 0.000001, 0.1, 0.1, 0.3-0.000001 };
+			double[] breaks = fn.breakSticks(weights);
+			double[] sticks = fn.repairSticks(breaks);
+			
+			System.out.print("breaks: ");
+			for (double o : breaks) System.out.print(o + ", ");
+			System.out.println();
+			
+			System.out.print("sticks: ");
+			for (double o : sticks) System.out.print(o + ", ");
+			System.out.println();
+			*/
+			
+			return max.getPoint();
+			
+		}catch(Exception e) {
+			e.printStackTrace();
+			return initArr;
+		}
 		
 	}
 	
-	
-	 private static class TestFunction implements UnivariateFunction {
-	     public double value(double x) {
-	         double y = x*x - 5*x;;
-	         return y;
-	     }
-	 }
+
 	 
-	 
+	 /**
+	  * A function which can be optimised using a MultivariateOptimizer
+	  * @author jdou557
+	  *
+	  */
 	 private static class SquaredAlphaDistance implements MultivariateFunction {
 
 		 
@@ -390,7 +486,7 @@ public class BayesianDecisionTreeSampler extends WeightSampler {
 			 return 1.0 / (1 + Math.exp(-x));
 		 }
 		 
-		 
+		 // https://mc-stan.org/docs/2_18/reference-manual/simplex-transform-section.html
 		 public double[] breakSticks(double[] x) {
 			 
 			 int K = x.length;
@@ -434,7 +530,13 @@ public class BayesianDecisionTreeSampler extends WeightSampler {
 			 this.alphaSum = 0;
 			 for (int i = 0; i < this.ndim; i ++) {
 				 double weightDividedByDim = weights[i] / this.dims[i];
-				 this.alpha[i] = this.emax[i] / (1 + weightDividedByDim);
+				 //this.alpha[i] = this.emax[i] / (1 + weightDividedByDim);
+				 
+				 
+				 weightDividedByDim = this.logit(weightDividedByDim);
+				 double y = this.ehalf[i]*weightDividedByDim + this.emax[i];
+				 this.alpha[i] = this.ilogit(y);
+				 
 				 this.alphaSum += this.alpha[i];
 			 }
 
@@ -454,6 +556,7 @@ public class BayesianDecisionTreeSampler extends WeightSampler {
 		 @Override
 		 public double value(double[] breaks) {
 			 
+			// double addon = 0;
 			 
 			 double[] weights = repairSticks(breaks);
 			 
@@ -461,10 +564,21 @@ public class BayesianDecisionTreeSampler extends WeightSampler {
 			 this.alphaSum = 0;
 			 for (int i = 0; i < this.ndim; i ++) {
 				 double weightDividedByDim = weights[i] / this.dims[i];
-				 this.alpha[i] = this.emax[i] / (1 + this.ehalf[i]/weightDividedByDim);
+				 //this.alpha[i] = this.emax[i] / (1 + this.ehalf[i]/weightDividedByDim) + addon;
+				 
+				 weightDividedByDim = this.logit(weightDividedByDim);
+				 double y = this.ehalf[i]*weightDividedByDim + this.emax[i];
+				 this.alpha[i] = this.ilogit(y);
+				 
+				//x = Math.log(x / (1-x));
+				//y = m*x + this.getIntercept(targetNum);
+				//y = 1 / (1 + Math.exp(-y)); 
+				 
+				 
 				 this.alphaSum += this.alpha[i];
 			 }
 
+			 
 			 // Normalise and take mean distance
 			 this.squaredDistance = 0;
 			 for (int i = 0; i < this.ndim; i ++) {
