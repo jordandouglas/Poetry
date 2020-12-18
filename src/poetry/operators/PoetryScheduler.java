@@ -67,7 +67,8 @@ public class PoetryScheduler extends OperatorSchedule {
 		 this.database = null;
 		 if (this.databaseFileInput.get() != null)  this.database = new File(this.databaseFileInput.get());
 		 if (this.database != null && this.sampleNumInput.get() == null) {
-			 throw new IllegalArgumentException("Please specify the xml number of this file so the database can be read");
+			 this.sampleNumInput.set(-1);
+			 Log.warning("Warning: Please specify the xml number of this file so the database can be read");
 		 }
 		 File runtimeLog = new File(this.runtimeLoggerInput.get());
 

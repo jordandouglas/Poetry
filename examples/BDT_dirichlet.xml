@@ -539,7 +539,7 @@ GeneTreePriorPOEM is not applicable to this model
 		
         <init id="inittree" initial="@tree" spec="beast.evolution.tree.SimpleRandomTree" taxa="@alignment.$(partition)"/>
         	
-        <operatorschedule coordinateWeights="false" placeholder="@PHStateNode" runtime="runtime.log" spec="poetry.operators.PoetryScheduler" updateEvery="10000000">
+        <operatorschedule coordinateWeights="false" placeholder="@PHStateNode" runtime="runtime.log" spec="poetry.operators.PoetryScheduler" database="/home/jdou557/Documents/Marsden2019/Starbeast3/Poetry/examples/xml30.csv" updateEvery="10000000">
 
 
           

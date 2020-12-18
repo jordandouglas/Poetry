@@ -697,7 +697,12 @@ public class PoetryAnalyser extends Runnable {
 		
 		// Read headers
 		Scanner scanner = new Scanner(filename);
-		String[] headers = scanner.nextLine().split("\t");
+		String[] headers;
+		
+		// Comma or tab?
+		String firstLine = scanner.nextLine(); 
+		if (firstLine.split("\t").length > 1) headers = firstLine.split("\t");
+		else headers = firstLine.split(",");
 		int ncol = headers.length;
 		List<String[]> values = new ArrayList<String[]>();
 		
@@ -708,12 +713,20 @@ public class PoetryAnalyser extends Runnable {
 			lineNum ++;
 			String line = scanner.nextLine();
 			if (line.isEmpty()) continue;
-			String[] spl = line.split("\t");
+			
+			// Comma or tab?
+			String[] spl;
+			if (line.split("\t").length > 1) spl = line.split("\t");
+			else spl = line.split(",");
+			
 			if (spl.length == 0) continue;
 			if (spl.length != ncol) {
 				throw new Exception("Error: database has " + spl.length + " elements on file line " + lineNum + " but there should be " + ncol);
 			}
-			values.add(line.split("\t"));
+			
+			
+			
+			values.add(spl);
 			
 		}
 		
