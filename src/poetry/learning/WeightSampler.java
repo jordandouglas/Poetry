@@ -2,7 +2,21 @@ package poetry.learning;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+
+import org.apache.commons.math3.analysis.MultivariateFunction;
+import org.apache.commons.math3.optim.InitialGuess;
+import org.apache.commons.math3.optim.MaxEval;
+import org.apache.commons.math3.optim.MaxIter;
+import org.apache.commons.math3.optim.PointValuePair;
+import org.apache.commons.math3.optim.linear.LinearConstraint;
+import org.apache.commons.math3.optim.linear.LinearConstraintSet;
+import org.apache.commons.math3.optim.linear.Relationship;
+import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
+import org.apache.commons.math3.optim.nonlinear.scalar.ObjectiveFunction;
+import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.NelderMeadSimplex;
+import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
 
 import beast.core.BEASTObject;
 import beast.core.Description;
@@ -70,6 +84,14 @@ public abstract class WeightSampler extends BEASTObject {
 		
 		
 		// Check the database for weights
+		
+	}
+	
+	
+	/**
+	 * Log information periodically
+	 */
+	public void log() throws Exception  {
 		
 	}
 	
@@ -275,9 +297,27 @@ public abstract class WeightSampler extends BEASTObject {
 	
 	
 	/**
-	 * Sample operator weights but don't set them
+	 * Sample operator weights and set them
 	 */
 	public abstract void sampleWeights() throws Exception;
+	
+	
+	/**
+	 * Return a list of sampled weights, without applying them
+	 * @param poems
+	 * @return
+	 */
+	public abstract double[] sampleWeights(List<POEM> poems)  throws Exception;
+	
+	/**
+	 * Sample weights from a list of poems (static)
+	 * @param poems
+	 * @return
+	 * @throws Exception
+	 */
+	//public abstract double[] sampleWeights(List<POEM> poems);
+	
+	
 	
 	
 	/**
@@ -291,13 +331,17 @@ public abstract class WeightSampler extends BEASTObject {
 
 		for (int j = 0; j < weights.length; j++) {
 			Operator op = this.poeticOperators.get(j);
+			POEM poem = this.poems.get(j);
 			
 			// Can the weight be set?
-			if (!this.allowOpWeightSet(op)) continue;
+			if (!this.allowOpWeightSet(op)) {
+				poem.setWeight(op.getWeight());
+			}else {
+				op.m_pWeight.set(weights[j]);
+				poem.setWeight(weights[j]);
+			}
 			
-			POEM poem = this.poems.get(j);
-			op.m_pWeight.set(weights[j]);
-			poem.setWeight(weights[j]);
+			
 		}
 		
 	}
@@ -345,7 +389,102 @@ public abstract class WeightSampler extends BEASTObject {
 		return this.poems.size();
 	}
 
+	
+	
 
+	
+	/**
+	 * Return weights which minimise the function
+	 * @param fn
+	 * @return
+	 */
+	public static double[] optimiseSimplex(MultivariateFunction fn, int ndim) {
+		
+		MaxIter maxIter = new MaxIter(1000);
+		MaxEval maxEval = new MaxEval(10000);
+		ObjectiveFunction objective = new ObjectiveFunction(fn);
+		//SearchInterval interval = new SearchInterval(0.0, 1.0, 0.5);
+		double[] initArr = new double[ndim-1];
+		InitialGuess init = new InitialGuess(initArr);
+		
+		//SimpleBounds bounds = new SimpleBounds(new double[] { 0,0,0,0,0,0 }, new double[] { 1,1,1,1,1 } );
+		NelderMeadSimplex simplex =  new org.apache.commons.math3.optim.nonlinear.scalar.noderiv.NelderMeadSimplex(ndim-1, 1.0);
+		
+		SimplexOptimizer opt = new SimplexOptimizer(1e-10, 1e-30);
+		
+		// Unit sum
+		Collection<LinearConstraint> constraints = new ArrayList<>();
+		constraints.add(new LinearConstraint(new double[] { 1,1,1,1,1,1 }, Relationship.LEQ, 1.0));
+		LinearConstraintSet constraintSet = new LinearConstraintSet(constraints);
+		
+		
+		try {
+			PointValuePair max = opt.optimize(maxIter, maxEval, constraintSet, objective, init, simplex,  GoalType.MINIMIZE);		
+
+			return max.getPoint();
+			
+		}catch(Exception e) {
+			e.printStackTrace();
+			return initArr;
+		}
+		
+	}
+	
+	
+	/**
+	 * Logit function
+	 * @param x
+	 * @return
+	 */
+	 public static double logit(double x) {
+		 return Math.log(x / (1-x));
+	 }
+	 
+	 
+	 /**
+	  * Inverse logic
+	  * @param x
+	  * @return
+	  */
+	 public static double ilogit(double x) {
+		 return 1.0 / (1 + Math.exp(-x));
+	 }
+	 
+	 
+
+	 // https://mc-stan.org/docs/2_18/reference-manual/simplex-transform-section.html
+	 public static double[] breakSticks(double[] x) {
+		 
+		 int K = x.length;
+		 double[] y = new double[K-1];
+		 double sum = 0;
+		 for (int k = 0; k < K-1; k ++) {
+			 double zk = x[k] / (1 - sum);
+			 double lzk = logit(zk);
+			 sum += x[k];
+			 y[k] = lzk - Math.log(1.0/(K-k));
+		 }
+		 return y;
+		 
+	 }
+	 
+	 
+	 public static double[] repairSticks(double[] y) {
+		 
+		 int K = y.length+1;
+		 double[] x = new double[K];
+		 double sum = 0;
+		 for (int k = 0; k < K-1; k ++) {
+			 double zk = ilogit(y[k] + Math.log(1.0 / (K-k)));
+			 x[k] = (1 - sum)*zk;
+			 sum += x[k];
+		 }
+		 x[K-1] = 1-sum;
+		 
+		 return x;
+		 
+	 }
+	 
 
 	
 	

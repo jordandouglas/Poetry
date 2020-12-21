@@ -31,6 +31,7 @@ import poetry.functions.XMLFunction;
 import poetry.functions.XMLInputSetter;
 import poetry.learning.DimensionalSampler;
 import poetry.learning.DirichletSampler;
+import poetry.learning.GaussianProcessSampler;
 import poetry.operators.PoetryScheduler;
 import poetry.sampler.DatasetSampler;
 import poetry.sampler.ModelSampler;
@@ -49,7 +50,7 @@ public class SimulateXML extends Runnable {
 
 	
 	enum WeightSamplers {
-		Dirichlet, Dimensional 
+		Dirichlet, Dimensional, Gaussian
 	}
 	
 	
@@ -515,6 +516,13 @@ public class SimulateXML extends Runnable {
 		    
 		    case Dimensional:{
 		    	sampler.setAttribute("spec", DimensionalSampler.class.getCanonicalName());
+		    	break;
+		    }
+		    
+		    
+		    case Gaussian:{
+		    	sampler.setAttribute("spec", GaussianProcessSampler.class.getCanonicalName());
+		    	sampler.setAttribute("poetry", "$(filebase).poetry");
 		    	break;
 		    }
 		    

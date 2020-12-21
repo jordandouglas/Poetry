@@ -7,6 +7,7 @@ import java.util.List;
 import beast.core.BEASTInterface;
 import beast.core.Description;
 import beast.core.Input;
+import beast.core.Logger;
 import beast.core.MCMC;
 import beast.core.Operator;
 import beast.core.OperatorSchedule;
@@ -122,7 +123,7 @@ public class PoetryScheduler extends OperatorSchedule {
 	 public boolean isMC3() {
 		 
 		 // tmp
-		 if (true) return true;
+		 //if (true) return true;
 		 
 		 for (BEASTInterface obj : this.getOutputs()) {
 			 if (obj instanceof HeatedChain) {
@@ -143,7 +144,7 @@ public class PoetryScheduler extends OperatorSchedule {
 	 public boolean isColdChain() {
 		 
 		 // tmp
-		 if (true) return true;
+		 //if (true) return true;
 		 
 		 for (BEASTInterface obj : this.getOutputs()) {
 			 
@@ -167,7 +168,7 @@ public class PoetryScheduler extends OperatorSchedule {
 	 public Operator selectOperator() {
 		 
 		 // Set the weights
-		 if (this.numCalls == 0 && this.sampler != null ) {
+		 if (this.numCalls == 0 && this.sampler != null) {
 			 sampler.setOperators(this.operators);
 			 try {
 				 sampler.applyWeights();
@@ -181,16 +182,19 @@ public class PoetryScheduler extends OperatorSchedule {
 		 }
 		 
 		 
+		 
 		 this.numCalls ++;
 		
 		 
 		 // Update the database periodically if this is the cold chain
-		 if (this.database != null && this.numCalls % updateEvery == 0 && this.isColdChain() ) {
+		 if (this.numCalls % updateEvery == 0 && this.isColdChain()) {
 			 try {
-				this.poetry.run();
-			} catch (Exception e) {
+				 this.sampler.log();
+				 if (this.database != null) this.poetry.run();
+			 }catch (Exception e) {
 				e.printStackTrace();
-			}
+			 }
+			 
 		 }
 		 
 		 return super.selectOperator();

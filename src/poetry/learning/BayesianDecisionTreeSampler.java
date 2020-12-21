@@ -117,9 +117,9 @@ public class BayesianDecisionTreeSampler extends WeightSampler {
 		System.out.println("tree : " + decisionTree.toString());
 		
 		
-		weights = this.getGPWeights();
 		
-		//weights = this.getWeights(trees, instances);
+		
+		weights = this.getWeights(trees, instances);
 		
 		//System.exit(1);
 		
@@ -198,7 +198,7 @@ public class BayesianDecisionTreeSampler extends WeightSampler {
 			if (treeNum == trees.size()-1) {
 				
 				double[] opt = optimiseSimplex(fn, fn.getDimension());
-				weights = SquaredAlphaDistance.repairSticks(opt);
+				weights = repairSticks(opt);
 				System.out.print("max: ");
 				for (double o : weights) System.out.print(o + ", ");
 				System.out.println(" eval: " + fn.value(opt));
@@ -217,188 +217,6 @@ public class BayesianDecisionTreeSampler extends WeightSampler {
 		
 		return weights;
 	}
-	
-	
-
-	/**
-	 * Select weights using gaussian process
-	 * @return
-	 * @throws Exception
-	 */
-	public double[] getGPWeights() throws Exception {
-		
-		
-		if (this.database == null) return null;
-		
-		
-		// Create Instances object
-		ArrayList<Attribute> attributes = new ArrayList<>();
-		for (int i = 0; i < this.getNumPoems()-1; i ++) {
-			Attribute tweight = new Attribute("tweight" + i);
-			attributes.add(tweight);
-		}
-		attributes.add(new Attribute(distClassName));
-		int nattr = attributes.size();
-		Instances instances = new Instances("dirichlet", attributes,  attributes.size());
-		instances.setClass(instances.attribute(distClassName));
-			
-		// Read in database and add instances
-		LinkedHashMap<String, String[]> db = PoetryAnalyser.openDatabase(this.database);
-		for (int i = 0; i < db.size(); i ++) {
-			
-			// One instance per row in database
-			Instance instance = new DenseInstance(nattr);
-			instance.setDataset(instances);
-			
-			// One column per weight
-			double[] weights = new double[this.poems.size()];
-			for (int p = 0; p < this.getNumPoems(); p ++) {
-				POEM poem = this.poems.get(p);
-				String weightCol = poem.getWeightColname(); // + ".d";
-				if (!db.containsKey(weightCol)) {
-					throw new Exception("Cannot find column " + weightCol + " in database");
-				}
-				double weight = Double.parseDouble(db.get(weightCol)[i]);
-				weights[p] = weight;
-				
-			}
-			
-			
-			// Set breaks
-			double[] tweights = SquaredAlphaDistance.breakSticks(weights);
-			for (int p = 0; p < this.getNumPoems()-1; p ++) {
-				instance.setValue(instances.attribute("tweight" + p), tweights[p]);
-			}
-			
-			// Class value (distance) as Pmean
-			if (!db.containsKey("Pmean")) {
-				throw new Exception("Cannot find column Pmean in database");
-			}
-			double dist = Double.parseDouble(db.get("Pmean")[i]);
-			dist = Math.log(dist);
-			instance.setValue(instances.attribute(distClassName), dist);
-			instances.add(instance);
-			
-		}
-		
-		
-		// Save the dataset
-		ArffSaver saver = new ArffSaver();
-		saver.setInstances(instances);
-		saver.setFile(new File("/home/jdou557/Documents/Marsden2019/Months/December2020/BDT/kernel30.arff"));
-		saver.writeBatch();
-		
-		
-		
-		// Train the kernel
-		// No normalisation or standardisation. RBFKernel
-		GaussianProcesses kernel = new GaussianProcesses();
-		kernel.setOptions(new String[] { "-N", "2", "-K", RBFKernel.class.getCanonicalName() });
-		kernel.buildClassifier(instances);
-		
-		
-		// What is the smallest observed mean so far?
-		double bestMean = Double.POSITIVE_INFINITY;
-		double[] bestTweights = new double[this.poems.size()-1];
-		for (int i = 0; i < instances.size(); i ++) {
-			double val = instances.get(i).value(instances.attribute(distClassName));
-			if (val < bestMean) {
-				for (int p = 0; p < this.getNumPoems()-1; p ++) {
-					bestTweights[p] = instances.get(i).value(instances.attribute("tweight" + p));
-				}
-				bestMean = val;
-			}
-		}
-		String msg = "Cumulative optimal value " + bestMean + ", with weights";
-		double[] bestWeights = SquaredAlphaDistance.repairSticks(bestTweights);
-		for (double w : bestWeights) msg += " " + w;
-		Log.warning(msg);
-		
-		// Optimise the expected improvement function (minimisation)
-		Log.warning("Computing maximum expected improvement...");
-		ExpectedImprovementFunction fn = new ExpectedImprovementFunction(instances, kernel, bestMean);
-		double[] opt = optimiseSimplex(fn, this.poems.size());
-		double[] weights = SquaredAlphaDistance.repairSticks(opt);
-		System.out.print("EI max: ");
-		for (double o : weights) System.out.print(o + ", ");
-		System.out.println(" eval: " + fn.value(opt) + "|"  + fn.getExpectedVal(opt) + " | " + Math.exp(fn.getExpectedVal(opt)));
-		//fn.getExpectedVal(opt);
-		
-		//System.exit(1);
-		
-		return weights;
-		
-	}
-	
-	
-	/**
-	 * Get the expected improvement of the weights (ie. expected value above the bestMean)
-	 * @author jdou557
-	 *
-	 */
-	 private static class ExpectedImprovementFunction implements MultivariateFunction {
-
-		 
-		 final double epsilon = -0.2;
-		 GaussianProcesses gp;
-		 NormalDistribution normal;
-		 double bestMean;
-		 Instances instances;
-		 Instance instance;
-		 
-		 public ExpectedImprovementFunction(Instances instances, GaussianProcesses gp, double bestMean) {
-			 this.instance = new DenseInstance(instances.numAttributes());
-			 this.instances = instances;
-			 this.bestMean = bestMean;
-			 instance.setDataset(instances);
-			 this.gp = gp;
-		 }
-		 
-		 
-		 public double getExpectedVal(double[] tweights) {
-			 
-			 double expectedImprovement = this.value(tweights);
-			 //Log.warning("Expected improvement " + expectedImprovement);
-			 //Log.warning("Best mean " + this.bestMean);
-			 //Log.warning("Epsilon " + this.epsilon);
-			// Log.warning("Expected value " + expectedImprovement + (this.bestMean + this.epsilon));
-			 
-			 return expectedImprovement + (this.bestMean);/// + this.epsilon);
-		 }
-		 
-		 
-		 @Override
-		 public double value(double[] tweights) {
-			 
-			// Set the transformed weight (ie the broken stick)
-			for (int j = 0; j < tweights.length; j ++) {
-				instance.setValue(instances.attribute("tweight" + j), tweights[j]);
-			}
-			
-			
-			// Get mean and standard deviation (in log space)
-			double sd, mean;
-			try {
-				sd = gp.getStandardDeviation(instance);
-				mean = gp.classifyInstance(instance);
-			} catch (Exception e1) {
-				e1.printStackTrace();
-				return Double.POSITIVE_INFINITY;
-			}
-			
-			double delta = mean - (bestMean + epsilon);
-			//delta = -delta; // Minimise
-			normal = new NormalDistribution(mean, sd);
-			
-			 
-			// Expected value
-			double e = delta * normal.cumulativeProbability(delta / sd) + sd*normal.density(delta / sd);
-			return e;
-			
-		 }
-		 
-		 
-	 }
 	
 	
 
@@ -451,7 +269,7 @@ public class BayesianDecisionTreeSampler extends WeightSampler {
 				
 			}else {
 				
-				double[] weights = DimensionalSampler.sampleWeights(poems, Randomizer.nextExponential(0.1));
+				double[] weights = null;//TODO DimensionalSampler.sampleWeights(poems, Randomizer.nextExponential(0.1));
 				double weightSum = 0;
 				for (int j = 0; j < fn.getDimension(); j ++) {
 					weights[j] += 0.00001; // Prevent numerical instabilities from tiny weights
@@ -459,7 +277,7 @@ public class BayesianDecisionTreeSampler extends WeightSampler {
 				}
 				for (int j = 0; j < fn.getDimension(); j ++) weights[j] /= weightSum;
 				//double[] weights = DirichletSampler.sampleWeights(poems);
-				tweights = SquaredAlphaDistance.breakSticks(weights);
+				tweights = breakSticks(weights);
 				
 				
 				// Check for numerical instabilities
@@ -526,7 +344,7 @@ public class BayesianDecisionTreeSampler extends WeightSampler {
 		
 		
 		
-		tweights = SquaredAlphaDistance.breakSticks(DimensionalSampler.sampleWeights(poems, 20));
+		tweights = null;// TODO breakSticks(DimensionalSampler.sampleWeights(poems, 20));
 		
 		// Set the transformed weight (ie the broken stick)
 		for (int j = 0; j < fn.getDimension()-1; j ++) {
@@ -574,45 +392,6 @@ public class BayesianDecisionTreeSampler extends WeightSampler {
 	}
 	
 	
-	
-	/**
-	 * Return weights which minimise the function
-	 * @param fn
-	 * @return
-	 */
-	public static double[] optimiseSimplex(MultivariateFunction fn, int ndim) {
-		
-		MaxIter maxIter = new MaxIter(1000);
-		MaxEval maxEval = new MaxEval(10000);
-		ObjectiveFunction objective = new ObjectiveFunction(fn);
-		//SearchInterval interval = new SearchInterval(0.0, 1.0, 0.5);
-		double[] initArr = new double[ndim-1];
-		InitialGuess init = new InitialGuess(initArr);
-		
-		//SimpleBounds bounds = new SimpleBounds(new double[] { 0,0,0,0,0,0 }, new double[] { 1,1,1,1,1 } );
-		NelderMeadSimplex simplex =  new org.apache.commons.math3.optim.nonlinear.scalar.noderiv.NelderMeadSimplex(ndim-1, 1.0);
-		
-		SimplexOptimizer opt = new SimplexOptimizer(1e-10, 1e-30);
-		
-		// Unit sum
-		Collection<LinearConstraint> constraints = new ArrayList<>();
-		constraints.add(new LinearConstraint(new double[] { 1,1,1,1,1,1 }, Relationship.LEQ, 1.0));
-		LinearConstraintSet constraintSet = new LinearConstraintSet(constraints);
-		
-		
-		try {
-			PointValuePair max = opt.optimize(maxIter, maxEval, constraintSet, objective, init, simplex,  GoalType.MINIMIZE);		
-
-			return max.getPoint();
-			
-		}catch(Exception e) {
-			e.printStackTrace();
-			return initArr;
-		}
-		
-	}
-	
-
 
 	 
 	 /**
@@ -640,50 +419,8 @@ public class BayesianDecisionTreeSampler extends WeightSampler {
 			 this.target = this.tau / this.ndim;
 		 }
 		 
-		 public static double logit(double x) {
-			 return Math.log(x / (1-x));
-		 }
-		 
-		 
-		 public static double ilogit(double x) {
-			 return 1.0 / (1 + Math.exp(-x));
-		 }
-		 
-		 
+		
 	
-		 // https://mc-stan.org/docs/2_18/reference-manual/simplex-transform-section.html
-		 public static double[] breakSticks(double[] x) {
-			 
-			 int K = x.length;
-			 double[] y = new double[K-1];
-			 double sum = 0;
-			 for (int k = 0; k < K-1; k ++) {
-				 double zk = x[k] / (1 - sum);
-				 double lzk = logit(zk);
-				 sum += x[k];
-				 y[k] = lzk - Math.log(1.0/(K-k));
-			 }
-			 return y;
-			 
-		 }
-		 
-		 
-		 public static double[] repairSticks(double[] y) {
-			 
-			 int K = y.length+1;
-			 double[] x = new double[K];
-			 double sum = 0;
-			 for (int k = 0; k < K-1; k ++) {
-				 double zk = ilogit(y[k] + Math.log(1.0 / (K-k)));
-				 x[k] = (1 - sum)*zk;
-				 sum += x[k];
-			 }
-			 x[K-1] = 1-sum;
-			 
-			 return x;
-			 
-		 }
-		 
 		 
 		 public double[] getAlpha(double[] breaks) {
 			 
@@ -698,9 +435,9 @@ public class BayesianDecisionTreeSampler extends WeightSampler {
 				 //this.alpha[i] = this.emax[i] / (1 + weightDividedByDim);
 				 
 				 
-				 weightDividedByDim = this.logit(weightDividedByDim);
+				 weightDividedByDim = logit(weightDividedByDim);
 				 double y = this.ehalf[i]*weightDividedByDim + this.emax[i];
-				 this.alpha[i] = this.ilogit(y);
+				 this.alpha[i] = ilogit(y);
 				 
 				 this.alphaSum += this.alpha[i];
 			 }
@@ -731,9 +468,9 @@ public class BayesianDecisionTreeSampler extends WeightSampler {
 				 double weightDividedByDim = weights[i] / this.dims[i];
 				 //this.alpha[i] = this.emax[i] / (1 + this.ehalf[i]/weightDividedByDim) + addon;
 				 
-				 weightDividedByDim = this.logit(weightDividedByDim);
+				 weightDividedByDim = logit(weightDividedByDim);
 				 double y = this.ehalf[i]*weightDividedByDim + this.emax[i];
-				 this.alpha[i] = this.ilogit(y);
+				 this.alpha[i] = ilogit(y);
 				 
 				//x = Math.log(x / (1-x));
 				//y = m*x + this.getIntercept(targetNum);
@@ -758,6 +495,15 @@ public class BayesianDecisionTreeSampler extends WeightSampler {
 		 }
 	    
 	 }
+
+
+
+
+	@Override
+	public double[] sampleWeights(List<POEM> poems) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
 	
 	

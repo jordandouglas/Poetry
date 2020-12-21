@@ -30,8 +30,7 @@ public class DimensionalSampler extends WeightSampler {
 	@Override
 	public void sampleWeights() throws Exception {
 		
-		double scale = scaleInput.get();
-		double[] weights = sampleWeights(this.poems, scale);
+		double[] weights = sampleWeights(this.poems);
 		if (weights == null) return;
 		this.setWeights(weights);
 		
@@ -43,11 +42,12 @@ public class DimensionalSampler extends WeightSampler {
 	 * @param poems
 	 * @return
 	 */
-	public static double[] sampleWeights(List<POEM> poems, double scale) {
+	@Override
+	public double[] sampleWeights(List<POEM> poems) {
 		
 
 		if (poems == null || poems.isEmpty()) return null;
-		
+		double scale = scaleInput.get();
 		
 		int dim = poems.size();
 		double[] weights = new double[dim];

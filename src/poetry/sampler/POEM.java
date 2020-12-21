@@ -12,6 +12,7 @@ import beast.core.Description;
 import beast.core.Function;
 import beast.core.Input;
 import beast.core.StateNode;
+import beast.core.util.Log;
 import beast.util.Randomizer;
 import poetry.functions.XMLFunction;
 import poetry.operators.MetaOperator;

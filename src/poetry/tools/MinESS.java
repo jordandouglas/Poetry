@@ -28,16 +28,30 @@ public class MinESS extends Runnable {
 	
 	
 	List<String> skip;
+	File logFile;
+	boolean verbose = true;
+	double minESS;
+	double meanESS;
+	int nlogs;
 	
 	
 	public MinESS() {
 		
 	}
 	
+	public MinESS(File logFile) {
+		this.skip = new ArrayList<>(); 
+		this.logFile = logFile;
+		this.verbose = false;
+	}
+	
+
+	
 
 	@Override
 	public void initAndValidate() {
 		this.skip = new ArrayList<>(); 
+		this.logFile = logfileInput.get();
 		if (skipInput.get() != null) {
 			String[] bits = skipInput.get().split(",");
 			for (String bit : bits) this.skip.add(bit);
@@ -49,11 +63,12 @@ public class MinESS extends Runnable {
 	public void run() throws Exception {
 		
 		double minESS = Double.POSITIVE_INFINITY;
-		File logFile = logfileInput.get();
 		
 	
 		if (!logFile.exists() || !logFile.canRead()) throw new IllegalArgumentException("Could not locate/read logfile " + logFile.getPath());
 		LogAnalyser analyser = new LogAnalyser(logFile.getAbsolutePath(), this.burninInput.get(), true, null);
+		
+		
 		
 		// Get minimum ESS across all column names
 		double meanESS = 0;
@@ -61,7 +76,7 @@ public class MinESS extends Runnable {
 		for (String colname : analyser.getLabels()) {
 			if (this.skip.contains(colname)) continue;
 			double ESS = analyser.getESS(colname);
-			Log.warning(colname + " has an ESS of " + (int) ESS);
+			if (this.verbose) Log.warning(colname + " has an ESS of " + (int) ESS);
 			if (ESS < 0 || Double.isNaN(ESS)) continue;
 			minESS = Math.min(minESS, ESS);
 			meanESS += ESS;
@@ -69,19 +84,39 @@ public class MinESS extends Runnable {
 		}
 		
 		meanESS /= numCols;
-		Log.warning("There is a minimum ESS of " + (int) minESS);
-		Log.warning("There is a mean ESS of " + (int) meanESS);
+		if (this.verbose) {
+			Log.warning("There is a minimum ESS of " + (int) minESS);
+			Log.warning("There is a mean ESS of " + (int) meanESS);
+		}
+
+		this.minESS = minESS;
+		this.meanESS = meanESS;
+		this.nlogs = analyser.getTrace(0).length;
 		
 		// Save it
-		File outfile = outInput.get();
-		if (outfile != null) {
-			Log.warning("Saving to " + outfile.getPath());
-			PrintWriter pw = new PrintWriter(outfile);
-			pw.println(minESS);
-			pw.println(meanESS);
-			pw.close();
+		if (this.outInput.get() != null) {
+			File outfile = outInput.get();
+			if (outfile != null) {
+				Log.warning("Saving to " + outfile.getPath());
+				PrintWriter pw = new PrintWriter(outfile);
+				pw.println(minESS);
+				pw.println(meanESS);
+				pw.close();
+			}
 		}
 		
+	}
+	
+	public double getMinESS() {
+		return this.minESS;
+	}
+	
+	public double getMeanESS() {
+		return this.meanESS;
+	}
+	
+	public int getNLogs() {
+		return this.nlogs;
 	}
 	
 	

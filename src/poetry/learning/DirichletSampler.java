@@ -37,7 +37,8 @@ public class DirichletSampler extends WeightSampler {
 	 * Return an array of sampled weights
 	 * @param poems
 	 */
-	public static double[] sampleWeights(List<POEM> poems) {
+	@Override
+	public double[] sampleWeights(List<POEM> poems) {
 		
 		
 		if (poems == null || poems.isEmpty()) return null;

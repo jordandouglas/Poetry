@@ -22,11 +22,6 @@ GeneTreePriorPOEM is not applicable to this model
 
 
     
-
-
-    
-
-
     
 
 
@@ -289,24 +284,16 @@ GeneTreePriorPOEM is not applicable to this model
         
     
 		<init id="inittree" initial="@tree" spec="beast.evolution.tree.SimpleRandomTree" taxa="@alignment.$(partition)"/>
-	<operatorschedule placeholder="@PHStateNode" runtime="runtime.log" spec="poetry.operators.PoetryScheduler" updateEvery="10000000" coordinateWeights="false" >
+	<operatorschedule placeholder="@PHStateNode" runtime="runtime.log" spec="poetry.operators.PoetryScheduler" updateEvery="10000" coordinateWeights="false" >
 
 
 
   		
-            <sampler spec="poetry.learning.BayesianDecisionTreeSampler" static="true" tree="@tree" data="@alignment.$(partition)"  trees="/home/jdou557/Documents/Marsden2019/Starbeast3/Poetry/examples/decision.trees">
-                <model spec="poetry.learning.ModelValue" model="treeclock.model" value="Calibrated.clock.model" />
-                <model spec="poetry.learning.ModelValue" model="site.model" value="HKY.model" />
-                <model spec="poetry.learning.ModelValue" model="site.heterogeneity.model" value="GammaInvariant.model" />
-                <model spec="poetry.learning.ModelValue" model="branch.model" value="RelaxedLN.model" />
-                <model spec="poetry.learning.ModelValue" model="tree.model" value="BirthDeath.model" />
-                <model spec="poetry.learning.ModelValue" model="search.mode" value="MCMC.search" />
+            <sampler spec="poetry.learning.GaussianProcessSampler" static="true" poetry="$(filebase).poetry" >
+            	<!-- <prior spec="poetry.learning.DimensionalSampler" static="true" scale="-1"/> -->
             </sampler>
             
 
-            <!--
-            <sampler spec="poetry.learning.DimensionalSampler" static="true" scale="-1"/>
-            -->
 
 
 <poem alpha="2.0" id="TopologyPOEM" logEvery="10000" operator="@species.tree.topology.operator" spec="poetry.sampler.POEM">
