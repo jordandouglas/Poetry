@@ -39,8 +39,8 @@ public class GaussianProcessSampler extends WeightSampler {
 	
 	final public Input<String> poetryFileInput = new Input<>("poetry", "File to store poetry meta-information in", Input.Validate.REQUIRED);
 	final public Input<WeightSampler> priorInput = new Input<>("prior", "Prior weight sampler");
-	final public Input<Double> noiseInput = new Input<>("noise", "The noise to use in Gaussian Processes", 0.06);
-	final public Input<Double> explorativityInput = new Input<>("explorataivity", "Explorativity in Gaussian Processes", 0.2);
+	final public Input<Double> noiseInput = new Input<>("noise", "The noise to use in Gaussian Processes", 0.2);
+	final public Input<Double> explorativityInput = new Input<>("explorativity", "Explorativity in Gaussian Processes", 0.2);
 	
 	final private static String distClassName = "dist";
 	final private static String jsonNtrialsName = "ntrials";
@@ -118,7 +118,7 @@ public class GaussianProcessSampler extends WeightSampler {
 		// Is this the first round?
 		if (!this.resumingPoetry) {
 			
-			Log.warning("Sampling weights using " + this.prior.getID() + "...");
+			Log.warning("Sampling weights using a " + this.prior.getClass().getCanonicalName() + "...");
 			
 			// Sample from prior
 			weights = this.prior.sampleWeights(poems);
@@ -225,10 +225,11 @@ public class GaussianProcessSampler extends WeightSampler {
 		try {
 			for (int i = 0; i < this.getNumPoems(); i ++) {
 				POEM poem = this.poems.get(i);
-				calculator = new MinESS(new File(poem.getLoggerFileName()));
+				calculator = new MinESS(new File(poem.getLoggerFileName()), "treePrior"); //tmp
 				calculator.run();
 				if (calculator.getNLogs() < 10) return null;
-				double ess = calculator.getMeanESS();
+				//double ess = calculator.getMeanESS();
+				double ess = calculator.getMinESS();
 				ESSes[i] = ess;
 				ESSsum += ESSes[i];
 				meanNLogs += calculator.getNLogs();
@@ -348,12 +349,13 @@ public class GaussianProcessSampler extends WeightSampler {
 		}
 		
 		
+		/*
 		// Save the dataset
 		ArffSaver saver = new ArffSaver();
 		saver.setInstances(instances);
 		saver.setFile(new File("/home/jdou557/Documents/Marsden2019/Months/December2020/BDT/kernel30.arff"));
 		saver.writeBatch();
-		
+		*/
 		
 		
 		// Train the kernel

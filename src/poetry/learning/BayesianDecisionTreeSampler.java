@@ -67,6 +67,15 @@ public class BayesianDecisionTreeSampler extends WeightSampler {
 
 	@Override
 	public void sampleWeights() throws Exception {
+		double[] weights = this.sampleWeights(poems);
+		this.setWeights(weights);
+	}
+	
+	
+
+	@Override
+	public double[] sampleWeights(List<POEM> poems) throws Exception {
+
 		
 		
 		// Model values
@@ -79,35 +88,6 @@ public class BayesianDecisionTreeSampler extends WeightSampler {
 		double[] weights = new double[dim];
 		
 		
-		/*
-		
-		DecisionTree[] decisionTrees = new DecisionTree[dim];
-		// Validate: check all POEMS have tree files
-		for (int j = 0; j < dim; j++) {
-			
-			POEM poem = poems.get(j);
-			File decisionTreeFile = poem.getDecisionTreeFile();
-			if (decisionTreeFile == null) {
-				throw new Exception("Please specify the decision tree file ('trees' input) for " + poem.getID());
-			}
-			if (!decisionTreeFile.canRead()) {
-				throw new Exception("Error locating decision tree file " + decisionTreeFile.getAbsolutePath());
-			}
-			
-			// Read the tree file
-			List<DecisionTree> trees = parseDecisionTrees(decisionTreeFile);
-			
-			// Take the last tree
-			DecisionTree tree = trees.get(trees.size()-1);
-			tree.setRegressionMode(regressionInput.get());
-			decisionTrees[j] = tree;
-			
-			System.out.println(poem.getID() + ": " + tree.toString());
-			
-			
-		}
-		weights = this.getWeights(decisionTrees, instances);
-		*/
 		
 		
 		// Load decision tree
@@ -117,20 +97,21 @@ public class BayesianDecisionTreeSampler extends WeightSampler {
 		System.out.println("tree : " + decisionTree.toString());
 		
 		
-		
-		
 		weights = this.getWeights(trees, instances);
 		
-		//System.exit(1);
-		
-		
-		this.setWeights(weights);
+		return weights;
 		
 	}
 	
 	
 
-	
+	/**
+	 * Take the optimal weights from a sample in the posterior
+	 * @param trees
+	 * @param inst
+	 * @return
+	 * @throws Exception
+	 */
 	protected double[] getWeights(List<DecisionTree> trees, Instances inst) throws Exception {
 		
 		double[] weights = new double[this.poems.size()];
@@ -170,25 +151,7 @@ public class BayesianDecisionTreeSampler extends WeightSampler {
 				}
 				
 				
-				/*
-				// Find weight such that E = 1/tau
-				double weight;
-				if (intercept < target) {
-					double newTarget = 1.5;
-					weight = slope / (newTarget - 1);
-					Log.warning("Cannot reach emax");
-				}else {
-					weight = slope / (intercept/target - 1);
-				}
 				
-				
-				
-				
-				
-				// Multiply by dimension
-				
-				weights[i] = weight*dim;
-				*/
 			}
 			
 			
@@ -213,7 +176,7 @@ public class BayesianDecisionTreeSampler extends WeightSampler {
 
 		
 		
-		buildEpsilonDistribution(fns, this.poems);
+		//buildEpsilonDistribution(fns, this.poems);
 		
 		return weights;
 	}
@@ -499,12 +462,6 @@ public class BayesianDecisionTreeSampler extends WeightSampler {
 
 
 
-	@Override
-	public double[] sampleWeights(List<POEM> poems) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
 	
 	
 	

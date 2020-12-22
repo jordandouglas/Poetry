@@ -39,8 +39,12 @@ public class MinESS extends Runnable {
 		
 	}
 	
-	public MinESS(File logFile) {
+	public MinESS(File logFile, String skip) {
 		this.skip = new ArrayList<>(); 
+		if (skip != null && !skip.isEmpty()) {
+			String[] bits = skip.split(",");
+			for (String bit : bits) this.skip.add(bit);
+		}
 		this.logFile = logFile;
 		this.verbose = false;
 	}
