@@ -45,8 +45,11 @@ public class GaussianProcessSampler extends WeightSampler {
 	final public Input<String> poetryFileInput = new Input<>("poetry", "File to store poetry meta-information in", Input.Validate.REQUIRED);
 	final public Input<WeightSampler> priorInput = new Input<>("prior", "Prior weight sampler");
 	final public Input<Double> noiseInput = new Input<>("noise", "The noise to use in Gaussian Processes", 0.2);
-	final public Input<Double> explorativityInput = new Input<>("explorativity", "Explorativity in Gaussian Processes", 0.2);
+	final public Input<Double> explorativityInitInput = new Input<>("explorativity", "Initial explorativity in Gaussian Processes for iteration 1", 0.5);
+	final public Input<Double> explorativityDecayInput = new Input<>("decay", "Decay in explorativity on each iteration", 0.7);
+	final public Input<Double> explorativityMinInput = new Input<>("minExplorativity", "Minimum explorativity after decay", 0.01);
 	final public Input<Double> minWeightInput = new Input<>("min", "Minimum value that all operator weights must surpass", 0.01);
+	final public Input<Double> priorWeightInput = new Input<>("priorWeight", "The total observational weight of the prior distribution, where each run of this xml file has a weight of 1", 5.0);
 	
 	final public Input<AcquisitionFunction> acquisitionFunctionInput = new Input<>("acquisition", "The acquisition function for Bayesian optimisation", AcquisitionFunction.EI, AcquisitionFunction.values());
 	
@@ -62,9 +65,12 @@ public class GaussianProcessSampler extends WeightSampler {
 	WeightSampler prior;
 	File poetryFile;
 	double minWeight;
+	double priorWeight;
+	double explorativity;
 	
 	// Poetry json before 
 	JSONObject initialPoetry;
+	int iterationNum;
 	
 	
 	@Override
@@ -86,6 +92,12 @@ public class GaussianProcessSampler extends WeightSampler {
 		this.minWeight = this.minWeightInput.get();
 		if (this.minWeight <= 0) this.minWeight = 0;
 		
+		
+		// Statistical learning weight for prior
+		this.priorWeight = this.priorWeightInput.get();
+		if (this.priorWeight <= 0) this.priorWeight = 0;
+		
+		
 		try {
 			this.initialPoetry = this.readPoetry();
 		} catch (Exception e) {
@@ -98,14 +110,31 @@ public class GaussianProcessSampler extends WeightSampler {
 		
 		
 		// Resume if there exists a valid state file
+		this.iterationNum = 0;
 		resumingPoetry = true;
 		try {
 			if (this.initialPoetry == null ) resumingPoetry = false;
 			else if (this.initialPoetry.getJSONArray(jsonSamplesName) == null) resumingPoetry = false;
 			else if (this.initialPoetry.getJSONArray(jsonSamplesName).length() == 0) resumingPoetry = false;
+			
+			if (this.resumingPoetry) {
+				this.iterationNum = this.initialPoetry.getInt(jsonNtrialsName);
+			}
+			
 		} catch (JSONException e) {}
 		
 		if (!this.resumingPoetry) this.initialPoetry = null;
+		
+		
+		
+		// Current explorativity
+		double initE = this.explorativityInitInput.get();
+		double decay = this.explorativityDecayInput.get();
+		double finalE = this.explorativityMinInput.get();
+		if (this.iterationNum > 0) this.explorativity = Math.max(initE * Math.pow(decay, this.iterationNum-1), finalE);
+		else this.explorativity = initE;
+		
+		
 		
 	}
 	
@@ -131,6 +160,9 @@ public class GaussianProcessSampler extends WeightSampler {
 		
 		double[] weights;
 		
+		
+		Log.warning("Starting iteration " + this.iterationNum);
+		Log.warning("Bayesian optimisation explorativity = " + this.explorativity);
 		
 		// Is this the first round?
 		if (!this.resumingPoetry) {
@@ -266,10 +298,10 @@ public class GaussianProcessSampler extends WeightSampler {
 		}
 		meanNLogs = meanNLogs / ESSes.length;
 		
-		// Store the total ESSes
+		// Store the fractional ESSes
 		for (int i = 0; i < this.getNumPoems(); i ++) {
 			POEM poem = this.poems.get(i);
-			sampleThis.put(poem.getESSColname(), ESSes[i]);
+			sampleThis.put(poem.getESSColname(), ESSes[i]/ESSsum);
 		}
 		
 		// N logged states
@@ -376,6 +408,30 @@ public class GaussianProcessSampler extends WeightSampler {
 		}
 		
 		
+		
+		// Add prior database?
+		if (this.prior instanceof BayesianDecisionTreeSampler && this.priorWeight > 0) {
+			
+			// Load the database
+			BayesianDecisionTreeSampler treeSampler = (BayesianDecisionTreeSampler) this.prior;
+			treeSampler.sampleWeights(poems);
+			Instances priorDatabase = treeSampler.getDatabaseAtLeaf();
+			
+			Log.warning("Adding " + priorDatabase.size() + " prior instances to GP model with a total weight of " + this.priorWeight);
+			
+			// Add the instances to the main list of instances, but with a smaller learning weight
+			double weightPerInst = this.priorWeight / priorDatabase.size();
+			for (int i = 0; i < priorDatabase.size(); i++) {
+				Instance priorInst = priorDatabase.get(i);
+				priorInst.setWeight(weightPerInst);
+				instances.add(priorInst);
+			}
+			
+			
+			
+		}
+		
+		
 		/*
 		// Save the dataset
 		ArffSaver saver = new ArffSaver();
@@ -413,13 +469,13 @@ public class GaussianProcessSampler extends WeightSampler {
 		MultivariateFunction fn = null;
 		switch (this.acquisition) {
 			case EI:{
-				fn = new ExpectedImprovementFunction(instances, kernel, bestMean, explorativityInput.get());
+				fn = new ExpectedImprovementFunction(instances, kernel, bestMean, this.explorativity);
 				Log.warning("Computing maximum expected improvement...");
 				break;
 			}
 			
 			case POI:{
-				fn = new ProbabilityOfImprovement(instances, kernel, bestMean, explorativityInput.get());
+				fn = new ProbabilityOfImprovement(instances, kernel, bestMean, this.explorativity);
 				Log.warning("Computing maximum probability of improvement...");
 				break;
 			}
@@ -427,8 +483,7 @@ public class GaussianProcessSampler extends WeightSampler {
 		}
 		
 		
-		
-		//ExpectedImprovementFunction fn = new ExpectedImprovementFunction(instances, kernel, bestMean, explorativityInput.get());
+		// Optimise acquisition function to get next iteration's weights
 		double[] opt = optimiseSimplex(fn, this.poems.size());
 		double[] weights = repairSticks(opt);
 		System.out.print(this.acquisition.toString() + " max: ");
@@ -458,7 +513,7 @@ public class GaussianProcessSampler extends WeightSampler {
 		 Instance instance;
 		
 		public ProbabilityOfImprovement(Instances instances, GaussianProcesses gp, double bestMean, double epsilon) {
-			 this.epsilon = -Math.abs(epsilon);
+			 this.epsilon = epsilon;
 			 this.instance = new DenseInstance(instances.numAttributes());
 			 this.instances = instances;
 			 this.bestMean = bestMean;

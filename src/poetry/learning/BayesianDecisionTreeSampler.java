@@ -58,10 +58,34 @@ public class BayesianDecisionTreeSampler extends WeightSampler {
 	
 	final private static String distClassName = "Pmean";
 	
+	// The decision tree
+	DecisionTree tree;
+	
+	// The leaf in the decision tree corresponding to this xml file
+	DecisionNode leaf;
+	
+	// The prior database associated with this leaf
+	Instances priorDatabase = null;
+	
+	
+	// This session represented as an Instances object with 1 entry
+	Instances currentSessionInst;
+	
 	
 	@Override
 	public void initAndValidate() {
 		
+		
+		
+		
+		try {
+			
+			
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new IllegalArgumentException("Error loading decision tree");
+		}
 		
 		
 		
@@ -74,279 +98,84 @@ public class BayesianDecisionTreeSampler extends WeightSampler {
 	}
 	
 	
-
-	@Override
-	public double[] sampleWeights(List<POEM> poems) throws Exception {
-
-		
-		// Model values
-		List<ModelValue> modelValues = modelValuesInput.get();
-		
-		// Get the Weka Instance of this session
-		Instances instances = BEAST2Weka.getInstance(dataInput.get(), treeInput.get(), this, modelValues);
-		int dim = poems.size();
-		double[] weights = new double[dim];
-		
-		// Load decision tree
-		List<DecisionTree> trees = parseDecisionTrees(new File(treesInput.get()), 10);
-		DecisionTree decisionTree = trees.get(trees.size()-1);
-		decisionTree.setRegressionMode(regressionInput.get());
-		System.out.println("tree : " + decisionTree.toString());
-		
-		// Load dataset for training GP
-		Instances database = new DataSource(datasetInput.get()).getDataSet();
-		database.setClass(database.attribute(distClassName));
-		
-		// Calculate weights
-		weights = this.getWeights(trees, instances, database);
-		return weights;
-		
+	/**
+	 * Return the prior distribution database for the current leaf
+	 * @return
+	 * @throws Exception
+	 */
+	public Instances getDatabaseAtLeaf() throws Exception {
+		return priorDatabase;
 	}
 	
 	
 
 	/**
-	 * Take the optimal weights from a sample in the posterior
-	 * @param trees
-	 * @param inst
-	 * @return
-	 * @throws Exception
+	 * 
 	 */
-	protected double[] getWeights(List<DecisionTree> trees, Instances inst, Instances database) throws Exception {
+	@Override
+	public double[] sampleWeights(List<POEM> poems) throws Exception {
+
 		
-		double[] weights = new double[this.poems.size()];
+		double[] weights = new double[poems.size()];
+		
+		
+
+		//  Load decision tree and prepare the decision tree leaf
+		List<DecisionTree>  trees = parseDecisionTrees(new File(treesInput.get()), 10);
+		DecisionTree decisionTree = trees.get(trees.size()-1);
+		decisionTree.setRegressionMode(regressionInput.get());
+		System.out.println("tree : " + decisionTree.toString());
 		
 		
 		
+		// Model values
+		List<ModelValue> modelValues = modelValuesInput.get();
 		
-		/*
-		 * int ntaxa = (int)(inst.instance(0).value(inst.attribute("ntaxa")));
-		SquaredAlphaDistance[] fns = new SquaredAlphaDistance[trees.size()];
-		
-		for (int treeNum = 0; treeNum < trees.size(); treeNum ++) {
-				
-			DecisionTree tree = trees.get(treeNum);
-			DecisionNode leaf = tree.getLeaf(inst);
-			
-			// Optimise
-			double tau = Double.parseDouble(leaf.getToken("sigma"));
-			double target = tau / this.getNumPoems();
-			double[] slopes = new double[this.poems.size()];
-			double[] intercepts = new double[this.poems.size()];
-			double[] dims  = new double[this.poems.size()];
-			for (int i = 0; i < this.getNumPoems(); i ++) {
-				POEM poem = this.poems.get(i);
-				
-				
-				String slopeStr = leaf.getToken("slope_" + poem.getESSColname() + ".p");
-				String interceptStr = leaf.getToken("intercept_" + poem.getESSColname() + ".p");
-				double slope = Double.parseDouble(slopeStr);
-				double intercept = Double.parseDouble(interceptStr);
-				double dim = BEAST2Weka.getDimension(poem.getID(), poem.getDim(), ntaxa); 
-				
-				slopes[i] = slope;
-				intercepts[i] = intercept;
-				dims[i] = dim;
-				
-				
-				if (treeNum == trees.size()-1) {
-					System.out.println(poem.getID() + " slope " + slope + " intercept " + intercept + " target " + target);
-				}
-				
-				
-				
-			}
-			
-			
-			SquaredAlphaDistance fn = new SquaredAlphaDistance(slopes, intercepts, dims, tau);
-			fns[treeNum] = fn;
-			
-			if (treeNum == trees.size()-1) {
-				
-				double[] opt = optimiseSimplex(fn, fn.getDimension());
-				weights = repairSticks(opt);
-				System.out.print("max: ");
-				for (double o : weights) System.out.print(o + ", ");
-				System.out.println(" eval: " + fn.value(opt));
-				
-				System.out.print("alpha: ");
-				for (double o : fn.getAlpha(opt)) System.out.print(o + ", ");
-				System.out.println();
-				
-			}
-			
-		}
-		*/
-		
+		// Get the Weka Instance of this session
+		currentSessionInst = BEAST2Weka.getInstance(dataInput.get(), treeInput.get(), this, modelValues);
 		
 		// Take last tree
-		DecisionTree tree = trees.get(trees.size()-1);
-		DecisionNode leaf = tree.getLeaf(inst);
+		this.tree = trees.get(trees.size()-1);
+		this.leaf = tree.getLeaf(currentSessionInst);
+		
 		
 		
 		// Weight columns are predictors
 		List<String> weightCols = new ArrayList<>();
 		for (int i = 0; i < this.getNumPoems()-1;i++) {
-			POEM poem = this.poems.get(i);
+			POEM poem = poems.get(i);
 			String weightCol = poem.getWeightColname();
 			weightCols.add(weightCol);
 		}
 		leaf.setPredAttrs(weightCols);
 		
 		
-		// Filter instances using leaf and train the GP
-		leaf.filterInstances(database);
-		database = leaf.setSplitData(database, true);
 		
+		// Load dataset for training GP
+		priorDatabase = new DataSource(datasetInput.get()).getDataSet();
+		priorDatabase.setClass(priorDatabase.attribute(distClassName));
+
+		
+		// Filter instances using leaf and train the GP
+		leaf.filterInstances(priorDatabase);
+		priorDatabase = leaf.setSplitData(priorDatabase, true);
+		
+		
+		
+
 		
 		// Minimise pmean
-		PMeanFunction fn = new PMeanFunction(leaf, database);
+		PMeanFunction fn = new PMeanFunction(leaf, priorDatabase);
 		double[] tweights = optimiseSimplex(fn, fn.getDimension());
-		Log.warning("Minimsied mean distance: " + Math.exp(fn.value(tweights)));
+		Log.warning("Minimised mean distance: " + Math.exp(fn.value(tweights)));
 		weights = repairSticks(tweights);
 		return weights;
 		
-	}
-	
-	
-
-	
-	
-	public static void buildEpsilonDistribution(SquaredAlphaDistance[] fns, List<POEM> poems) throws Exception {
-		
-
-		final int nsamples = 1000;
-		
-		
-		Log.warning("Building kernel density...");
-		
-
-		
-		// Create Instances object
-		ArrayList<Attribute> attributes = new ArrayList<>();
-		for (int i = 0; i < fns[0].getDimension()-1; i ++) {
-			Attribute tweight = new Attribute("tweight" + i);
-			attributes.add(tweight);
-		}
-		attributes.add(new Attribute(distClassName));
-		int nattr = attributes.size();
-		Instances instances = new Instances("dirichlet", attributes,  attributes.size());
-		instances.setClass(instances.attribute(distClassName));
-		
-		
-		
-		
-		// Sample weights using a dirichlet on the poem alphas
-		boolean isNaN = false;
-		for (int i = 0; i < 2*nsamples; i ++) {
-			
-			SquaredAlphaDistance fn = fns[Randomizer.nextInt(fns.length)];
-			
-			double[] tweights;
-			if (i >= nsamples) {
-				
-				// Include the optimal weight with some jitter
-				tweights = optimiseSimplex(fn, fn.getDimension());
-				
-				
-				// Add some random jitter
-				for (int j = 0; j < fn.getDimension()-1; j ++) {
-					tweights[j] = tweights[j] + Randomizer.nextGaussian()*Randomizer.nextExponential(5);
-					//if (true || i != 2*nsamples -1)tweights[j] += Randomizer.nextGaussian()*Randomizer.nextExponential(5);
-				}
-				
-				
-				
-			}else {
-				
-				double[] weights = null;//TODO DimensionalSampler.sampleWeights(poems, Randomizer.nextExponential(0.1));
-				double weightSum = 0;
-				for (int j = 0; j < fn.getDimension(); j ++) {
-					weights[j] += 0.00001; // Prevent numerical instabilities from tiny weights
-					weightSum += weights[j];
-				}
-				for (int j = 0; j < fn.getDimension(); j ++) weights[j] /= weightSum;
-				//double[] weights = DirichletSampler.sampleWeights(poems);
-				tweights = breakSticks(weights);
-				
-				
-				// Check for numerical instabilities
-				for (int j = 0; j < fn.getDimension()-1; j ++) {
-					//System.out.println("weight " + weights[j] + " tweight " + tweights[j]);
-					if (Double.isNaN(tweights[j])) isNaN = true;
-				}
-				//System.out.println("weight final " + weights[fn.getDimension()-1]);
-			}
-			
-			Instance instance = new DenseInstance(nattr);
-			instance.setDataset(instances);
-			
-			// Set the transformed weight (ie the broken stick)
-			for (int j = 0; j < fn.getDimension()-1; j ++) {
-				instance.setValue(instances.attribute("tweight" + j), tweights[j]);
-			}
-			//System.out.println("weight final " + weights[fn.getDimension()-1]);
-			
-			// Compute the distance in logspace
-			double dist = fn.value(tweights);
-			if (isNaN || Double.isNaN(dist)) continue;
-			dist = Math.log(dist);
-			instance.setValue(instances.attribute(distClassName), dist);
-			instances.add(instance);
-			
-		}
-		
-		
-		Log.warning(instances.size() + " kernel samples");
-		SquaredAlphaDistance fn = fns[fns.length-1];
-		
-		/*
-		// Save the dataset
-		ArffSaver saver = new ArffSaver();
-		saver.setInstances(instances);
-		saver.setFile(new File("/home/jdou557/Documents/Marsden2019/Months/December2020/BDT/kernel.arff"));
-		saver.writeBatch();
-		*/
-		
-		
-		// Train the kernel
-		// No normalisation or standardisation. RBFKernel
-		GaussianProcesses kernel = new GaussianProcesses();
-		kernel.setOptions(new String[] { "-N", "2", "-K", RBFKernel.class.getCanonicalName() });
-		kernel.buildClassifier(instances);
-		
-		
-		
-		Instance instance = new DenseInstance(nattr);
-		instance.setDataset(instances);
-		double[] tweights = optimiseSimplex(fn, fn.getDimension()); // fn.breakSticks(DirichletSampler.sampleWeights(poems));
-		
-		// Set the transformed weight (ie the broken stick)
-		for (int j = 0; j < fn.getDimension()-1; j ++) {
-			System.out.println("tweight " + tweights[j]);
-			instance.setValue(instances.attribute("tweight" + j), tweights[j]);
-		}
-		
-		
-		double sd = kernel.getStandardDeviation(instance);
-		double mean = kernel.classifyInstance(instance);
-		System.out.println("opt mean: " + mean + " sd: " + sd + " real space val " + Math.exp(mean) + " true " + fn.value(tweights));
-		
-		
-		
-		tweights = null;// TODO breakSticks(DimensionalSampler.sampleWeights(poems, 20));
-		
-		// Set the transformed weight (ie the broken stick)
-		for (int j = 0; j < fn.getDimension()-1; j ++) {
-			instance.setValue(instances.attribute("tweight" + j), -1.0);
-		}
-		
-		
-		sd = kernel.getStandardDeviation(instance);
-		mean = kernel.classifyInstance(instance);
-		System.out.println("rand mean: " + mean + " sd: " + sd + " real space val " + Math.exp(mean) + " true " + fn.value(tweights));
 		
 	}
+	
+
+
 	
 
 	
@@ -538,6 +367,143 @@ public class BayesianDecisionTreeSampler extends WeightSampler {
 
 
 
+		
+		public static void buildEpsilonDistribution(SquaredAlphaDistance[] fns, List<POEM> poems) throws Exception {
+			
+
+			final int nsamples = 1000;
+			
+			
+			Log.warning("Building kernel density...");
+			
+
+			
+			// Create Instances object
+			ArrayList<Attribute> attributes = new ArrayList<>();
+			for (int i = 0; i < fns[0].getDimension()-1; i ++) {
+				Attribute tweight = new Attribute("tweight" + i);
+				attributes.add(tweight);
+			}
+			attributes.add(new Attribute(distClassName));
+			int nattr = attributes.size();
+			Instances instances = new Instances("dirichlet", attributes,  attributes.size());
+			instances.setClass(instances.attribute(distClassName));
+			
+			
+			
+			
+			// Sample weights using a dirichlet on the poem alphas
+			boolean isNaN = false;
+			for (int i = 0; i < 2*nsamples; i ++) {
+				
+				SquaredAlphaDistance fn = fns[Randomizer.nextInt(fns.length)];
+				
+				double[] tweights;
+				if (i >= nsamples) {
+					
+					// Include the optimal weight with some jitter
+					tweights = optimiseSimplex(fn, fn.getDimension());
+					
+					
+					// Add some random jitter
+					for (int j = 0; j < fn.getDimension()-1; j ++) {
+						tweights[j] = tweights[j] + Randomizer.nextGaussian()*Randomizer.nextExponential(5);
+						//if (true || i != 2*nsamples -1)tweights[j] += Randomizer.nextGaussian()*Randomizer.nextExponential(5);
+					}
+					
+					
+					
+				}else {
+					
+					double[] weights = null;//TODO DimensionalSampler.sampleWeights(poems, Randomizer.nextExponential(0.1));
+					double weightSum = 0;
+					for (int j = 0; j < fn.getDimension(); j ++) {
+						weights[j] += 0.00001; // Prevent numerical instabilities from tiny weights
+						weightSum += weights[j];
+					}
+					for (int j = 0; j < fn.getDimension(); j ++) weights[j] /= weightSum;
+					//double[] weights = DirichletSampler.sampleWeights(poems);
+					tweights = breakSticks(weights);
+					
+					
+					// Check for numerical instabilities
+					for (int j = 0; j < fn.getDimension()-1; j ++) {
+						//System.out.println("weight " + weights[j] + " tweight " + tweights[j]);
+						if (Double.isNaN(tweights[j])) isNaN = true;
+					}
+					//System.out.println("weight final " + weights[fn.getDimension()-1]);
+				}
+				
+				Instance instance = new DenseInstance(nattr);
+				instance.setDataset(instances);
+				
+				// Set the transformed weight (ie the broken stick)
+				for (int j = 0; j < fn.getDimension()-1; j ++) {
+					instance.setValue(instances.attribute("tweight" + j), tweights[j]);
+				}
+				//System.out.println("weight final " + weights[fn.getDimension()-1]);
+				
+				// Compute the distance in logspace
+				double dist = fn.value(tweights);
+				if (isNaN || Double.isNaN(dist)) continue;
+				dist = Math.log(dist);
+				instance.setValue(instances.attribute(distClassName), dist);
+				instances.add(instance);
+				
+			}
+			
+			
+			Log.warning(instances.size() + " kernel samples");
+			SquaredAlphaDistance fn = fns[fns.length-1];
+			
+			/*
+			// Save the dataset
+			ArffSaver saver = new ArffSaver();
+			saver.setInstances(instances);
+			saver.setFile(new File("/home/jdou557/Documents/Marsden2019/Months/December2020/BDT/kernel.arff"));
+			saver.writeBatch();
+			*/
+			
+			
+			// Train the kernel
+			// No normalisation or standardisation. RBFKernel
+			GaussianProcesses kernel = new GaussianProcesses();
+			kernel.setOptions(new String[] { "-N", "2", "-K", RBFKernel.class.getCanonicalName() });
+			kernel.buildClassifier(instances);
+			
+			
+			
+			Instance instance = new DenseInstance(nattr);
+			instance.setDataset(instances);
+			double[] tweights = optimiseSimplex(fn, fn.getDimension()); // fn.breakSticks(DirichletSampler.sampleWeights(poems));
+			
+			// Set the transformed weight (ie the broken stick)
+			for (int j = 0; j < fn.getDimension()-1; j ++) {
+				System.out.println("tweight " + tweights[j]);
+				instance.setValue(instances.attribute("tweight" + j), tweights[j]);
+			}
+			
+			
+			double sd = kernel.getStandardDeviation(instance);
+			double mean = kernel.classifyInstance(instance);
+			System.out.println("opt mean: " + mean + " sd: " + sd + " real space val " + Math.exp(mean) + " true " + fn.value(tweights));
+			
+			
+			
+			tweights = null;// TODO breakSticks(DimensionalSampler.sampleWeights(poems, 20));
+			
+			// Set the transformed weight (ie the broken stick)
+			for (int j = 0; j < fn.getDimension()-1; j ++) {
+				instance.setValue(instances.attribute("tweight" + j), -1.0);
+			}
+			
+			
+			sd = kernel.getStandardDeviation(instance);
+			mean = kernel.classifyInstance(instance);
+			System.out.println("rand mean: " + mean + " sd: " + sd + " real space val " + Math.exp(mean) + " true " + fn.value(tweights));
+			
+		}
+		
 	
 	
 	

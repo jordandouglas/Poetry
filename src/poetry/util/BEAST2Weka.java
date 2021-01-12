@@ -53,8 +53,6 @@ public class BEAST2Weka {
 
 	public static Instances getInstance(Alignment dataset, Tree tree, WeightSampler weightSampler, List<ModelValue> modelValues) {
 
-
-		
 		
 		// Create attribute list
 		ArrayList<Attribute> attributes = new ArrayList<>();

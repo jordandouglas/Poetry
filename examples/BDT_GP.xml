@@ -16,7 +16,7 @@
 <map name="Dirichlet" >beast.math.distributions.Dirichlet</map>
 
 
-<data id="wekaData" spec="poetry.decisiontree.WekaData" arff="/home/jdou557/Documents/Marsden2019/papers/PoetryPaper/results/weka.breakssimple.arff" dataSplit="50" xmlSplit="true"/>
+<data id="wekaData" spec="poetry.decisiontree.WekaData" arff="/home/jdou557/Documents/Marsden2019/papers/PoetryPaper/results/weka.breakssimple.arff" dataSplit="80" xmlSplit="true"/>
 
 
 
