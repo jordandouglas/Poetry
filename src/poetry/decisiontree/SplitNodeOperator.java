@@ -131,7 +131,7 @@ public class SplitNodeOperator extends Operator {
 	 */
 	protected void reorderParameters(DecisionTree tree, int nleavesBefore) {
 		
-		//if (true) return;
+		if (true) return;
 		
 		 
 		if (slopeInput.get() != null && interceptInput.get() != null) {

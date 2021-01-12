@@ -93,13 +93,13 @@ public class RandomForest extends StateNode implements DecisionTreeInterface {
 	 * @param data
 	 * @return
 	 */
-	public boolean splitData(Instances data) {
+	public boolean splitData(Instances data, boolean isTrainingData) {
 		
 		boolean valid = true;
 		
 		// Split down each tree
 		for (DecisionTree tree : this.trees) {
-			valid = valid && tree.splitData(data);
+			valid = valid && tree.splitData(data, isTrainingData);
 		}
 		return valid;
 		

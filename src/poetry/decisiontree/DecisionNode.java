@@ -3,6 +3,7 @@ package poetry.decisiontree;
 
 
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -15,6 +16,10 @@ import poetry.decisiontree.DecisionTreeInterface.regressionDistribution;
 import poetry.distribution.FlexibleDirichlet;
 import poetry.decisiontree.DecisionTreeDistribution.ResponseMode;
 import poetry.util.WekaUtils;
+import weka.classifiers.functions.GaussianProcesses;
+import weka.classifiers.functions.supportVector.PolyKernel;
+import weka.classifiers.functions.supportVector.Puk;
+import weka.classifiers.functions.supportVector.RBFKernel;
 import weka.core.Attribute;
 import weka.core.Instance;
 import weka.core.Instances;
@@ -65,12 +70,18 @@ public class DecisionNode extends Node {
 	HashMap<String, String> metadataTokens;
 	
 	
-	
+	// Gaussian process regression
+	GaussianProcesses gp_kernel;
 	
 	
 	@Override
+	public boolean isRoot() {
+        return parent == null;
+    }
+	
+	@Override
 	public void initAndValidate() {
-
+		this.gp_kernel = null;
 	}
 
 	
@@ -103,40 +114,48 @@ public class DecisionNode extends Node {
 		
 		if (this.isLeaf()) {
 			
-			// Regression info if leaf
-			double intercept = this.getIntercept();
-			buf.append("sigma=" + this.getSigma() + ",");
-			buf.append("intercept=" + intercept + ",");
-			if (this.split != null) {
-				String eqn = "eqn='" + WekaUtils.roundToSF(intercept, 3) + "/(1";
-				for (int i = 0; i < this.predAttr.size(); i ++) {
-					
-					// Log the slope
-					double slope = this.getSlope(i);
-					buf.append("slope_" + this.targetAttr.get(i) + "=" + slope + ",");
-					
-					
-					buf.append("intercept_" + this.targetAttr.get(i) + "=" + this.getIntercept(i) + ",");
-					
-					// Round to 3 sf for the equation
-					eqn += " + " + WekaUtils.roundToSF(slope, 3) + "/x" + (i+1);
-					
+			
+			buf.append("sigma=" + this.getSigma());
+			
+			if (this.gp_kernel == null) {
+				
+				buf.append(",");
+				
+				// Regression info if leaf
+				double intercept = this.getIntercept();
+				
+				buf.append("intercept=" + intercept + ",");
+				if (this.split != null) {
+					String eqn = "eqn='" + WekaUtils.roundToSF(intercept, 3) + "/(1";
+					for (int i = 0; i < this.predAttr.size(); i ++) {
+						
+						// Log the slope
+						double slope = this.getSlope(i);
+						buf.append("slope_" + this.targetAttr.get(i) + "=" + slope + ",");
+						
+						
+						buf.append("intercept_" + this.targetAttr.get(i) + "=" + this.getIntercept(i) + ",");
+						
+						// Round to 3 sf for the equation
+						eqn += " + " + WekaUtils.roundToSF(slope, 3) + "/x" + (i+1);
+						
+					}
+					eqn += ")'";
+					buf.append(eqn);
 				}
-				eqn += ")'";
-				buf.append(eqn);
+			
 			}
 			
 			
 		}else {
 			
 			
-			
 			// Split info if non-leaf
 			String attribute = this.getAttributeName();
 			String value = this.getAttributeValueName();
 			buf.append("attribute=" + attribute + ",");
-			buf.append("value=" + value + ",");
-			if (this.split != null) buf.append("eqn='" + this.split.getCondition(this.nodeIndex, 3) + "'");
+			buf.append("value=" + value);
+			if (this.split != null) buf.append(",eqn='" + this.split.getCondition(this.nodeIndex, 3) + "'");
 			
 		}
 		
@@ -273,6 +292,12 @@ public class DecisionNode extends Node {
         node.parent = null;
         node.isTrueChild = this.isTrueChild;
         node.regressionDistribution = this.regressionDistribution;
+        try {
+			node.gp_kernel = this.gp_kernel;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
         this.splitData = null;
         if (!isLeaf()) {
         	node.setTrueChild(children[0].copy());
@@ -290,15 +315,16 @@ public class DecisionNode extends Node {
 		this.splitData = null;
 	}
 
+	
+	
 	/**
 	 * Attempt to split the data, returns false if this or a child cannot split it
 	 * @param preSplitData
 	 * @return
 	 */
-	public boolean splitData(Instances preSplitData) {
+	public boolean splitData(Instances preSplitData, boolean isTrainingData) {
 		
 		
-		this.splitData = preSplitData;
 		if (!this.isLeaf()) {
 			
 			// Split for left and right children
@@ -314,15 +340,103 @@ public class DecisionNode extends Node {
 			// Do both sides have instances?
 			//if (splitTrue.size() == 0 || splitFalse.size() == 0) return false;
 			
-			if (!children[0].splitData(splitTrue)) return false;
-			if (!children[1].splitData(splitFalse)) return false;
+			if (!children[0].splitData(splitTrue, isTrainingData)) return false;
+			if (!children[1].splitData(splitFalse, isTrainingData)) return false;
+			
+
+			
 			
 		}
+		
+		this.setSplitData(preSplitData, isTrainingData);
 		
 		return true;
 		
 	}
 	
+	
+	/**
+	 * Set the split data for this node, and possibly train the gaussian process too
+	 * @param instances
+	 */
+	public Instances setSplitData(Instances instances, boolean isTrainingData) {
+		
+		this.splitData = instances;
+		
+		if (this.isLeaf()) {
+			
+			double sigma = this.getSigma();
+			sigma = 0.4; //tmp
+			Log.warning("Training GP on " + this.splitData.size() + " instances with " + sigma);
+			
+			// Train GP if leaf
+			if(this.regression == ResponseMode.gaussianprocess && this.splitData.size() > 0) {
+				
+				this.splitData = this.cleanseInstances(this.splitData);
+				
+				
+				if (isTrainingData) {
+					try {
+						this.gp_kernel = new GaussianProcesses();
+						this.gp_kernel.setOptions(new String[] { "-N", "2", "-K", RBFKernel.class.getCanonicalName(), "-L", "" + sigma });
+						//this.gp_kernel.setOptions(new String[] { "-N", "2", "-K", PolyKernel.class.getCanonicalName(), "-L", "" + this.getSigma() });
+						//this.gp_kernel.setOptions(new String[] { "-N", "2", "-K", Puk.class.getCanonicalName(), "-L", "" + this.getSigma() });
+						this.gp_kernel.buildClassifier(this.splitData);
+					} catch (Exception e) {
+						this.gp_kernel = null;
+						e.printStackTrace();
+					}
+				}
+				
+				
+			}
+		}
+		
+		return this.splitData;
+		
+	}
+	
+	
+	/**
+	 * Remove all attributes which are not on the list of predictors/class
+	 * @param inst
+	 */
+	private Instances cleanseInstances(Instances inst) {
+		
+		Instances cleansed = new Instances(inst);
+		
+		// Remove non-predictors
+		List<Integer> toRemove = new ArrayList<>();
+		for (int j = 0; j < cleansed.numAttributes(); j ++) {
+			
+			Attribute feature = cleansed.attribute(j);
+			
+			if (cleansed.classAttribute() == feature) continue;
+			
+			boolean isPredictor = false;
+			for (int i = 0; i < this.predAttr.size(); i ++) {
+				String predX = this.predAttr.get(i);
+				if (predX.equals(feature.name())) {
+					isPredictor = true;
+					break;
+				}
+			}
+			
+			if (!isPredictor) {
+				toRemove.add(j);
+			}
+			
+		}
+		for (int i = toRemove.size()-1; i >= 0; i--) {
+			cleansed.deleteAttributeAt(toRemove.get(i));
+		}
+		
+		return cleansed;
+		
+		
+	}
+	
+
 
 
 	public void setIndex(int i) {
@@ -464,6 +578,7 @@ public class DecisionNode extends Node {
 	 */
 	public double getSigma() {
 		if (this.metadataTokens.containsKey("sigma")) return Double.parseDouble(this.metadataTokens.get("sigma"));
+		if (this.sigmaOrTau == null) return 0;
 		return this.sigmaOrTau.getArrayValue();
 	}
 
@@ -474,6 +589,7 @@ public class DecisionNode extends Node {
 	 */
 	public double getIntercept() {
 		if (!this.isLeaf()) throw new IllegalArgumentException("Error: there is no intercept because this is not a leaf!");
+		if (this.intercept == null) return 0;
 		if (this.metadataTokens.containsKey("intercept")) return Double.parseDouble(this.metadataTokens.get("intercept"));
 		int i = this.getTreeNum()*this.intercept.getDimension() / this.ntrees;
 		int j = this.nodeIndex;
@@ -484,6 +600,7 @@ public class DecisionNode extends Node {
 
 	public double getIntercept(int k) {
 		if (!this.isLeaf()) throw new IllegalArgumentException("Error: there is no intercept because this is not a leaf!");
+		if (this.intercept == null) return 0;
 		if (this.metadataTokens.containsKey("intercept" + (k+1))) return Double.parseDouble(this.metadataTokens.get("intercept" + (k+1)));
 		int i = this.getTreeNum()*this.intercept.getDimension() / this.ntrees;
 		int j = this.nodeIndex*this.predAttr.size();
@@ -506,6 +623,7 @@ public class DecisionNode extends Node {
 	 */
 	public double getSlope(int k) {
 		if (!this.isLeaf()) throw new IllegalArgumentException("Error: there is no slope because this is not a leaf!");
+		if (this.slope == null) return 0;
 		if (this.metadataTokens.containsKey("slope" + (k+1))) return Double.parseDouble(this.metadataTokens.get("slope" + (k+1)));
 		int i = this.getTreeNum()*this.slope.getDimension() / this.ntrees;
 		int j = this.nodeIndex*this.predAttr.size();
@@ -532,7 +650,7 @@ public class DecisionNode extends Node {
 	private double[] getSlopeInterceptResponse(Instance inst) {
 		
 
-		double[] response = new double[this.targetAttr.size()];
+		double[] response = new double[this.targetAttr == null ? 1 : this.targetAttr.size()];
 		
 		for (int targetNum = 0; targetNum < response.length; targetNum ++) {
 			
@@ -613,7 +731,19 @@ public class DecisionNode extends Node {
 					break;
 				}
 				
-				default:{
+				
+				case gaussianprocess:{
+					
+					try {
+						y = this.gp_kernel.classifyInstance(inst);
+					} catch (Exception e) {
+						e.printStackTrace();
+						y=0;
+					}
+					break;
+				}
+				
+				default: {
 					break;
 				}
 			
@@ -951,6 +1081,69 @@ public class DecisionNode extends Node {
 		
 	}
 
+	
+	/**
+	 * Removes all instances which do not belong to this node
+	 * @param instances
+	 */
+	public void filterInstances(Instances instances) {
+		
+		
+		
+		// Remove instances which are not applicable to this node
+		if (!this.isLeaf()) {
+			String attribute = this.getAttributeName();
+			String value = this.getAttributeValueName();
+			if (instances.attribute(attribute) == null) {
+				throw new IllegalArgumentException("Error: cannot find attribute " + attribute + " in instances");
+			}
+			
+
+			Attribute attr = instances.attribute(attribute);
+			
+			// Iterate through instances
+			for (int i = instances.size()-1; i >= 0; i --) {
+			
+				Instance inst = instances.get(i);
+				
+				
+				boolean match = true;
+				if (attr.isNominal()) {
+					
+					// Does the instance exactly match?
+					int instanceValue = attr.indexOfValue(inst.stringValue(attr));
+					int index = attr.indexOfValue(value);
+					
+					// New value - take largest subtree
+					match = instanceValue == index;
+					
+				}else {
+					
+					double instanceValue = inst.value(attr);
+					match = instanceValue <= Double.parseDouble(value);
+					
+				}
+				
+				
+				// Filter out
+				if (!match) {
+					instances.remove(i);
+				}
+			
+			}
+			
+		}
+		
+		
+		// Do the same for parent
+		if (!this.isRoot()) {
+			this.parent.filterInstances(instances);
+		}
+		
+		
+	}
+	
+	
 
 	/**
 	 * Find the instance corresponding to this leaf
@@ -1029,10 +1222,14 @@ public class DecisionNode extends Node {
 
 
 	
+	public List<String> getPredAttrs() {
+		return this.predAttr;
+	}
 
 
-
-
+	public void setPredAttrs(List<String> attr) {
+		this.predAttr = attr;
+	}
 
 
 

@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><beast beautitemplate='Standard' beautistatus='' namespace="beast.core:beast.evolution.alignment:beast.evolution.tree.coalescent:beast.core.util:beast.evolution.nuc:beast.evolution.operators:beast.evolution.sitemodel:beast.evolution.substitutionmodel:beast.evolution.likelihood" required="" version="2.6">
+
+
+
+    
+<map name="Uniform" >beast.math.distributions.Uniform</map>
+<map name="Exponential" >beast.math.distributions.Exponential</map>
+<map name="LogNormal" >beast.math.distributions.LogNormalDistributionModel</map>
+<map name="Normal" >beast.math.distributions.Normal</map>
+<map name="Beta" >beast.math.distributions.Beta</map>
+<map name="Gamma" >beast.math.distributions.Gamma</map>
+<map name="LaplaceDistribution" >beast.math.distributions.LaplaceDistribution</map>
+<map name="prior" >beast.math.distributions.Prior</map>
+<map name="InverseGamma" >beast.math.distributions.InverseGamma</map>
+<map name="OneOnX" >beast.math.distributions.OneOnX</map>
+<map name="Dirichlet" >beast.math.distributions.Dirichlet</map>
+
+
+<data id="wekaData" spec="poetry.decisiontree.WekaData" arff="/home/jdou557/Documents/Marsden2019/papers/PoetryPaper/results/weka.breakssimple.arff" dataSplit="50" xmlSplit="true"/>
+
+
+
+<!--
+<data id="wekaData" spec="poetry.decisiontree.WekaData" arff="/home/jdou557/Documents/Marsden2019/Starbeast3/Poetry/examples/cpu.with.vendor.arff" dataSplit="50" xmlSplit="false"/>
+-->
+
+
+<run id="mcmc" spec="MCMC" chainLength="100000000">
+<!--<run id="mcmc" spec="beast.coupledMCMC.CoupledMCMC" chainLength="100000000" chains="4" resampleEvery="10000" deltaTemperature="0.05" heatLikelihoodOnly="false">-->
+<!--<run id="mcmc" spec="beast.coupledMCMC.SerialMCMC" chainLength="100000000" chains="4" resampleEvery="10000" deltaTemperature="0.05">-->
+<!--<run id="mcmc" spec="beast.inference.SimulatedAnnealing" chainLength="100000000" startTemp="1.0" endTemp="0.0001">-->
+
+
+
+    <state id="state" spec="State" storeEvery="5000">
+
+     <!-- <tree id="tree" spec="poetry.decisiontree.RandomForest" name="stateNode" ntrees="10" init="root" />-->
+        <tree id="tree" spec="poetry.decisiontree.DecisionTree" name="stateNode"  init="root"  />
+
+
+
+
+        <parameter id="Slope" spec="parameter.RealParameter" name="stateNode">0.5</parameter>
+        <parameter id="Intercept" spec="parameter.RealParameter" name="stateNode" >0.5</parameter>
+        <parameter id="Tau" spec="parameter.RealParameter" name="stateNode">0.2</parameter>
+
+        <parameter id="AttributePointer" spec="parameter.IntegerParameter" name="stateNode">0</parameter>
+        <parameter id="SplitPoint" spec="parameter.RealParameter" name="stateNode">0.5</parameter>
+
+
+        <parameter id="DirichletShape" spec="parameter.RealParameter" dimension="1" name="stateNode">2</parameter>
+       
+        
+
+    </state>
+
+    
+
+    <distribution id="posterior" spec="util.CompoundDistribution">
+        <distribution id="prior" spec="util.CompoundDistribution">
+
+
+       
+
+            <prior id="tauPrior" name="distribution" x="@Tau">
+                <Exponential name="distr" mean="0.2" />
+            </prior>
+
+
+            <prior id="dirichletShapePrior" name="distribution" x="@DirichletShape">
+                <LogNormal name="distr" meanInRealSpace="true" M="2" S="0.5" offset="1.0" />
+            </prior>
+
+
+
+            
+            <prior id="treePrior" spec="poetry.decisiontree.GeometricTreePrior" name="distribution" tree="@tree">
+        		<parameter spec="parameter.RealParameter" name="mean">10</parameter>
+            </prior>
+            
+
+        </distribution>
+
+        <distribution id="likelihood" spec="util.CompoundDistribution">
+
+            <distribution id="decisionTreeDistribution" spec="poetry.decisiontree.DecisionTreeDistribution" tree="@tree" maxLeafCount="50" minInstances="30" data="@wekaData" shape="@DirichletShape" regression="gaussianprocess">
+
+				
+                
+				
+				
+				<class spec="beast.util.Transform$NoTransform">
+                   
+
+                    <f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="Pmean" data="@wekaData"/>
+
+            	</class>
+				
+				
+     
+            	
+            	<pred spec="beast.util.Transform$NoTransform">
+
+
+
+                    <f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="NodeHeightPOEM.weight" data="@wekaData"/>
+                    <f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="TopologyPOEM.weight" data="@wekaData"/>
+                    <f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="SiteModelPOEM.weight" data="@wekaData"/>
+                    <f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="ClockModelRatePOEM.weight" data="@wekaData"/>
+                    <f spec="poetry.decisiontree.Feature" lower="0" upper="1" attr="ClockModelSDPOEM.weight" data="@wekaData"/>
+
+            	</pred>
+
+            	<!--
+            	<pred spec="beast.util.Transform$FisherZTransform">
+
+					<f spec="poetry.decisiontree.Feature" attr="nsites" data="@wekaData"/>
+            	</pred>
+				-->
+
+
+            	
+            	<remove spec="beast.util.Transform$NoTransform">
+
+
+            	</remove>
+        			
+            		
+        		
+
+                
+            	<pointer idref="AttributePointer" />
+            	<split idref="SplitPoint" />
+            	<intercept idref="Intercept" />
+            	<slope idref="Slope" />
+            	<sigma idref="Tau" />
+
+            	
+            	
+
+            </distribution>
+        </distribution>
+    </distribution>
+
+
+
+    <operator id="DirichletShapeScale" parameter="@DirichletShape" scaleFactor="0.1" spec="BactrianScaleOperator" weight="0.5">
+        <kernelDistribution m="0.95" mode="bactrian_normal" spec="beast.evolution.operators.KernelDistribution$Bactrian"/>
+    </operator>
+    <operator id="TauScale" parameter="@Tau" scaleFactor="0.1" spec="BactrianScaleOperator" weight="1">
+        <kernelDistribution m="0.95" mode="bactrian_normal" spec="beast.evolution.operators.KernelDistribution$Bactrian"/>
+    </operator>
+
+
+	<!-- Splits -->
+    <operator id="pointerSwapper" spec="SwapOperator" intparameter="@AttributePointer" weight="1"/>
+    <operator id="splitSwapper" spec="SwapOperator" parameter="@SplitPoint" weight="1"/>
+    <operator id="pointerRandomWalk" spec="UniformOperator" parameter="@AttributePointer" weight="1"/>
+    <operator id="splitPointUniform" spec="UniformOperator" parameter="@SplitPoint" weight="1"/>
+
+    
+    <operator id="CoupledSwapSplit" spec="poetry.decisiontree.CoupledSwap" parameter="@SplitPoint" intparameter="@AttributePointer" weight="1"/>
+	
+
+    
+    <operator id="SplitNodeOperator" spec="poetry.decisiontree.SplitNodeOperator" tree="@tree" dist="@decisionTreeDistribution" extend="0.2"  maintain="1" weight="5">
+		<pointer idref="AttributePointer" />
+    	<split idref="SplitPoint" />
+    </operator>
+
+
+    <operator id="Reroot" spec="poetry.decisiontree.Reroot" tree="@tree" dist="@decisionTreeDistribution"  extend="0.2" maintain="1" weight="5">
+		<pointer idref="AttributePointer" />
+    	<split idref="SplitPoint" />
+    </operator>
+
+
+    <operator id="DecisionWideExchange" spec="poetry.decisiontree.DecisionExchange" tree="@tree" dist="@decisionTreeDistribution" wide="true" maintain="1"  weight="2">
+		<pointer idref="AttributePointer" />
+    	<split idref="SplitPoint" />
+    </operator>
+
+
+    <operator id="DecisionNarrowExchange" spec="poetry.decisiontree.DecisionExchange" tree="@tree" dist="@decisionTreeDistribution" wide="false" maintain="1" weight="2" >
+		<pointer idref="AttributePointer" />
+    	<split idref="SplitPoint" />
+    </operator>
+
+
+
+	<operator id="ChildSwapper" spec="poetry.decisiontree.ChildSwapper" tree="@tree"  weight="2"/>
+
+
+    <logger id="tracelog" spec="Logger" fileName="decisions.log" logEvery="1000" model="@posterior" sanitiseHeaders="true" sort="smart">
+        <log idref="posterior"/>
+        <log idref="likelihood"/>
+        <log idref="prior"/>
+        <log idref="Tau"/>
+        <log idref="AttributePointer"/>
+        <log idref="SplitPoint"/>
+        <log idref="RegressionLogger" />
+        <log idref="LeafCountLogger" />
+		<log idref="DirichletShape" />
+    </logger>
+
+    <logger id="screenlog" spec="Logger" logEvery="100">
+        <log idref="posterior" />
+         <log idref="likelihood" />
+        <log idref="prior" />
+        <log idref="Tau" />
+        <log idref="DirichletShape" />
+        <log id="RegressionLogger" spec="poetry.decisiontree.RegressionLogger" dist="@decisionTreeDistribution" />
+        <log id="LeafCountLogger" spec="poetry.decisiontree.LeafCountLogger" tree="@tree" />
+    </logger>
+
+
+    
+    <logger id="DecisionTreeLogger" spec="Logger" fileName="decision.trees" logEvery="1000" mode="tree">
+        <log id="DecisionTreeLog" spec="poetry.decisiontree.DecisionTreeLogger" tree="@tree" dist="@decisionTreeDistribution"/>
+    </logger>
+
+
+</run>
+
+</beast>

@@ -29,7 +29,7 @@ public class DecisionTreeDistribution extends Distribution {
 	
 
 	public enum ResponseMode {
-		linear, logistic, test, log, dirichlet
+		linear, logistic, test, log, dirichlet, gaussianprocess
 	}
 	
 	
@@ -601,7 +601,7 @@ public class DecisionTreeDistribution extends Distribution {
 			 
 			 // Ensure that the split is valid
 			 Instances data = this.trainingData[tree.getTreeNum()];
-			 boolean valid = tree.splitData(data);
+			 boolean valid = tree.splitData(data, true);
 			 if (!valid) {
 				 Log.warning("invalid");
 				 logP = Double.NEGATIVE_INFINITY;
@@ -692,7 +692,7 @@ public class DecisionTreeDistribution extends Distribution {
 	public boolean split() {
 		boolean valid = true;
 		for (DecisionTree tree : this.treeI.getTrees()) {
-			valid = valid && tree.splitData(this.trainingData[tree.getTreeNum()]);
+			valid = valid && tree.splitData(this.trainingData[tree.getTreeNum()], true);
 		}
 		return valid;
 	}
@@ -749,7 +749,7 @@ public class DecisionTreeDistribution extends Distribution {
 				
 				
 				Instances data = t == 0 ? this.trainingData[tree.getTreeNum()] : this.testData;
-				if (data == null || data.size() == 0 || !tree.splitData(data)) continue;
+				if (data == null || data.size() == 0 || !tree.splitData(data, false)) continue;
 				
 			
 				

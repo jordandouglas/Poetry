@@ -79,7 +79,7 @@ public interface DecisionTreeInterface  {
 	 * @param data
 	 * @return
 	 */
-	public boolean splitData(Instances data);
+	public boolean splitData(Instances data, boolean isTrainingData);
 
 
 	

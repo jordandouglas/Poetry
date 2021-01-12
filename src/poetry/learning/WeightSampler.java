@@ -400,6 +400,7 @@ public abstract class WeightSampler extends BEASTObject {
 	 */
 	public static double[] optimiseSimplex(MultivariateFunction fn, int ndim) {
 		
+		
 		MaxIter maxIter = new MaxIter(1000);
 		MaxEval maxEval = new MaxEval(10000);
 		ObjectiveFunction objective = new ObjectiveFunction(fn);
@@ -419,9 +420,9 @@ public abstract class WeightSampler extends BEASTObject {
 		
 		
 		try {
-			PointValuePair max = opt.optimize(maxIter, maxEval, constraintSet, objective, init, simplex,  GoalType.MINIMIZE);		
+			PointValuePair min = opt.optimize(maxIter, maxEval, constraintSet, objective, init, simplex,  GoalType.MINIMIZE);		
 
-			return max.getPoint();
+			return min.getPoint();
 			
 		}catch(Exception e) {
 			e.printStackTrace();

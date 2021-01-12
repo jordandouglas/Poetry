@@ -309,13 +309,13 @@ public class DecisionTree extends StateNode implements DecisionTreeInterface  {
 	 * @param data
 	 * @return
 	 */
-	public boolean splitData(Instances data) {
+	public boolean splitData(Instances data, boolean isTrainingData) {
 		
 		// Reset the data
 		for (DecisionNode node : this.nodes) {
 			node.resetData();
 		}
-		return this.root.splitData(data);
+		return this.root.splitData(data, isTrainingData);
 	}
 
 

@@ -37,10 +37,18 @@ import weka.core.converters.ArffSaver;
 public class GaussianProcessSampler extends WeightSampler {
 
 	
+	
+	public enum AcquisitionFunction {
+		EI, POI
+	}
+	
 	final public Input<String> poetryFileInput = new Input<>("poetry", "File to store poetry meta-information in", Input.Validate.REQUIRED);
 	final public Input<WeightSampler> priorInput = new Input<>("prior", "Prior weight sampler");
 	final public Input<Double> noiseInput = new Input<>("noise", "The noise to use in Gaussian Processes", 0.2);
 	final public Input<Double> explorativityInput = new Input<>("explorativity", "Explorativity in Gaussian Processes", 0.2);
+	final public Input<Double> minWeightInput = new Input<>("min", "Minimum value that all operator weights must surpass", 0.01);
+	
+	final public Input<AcquisitionFunction> acquisitionFunctionInput = new Input<>("acquisition", "The acquisition function for Bayesian optimisation", AcquisitionFunction.EI, AcquisitionFunction.values());
 	
 	final private static String distClassName = "dist";
 	final private static String jsonNtrialsName = "ntrials";
@@ -48,9 +56,12 @@ public class GaussianProcessSampler extends WeightSampler {
 	final private static String jsonNlogName = "nstates";
 	
 	
+	AcquisitionFunction acquisition;
+	
 	boolean resumingPoetry;
 	WeightSampler prior;
 	File poetryFile;
+	double minWeight;
 	
 	// Poetry json before 
 	JSONObject initialPoetry;
@@ -71,6 +82,10 @@ public class GaussianProcessSampler extends WeightSampler {
 		}
 		
 		
+		// Minimum weight
+		this.minWeight = this.minWeightInput.get();
+		if (this.minWeight <= 0) this.minWeight = 0;
+		
 		try {
 			this.initialPoetry = this.readPoetry();
 		} catch (Exception e) {
@@ -78,6 +93,8 @@ public class GaussianProcessSampler extends WeightSampler {
 			throw new IllegalArgumentException("Error: encountered problem while parsing " + this.poetryFile.getPath());
 		}
 		//poetry.get("poetry");
+		
+		this.acquisition = acquisitionFunctionInput.get();
 		
 		
 		// Resume if there exists a valid state file
@@ -131,6 +148,16 @@ public class GaussianProcessSampler extends WeightSampler {
 			weights = this.getGPWeights();
 			
 		}
+		
+		
+		// Ensure that all weights are above a minimum
+		double weightSum = 0;
+		for (int i = 0; i < weights.length; i ++) {
+			weights[i] = Math.max(weights[i], this.minWeight);
+			weightSum += weights[i];
+		}
+		for (int i = 0; i < weights.length; i ++) weights[i] /= weightSum;
+		
 		
 		return weights;
 		
@@ -228,13 +255,13 @@ public class GaussianProcessSampler extends WeightSampler {
 				calculator = new MinESS(new File(poem.getLoggerFileName()), "treePrior"); //tmp
 				calculator.run();
 				if (calculator.getNLogs() < 10) return null;
-				//double ess = calculator.getMeanESS();
-				double ess = calculator.getMinESS();
+				double ess = calculator.getMeanESS();
+				//double ess = calculator.getMinESS();
 				ESSes[i] = ess;
 				ESSsum += ESSes[i];
 				meanNLogs += calculator.getNLogs();
 			}
-		}catch(Exception e) {
+		} catch(Exception e) {
 			return null;
 		}
 		meanNLogs = meanNLogs / ESSes.length;
@@ -383,29 +410,103 @@ public class GaussianProcessSampler extends WeightSampler {
 		Log.warning(msg);
 		
 		// Optimise the expected improvement function (minimisation)
-		Log.warning("Computing maximum expected improvement...");
-		ExpectedImprovementFunction fn = new ExpectedImprovementFunction(instances, kernel, bestMean, explorativityInput.get());
+		MultivariateFunction fn = null;
+		switch (this.acquisition) {
+			case EI:{
+				fn = new ExpectedImprovementFunction(instances, kernel, bestMean, explorativityInput.get());
+				Log.warning("Computing maximum expected improvement...");
+				break;
+			}
+			
+			case POI:{
+				fn = new ProbabilityOfImprovement(instances, kernel, bestMean, explorativityInput.get());
+				Log.warning("Computing maximum probability of improvement...");
+				break;
+			}
+		
+		}
+		
+		
+		
+		//ExpectedImprovementFunction fn = new ExpectedImprovementFunction(instances, kernel, bestMean, explorativityInput.get());
 		double[] opt = optimiseSimplex(fn, this.poems.size());
 		double[] weights = repairSticks(opt);
-		System.out.print("EI max: ");
+		System.out.print(this.acquisition.toString() + " max: ");
 		for (double o : weights) System.out.print(o + ", ");
-		System.out.println(" eval: " + fn.value(opt) + "|"  + fn.getExpectedVal(opt) + " | " + Math.exp(fn.getExpectedVal(opt)));
-		//fn.getExpectedVal(opt);
+		System.out.println(" eval: " + fn.value(opt));
 		
-		//System.exit(1);
 		
 		return weights;
 		
 	}
 	
 	
+
+	
 	/**
-	 * Get the expected improvement of the weights (ie. expected value above the bestMean)
-	 * @author jdou557
+	 * Get the probability of improvement
 	 *
 	 */
-	 private static class ExpectedImprovementFunction implements MultivariateFunction {
-		 
+	private class ProbabilityOfImprovement implements MultivariateFunction {
+
+		
+		 double epsilon;
+		 GaussianProcesses gp;
+		 NormalDistribution normal;
+		 double bestMean;
+		 Instances instances;
+		 Instance instance;
+		
+		public ProbabilityOfImprovement(Instances instances, GaussianProcesses gp, double bestMean, double epsilon) {
+			 this.epsilon = -Math.abs(epsilon);
+			 this.instance = new DenseInstance(instances.numAttributes());
+			 this.instances = instances;
+			 this.bestMean = bestMean;
+			 instance.setDataset(instances);
+			 this.gp = gp;
+		 }
+		
+		
+		@Override
+		public double value(double[] tweights) {
+			
+			// Set the transformed weight (ie the broken stick)
+			for (int j = 0; j < tweights.length; j ++) {
+				instance.setValue(instances.attribute("tweight" + j), tweights[j]);
+			}
+			
+			// Get mean and standard deviation (in log space)
+			double sd, mean;
+			try {
+				sd = gp.getStandardDeviation(instance);
+				mean = gp.classifyInstance(instance);
+			} catch (Exception e1) {
+				e1.printStackTrace();
+				return Double.POSITIVE_INFINITY;
+			}
+			
+			double delta = mean - (bestMean + epsilon);
+			normal = new NormalDistribution(mean, sd);
+			
+			// Want to minimise this term (= 1 - POI). This is equivalent to maximising POI
+			double x = delta/sd;
+			double poi = normal.cumulativeProbability(x);
+			return poi;
+			
+		}
+		
+		
+		
+		
+	}
+	
+	
+	
+	/**
+	 * Get the expected improvement of the weights (ie. expected value above the bestMean)
+	 *
+	 */
+	 private class ExpectedImprovementFunction implements MultivariateFunction {
 		 
 		 double epsilon;
 		 GaussianProcesses gp;

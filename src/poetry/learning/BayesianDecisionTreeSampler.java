@@ -41,6 +41,7 @@ import weka.core.DenseInstance;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.converters.ArffSaver;
+import weka.core.converters.ConverterUtils.DataSource;
 
 public class BayesianDecisionTreeSampler extends WeightSampler {
 
@@ -52,9 +53,10 @@ public class BayesianDecisionTreeSampler extends WeightSampler {
 	
 	final public Input<List<ModelValue>> modelValuesInput = new Input<>("model", "List of models and their values -- for applying the decsion tree from the model", new ArrayList<>());
 	final public Input<String> treesInput = new Input<>("trees", "A file containing decision trees", Input.Validate.REQUIRED);
+	final public Input<String> datasetInput = new Input<>("dataset", "A file instances to train GP on at the leaves", Input.Validate.REQUIRED);
 	
 	
-	final private static String distClassName = "dist";
+	final private static String distClassName = "Pmean";
 	
 	
 	@Override
@@ -77,18 +79,13 @@ public class BayesianDecisionTreeSampler extends WeightSampler {
 	public double[] sampleWeights(List<POEM> poems) throws Exception {
 
 		
-		
 		// Model values
 		List<ModelValue> modelValues = modelValuesInput.get();
 		
 		// Get the Weka Instance of this session
 		Instances instances = BEAST2Weka.getInstance(dataInput.get(), treeInput.get(), this, modelValues);
-				
 		int dim = poems.size();
 		double[] weights = new double[dim];
-		
-		
-		
 		
 		// Load decision tree
 		List<DecisionTree> trees = parseDecisionTrees(new File(treesInput.get()), 10);
@@ -96,9 +93,12 @@ public class BayesianDecisionTreeSampler extends WeightSampler {
 		decisionTree.setRegressionMode(regressionInput.get());
 		System.out.println("tree : " + decisionTree.toString());
 		
+		// Load dataset for training GP
+		Instances database = new DataSource(datasetInput.get()).getDataSet();
+		database.setClass(database.attribute(distClassName));
 		
-		weights = this.getWeights(trees, instances);
-		
+		// Calculate weights
+		weights = this.getWeights(trees, instances, database);
 		return weights;
 		
 	}
@@ -112,12 +112,15 @@ public class BayesianDecisionTreeSampler extends WeightSampler {
 	 * @return
 	 * @throws Exception
 	 */
-	protected double[] getWeights(List<DecisionTree> trees, Instances inst) throws Exception {
+	protected double[] getWeights(List<DecisionTree> trees, Instances inst, Instances database) throws Exception {
 		
 		double[] weights = new double[this.poems.size()];
 		
-		int ntaxa = (int)(inst.instance(0).value(inst.attribute("ntaxa")));
 		
+		
+		
+		/*
+		 * int ntaxa = (int)(inst.instance(0).value(inst.attribute("ntaxa")));
 		SquaredAlphaDistance[] fns = new SquaredAlphaDistance[trees.size()];
 		
 		for (int treeNum = 0; treeNum < trees.size(); treeNum ++) {
@@ -173,12 +176,36 @@ public class BayesianDecisionTreeSampler extends WeightSampler {
 			}
 			
 		}
-
+		*/
 		
 		
-		//buildEpsilonDistribution(fns, this.poems);
+		// Take last tree
+		DecisionTree tree = trees.get(trees.size()-1);
+		DecisionNode leaf = tree.getLeaf(inst);
 		
+		
+		// Weight columns are predictors
+		List<String> weightCols = new ArrayList<>();
+		for (int i = 0; i < this.getNumPoems()-1;i++) {
+			POEM poem = this.poems.get(i);
+			String weightCol = poem.getWeightColname();
+			weightCols.add(weightCol);
+		}
+		leaf.setPredAttrs(weightCols);
+		
+		
+		// Filter instances using leaf and train the GP
+		leaf.filterInstances(database);
+		database = leaf.setSplitData(database, true);
+		
+		
+		// Minimise pmean
+		PMeanFunction fn = new PMeanFunction(leaf, database);
+		double[] tweights = optimiseSimplex(fn, fn.getDimension());
+		Log.warning("Minimsied mean distance: " + Math.exp(fn.value(tweights)));
+		weights = repairSticks(tweights);
 		return weights;
+		
 	}
 	
 	
@@ -273,13 +300,13 @@ public class BayesianDecisionTreeSampler extends WeightSampler {
 		Log.warning(instances.size() + " kernel samples");
 		SquaredAlphaDistance fn = fns[fns.length-1];
 		
-		
+		/*
 		// Save the dataset
 		ArffSaver saver = new ArffSaver();
 		saver.setInstances(instances);
 		saver.setFile(new File("/home/jdou557/Documents/Marsden2019/Months/December2020/BDT/kernel.arff"));
 		saver.writeBatch();
-		
+		*/
 		
 		
 		// Train the kernel
@@ -355,14 +382,63 @@ public class BayesianDecisionTreeSampler extends WeightSampler {
 	}
 	
 	
-
+	private class PMeanFunction implements MultivariateFunction {
+		
+		int ndim;
+		DecisionNode leaf;
+		Instance inst;
+		Instances database;
+		
+		public PMeanFunction(DecisionNode leaf, Instances database) {
+			this.leaf = leaf;
+			this.inst = new DenseInstance(database.numAttributes());
+			this.inst.setDataset(database);
+			this.database = database;
+			this.ndim = this.leaf.getPredAttrs().size() + 1;
+		}
+		
+		
+		public int getDimension() {
+			 return this.ndim;
+		 }
+		
+		
+		@Override
+		public double value(double[] breaks) {
+			
+			
+			if (breaks.length + 1 != this.ndim) {
+				throw new IllegalArgumentException("Dimensional mismatch: " + breaks.length + "+1 != " + this.ndim);
+			}
+			
+			
+			// Set values
+			for (int i = 0; i < breaks.length; i ++) {
+				String weightColName = this.leaf.getPredAttrs().get(i);
+				Attribute attr = this.database.attribute(weightColName);
+				double weight = breaks[i];
+				this.inst.setValue(attr, weight);
+			}
+			
+			
+			//Log.warning("weights " + inst.toString());
+			
+			// Classify. Want to mininise pmean
+			return leaf.predict(this.inst)[0];
+			
+		}
+		
+	}
+	
+	
+	
+	
 	 
 	 /**
 	  * A function which can be optimised using a MultivariateOptimizer
-	  * @author jdou557
 	  *
 	  */
-	 private static class SquaredAlphaDistance implements MultivariateFunction {
+	 private class SquaredAlphaDistance implements MultivariateFunction {
 
 		 
 		 int ndim;

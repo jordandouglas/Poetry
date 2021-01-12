@@ -79,6 +79,7 @@ public class MinESS extends Runnable {
 		int numCols = 0;
 		for (String colname : analyser.getLabels()) {
 			if (this.skip.contains(colname)) continue;
+			if (colname.equals("Sample")) continue;
 			double ESS = analyser.getESS(colname);
 			if (this.verbose) Log.warning(colname + " has an ESS of " + (int) ESS);
 			if (ESS < 0 || Double.isNaN(ESS)) continue;
@@ -86,6 +87,8 @@ public class MinESS extends Runnable {
 			meanESS += ESS;
 			numCols ++;
 		}
+		
+		if (minESS == Double.POSITIVE_INFINITY) minESS = 0;
 		
 		meanESS /= numCols;
 		if (this.verbose) {

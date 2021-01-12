@@ -48,7 +48,7 @@ public class PoetryToArff extends Runnable {
 		String str = "";
 		for (int i = 0; i < spl.length-1; i ++) {
 			str += spl[i];
-			if (i < spl.length - 2) str += "/";
+			if (i < spl.length - 2) str += ".";
 		}
 		fullOut = new File(str + ".arff");
 		trainingOut = new File(str + ".training.arff");
