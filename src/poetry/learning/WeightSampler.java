@@ -6,17 +6,24 @@ import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.math3.analysis.MultivariateFunction;
+import org.apache.commons.math3.optim.BaseMultivariateOptimizer;
 import org.apache.commons.math3.optim.InitialGuess;
 import org.apache.commons.math3.optim.MaxEval;
 import org.apache.commons.math3.optim.MaxIter;
 import org.apache.commons.math3.optim.PointValuePair;
+import org.apache.commons.math3.optim.SimplePointChecker;
 import org.apache.commons.math3.optim.linear.LinearConstraint;
 import org.apache.commons.math3.optim.linear.LinearConstraintSet;
 import org.apache.commons.math3.optim.linear.Relationship;
 import org.apache.commons.math3.optim.nonlinear.scalar.GoalType;
+import org.apache.commons.math3.optim.nonlinear.scalar.MultivariateOptimizer;
 import org.apache.commons.math3.optim.nonlinear.scalar.ObjectiveFunction;
+import org.apache.commons.math3.optim.nonlinear.scalar.gradient.NonLinearConjugateGradientOptimizer;
+import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.BOBYQAOptimizer;
+import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.CMAESOptimizer;
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.NelderMeadSimplex;
 import org.apache.commons.math3.optim.nonlinear.scalar.noderiv.SimplexOptimizer;
+import org.apache.commons.math3.random.JDKRandomGenerator;
 
 import beast.core.BEASTObject;
 import beast.core.Description;
@@ -394,40 +401,100 @@ public abstract class WeightSampler extends BEASTObject {
 
 	
 	/**
-	 * Return weights which minimise the function
+	 * Return weights which optimise the function
 	 * @param fn
 	 * @return
 	 */
-	public static double[] optimiseSimplex(MultivariateFunction fn, int ndim) {
+	public static double[] optimiseSimplex(MultivariateFunction fn, int ndim, boolean maximise) {
+		
+		// Return optimum after trying several starting points
+		PointValuePair optimal = null;
 		
 		
+		
+		// Number of iterations
 		MaxIter maxIter = new MaxIter(1000);
 		MaxEval maxEval = new MaxEval(10000);
 		ObjectiveFunction objective = new ObjectiveFunction(fn);
-		//SearchInterval interval = new SearchInterval(0.0, 1.0, 0.5);
-		double[] initArr = new double[ndim-1];
-		InitialGuess init = new InitialGuess(initArr);
+		
+		
+		// Maximimise or minimise
+		GoalType goaltype = maximise ? GoalType.MAXIMIZE : GoalType.MINIMIZE;
+		
 		
 		//SimpleBounds bounds = new SimpleBounds(new double[] { 0,0,0,0,0,0 }, new double[] { 1,1,1,1,1 } );
-		NelderMeadSimplex simplex =  new org.apache.commons.math3.optim.nonlinear.scalar.noderiv.NelderMeadSimplex(ndim-1, 1.0);
+		NelderMeadSimplex simplex = new NelderMeadSimplex(ndim-1, 1.0);
 		
-		SimplexOptimizer opt = new SimplexOptimizer(1e-10, 1e-30);
-		
-		// Unit sum
-		Collection<LinearConstraint> constraints = new ArrayList<>();
-		constraints.add(new LinearConstraint(new double[] { 1,1,1,1,1,1 }, Relationship.LEQ, 1.0));
-		LinearConstraintSet constraintSet = new LinearConstraintSet(constraints);
-		
-		
-		try {
-			PointValuePair min = opt.optimize(maxIter, maxEval, constraintSet, objective, init, simplex,  GoalType.MINIMIZE);		
+		SimplexOptimizer opt = new SimplexOptimizer(1e-8, 1e-20);
+		//MultivariateOptimizer opt = new CMAESOptimizer(1000, 0.01, true, 1, 1, new JDKRandomGenerator(), false, checker);
 
-			return min.getPoint();
+		// Midpoint
+		double[] midPoint = new double[ndim];
+		for (int i = 0; i < ndim; i ++) midPoint[i] = 1.0 / ndim;
+		midPoint = breakSticks(midPoint);
+		
+		double[] initArr;
+		for (int a = -1; a < ndim; a++) {
 			
-		}catch(Exception e) {
-			e.printStackTrace();
-			return initArr;
+			
+
+			//SearchInterval interval = new SearchInterval(0.0, 1.0, 0.5);
+			
+			
+			// Start in a corner
+			if (a > -1) {
+				initArr = new double[ndim-1];
+				
+				for (int i = 0; i < ndim-1; i ++) {
+					initArr[i] = i == a ? -1 : 1;
+				}
+				
+			}
+			
+			// Start in the middle
+			else {
+				initArr = midPoint;
+			}
+			
+			
+			
+			//SimplePointChecker<PointValuePair> checker = new SimplePointChecker<PointValuePair>(1e-20, 1e-20);
+			
+			InitialGuess init = new InitialGuess(initArr);
+			
+		
+		
+			try {
+				PointValuePair result = opt.optimize(maxIter, maxEval, objective, init, simplex, goaltype);	
+				
+				boolean better;
+				if (optimal == null) better = true;
+				else {
+					double oldV = fn.value(optimal.getPoint());
+					double newV = fn.value(result.getPoint()); 
+					better = maximise ? (newV > oldV) : (newV < oldV) ;
+				}
+				
+						
+				if (better) optimal = result;
+				
+				//PointValuePair min = opt.optimize(maxIter, maxEval, objective, goaltype, init);		
+
+				//return min.getPoint();
+				
+			}catch(Exception e) {
+				e.printStackTrace();
+				//return initArr;
+			}
+			
+			
 		}
+		
+		if (optimal == null) {
+			return midPoint;
+		}
+		
+		else return optimal.getPoint();
 		
 	}
 	

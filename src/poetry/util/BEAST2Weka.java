@@ -9,6 +9,7 @@ import beast.core.StateNode;
 import beast.core.parameter.RealParameter;
 import beast.core.util.Log;
 import beast.evolution.alignment.Alignment;
+import beast.evolution.alignment.FilteredAlignment;
 import beast.evolution.branchratemodel.BranchRateModel;
 import beast.evolution.branchratemodel.StrictClockModel;
 import beast.evolution.branchratemodel.UCRelaxedClockModel;
@@ -53,6 +54,8 @@ public class BEAST2Weka {
 
 	public static Instances getInstance(Alignment dataset, Tree tree, WeightSampler weightSampler, List<ModelValue> modelValues) {
 
+
+		
 		
 		// Create attribute list
 		ArrayList<Attribute> attributes = new ArrayList<>();
@@ -68,14 +71,18 @@ public class BEAST2Weka {
 		attributes.add(getTreeClockModelAttr()); // Tree clock model
 		attributes.add(getSiteModelAttr()); // Site model
 		attributes.add(getSiteHetModelAttr()); // Site heterogeneity model
-		attributes.add(getBranchRateModelAttr()); // Branch rate model
+		//attributes.add(getBranchRateModelAttr()); // Branch rate model
 		attributes.add(getTreeModelAttr()); // Tree model
 		attributes.add(getSearchModeAttr()); // Search mode
 		
 		for (POEM poem : weightSampler.getPoems()) {
-			attributes.add(getPoemWeightDimensionAttr(poem)); // Weight
+			//attributes.add(getPoemWeightDimensionAttr(poem)); // Weight/dimension
+			attributes.add(getPoemWeightAttr(poem)); // Weight
 			attributes.add(getPoemDimensionAttr(poem)); // Dimension
 		}
+		
+		attributes.add(getTargetAttr()); // Class 
+		
 		for (ModelValue mv : modelValues) {
 			
 			// Do not allow duplicate column names
@@ -92,7 +99,7 @@ public class BEAST2Weka {
 		}
 		final int nattr = attributes.size();
 		Instances instances = new Instances("beast2", attributes,  nattr);
-		
+		instances.setClass(instances.attribute(getTargetAttr().name()));
 		
 		// Create the instance
 		Instance instance = new DenseInstance(nattr);
@@ -105,19 +112,20 @@ public class BEAST2Weka {
 		List<Alignment> partitions = new ArrayList<>();
 		partitions.add(dataset);
 		
+		
 	
 				
 		// 1 Ntaxa
-		instance.setValue(instances.attribute(getNtaxaAttr().name()), getNtaxa(partitions));
+		instance.setValue(instances.attribute(getNtaxaAttr().name()), Math.log(getNtaxa(partitions)));
 		
 		// 2 Nsites
-		instance.setValue(instances.attribute(getNsitesAttr().name()), getNsites(partitions));
+		instance.setValue(instances.attribute(getNsitesAttr().name()), Math.log(getNsites(partitions)));
 		
 		// 3 Npatterns
-		instance.setValue(instances.attribute(getNpatternsAttr().name()), getNpatterns(partitions));
+		instance.setValue(instances.attribute(getNpatternsAttr().name()), Math.log(getNpatterns(partitions)));
 		
 		// 4 Npartitions
-		instance.setValue(instances.attribute(getNpartitionsAttr().name()), getNpartitions(partitions));
+		instance.setValue(instances.attribute(getNpartitionsAttr().name()), Math.log(getNpartitions(partitions)));
 
 		// 5 Ncalibrations
 		instance.setValue(instances.attribute(getNcalibrationsAttr().name()), getNcalibrations(tree));
@@ -126,7 +134,7 @@ public class BEAST2Weka {
 		instance.setValue(instances.attribute(getPgapsAttr().name()), getPgaps(partitions));
 		
 		// 7 Tree height
-		instance.setValue(instances.attribute(getTreeHeightAttr().name()), getTreeHeight(partitions));
+		instance.setValue(instances.attribute(getTreeHeightAttr().name()), Math.log(getTreeHeight(partitions)));
 		
 		// 8 Number of states
 		instance.setValue(instances.attribute(getNcharAttr().name()), getNchar(partitions));
@@ -135,12 +143,18 @@ public class BEAST2Weka {
 		for (POEM poem : weightSampler.getPoems()) {
 			
 			// Weight/dimension
-			instance.setValue(instances.attribute(getPoemWeightDimensionAttr(poem).name()), getPoemWeightDimension(poem, getNtaxa(partitions)));
+			//instance.setValue(instances.attribute(getPoemWeightDimensionAttr(poem).name()), getPoemWeightDimension(poem, getNtaxa(partitions)));
+			
+			// Weight
+			instance.setValue(instances.attribute(getPoemWeightAttr(poem).name()), getPoemWeight(poem, getNtaxa(partitions)));
 			
 			// Dimension
-			instance.setValue(instances.attribute(getPoemDimensionAttr(poem).name()), getPoemDimension(poem));
+			instance.setValue(instances.attribute(getPoemDimensionAttr(poem).name()), Math.log(getPoemDimension(poem)));
 			
 		}
+		
+		
+		//instance.setValue(instances.attribute(getTargetAttr().name()), 1.0);
 		
 		
 		// Attempt to find the model using the xml
@@ -160,7 +174,7 @@ public class BEAST2Weka {
 		
 		if (treeClockModel != null)  instance.setValue(instances.attribute(getTreeClockModelAttr().name()), treeClockModel);
 		if (treeModel != null) instance.setValue(instances.attribute(getTreeModelAttr().name()), treeModel);
-		if (branchModel != null) instance.setValue(instances.attribute(getBranchRateModelAttr().name()), branchModel);
+		//if (branchModel != null) instance.setValue(instances.attribute(getBranchRateModelAttr().name()), branchModel);
 		if (siteModel != null) instance.setValue(instances.attribute(getSiteModelAttr().name()), siteModel);
 		if (siteHetModel != null) instance.setValue(instances.attribute(getSiteHetModelAttr().name()), siteHetModel);
 		if (searchMode != null) instance.setValue(instances.attribute(getSearchModeAttr().name()), searchMode);
@@ -179,6 +193,7 @@ public class BEAST2Weka {
 		}
 		
 		
+		//Log.warning("Current session:" + instance.toString());
 		
 		instances.add(instance);
 		return instances;
@@ -262,6 +277,16 @@ public class BEAST2Weka {
 		
 	}
 	
+	
+	/** 
+	 * Class value
+	 * @return
+	 */
+	public static Attribute getTargetAttr() {
+		return new Attribute("Pmean");
+	}
+	
+	
 	/** 
 	 * Get weight of a poem divided by its dimension attribute
 	 * @return
@@ -269,6 +294,15 @@ public class BEAST2Weka {
 	public static Attribute getPoemWeightDimensionAttr(POEM poem) {
 		return new Attribute(poem.getWeightColname() + ".d");
 	}
+	
+	/** 
+	 * Get weight of a poem divided by its dimension attribute
+	 * @return
+	 */
+	public static Attribute getPoemWeightAttr(POEM poem) {
+		return new Attribute(poem.getWeightColname());
+	}
+	
 	
 	/** 
 	 * Get dimension
@@ -354,7 +388,7 @@ public class BEAST2Weka {
 	 */
 	public static double getPgaps(List<Alignment> partitions) {
 		
-		if (partitions == null) return 0;
+		if (partitions == null || partitions.isEmpty()) return 0;
 		
 		// Proportion of gaps in alignment(s)
 		int numGaps = 0;
@@ -366,6 +400,7 @@ public class BEAST2Weka {
 				nsites += seq.length();
 			}
 		}
+		
 		double proportion = 1.0 * numGaps / nsites;
 		return proportion;	
 				
@@ -449,8 +484,27 @@ public class BEAST2Weka {
 	 * @return
 	 */
 	public static int getNpartitions(List<Alignment> partitions) {
+		
 		if (partitions == null || partitions.isEmpty()) return 0;
-		return partitions.size();
+		
+		int npartitions = 0;
+		for (Alignment aln : partitions) {
+			
+			// Count the number of filtered alignments pointing to it
+			boolean hasFilter = false;
+			for (BEASTInterface i : aln.getOutputs()) {
+				if (i instanceof FilteredAlignment) {
+					npartitions++;
+					hasFilter = true;
+				}
+			}
+			
+			if (!hasFilter) npartitions++;
+			
+		}
+		
+		
+		return npartitions;
 	}
 	
 	
@@ -489,6 +543,17 @@ public class BEAST2Weka {
 		double dim = getDimension(poem.getID(), poem.getDim(), ntaxa);
 		return weight / dim;
 	}
+	
+	
+	/** 
+	 * Get weight of a poem divided by its dimension attribute
+	 * @return
+	 */
+	public static double getPoemWeight(POEM poem, int ntaxa) {
+		return poem.getWeight();
+	}
+	
+	
 	
 	
 	/**
@@ -912,6 +977,9 @@ public class BEAST2Weka {
 		
 		
 	}
+	
+	
+	
 
 
 	

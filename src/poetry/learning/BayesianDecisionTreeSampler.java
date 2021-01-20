@@ -76,10 +76,7 @@ public class BayesianDecisionTreeSampler extends WeightSampler {
 	public void initAndValidate() {
 		
 		
-		
-		
 		try {
-			
 			
 			
 		} catch (Exception e) {
@@ -104,9 +101,30 @@ public class BayesianDecisionTreeSampler extends WeightSampler {
 	 * @throws Exception
 	 */
 	public Instances getDatabaseAtLeaf() throws Exception {
+		
+		// Load dataset for training GP
+		if (priorDatabase == null) {
+			this.priorDatabase = new DataSource(datasetInput.get()).getDataSet();
+			this.priorDatabase.setClass(this.priorDatabase.attribute(distClassName));
+		}
 		return priorDatabase;
 	}
 	
+	
+	
+	/**
+	 * Load the current beast2 session as an instance
+	 * @return
+	 */
+	public Instances getCurrentSession() {
+		
+		// Model values
+		List<ModelValue> modelValues = modelValuesInput.get();
+		
+		//Current session
+		return BEAST2Weka.getInstance(dataInput.get(), treeInput.get(), this, modelValues);
+		
+	}
 	
 
 	/**
@@ -120,24 +138,22 @@ public class BayesianDecisionTreeSampler extends WeightSampler {
 		
 		
 
-		//  Load decision tree and prepare the decision tree leaf
+		// Load decision tree and prepare the decision tree leaf
 		List<DecisionTree>  trees = parseDecisionTrees(new File(treesInput.get()), 10);
-		DecisionTree decisionTree = trees.get(trees.size()-1);
-		decisionTree.setRegressionMode(regressionInput.get());
-		System.out.println("tree : " + decisionTree.toString());
+		this.tree = trees.get(trees.size()-1);
+		this.tree.setRegressionMode(regressionInput.get());
+		Log.warning("tree : " + this.tree.toString());
 		
 		
 		
-		// Model values
-		List<ModelValue> modelValues = modelValuesInput.get();
+		
 		
 		// Get the Weka Instance of this session
-		currentSessionInst = BEAST2Weka.getInstance(dataInput.get(), treeInput.get(), this, modelValues);
+		currentSessionInst = this.getCurrentSession();
 		
-		// Take last tree
-		this.tree = trees.get(trees.size()-1);
+		// Get the leaf
 		this.leaf = tree.getLeaf(currentSessionInst);
-		
+		Log.warning("leaf" + this.leaf.toString());
 		
 		
 		// Weight columns are predictors
@@ -150,26 +166,25 @@ public class BayesianDecisionTreeSampler extends WeightSampler {
 		leaf.setPredAttrs(weightCols);
 		
 		
-		
 		// Load dataset for training GP
-		priorDatabase = new DataSource(datasetInput.get()).getDataSet();
-		priorDatabase.setClass(priorDatabase.attribute(distClassName));
+		this.priorDatabase = new DataSource(datasetInput.get()).getDataSet();
+		this.priorDatabase.setClass(this.priorDatabase.attribute(distClassName));
 
 		
 		// Filter instances using leaf and train the GP
-		leaf.filterInstances(priorDatabase);
-		priorDatabase = leaf.setSplitData(priorDatabase, true);
+		//Log.warning(this.priorDatabase.size() + " instances in database");
+		this.leaf.filterInstances(this.priorDatabase, true);
+		this.priorDatabase = this.leaf.setSplitData(this.priorDatabase, true);
+		//Log.warning(this.priorDatabase.size() + " instances at leaf");
 		
-		
-		
-
 		
 		// Minimise pmean
-		PMeanFunction fn = new PMeanFunction(leaf, priorDatabase);
-		double[] tweights = optimiseSimplex(fn, fn.getDimension());
+		PMeanFunction fn = new PMeanFunction(this.leaf, this.priorDatabase);
+		double[] tweights = optimiseSimplex(fn, fn.getDimension(), false);
 		Log.warning("Minimised mean distance: " + Math.exp(fn.value(tweights)));
 		weights = repairSticks(tweights);
 		return weights;
+		
 		
 		
 	}
@@ -402,7 +417,7 @@ public class BayesianDecisionTreeSampler extends WeightSampler {
 				if (i >= nsamples) {
 					
 					// Include the optimal weight with some jitter
-					tweights = optimiseSimplex(fn, fn.getDimension());
+					tweights = optimiseSimplex(fn, fn.getDimension(), false);
 					
 					
 					// Add some random jitter
@@ -475,7 +490,7 @@ public class BayesianDecisionTreeSampler extends WeightSampler {
 			
 			Instance instance = new DenseInstance(nattr);
 			instance.setDataset(instances);
-			double[] tweights = optimiseSimplex(fn, fn.getDimension()); // fn.breakSticks(DirichletSampler.sampleWeights(poems));
+			double[] tweights = optimiseSimplex(fn, fn.getDimension(), false); // fn.breakSticks(DirichletSampler.sampleWeights(poems));
 			
 			// Set the transformed weight (ie the broken stick)
 			for (int j = 0; j < fn.getDimension()-1; j ++) {

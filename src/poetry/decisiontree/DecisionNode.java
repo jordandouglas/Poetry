@@ -366,8 +366,7 @@ public class DecisionNode extends Node {
 		if (this.isLeaf()) {
 			
 			double sigma = this.getSigma();
-			sigma = 0.4; //tmp
-			Log.warning("Training GP on " + this.splitData.size() + " instances with " + sigma);
+			//Log.warning("Training GP on " + this.splitData.size() + " instances with " + sigma);
 			
 			// Train GP if leaf
 			if(this.regression == ResponseMode.gaussianprocess && this.splitData.size() > 0) {
@@ -428,6 +427,7 @@ public class DecisionNode extends Node {
 			
 		}
 		for (int i = toRemove.size()-1; i >= 0; i--) {
+			
 			cleansed.deleteAttributeAt(toRemove.get(i));
 		}
 		
@@ -1085,10 +1085,11 @@ public class DecisionNode extends Node {
 	/**
 	 * Removes all instances which do not belong to this node
 	 * @param instances
+	 * @param accept true or false for this node's decision
 	 */
-	public void filterInstances(Instances instances) {
+	public void filterInstances(Instances instances, boolean truth) {
 		
-		
+		//Log.warning("\t" + instances.size() + " instances at node " + this.toString());
 		
 		// Remove instances which are not applicable to this node
 		if (!this.isLeaf()) {
@@ -1100,6 +1101,7 @@ public class DecisionNode extends Node {
 			
 
 			Attribute attr = instances.attribute(attribute);
+			
 			
 			// Iterate through instances
 			for (int i = instances.size()-1; i >= 0; i --) {
@@ -1126,6 +1128,7 @@ public class DecisionNode extends Node {
 				
 				
 				// Filter out
+				if (!truth) match = !match;
 				if (!match) {
 					instances.remove(i);
 				}
@@ -1137,7 +1140,7 @@ public class DecisionNode extends Node {
 		
 		// Do the same for parent
 		if (!this.isRoot()) {
-			this.parent.filterInstances(instances);
+			this.parent.filterInstances(instances, this.isTrueChild());
 		}
 		
 		
