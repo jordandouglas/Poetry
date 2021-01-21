@@ -24,9 +24,12 @@ import beast.core.Input;
 import beast.core.Logger;
 import beast.core.StateNode;
 import beast.core.util.Log;
+import beast.evolution.alignment.Alignment;
+import beast.evolution.tree.Tree;
 import poetry.PoetryAnalyser;
 import poetry.sampler.POEM;
 import poetry.tools.MinESS;
+import poetry.util.BEAST2Weka;
 import poetry.util.WekaUtils;
 import weka.classifiers.functions.GaussianProcesses;
 import weka.classifiers.functions.supportVector.PolyKernel;
@@ -36,6 +39,7 @@ import weka.core.DenseInstance;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.converters.ArffSaver;
+import weka.core.converters.ConverterUtils.DataSource;
 
 
 
@@ -49,8 +53,13 @@ public class GaussianProcessSampler extends WeightSampler {
 	}
 	
 	final public Input<String> poetryFileInput = new Input<>("poetry", "File to store poetry meta-information in", Input.Validate.REQUIRED);
+	
 	final public Input<WeightSampler> priorInput = new Input<>("prior", "Prior weight sampler");
-	final public Input<Double> noiseInput = new Input<>("noise", "The noise to use in Gaussian Processes", 0.7);
+	final public Input<String> datasetInput = new Input<>("dataset", "Weka arff database to train GP on as prior distribution");
+	final public Input<Tree> treeInput = new Input<>("tree", "The phylogenetic tree (used for machine learning)");
+	final public Input<Alignment> dataInput = new Input<>("data", "The alignment (used for machine learning)");
+	
+	final public Input<Double> noiseInput = new Input<>("noise", "The noise to use in Gaussian Processes", 0.8);
 	final public Input<Double> explorativityInitInput = new Input<>("explorativity", "Initial explorativity (log space) in Gaussian Processes for iteration 1", 3.0);
 	final public Input<Double> explorativityDecayInput = new Input<>("decay", "Decay in explorativity on each iteration", 0.6);
 	final public Input<Double> explorativityMinInput = new Input<>("minExplorativity", "Minimum explorativity after decay", 0.02);
@@ -73,7 +82,9 @@ public class GaussianProcessSampler extends WeightSampler {
 	AcquisitionFunction acquisition;
 	
 	boolean resumingPoetry;
+	
 	WeightSampler prior;
+	
 	File poetryFile;
 	double minWeight;
 	double priorWeight;
@@ -86,11 +97,29 @@ public class GaussianProcessSampler extends WeightSampler {
 	
 	@Override
 	public void initAndValidate() {
+		
+		// Statistical learning weight for prior
+		this.priorWeight = this.priorWeightInput.get();
+		if (this.priorWeight <= 0) this.priorWeight = 0;
+		
+		
+		// Prior / database
 		this.prior = priorInput.get();
-		if (this.prior == null) {
+		if (this.prior != null && datasetInput.get() != null) {
+			throw new IllegalArgumentException("Please provide either a prior or a dataset but not both");
+		}
+		if (this.prior == null && (datasetInput.get() == null || this.priorWeight == 0)) {
 			this.prior = new DimensionalSampler();
 			this.prior.initByName("scale", -1.0);
 		}
+		
+		
+		// If there is a database then make sure the tree/alignment are provided
+		if (datasetInput.get() != null) {
+			if (treeInput.get() == null) throw new IllegalArgumentException("Please specify the tree 'tree' so that the GP can learn from the database");
+			if (dataInput.get() == null) throw new IllegalArgumentException("Please specify the alignment 'data' so that the GP can learn from the database");
+		}
+		
 		
 		// State file
 		this.poetryFile = new File(poetryFileInput.get());
@@ -103,11 +132,7 @@ public class GaussianProcessSampler extends WeightSampler {
 		this.minWeight = this.minWeightInput.get();
 		if (this.minWeight <= 0) this.minWeight = 0;
 		
-		
-		// Statistical learning weight for prior
-		this.priorWeight = this.priorWeightInput.get();
-		if (this.priorWeight <= 0) this.priorWeight = 0;
-		
+
 		
 		try {
 			this.initialPoetry = this.readPoetry();
@@ -151,9 +176,72 @@ public class GaussianProcessSampler extends WeightSampler {
 	}
 	
 	
+	
+	/**
+	 * Loads the arff file into weka and creates the class if it does not already exist
+	 * @param database
+	 * @return
+	 * @throws Exception
+	 */
+	public Instances getInstancesFromDatabase(File database, List<POEM> poems) throws Exception {
+		
+		
+		// Read in file
+		if (!database.canRead()) throw new IllegalArgumentException("Cannot open file " + database.getPath());
+		Instances instances = new DataSource(database.getAbsolutePath()).getDataSet();
+
+		
+		// Apply transforms
+		for (int i = 0; i < instances.size(); i ++) {
+			Instance instance = instances.get(i);
+			
+			
+			// Ntaxa
+			Attribute attr = instances.attribute(BEAST2Weka.getNtaxaAttr().name());
+			double val = Math.log(instance.value(attr));
+			instance.setValue(attr, val);
+			
+			// Nsites
+			attr = instances.attribute(BEAST2Weka.getNsitesAttr().name());
+			val = Math.log(instance.value(attr));
+			instance.setValue(attr, val);
+			
+			
+			// Npatterns
+			attr = instances.attribute(BEAST2Weka.getNpatternsAttr().name());
+			val = Math.log(instance.value(attr));
+			instance.setValue(attr, val);
+			
+			// Npartitions
+			attr = instances.attribute(BEAST2Weka.getNpartitionsAttr().name());
+			val = Math.log(instance.value(attr));
+			instance.setValue(attr, val);
+			
+			// Tree height
+			attr = instances.attribute(BEAST2Weka.getTreeHeightAttr().name());
+			val = instance.value(attr);
+			instance.setValue(attr, val);
+			
+			
+		}
+		
+		
+		
+		// Create class attribute
+		if (instances.attribute(distClassName) == null) {
+			Attribute classAttr = new Attribute(distClassName);
+			instances.insertAttributeAt(classAttr, instances.numAttributes());
+		}
+		instances.setClass(instances.attribute(distClassName));
+		
+		return instances;
+		
+	}
+	
+	
 	@Override
 	public void initialise(List<POEM> poems, File database, StateNode placeholder, PoetryAnalyser poetry, boolean isMC3) {
-		this.prior.initialise(poems, database, placeholder, poetry, isMC3);
+		if (this.prior != null) this.prior.initialise(poems, database, placeholder, poetry, isMC3);
 		super.initialise(poems, database, placeholder, poetry, isMC3);
 	}
 	
@@ -177,7 +265,7 @@ public class GaussianProcessSampler extends WeightSampler {
 		Log.warning("Bayesian optimisation explorativity = " + this.explorativity);
 		
 		// Is this the first round?
-		boolean resumeFromPrior = this.prior instanceof BayesianDecisionTreeSampler && this.priorWeight > 0;
+		boolean resumeFromPrior = this.prior == null && this.priorWeight > 0;
 		if (!this.resumingPoetry && !resumeFromPrior) {
 			
 			Log.warning("Sampling weights using a " + this.prior.getClass().getCanonicalName() + "...");
@@ -335,14 +423,9 @@ public class GaussianProcessSampler extends WeightSampler {
 		sampleThis.put(jsonExplorativityName, this.explorativity);
 		
 		// Store the distance
-		double targetFractionalESS = 1.0 / this.getNumPoems();
-		double totalDist = 0;
-		for (int i = 0; i < this.getNumPoems(); i ++) {
-			double dist = Math.pow(ESSes[i]/ESSsum - targetFractionalESS, 2);
-			totalDist += dist;
-		}
-		totalDist = Math.sqrt(totalDist);
-		totalDist = -logit(totalDist);
+		
+		double totalDist = calculateTargetDistanceFunction(ESSes);
+		
 		
 		
 		// Min ESS
@@ -366,6 +449,38 @@ public class GaussianProcessSampler extends WeightSampler {
 	
 	
 	/**
+	 * Calculate Pmean from ESSes
+	 * @param esses
+	 * @return
+	 */
+	public static double calculateTargetDistanceFunction(double[] ESSes) {
+
+		double targetFractionalESS = 1.0 / ESSes.length;
+		
+		// ESS sum
+		double ESSsum = 0;
+		for (int i = 0; i < ESSes.length; i ++) {
+			ESSsum += ESSes[i];
+		}
+		
+		
+		// Calculate distance
+		double totalDist = 0;
+		for (int i = 0; i < ESSes.length; i ++) {
+			double dist = Math.pow(ESSes[i]/ESSsum - targetFractionalESS, 2);
+			totalDist += dist;
+		}
+		
+		
+		
+		totalDist = Math.sqrt(totalDist);
+		totalDist = -logit(totalDist);
+		
+		return totalDist;
+	}
+	
+	
+	/**
 	 * Update poetry state file
 	 * @throws IOException 
 	 */
@@ -383,7 +498,17 @@ public class GaussianProcessSampler extends WeightSampler {
 	}
 	
 	
-
+	/**
+	 * Load the current beast2 session as an instance
+	 * @return
+	 */
+	public Instances getCurrentSession() {
+		
+		//Current session
+		return BEAST2Weka.getInstance(dataInput.get(), treeInput.get(), this, null);
+		
+	}
+	
 	
 
 	/**
@@ -396,9 +521,8 @@ public class GaussianProcessSampler extends WeightSampler {
 		
 		Instances instances = null;
 		Instance currentSession = null;
-		if (this.prior instanceof BayesianDecisionTreeSampler) {
-			instances = ((BayesianDecisionTreeSampler)prior).getCurrentSession();
-			
+		if (datasetInput.get() != null) {
+			instances = this.getCurrentSession();
 			
 			// Remove final poem weight
 			String finalPoemWeightName = this.poems.get(this.getNumPoems()-1).getWeightColname();
@@ -505,91 +629,136 @@ public class GaussianProcessSampler extends WeightSampler {
 		
 
 		// Add prior database?
-		if (this.priorWeight > 0) {
+		if (datasetInput.get() != null && this.priorWeight > 0) {
 			
 			
-			// Bayesian decision tree
-			if (this.prior instanceof BayesianDecisionTreeSampler) {
+			// Load the database
+			Instances priorDatabase = this.getInstancesFromDatabase(new File(datasetInput.get()), poems);
+
+			int ninstances = 2000; //priorDatabase.size();
+			
+			
+			
+			
+
+			
+			// Stick breaking on database 
+			for (int i = 0; i < ninstances; i++) {
 				
-				// Load the database
-				BayesianDecisionTreeSampler treeSampler = (BayesianDecisionTreeSampler) this.prior;
-				// treeSampler.sampleWeights(poems); tmp
-				Instances priorDatabase = treeSampler.getDatabaseAtLeaf();
+				Instance inst = priorDatabase.get(i);
 				
-				
-				// Remove some columns?
-				/*
-				if (currentSession != null) {
-					List<Integer> attrsToRemove = new ArrayList<>();
-					for (int a = 0; a < priorDatabase.numAttributes(); a++) {
-						Attribute attr = priorDatabase.attribute(a);
-						if (attr == priorDatabase.classAttribute()) continue;
-						if (WekaUtils.getIndexOfColumn(currentSession, attr.name()) == -1) {
-							attrsToRemove.add(a);
-						}
-					}
-					for (int i = attrsToRemove.size()-1; i >= 0; i--) {
-						Log.warning("Deleting attribute " + priorDatabase.attribute(attrsToRemove.get(i)).name());
-						priorDatabase.deleteAttributeAt(attrsToRemove.get(i));
-					}
-				}
-				*/
-				
-				int ninstances = 2000;//priorDatabase.size();
-				Log.warning("Adding " + ninstances + " prior instances to GP model with a total weight of " + this.priorWeight);
-				
-				// Add the instances to the main list of instances, but with a smaller learning weight
-				double weightPerInst = this.priorWeight / ninstances;
-				for (int i = 0; i < ninstances; i++) {
-					Instance priorInst = priorDatabase.get(i);
-					Instance copy = new DenseInstance(currentSession);
+				// Get the poems weights and ESSes
+				double[] poemWeights = new double[poems.size()];
+				double[] poemESSes = new double[poems.size()];
+				double weightSum = 0;
+				double ESSsum = 0;
+				for (int poemNum = 0; poemNum < poems.size(); poemNum++) {
 					
+					POEM poem = poems.get(poemNum);
+					Attribute weightAttr = priorDatabase.attribute(poem.getWeightColname());
+					Attribute essAttr = priorDatabase.attribute(poem.getESSColname());
+					if (essAttr == null) essAttr = priorDatabase.attribute(poem.getESSColname() + ".p");
 					
-					// Copy all values over
-					for (int a = 0; a < copy.numAttributes(); a++) {
-						
-						Attribute attr = instances.attribute(a);
-						int priorAttrIndex = WekaUtils.getIndexOfColumn(priorInst, attr.name());
-						
-						// Missing
-						if (priorAttrIndex == -1) {
-							copy.setMissing(attr);
-						}
-						
-						// Numeric
-						else if (attr.isNumeric()) {
-							double value = priorInst.value(priorAttrIndex);
-							copy.setValue(attr, value);
-						}
-						
-						// Nominal
-						else if (attr.isNominal()) {
-							String value = priorInst.toString(priorDatabase.attribute(priorAttrIndex));
-							copy.setValue(attr, value);
-							
-						}
-						
-						
+					if (weightAttr == null || essAttr == null) {
+						if (i == 0) Log.warning("Warning: cannot locate '" + poem.getWeightColname() + "' and '" + poem.getESSColname() + "' in database");
+						continue;
 					}
 					
 					
-					copy.setWeight(weightPerInst);
-					copy.setDataset(instances);
+					// To prevent numerical issues
+					double weight = inst.value(weightAttr);
+					double ess = inst.value(essAttr);
+					if (weight <= 0) {
+						weight = 1e-8;
+						ess = 1e-8;
+					}
 					
-					// Negative class
-					//double classVal = -priorInst.classValue(); 
-					//priorInst.setClassValue(classVal);
-					
-					instances.add(copy);
+					// Store weights and ESSes
+					poemWeights[poemNum] = weight;
+					poemESSes[poemNum] = ess;
+					weightSum += poemWeights[poemNum];
+					ESSsum += poemESSes[poemNum];
 					
 				}
 				
 				
-				if (bestMean == Double.NEGATIVE_INFINITY) bestMean = getBestDistance(instances);
+				// Ensure weights/esses sum to 1 
+				for (int poemNum = 0; poemNum < poems.size(); poemNum++) {
+					poemWeights[poemNum] /= weightSum;
+					poemESSes[poemNum] /= ESSsum;
+				}
 				
-			
+				
+				// Break weight sticks and set attribute values
+				double[] breaks = breakSticks(poemWeights);
+				for (int poemNum = 0; poemNum < poems.size()-1; poemNum++) {
+					POEM poem = poems.get(poemNum);
+					Attribute weightAttr = priorDatabase.attribute(poem.getWeightColname());
+					inst.setValue(weightAttr, breaks[poemNum]);
+				}
+				
+				
+				// Calculate class value
+				double pmean = calculateTargetDistanceFunction(poemESSes);
+				inst.setValue(priorDatabase.attribute(distClassName), pmean);
+				
 				
 			}
+			
+
+			
+			// Add the instances to the main list of instances, but with a smaller learning weight
+			Log.warning("Adding " + ninstances + " prior instances to GP model with a total weight of " + this.priorWeight);
+			double weightPerInst = this.priorWeight / ninstances;
+			for (int i = 0; i < ninstances; i++) {
+				Instance priorInst = priorDatabase.get(i);
+				Instance copy = new DenseInstance(currentSession);
+				
+				// Copy all values over
+				for (int a = 0; a < copy.numAttributes(); a++) {
+					
+					Attribute attr = instances.attribute(a);
+					
+					int priorAttrIndex = WekaUtils.getIndexOfColumn(priorInst, attr.name());
+					
+					// Missing
+					if (priorAttrIndex == -1) {
+						copy.setMissing(attr);
+					}
+					
+					// Numeric
+					else if (attr.isNumeric()) {
+						double value = priorInst.value(priorAttrIndex);
+						copy.setValue(attr, value);
+					}
+					
+					// Nominal
+					else if (attr.isNominal()) {
+						String value = priorInst.toString(priorDatabase.attribute(priorAttrIndex));
+						copy.setValue(attr, value);
+						
+					}
+					
+					
+				}
+				
+				
+				copy.setWeight(weightPerInst);
+				copy.setDataset(instances);
+				
+				// Negative class
+				//double classVal = -priorInst.classValue(); 
+				//priorInst.setClassValue(classVal);
+				
+				instances.add(copy);
+				
+			}
+			
+			
+			if (bestMean == Double.NEGATIVE_INFINITY) bestMean = getBestDistance(instances);
+			
+		
+				
 		
 		
 		}
@@ -602,7 +771,6 @@ public class GaussianProcessSampler extends WeightSampler {
 		saver.setFile(new File("/home/jdou557/Documents/Marsden2019/Months/January2021/kernel30.arff"));
 		saver.writeBatch();
 		
-		//System.exit(1);
 		
 		
 		// Train the kernel
@@ -929,7 +1097,6 @@ public class GaussianProcessSampler extends WeightSampler {
 			// Set the transformed weight (ie. the broken stick)
 			for (int j = 0; j < tweights.length; j ++) {
 				POEM poem = this.poems.get(j);
-				Log.warning("" + tweights[j]);
 				instance.setValue(instances.attribute(poem.getWeightColname()), tweights[j]);
 			}
 			
@@ -975,7 +1142,7 @@ public class GaussianProcessSampler extends WeightSampler {
 			*/
 	        
 	       // Log.warning(e + ", " + logP);
-	        Log.warning("EI: " + e + ", " + mean + ", " + sd );
+	        //Log.warning("EI: " + e + ", " + mean + ", " + sd );
 	        
 	        /*
 	        try {
@@ -1089,7 +1256,7 @@ public class GaussianProcessSampler extends WeightSampler {
 		        }
 		        logP += org.apache.commons.math.special.Gamma.logGamma(sumAlpha);
 				
-				Log.warning("UCB: " + u + ", " + mean + ", " + sd + ", " + kappa);
+				//Log.warning("UCB: " + u + ", " + mean + ", " + sd + ", " + kappa);
 				
 				/*
 				try {

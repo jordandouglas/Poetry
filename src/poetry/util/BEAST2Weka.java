@@ -83,37 +83,37 @@ public class BEAST2Weka {
 		
 		attributes.add(getTargetAttr()); // Class 
 		
-		for (ModelValue mv : modelValues) {
-			
-			// Do not allow duplicate column names
-			boolean duplicate = false;
-			for (Attribute attr : attributes) {
-				if (attr.name().equals(mv.getModel())) {
-					duplicate = true;
-					break;
+		if (modelValues != null) {
+			for (ModelValue mv : modelValues) {
+				
+				// Do not allow duplicate column names
+				boolean duplicate = false;
+				for (Attribute attr : attributes) {
+					if (attr.name().equals(mv.getModel())) {
+						duplicate = true;
+						break;
+					}
 				}
+				if (duplicate) continue;
+				
+				attributes.add(getModelValueAttr(mv)); // Model value
 			}
-			if (duplicate) continue;
-			
-			attributes.add(getModelValueAttr(mv)); // Model value
 		}
 		final int nattr = attributes.size();
 		Instances instances = new Instances("beast2", attributes,  nattr);
 		instances.setClass(instances.attribute(getTargetAttr().name()));
+		
+		
 		
 		// Create the instance
 		Instance instance = new DenseInstance(nattr);
 		instance.setDataset(instances);
 		
 		
-		
-		
 		// Partitions
 		List<Alignment> partitions = new ArrayList<>();
 		partitions.add(dataset);
 		
-		
-	
 				
 		// 1 Ntaxa
 		instance.setValue(instances.attribute(getNtaxaAttr().name()), Math.log(getNtaxa(partitions)));
@@ -134,7 +134,7 @@ public class BEAST2Weka {
 		instance.setValue(instances.attribute(getPgapsAttr().name()), getPgaps(partitions));
 		
 		// 7 Tree height
-		instance.setValue(instances.attribute(getTreeHeightAttr().name()), Math.log(getTreeHeight(partitions)));
+		instance.setValue(instances.attribute(getTreeHeightAttr().name()), getTreeHeight(partitions));
 		
 		// 8 Number of states
 		instance.setValue(instances.attribute(getNcharAttr().name()), getNchar(partitions));
@@ -149,7 +149,8 @@ public class BEAST2Weka {
 			instance.setValue(instances.attribute(getPoemWeightAttr(poem).name()), getPoemWeight(poem, getNtaxa(partitions)));
 			
 			// Dimension
-			instance.setValue(instances.attribute(getPoemDimensionAttr(poem).name()), Math.log(getPoemDimension(poem)));
+			//instance.setValue(instances.attribute(getPoemDimensionAttr(poem).name()), Math.log(getPoemDimension(poem)));
+			instance.setValue(instances.attribute(getPoemDimensionAttr(poem).name()), getPoemDimension(poem));
 			
 		}
 		
@@ -184,11 +185,13 @@ public class BEAST2Weka {
 		
 		
 		// Set user set values. These will override any auto-detected attributes
-		for (ModelValue mv : modelValues) {
-			if (mv.isNumeric()) {
-				instance.setValue(instances.attribute(getModelValueAttr(mv).name()), getModelValueNumeric(mv));
-			}else {
-				instance.setValue(instances.attribute(getModelValueAttr(mv).name()), getModelValueNominal(mv));
+		if (modelValues != null) {
+			for (ModelValue mv : modelValues) {
+				if (mv.isNumeric()) {
+					instance.setValue(instances.attribute(getModelValueAttr(mv).name()), getModelValueNumeric(mv));
+				}else {
+					instance.setValue(instances.attribute(getModelValueAttr(mv).name()), getModelValueNominal(mv));
+				}
 			}
 		}
 		
