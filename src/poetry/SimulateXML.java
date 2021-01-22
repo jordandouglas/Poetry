@@ -27,6 +27,7 @@ import beast.core.Runnable;
 import beast.core.StateNode;
 import beast.core.util.Log;
 import beast.evolution.alignment.Alignment;
+import beast.evolution.tree.TreeInterface;
 import poetry.functions.XMLFunction;
 import poetry.functions.XMLInputSetter;
 import poetry.learning.DimensionalSampler;
@@ -62,7 +63,8 @@ public class SimulateXML extends Runnable {
 	final public Input<Runnable> runnableInput = new Input<>("runner", "A runnable object (eg. mcmc)", Input.Validate.REQUIRED);
 	
 	final public Input<List<ModelSampler>> modelInput = new Input<>("model", "A component of the model. All of its data will be dumped into this xml.", new ArrayList<>());
-	final public Input<Alignment> dataInput = new Input<>("data", "A dataset samplers for loading and sampling data. Optional", Input.Validate.OPTIONAL);
+	final public Input<Alignment> dataInput = new Input<>("data", "A dataset samplers for loading and sampling data. Optional", Input.Validate.REQUIRED);
+	final public Input<TreeInterface> treeInput = new Input<>("tree", "The tree", Input.Validate.REQUIRED);
 	final public Input<Integer> nsamplesInput = new Input<>("nsamples", "Number of xml files to produce (default 1)", 1);
 	final public Input<Integer> nreplicatesInput = new Input<>("nreplicates", "Number of replicates per xml file (default 1)", 1);
 	
@@ -523,6 +525,14 @@ public class SimulateXML extends Runnable {
 		    case Gaussian:{
 		    	sampler.setAttribute("spec", GaussianProcessSampler.class.getCanonicalName());
 		    	sampler.setAttribute("poetry", "$(filebase).poetry");
+		    	sampler.setAttribute("acquisition", "EI");
+		    	sampler.setAttribute("explorativity", "10");
+		    	sampler.setAttribute("decay", "0.7");
+		    	sampler.setAttribute("minExplorativity", "-10");
+		    	sampler.setAttribute("priorWeight", "5");
+		    	sampler.setAttribute("tree", "@" + treeInput.get().getID());
+		    	sampler.setAttribute("data", "@" + dataInput.get().getID());
+		    	sampler.setAttribute("dataset", "~/nesi/nobackup/nesi00390/jordan/weka.sample.arff"); // tmp directory
 		    	break;
 		    }
 		    

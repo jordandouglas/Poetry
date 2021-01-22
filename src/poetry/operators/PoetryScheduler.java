@@ -101,16 +101,14 @@ public class PoetryScheduler extends OperatorSchedule {
 		 // Sample the weights but don't set them just yet
 		 // If this is static mode, the sampled weights will override each other between chains
 		 if (this.sampler != null) {
-			 sampler.initialise(poemsInput.get(), this.database, this.placeholderInput.get(), (this.isColdChain() ? this.poetry : null), this.isMC3());
-			 if (this.isColdChain())
-				try {
-					sampler.sampleWeights();
-				} catch (Exception e) {
-					e.printStackTrace();
-					throw new IllegalArgumentException("Error: encountered a problem when sampling weights");
-				}
+			sampler.initialise(poemsInput.get(), this.database, this.placeholderInput.get(), (this.isColdChain() ? this.poetry : null), this.isMC3());
+			try {
+				if (!sampler.weightsAreSampled()) sampler.sampleWeights();
+			} catch (Exception e) {
+				e.printStackTrace();
+				throw new IllegalArgumentException("Error: encountered a problem when sampling weights");
+			}
 		 }
-		 
 		 
 	 }
 	

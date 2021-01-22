@@ -33,11 +33,11 @@
 
 		<!-- Not calibrated -->
 		<file spec="poetry.util.WeightedFile" file="../datasets/Anderson_2013/alignment.nex" desc="Benchmark alignment" />
-		<file spec="poetry.util.WeightedFile" file="../datasets/Becker_2016/alignment.nex" desc="Benchmark alignment" />
+		<file weight="2" spec="poetry.util.WeightedFile" file="../datasets/Becker_2016/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Bergsten_2013/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Branstetter_2017/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Brown_2012/alignment.nex" desc="Benchmark alignment" />
-		<file spec="poetry.util.WeightedFile" file="../datasets/Cannon_2016_aa/alignment.nex" desc="Benchmark alignment" />
+		<file weight="2" spec="poetry.util.WeightedFile" file="../datasets/Cannon_2016_aa/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Cannon_2016_dna/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Cognato_2001/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Crawford_2012/alignment.nex" desc="Benchmark alignment" />
@@ -52,14 +52,14 @@
 		<file spec="poetry.util.WeightedFile" file="../datasets/Looney_2016/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/McCormack_2013/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Meiklejohn_2016/alignment.nex" desc="Benchmark alignment" />
-		<file spec="poetry.util.WeightedFile" file="../datasets/Misof_2014/alignment.nex" desc="Benchmark alignment" />
+		<file weight="2" spec="poetry.util.WeightedFile" file="../datasets/Misof_2014/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Murray_2013/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Near_2013/alignment.nex" desc="Benchmark alignment" />
-		<file spec="poetry.util.WeightedFile" file="../datasets/Nguyen_2016a/alignment.nex" desc="Benchmark alignment" />
+		<file weight="2" spec="poetry.util.WeightedFile" file="../datasets/Nguyen_2016a/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Oaks_2011/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Prebus_2017/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Pyron_2011/alignment.nex" desc="Benchmark alignment" />
-		<file spec="poetry.util.WeightedFile" file="../datasets/Ran_2018_aa/alignment.nex" desc="Benchmark alignment" />
+		<file weight="2" spec="poetry.util.WeightedFile" file="../datasets/Ran_2018_aa/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Ran_2018_dna/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Reddy_2017/alignment.nex" desc="Benchmark alignment" />
 		<file spec="poetry.util.WeightedFile" file="../datasets/Richart_2015/alignment.nex" desc="Benchmark alignment" />
@@ -163,14 +163,14 @@
 		<substModel spec="JukesCantor" />
 	</siteModel>
 
-	
+
 	<!-- Placeholder clock model -->
   	<branchRateModel id="ClockModel.t:tree" spec="beast.evolution.branchratemodel.StrictClockModel" clock.rate="@overallClockRate.c:tree">
 			
     </branchRateModel>
 
 
-	<run id="XMLSimulator" spec="poetry.SimulateXML" data="@alignment.$(partition)" out="out" nsamples="1000" nreplicates="5" updateEvery="10000000" coordinateWeights="false" placeholder="@PHStateNode" weightSampler="Gaussian">
+	<run id="XMLSimulator" spec="poetry.SimulateXML" data="@alignment.$(partition)" tree="@tree" out="out" nsamples="20" nreplicates="5" updateEvery="10000000" placeholder="@PHStateNode" coordinateWeights="false" weightSampler="Gaussian">
 
 
 
@@ -179,13 +179,13 @@
 		<!-- Parameter-operator-ESS mappings -->
 		<poem id="TopologyPOEM" spec="poetry.sampler.POEM" alpha="2.0" logEvery="10000">
 			<operator idref="species.tree.topology.operator" />
-			<log idref="treePrior" />
+			
 		</poem>
 
 
 		<poem id="NodeHeightPOEM" spec="poetry.sampler.POEM" alpha="2.0" logEvery="10000">
 			<operator idref="species.tree.height.operator" />
-			<log idref="treePrior" />
+			
 			<log idref="TreeStat.t:tree" />
 			<log idref="overallClockRate.c:tree" />
 		</poem>
@@ -220,7 +220,7 @@
 		
 		<poem id="SpeciesTreePriorPOEM" spec="poetry.sampler.POEM" alpha="1.0" logEvery="10000">
 			<operator idref="species.tree.prior.model.operator" />
-			<log idref="treePrior" />
+			
 		</poem>
 
 
@@ -289,13 +289,13 @@
 			<file id="HKY.model" spec="poetry.util.WeightedFile" file="../models/site/nucleotide/HKY.xml" desc="The HKY site model" condition="@dnaOnly" />
 			<file id="HKYf.model" spec="poetry.util.WeightedFile" file="../models/site/nucleotide/HKYf.xml" desc="The HKY site model with estimated frequencies" condition="@dnaOnly" />
 			<file id="GTR.model" spec="poetry.util.WeightedFile" file="../models/site/nucleotide/GTR.xml" desc="The GTR site model" condition="@dnaOnly" />
-			<file id="BModelTest.model" spec="poetry.util.WeightedFile" file="../models/site/nucleotide/BModelTest.xml" desc="The BModelTest site model (model averaging)" condition="@dnaOnly" />
+			<file weight="3" id="BModelTest.model" spec="poetry.util.WeightedFile" file="../models/site/nucleotide/BModelTest.xml" desc="The BModelTest site model (model averaging)" condition="@dnaOnly" />
 
 			<!-- Amino acid -->
-			<file id="WAG.model" spec="poetry.util.WeightedFile" file="../models/site/aminoacid/WAG.xml" desc="The WAG site model" condition="@aaOnly" />
+			<file weight="2" id="WAG.model" spec="poetry.util.WeightedFile" file="../models/site/aminoacid/WAG.xml" desc="The WAG site model" condition="@aaOnly" />
 			<file id="Blosum62.model" spec="poetry.util.WeightedFile" file="../models/site/aminoacid/Blosum62.xml" desc="The Blosum62 site model" condition="@aaOnly" />
 			<file id="MTREV.model" spec="poetry.util.WeightedFile" file="../models/site/aminoacid/MTREV.xml" desc="The MTREV site model" condition="@aaOnly" />
-			<file id="OBAMA.model" spec="poetry.util.WeightedFile" file="../models/site/aminoacid/OBAMA.xml" desc="The OBAMA site model (model averaging)" condition="@aaOnly" />
+			<file weight="2" id="OBAMA.model" spec="poetry.util.WeightedFile" file="../models/site/aminoacid/OBAMA.xml" desc="The OBAMA site model (model averaging)" condition="@aaOnly" />
 			
 		</model>
 
@@ -323,7 +323,7 @@
 		<!-- Branch rate model sampler -->
 		<model id="branch.model" spec="poetry.sampler.ModelSampler">
 			<file id="Strict.model" spec="poetry.util.WeightedFile" file="../models/clock/Strict.xml" desc="The strict clock" condition="@doingConcatAnalysis" />
-			<file id="RelaxedLN.model" spec="poetry.util.WeightedFile" file="../models/clock/RelaxedLN.xml" desc="A relaxed clock with lognormal prior" condition="@doingConcatAnalysis" />
+			<file weight="5" id="RelaxedLN.model" spec="poetry.util.WeightedFile" file="../models/clock/RelaxedLN.xml" desc="A relaxed clock with lognormal prior" condition="@doingConcatAnalysis" />
 			<file id="RelaxedLNSB3.model" spec="poetry.util.WeightedFile" file="../models/clock/SB3RelaxedClock.xml" desc="Multispecies coalescent relaxed clock model with lognormal prior" condition="@doingMSCAnalysis" />
 		</model>
 
@@ -356,7 +356,7 @@
 
 				<!-- A state node that will later be removed by PoetryScheduler. 
 						This can be added to operators to ensure that each operator has a statenode -->
-				<parameter spec="parameter.RealParameter" id="PHStateNode" lower="0.0" upper="1.0" name="stateNode">1.0</parameter>
+				<parameter spec="parameter.RealParameter" id="PHStateNode" lower="0.0" upper="1.0" name="stateNode">0.5</parameter>
 
 				<parameter spec="parameter.RealParameter" id="overallClockRate.c:tree" estimate="true" name="stateNode">1.0</parameter>
 				<tree id="tree" spec="beast.evolution.tree.Tree" name="stateNode">
@@ -491,9 +491,9 @@
 	                allowNonsense="true">
 
 					
-                    <transformations id="PH.logittransform" spec="beast.util.Transform$LogitTransform">
-                            <f idref="PHStateNode" />
-                    </transformations>
+                                        <transformations id="PH.logittransform" spec="beast.util.Transform$LogitTransform">
+                                                <f idref="PHStateNode" />
+                                        </transformations>
 
 					<transformations id="site.model.logtransform" spec="beast.util.Transform$LogTransform">
 						

@@ -39,6 +39,13 @@ public class MinESS extends Runnable {
 		
 	}
 	
+	
+	public MinESS(File logFile) {
+		this.skip = new ArrayList<>(); 
+		this.logFile = logFile;
+		this.verbose = false;
+	}
+	
 	public MinESS(File logFile, String skip) {
 		this.skip = new ArrayList<>(); 
 		if (skip != null && !skip.isEmpty()) {
@@ -48,6 +55,8 @@ public class MinESS extends Runnable {
 		this.logFile = logFile;
 		this.verbose = false;
 	}
+	
+
 	
 
 	

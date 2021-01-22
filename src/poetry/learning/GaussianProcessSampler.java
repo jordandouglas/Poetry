@@ -26,6 +26,7 @@ import beast.core.StateNode;
 import beast.core.util.Log;
 import beast.evolution.alignment.Alignment;
 import beast.evolution.tree.Tree;
+import beast.util.PackageManager;
 import poetry.PoetryAnalyser;
 import poetry.sampler.POEM;
 import poetry.tools.MinESS;
@@ -63,7 +64,7 @@ public class GaussianProcessSampler extends WeightSampler {
 	final public Input<Double> explorativityInitInput = new Input<>("explorativity", "Initial explorativity (log space) in Gaussian Processes for iteration 1", 3.0);
 	final public Input<Double> explorativityDecayInput = new Input<>("decay", "Decay in explorativity on each iteration", 0.6);
 	final public Input<Double> explorativityMinInput = new Input<>("minExplorativity", "Minimum explorativity after decay", 0.02);
-	final public Input<Double> minWeightInput = new Input<>("min", "Minimum value that all operator weights must surpass", 0.01);
+	final public Input<Double> minWeightInput = new Input<>("min", "Minimum value that all operator weights must surpass", 1e-4);
 	final public Input<Double> priorWeightInput = new Input<>("priorWeight", "The total observational weight of the prior distribution, where each run of this xml file has a weight of 1", 5.0);
 	
 	final public Input<AcquisitionFunction> acquisitionFunctionInput = new Input<>("acquisition", "The acquisition function for Bayesian optimisation", AcquisitionFunction.EI, AcquisitionFunction.values());
@@ -97,6 +98,11 @@ public class GaussianProcessSampler extends WeightSampler {
 	
 	@Override
 	public void initAndValidate() {
+		
+		
+		//List<String> locations = PackageManager.getBeastDirectories();
+		
+		
 		
 		// Statistical learning weight for prior
 		this.priorWeight = this.priorWeightInput.get();
@@ -394,7 +400,16 @@ public class GaussianProcessSampler extends WeightSampler {
 				// Estimates are too volatile early in the chain
 				if (calculator.getNLogs() < 30) return null;
 				double ess = calculator.getMeanESS();
-				//double ess = calculator.getMinESS();
+				
+				
+				// -Inf becomes 0
+				if (Double.isInfinite(ess) && ess < 0) ess = 0;
+				
+				// NaN or +Inf becomes max value
+				if (Double.isNaN(ess)) ess = calculator.getNLogs();
+				if (Double.isInfinite(ess) && ess > 0) ess = calculator.getNLogs();
+				
+				
 				ESSes[i] = ess;
 				ESSsum += ESSes[i];
 				meanNLogs += calculator.getNLogs();
@@ -764,13 +779,13 @@ public class GaussianProcessSampler extends WeightSampler {
 		}
 		
 		
-		
+		/*
 		// Save the dataset
 		ArffSaver saver = new ArffSaver();
 		saver.setInstances(instances);
 		saver.setFile(new File("/home/jdou557/Documents/Marsden2019/Months/January2021/kernel30.arff"));
 		saver.writeBatch();
-		
+		*/
 		
 		
 		// Train the kernel

@@ -52,6 +52,10 @@ public abstract class WeightSampler extends BEASTObject {
 	private double poeticSumInit;
 	
 	
+	// Avoid resampling weights across multiple chains
+	boolean weightsAreSampled = false;
+	static boolean weightsAreSampled_static = false;
+	
 	List<Integer> invalidOps = new ArrayList<Integer>();
 	
 	// Non-static operator weights
@@ -88,6 +92,7 @@ public abstract class WeightSampler extends BEASTObject {
 		this.invalidOps = new ArrayList<Integer>();
 		this.poetry = poetry;
 		this.isMC3 = isMC3;
+		this.weightsAreSampled = false;
 		
 		
 		// Check the database for weights
@@ -233,11 +238,17 @@ public abstract class WeightSampler extends BEASTObject {
 	 */
 	protected void setWeights(double[] poemWeights) throws Exception {
 
+		Log.warning("Setting weights..." + this.isStatic);
+		
 		if (this.isStatic) {
 			poeticWeights_static = poemWeights;
+			weightsAreSampled_static = true;
 		}else {
 			this.poeticWeights_local = poemWeights;
+			this.weightsAreSampled = true;
 		}
+		
+		
 		
 		// Correct the weights if they have already been set
 		if (this.poetry != null) this.poetry.correctWeights(poemWeights);
@@ -307,6 +318,15 @@ public abstract class WeightSampler extends BEASTObject {
 	 * Sample operator weights and set them
 	 */
 	public abstract void sampleWeights() throws Exception;
+	
+	
+	/**
+	 * Are the weights sampled?
+	 */
+	public boolean weightsAreSampled() {
+		if (this.isStatic) return weightsAreSampled_static;
+		else return weightsAreSampled;
+	}
 	
 	
 	/**
