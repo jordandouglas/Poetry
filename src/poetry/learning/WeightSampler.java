@@ -3,14 +3,19 @@ package poetry.learning;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
+import org.apache.commons.math.util.MathUtils;
 import org.apache.commons.math3.analysis.MultivariateFunction;
 import org.apache.commons.math3.optim.BaseMultivariateOptimizer;
+import org.apache.commons.math3.optim.ConvergenceChecker;
 import org.apache.commons.math3.optim.InitialGuess;
 import org.apache.commons.math3.optim.MaxEval;
 import org.apache.commons.math3.optim.MaxIter;
 import org.apache.commons.math3.optim.PointValuePair;
+import org.apache.commons.math3.optim.SimpleBounds;
 import org.apache.commons.math3.optim.SimplePointChecker;
 import org.apache.commons.math3.optim.linear.LinearConstraint;
 import org.apache.commons.math3.optim.linear.LinearConstraintSet;
@@ -31,6 +36,7 @@ import beast.core.Input;
 import beast.core.Operator;
 import beast.core.StateNode;
 import beast.core.util.Log;
+import beast.util.Randomizer;
 import poetry.PoetryAnalyser;
 import poetry.operators.MetaOperator;
 import poetry.sampler.POEM;
@@ -95,7 +101,12 @@ public abstract class WeightSampler extends BEASTObject {
 		this.weightsAreSampled = false;
 		
 		
-		// Check the database for weights
+		
+		// Shuffle the poems to avoid ordering effects in the optimisation
+		Collections.shuffle(this.poems, new Random(Randomizer.nextInt(100000)));
+
+		
+		
 		
 	}
 	
@@ -139,7 +150,6 @@ public abstract class WeightSampler extends BEASTObject {
 
 		
 		// Determine which operators do and do not have poems
-		this.poeticOperators = new ArrayList<Operator>();
 		this.unpoeticOperators = new ArrayList<Operator>();
 		for (Operator op : operators) {
 			
@@ -163,8 +173,11 @@ public abstract class WeightSampler extends BEASTObject {
 			
 		}
 		
+
+		
 		
 		// Put operators in poem order
+		this.poeticOperators = new ArrayList<Operator>();
 		for (POEM poem : this.poems) {
 			this.poeticOperators.add(poem.getOperator());
 		}
@@ -184,9 +197,7 @@ public abstract class WeightSampler extends BEASTObject {
 		
 		
 		
-	
 
-		
 		
 		// Calculate the initial probabilistic sum of poetic operators
 		double sum1 = getOperatorWeightSum(this.poeticOperators);
@@ -247,6 +258,7 @@ public abstract class WeightSampler extends BEASTObject {
 			this.poeticWeights_local = poemWeights;
 			this.weightsAreSampled = true;
 		}
+		
 		
 		
 		
@@ -360,6 +372,7 @@ public abstract class WeightSampler extends BEASTObject {
 			Operator op = this.poeticOperators.get(j);
 			POEM poem = this.poems.get(j);
 			
+			
 			// Can the weight be set?
 			if (!this.allowOpWeightSet(op)) {
 				poem.setWeight(op.getWeight());
@@ -425,7 +438,7 @@ public abstract class WeightSampler extends BEASTObject {
 	 * @param fn
 	 * @return
 	 */
-	public static double[] optimiseSimplex(MultivariateFunction fn, int ndim, boolean maximise) {
+	public static double[] optimiseSimplex(MultivariateFunction fn, int ndim, boolean maximise, double[] priorOpt) {
 		
 		// Return optimum after trying several starting points
 		PointValuePair optimal = null;
@@ -443,49 +456,79 @@ public abstract class WeightSampler extends BEASTObject {
 		
 		
 		//SimpleBounds bounds = new SimpleBounds(new double[] { 0,0,0,0,0,0 }, new double[] { 1,1,1,1,1 } );
-		NelderMeadSimplex simplex = new NelderMeadSimplex(ndim-1, 1.0);
+		NelderMeadSimplex simplex = new NelderMeadSimplex(ndim-1);
 		
-		SimplexOptimizer opt = new SimplexOptimizer(1e-8, 1e-20);
-		//MultivariateOptimizer opt = new CMAESOptimizer(1000, 0.01, true, 1, 1, new JDKRandomGenerator(), false, checker);
+		SimplexOptimizer opt = new SimplexOptimizer(1e-20, 1e-30);
+		//SimplePointChecker<PointValuePair> checker = new SimplePointChecker<PointValuePair>(1e-10, 1e-20);
+		//BOBYQAOptimizer opt = new BOBYQAOptimizer(10);
+		
+		
+		// Upper and lower bounds of search
+		double[] lower = new double[ndim-1];
+		double[] upper = new double[ndim-1];
+		for (int i = 0; i < lower.length; i ++) {
+			lower[i] = -10;
+			upper[i] = 10;
+		}
+		//SimpleBounds bounds = new SimpleBounds(lower, upper);
+		
 
-		// Midpoint
+		// Midpoint starting array
 		double[] midPoint = new double[ndim];
 		for (int i = 0; i < ndim; i ++) midPoint[i] = 1.0 / ndim;
 		midPoint = breakSticks(midPoint);
 		
+		
+		// Explore every possible shuffling
+		
+		
 		double[] initArr;
-		for (int a = -1; a < ndim; a++) {
+		for (int a = -2; a < ndim; a++) {
 			
 			
 
 			//SearchInterval interval = new SearchInterval(0.0, 1.0, 0.5);
 			
 			
-			// Start in a corner
-			if (a > -1) {
-				initArr = new double[ndim-1];
-				
-				for (int i = 0; i < ndim-1; i ++) {
-					initArr[i] = i == a ? -1 : 1;
-				}
-				
+			// Start with cumulative best
+			if (a == -2) {
+				if (priorOpt == null) continue;
+				initArr = priorOpt;
 			}
 			
 			// Start in the middle
-			else {
+			else if (a == -1) {
 				initArr = midPoint;
 			}
 			
 			
+			// Start in a corner
+			else {
+				initArr = new double[ndim];
+				
+				double wall = 0.05;
+				for (int i = 0; i < ndim; i ++) {
+					initArr[i] = i == a ? wall : (1-wall)/(ndim-1);
+				}
+				initArr = breakSticks(initArr);
+				
+			}
 			
-			//SimplePointChecker<PointValuePair> checker = new SimplePointChecker<PointValuePair>(1e-20, 1e-20);
+			
+			//
 			
 			InitialGuess init = new InitialGuess(initArr);
 			
+			
+			System.out.print("Setting " + a + " init : "  + fn.value(initArr) + " | ");
+			for (double o : repairSticks(initArr)) System.out.print(o + ", ");
+			System.out.println();
 		
 		
 			try {
+				
 				PointValuePair result = opt.optimize(maxIter, maxEval, objective, init, simplex, goaltype);	
+				//PointValuePair result = opt.optimize(maxIter, maxEval, objective, init, goaltype, bounds);	
 				
 				boolean better;
 				if (optimal == null) better = true;
@@ -498,9 +541,11 @@ public abstract class WeightSampler extends BEASTObject {
 						
 				if (better) optimal = result;
 				
-				//PointValuePair min = opt.optimize(maxIter, maxEval, objective, goaltype, init);		
 
-				//return min.getPoint();
+				System.out.print("Setting " + a + " opt : "  + fn.value(result.getPoint()) + " | ");
+				double[] w = repairSticks(result.getPoint());
+				for (double o : w) System.out.print(o + ", ");
+				System.out.println("\n");
 				
 			}catch(Exception e) {
 				e.printStackTrace();
@@ -539,6 +584,38 @@ public abstract class WeightSampler extends BEASTObject {
 	 }
 	 
 	 
+	 
+	 
+	 /**
+	  * Breaks sticks and shuffles the order. 
+	  * There are K! possible shufflings. 
+	  * 0     1     2     3     4     5
+	  * 0123, 0132, 0213, 0231, 0312, 0321, ... for K=4
+	  * @param x
+	  * @param shuffleIndex
+	  * @return
+	  */
+	
+	 public static double[] breakSticks(double[] x, int shuffleIndex) {
+		 
+		 int K = x.length;
+		 double[] xShuf = new double[K];
+		 
+		 int[] indices = new int[K];
+		 int[][] heapPermutation = new int[(int) MathUtils.factorial(K)][];
+		 for (int i = 0; i < indices.length; i ++) indices[i] = i;
+		 
+		 heapPermutation(indices, K, K, heapPermutation);
+		 for (int i = 0; i < K; i ++) {
+			 //System.out.prin
+		 }
+		 
+		 
+		 return breakSticks(xShuf);
+		 
+		 
+	 }
+	 
 
 	 // https://mc-stan.org/docs/2_18/reference-manual/simplex-transform-section.html
 	 public static double[] breakSticks(double[] x) {
@@ -547,10 +624,13 @@ public abstract class WeightSampler extends BEASTObject {
 		 double[] y = new double[K-1];
 		 double sum = 0;
 		 for (int k = 0; k < K-1; k ++) {
+			 
 			 double zk = x[k] / (1 - sum);
 			 double lzk = logit(zk);
 			 sum += x[k];
 			 y[k] = lzk - Math.log(1.0/(K-k));
+			 
+			 //y[k] = x[k]; //tmp
 		 }
 		 return y;
 		 
@@ -565,6 +645,8 @@ public abstract class WeightSampler extends BEASTObject {
 		 for (int k = 0; k < K-1; k ++) {
 			 double zk = ilogit(y[k] + Math.log(1.0 / (K-k)));
 			 x[k] = (1 - sum)*zk;
+			 
+			 //x[k] = y[k]; //tmp
 			 sum += x[k];
 		 }
 		 x[K-1] = 1-sum;
@@ -573,6 +655,64 @@ public abstract class WeightSampler extends BEASTObject {
 		 
 	 }
 	 
+	 
+	 
+	 /**
+	  * Generate all possible permutations of n objects using Heap's algorithm
+	  * https://www.geeksforgeeks.org/heaps-algorithm-for-generating-permutations/
+	  * @param a
+	  * @param size
+	  * @param n
+	  */
+	 public static void heapPermutation(int a[], int size, int n, int[][] out) {
+		 
+	     // If size becomes 1 then store the obtained in the next vacant position of out
+	     if (size == 1) {
+	    	 
+	    	 
+	    	 for (int i = 0; i < out.length; i ++) {
+	    		 if (out[i] == null){
+	    			 out[i] = new int[a.length];
+	    			 System.arraycopy(a, 0, out[i], 0, a.length);
+	    			 break;
+				 }
+	    	 }
+	    	 
+	         return;
+	     }
+	  
+	     for (int i = 0; i < size; i++) {
+	    	 
+	         heapPermutation(a, size - 1, n, out);
+	  
+	         // if size is odd, swap 0th i.e (first) and (size-1)th i.e (last) element
+	         if (size % 2 == 1) {
+	        	 swap(a, 0, size - 1);
+	         }
+	             
+	  
+	         // If size is even, swap ith and 
+	         // (size-1)th i.e (last) element
+	         else {
+	        	 swap(a, i, size - 1);
+	         }
+	             
+	     }
+	     
+	 }
+	 
+	 
+	 /**
+	  * Swap 2 integers in an array
+	  * @param a
+	  * @param x1
+	  * @param x2
+	  */
+	 private static void swap(int[] a, int x1, int x2) {
+		 int tmp = a[x1];
+		 a[x1] = a[x2];
+		 a[x2] = tmp;
+	 }
 
 	
 	

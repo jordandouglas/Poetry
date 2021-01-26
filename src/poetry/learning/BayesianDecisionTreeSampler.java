@@ -180,7 +180,7 @@ public class BayesianDecisionTreeSampler extends WeightSampler {
 		
 		// Minimise pmean
 		PMeanFunction fn = new PMeanFunction(this.leaf, this.priorDatabase);
-		double[] tweights = optimiseSimplex(fn, fn.getDimension(), false);
+		double[] tweights = optimiseSimplex(fn, fn.getDimension(), false, null);
 		Log.warning("Minimised mean distance: " + Math.exp(fn.value(tweights)));
 		weights = repairSticks(tweights);
 		return weights;
@@ -417,7 +417,7 @@ public class BayesianDecisionTreeSampler extends WeightSampler {
 				if (i >= nsamples) {
 					
 					// Include the optimal weight with some jitter
-					tweights = optimiseSimplex(fn, fn.getDimension(), false);
+					tweights = optimiseSimplex(fn, fn.getDimension(), false, null);
 					
 					
 					// Add some random jitter
@@ -490,7 +490,7 @@ public class BayesianDecisionTreeSampler extends WeightSampler {
 			
 			Instance instance = new DenseInstance(nattr);
 			instance.setDataset(instances);
-			double[] tweights = optimiseSimplex(fn, fn.getDimension(), false); // fn.breakSticks(DirichletSampler.sampleWeights(poems));
+			double[] tweights = optimiseSimplex(fn, fn.getDimension(), false, null); // fn.breakSticks(DirichletSampler.sampleWeights(poems));
 			
 			// Set the transformed weight (ie the broken stick)
 			for (int j = 0; j < fn.getDimension()-1; j ++) {

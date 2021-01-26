@@ -267,6 +267,7 @@ public class GaussianProcessSampler extends WeightSampler {
 		double[] weights;
 		
 		
+		
 		Log.warning("Starting iteration " + this.iterationNum);
 		Log.warning("Bayesian optimisation explorativity = " + this.explorativity);
 		
@@ -296,6 +297,7 @@ public class GaussianProcessSampler extends WeightSampler {
 			weightSum += weights[i];
 		}
 		for (int i = 0; i < weights.length; i ++) weights[i] /= weightSum;
+		
 		
 		
 		return weights;
@@ -562,7 +564,7 @@ public class GaussianProcessSampler extends WeightSampler {
 		int nattr = instances.numAttributes();
 		
 		double bestMean = Double.NEGATIVE_INFINITY;
-		
+		double[] bestBreakWeights = new double[poems.size()-1];
 		
 		// Read in json file and add instances
 		if (this.initialPoetry != null) {
@@ -634,13 +636,14 @@ public class GaussianProcessSampler extends WeightSampler {
 			}
 			
 			
-			bestMean = getBestDistance(instances);
+			
+			bestMean = getBestDistance(instances, bestBreakWeights);
 			
 		}
 		int nIter = instances.size() + 1;
 		
 		// Add boundary distances to avoid the GP from assigning weights of 0 or 1
-		this.addBoundaryInstances(instances, currentSession);
+	    this.addBoundaryInstances(instances, currentSession);
 		
 
 		// Add prior database?
@@ -770,7 +773,7 @@ public class GaussianProcessSampler extends WeightSampler {
 			}
 			
 			
-			if (bestMean == Double.NEGATIVE_INFINITY) bestMean = getBestDistance(instances);
+			if (bestMean == Double.NEGATIVE_INFINITY) bestMean = getBestDistance(instances, bestBreakWeights);
 			
 		
 				
@@ -827,19 +830,23 @@ public class GaussianProcessSampler extends WeightSampler {
 		}
 		
 		
-		double[] opt2 = new double[] { -0.6, -0.6, -0.6 }; 
-		double[] weights2 = repairSticks(opt2);
-		System.out.print(this.acquisition.toString() + " random: ");
+		double[] weights2 = new double[poems.size()]; 
+		for (int i = 0; i < weights2.length; i ++) weights2[i] = 1.0 / poems.size();
+		double[] opt2 = breakSticks(weights2);
+		System.out.print(this.acquisition.toString() + " uniform: ");
 		for (double o : weights2) System.out.print(o + ", ");
 		System.out.println(" eval: " + fn.value(opt2));
 
 		
 		// Optimise acquisition function to get next iteration's weights
-		double[] opt = optimiseSimplex(fn, this.poems.size(), true);
+		double[] opt = optimiseSimplex(fn, this.poems.size(), true, bestBreakWeights);
 		double[] weights = repairSticks(opt);
 		System.out.print(this.acquisition.toString() + " max: ");
 		for (double o : weights) System.out.print(o + ", ");
 		System.out.println(" eval: " + fn.value(opt));
+		
+		
+		
 		
 		
 		return weights;
@@ -933,21 +940,33 @@ public class GaussianProcessSampler extends WeightSampler {
 
 	/**
 	 * Return the class value of the instance with the largest class value (ie. distance)
+	 * Populate out with the weights
 	 * @param instances
 	 * @return
 	 */
-	private double getBestDistance(Instances instances) {
+	private double getBestDistance(Instances instances, double[] out) {
 		
 		
 
 		// What is the largest observed mean so far?
 		double bestMean = Double.NEGATIVE_INFINITY;
 		for (int i = 0; i < instances.size(); i ++) {
-			//Log.warning(instances.get(i).toString());
-			double val = instances.get(i).classValue(); // instances.get(i).value(instances.attribute(distClassName));
-			if (val > bestMean) bestMean = val;
+			Instance inst = instances.get(i);
+			double val = inst.classValue(); // instances.get(i).value(instances.attribute(distClassName));
+			if (val > bestMean) {
+				bestMean = val;
+				for (int j = 0; j < out.length; j ++) {
+					POEM poem = this.getPoems().get(j);
+					double tweight = inst.value(instances.attribute(poem.getWeightColname()));
+					out[j] = tweight;
+				}
+			}
 		}
-		Log.warning("Cumulative optimal value " + bestMean);
+		System.out.print("Cumulative optimal value " + bestMean + " with weights ");
+		for (double d : repairSticks(out)) {
+			System.out.print(d + " ");
+		}
+		System.out.println();
 		
 		return bestMean;
 		
@@ -1226,7 +1245,7 @@ public class GaussianProcessSampler extends WeightSampler {
 				// Set the transformed weight (ie. the broken stick)
 				for (int j = 0; j < tweights.length; j ++) {
 					POEM poem = this.poems.get(j);
-					Log.warning("" + tweights[j]);
+					//Log.warning(poem.getWeightColname() + " -> " + tweights[j]);
 					instance.setValue(instances.attribute(poem.getWeightColname()), tweights[j]);
 				}
 				
@@ -1282,8 +1301,9 @@ public class GaussianProcessSampler extends WeightSampler {
 				}
 				*/
 				
+		        
 				// Want to maximise
-				return Math.log(u);// + logP;
+				return u;// + logP;
 				
 			 }
 			 
