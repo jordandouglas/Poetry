@@ -56,7 +56,7 @@ public class BuildPoetrees extends Runnable {
 	
 	// The classifiers
 	final protected Class<?>[] classifiers = new Class[] { 	REPTree.class, RandomForest.class, IBk.class,
-															LinearRegression.class, LWL.class, MultilayerPerceptron.class  };
+															LinearRegression.class, GaussianProcesses.class  };
 															//SMOreg.class,   };GaussianProcesses.class, RandomLinearTree.class, RandomTree.class, 
 
 	@Override

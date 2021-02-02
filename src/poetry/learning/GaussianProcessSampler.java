@@ -55,12 +55,16 @@ public class GaussianProcessSampler extends WeightSampler {
 	
 	final public Input<String> poetryFileInput = new Input<>("poetry", "File to store poetry meta-information in", Input.Validate.REQUIRED);
 	
+	final public Input<Boolean> dimensionalFirstInput = new Input<>("dimensional", "Whether to use the dimensional sampler on iteration 0 "
+			+ "(assuming that dataset is set and priorWeight > 0)", false);
 	final public Input<WeightSampler> priorInput = new Input<>("prior", "Prior weight sampler");
 	final public Input<String> datasetInput = new Input<>("dataset", "Weka arff database to train GP on as prior distribution");
+	
+	
 	final public Input<Tree> treeInput = new Input<>("tree", "The phylogenetic tree (used for machine learning)");
 	final public Input<Alignment> dataInput = new Input<>("data", "The alignment (used for machine learning)");
 	
-	final public Input<Double> noiseInput = new Input<>("noise", "The noise to use in Gaussian Processes", 0.8);
+	final public Input<Double> noiseInput = new Input<>("noise", "The noise to use in Gaussian Processes", 0.05);
 	final public Input<Double> explorativityInitInput = new Input<>("explorativity", "Initial explorativity (log space) in Gaussian Processes for iteration 1", 3.0);
 	final public Input<Double> explorativityDecayInput = new Input<>("decay", "Decay in explorativity on each iteration", 0.6);
 	final public Input<Double> explorativityMinInput = new Input<>("minExplorativity", "Minimum explorativity after decay", 0.02);
@@ -90,6 +94,8 @@ public class GaussianProcessSampler extends WeightSampler {
 	double minWeight;
 	double priorWeight;
 	double explorativity;
+	String datasetStr;
+	
 	
 	// Poetry json before 
 	JSONObject initialPoetry;
@@ -103,30 +109,6 @@ public class GaussianProcessSampler extends WeightSampler {
 		//List<String> locations = PackageManager.getBeastDirectories();
 		
 		
-		
-		// Statistical learning weight for prior
-		this.priorWeight = this.priorWeightInput.get();
-		if (this.priorWeight <= 0) this.priorWeight = 0;
-		
-		
-		// Prior / database
-		this.prior = priorInput.get();
-		if (this.prior != null && datasetInput.get() != null) {
-			throw new IllegalArgumentException("Please provide either a prior or a dataset but not both");
-		}
-		if (this.prior == null && (datasetInput.get() == null || this.priorWeight == 0)) {
-			this.prior = new DimensionalSampler();
-			this.prior.initByName("scale", -1.0);
-		}
-		
-		
-		// If there is a database then make sure the tree/alignment are provided
-		if (datasetInput.get() != null) {
-			if (treeInput.get() == null) throw new IllegalArgumentException("Please specify the tree 'tree' so that the GP can learn from the database");
-			if (dataInput.get() == null) throw new IllegalArgumentException("Please specify the alignment 'data' so that the GP can learn from the database");
-		}
-		
-		
 		// State file
 		this.poetryFile = new File(poetryFileInput.get());
 		if (this.poetryFile.exists() && !this.poetryFile.canWrite()) {
@@ -134,21 +116,13 @@ public class GaussianProcessSampler extends WeightSampler {
 		}
 		
 		
-		// Minimum weight
-		this.minWeight = this.minWeightInput.get();
-		if (this.minWeight <= 0) this.minWeight = 0;
-		
 
-		
 		try {
 			this.initialPoetry = this.readPoetry();
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new IllegalArgumentException("Error: encountered problem while parsing " + this.poetryFile.getPath());
 		}
-		//poetry.get("poetry");
-		
-		this.acquisition = acquisitionFunctionInput.get();
 		
 		
 		// Resume if there exists a valid state file
@@ -170,11 +144,59 @@ public class GaussianProcessSampler extends WeightSampler {
 		
 		
 		
+		
+		// Statistical learning weight for prior
+		this.priorWeight = this.priorWeightInput.get();
+		if (this.priorWeight <= 0) this.priorWeight = 0;
+		
+		
+		// Prior / database
+		this.prior = priorInput.get();
+		this.datasetStr = datasetInput.get();
+		
+		// Use the prior distribution if this flag is enabled
+		if (dimensionalFirstInput.get() && this.datasetStr != null && !this.resumingPoetry && this.priorWeight > 0) {
+			this.datasetStr = null;
+		}
+		
+		// Only have a prior or a database, not both
+		if (this.prior != null && this.datasetStr != null) {
+			throw new IllegalArgumentException("Please provide either a prior or a dataset but not both");
+		}
+		
+
+		
+		// Prior
+		if (this.prior == null && (this.datasetStr == null || this.priorWeight == 0)) {
+			this.prior = new DimensionalSampler();
+			this.prior.initByName("scale", -1.0);
+		}
+		
+		
+		// If there is a database then make sure the tree/alignment are provided
+		if (this.datasetStr != null) {
+			if (treeInput.get() == null) throw new IllegalArgumentException("Please specify the tree 'tree' so that the GP can learn from the database");
+			if (dataInput.get() == null) throw new IllegalArgumentException("Please specify the alignment 'data' so that the GP can learn from the database");
+		}
+		
+
+		
+		// Minimum weight
+		this.minWeight = this.minWeightInput.get();
+		if (this.minWeight <= 0) this.minWeight = 0;
+		
+		
+		
+		this.acquisition = acquisitionFunctionInput.get();
+		
+	
+		
 		// Current explorativity
 		double initE = this.explorativityInitInput.get();
 		double decay = this.explorativityDecayInput.get();
 		double finalE = Math.min(initE, this.explorativityMinInput.get());
 		if (this.iterationNum > 0) this.explorativity = Math.max((initE-finalE) * Math.pow(decay, this.iterationNum-1)+finalE, finalE);
+		else if (this.iterationNum == 0 && this.datasetStr != null && this.priorWeight > 0) this.explorativity = finalE; // Initial run should be exploitative
 		else this.explorativity = initE;
 		
 		
@@ -522,7 +544,17 @@ public class GaussianProcessSampler extends WeightSampler {
 	public Instances getCurrentSession() {
 		
 		//Current session
-		return BEAST2Weka.getInstance(dataInput.get(), treeInput.get(), this, null);
+		Instances instances = BEAST2Weka.getInstance(dataInput.get(), treeInput.get(), this, null);
+		
+		
+		// Remove some attributes because they are prone to overfitting
+		for (String attrName : new String[] { "npartitions", "pgaps", "treeclock.model", "site.model", "site.heterogeneity.model", "tree.model" } ) {
+			int index = WekaUtils.getIndexOfColumn(instances, attrName);
+			if (index != -1) instances.deleteAttributeAt(index);
+		}
+		
+		
+		return instances;
 		
 	}
 	
@@ -538,7 +570,7 @@ public class GaussianProcessSampler extends WeightSampler {
 		
 		Instances instances = null;
 		Instance currentSession = null;
-		if (datasetInput.get() != null) {
+		if (this.datasetStr != null) {
 			instances = this.getCurrentSession();
 			
 			// Remove final poem weight
@@ -643,20 +675,17 @@ public class GaussianProcessSampler extends WeightSampler {
 		int nIter = instances.size() + 1;
 		
 		// Add boundary distances to avoid the GP from assigning weights of 0 or 1
-	    this.addBoundaryInstances(instances, currentSession);
+	    //
 		
 
 		// Add prior database?
-		if (datasetInput.get() != null && this.priorWeight > 0) {
+		if (this.datasetStr != null && this.priorWeight > 0) {
 			
 			
 			// Load the database
-			Instances priorDatabase = this.getInstancesFromDatabase(new File(datasetInput.get()), poems);
+			Instances priorDatabase = this.getInstancesFromDatabase(new File(this.datasetStr), poems);
 
 			int ninstances = 2000; //priorDatabase.size();
-			
-			
-			
 			
 
 			
@@ -779,6 +808,8 @@ public class GaussianProcessSampler extends WeightSampler {
 				
 		
 		
+		}else {
+			this.addBoundaryInstances(instances, currentSession);
 		}
 		
 		
@@ -794,7 +825,7 @@ public class GaussianProcessSampler extends WeightSampler {
 		// Train the kernel
 		// No normalisation or standardisation. RBFKernel. Noise
 		GaussianProcesses kernel  = new GaussianProcesses();
-		kernel.setOptions(new String[] { "-N", "2", "-K", RBFKernel.class.getCanonicalName(), "-L", "" + this.noiseInput.get() });
+		kernel.setOptions(new String[] { "-N", "2", "-K", RBFKernel.class.getCanonicalName() + " -G 1e-2", "-L", "" + this.noiseInput.get() });
 		kernel.buildClassifier(instances);
 		
 		
@@ -830,20 +861,34 @@ public class GaussianProcessSampler extends WeightSampler {
 		}
 		
 		
-		double[] weights2 = new double[poems.size()]; 
-		for (int i = 0; i < weights2.length; i ++) weights2[i] = 1.0 / poems.size();
-		double[] opt2 = breakSticks(weights2);
-		System.out.print(this.acquisition.toString() + " uniform: ");
-		for (double o : weights2) System.out.print(o + ", ");
-		System.out.println(" eval: " + fn.value(opt2));
-
+		//double[] weights2 = new double[poems.size()]; 
+		//for (int i = 0; i < weights2.length; i ++) weights2[i] = 1.0 / poems.size();
+		if (bestBreakWeights != null) {
+			double[] opt2 = repairSticks(bestBreakWeights);
+			System.out.print(this.acquisition.toString() + " previous optimal: ");
+			for (double o : opt2) System.out.print(o + ", ");
+			Instance inst = currentSession == null ? new DenseInstance(instances.numAttributes()) : new DenseInstance(currentSession);
+			inst.setDataset(instances);
+			for (int j = 0; j < bestBreakWeights.length; j ++) {
+				POEM poem = this.poems.get(j);
+				inst.setValue(instances.attribute(poem.getWeightColname()), bestBreakWeights[j]);
+			}
+			System.out.println(" eval: " + fn.value(bestBreakWeights) + " | mean: " + kernel.classifyInstance(inst) + " sd: " + kernel.getStandardDeviation(inst));
+		}
 		
 		// Optimise acquisition function to get next iteration's weights
 		double[] opt = optimiseSimplex(fn, this.poems.size(), true, bestBreakWeights);
 		double[] weights = repairSticks(opt);
 		System.out.print(this.acquisition.toString() + " max: ");
 		for (double o : weights) System.out.print(o + ", ");
-		System.out.println(" eval: " + fn.value(opt));
+		
+		Instance inst = currentSession == null ? new DenseInstance(instances.numAttributes()) : new DenseInstance(currentSession);
+		inst.setDataset(instances);
+		for (int j = 0; j < opt.length; j ++) {
+			POEM poem = this.poems.get(j);
+			inst.setValue(instances.attribute(poem.getWeightColname()), opt[j]);
+		}
+		System.out.println(" eval: " + fn.value(opt) + " | mean: " + kernel.classifyInstance(inst) + " sd: " + kernel.getStandardDeviation(inst));
 		
 		
 		
@@ -931,7 +976,7 @@ public class GaussianProcessSampler extends WeightSampler {
 				boundary.setValue(instances.attribute(poem.getWeightColname()), tweights[poemNum]);
 			}
 			boundary.setClassValue(minVal);
-			instances.add(boundary);
+			//instances.add(boundary);
 		}
 		
 	}
@@ -1067,12 +1112,12 @@ public class GaussianProcessSampler extends WeightSampler {
 			}
 			
 			double delta = mean - (bestMean + epsilon);
-			//normal = new NormalDistribution(mean, sd);
+			normal = new NormalDistribution(mean, sd);
 			
 			// Want to maximise
 			double x = delta/sd;
-			//double poi = normal.cumulativeProbability(x);
-			double poi = logCumulativeP(x, mean, sd);
+			double poi = normal.cumulativeProbability(x);
+			//double poi = logCumulativeP(x, mean, sd);
 			
 			
 			

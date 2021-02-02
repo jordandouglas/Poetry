@@ -444,6 +444,8 @@ public abstract class WeightSampler extends BEASTObject {
 		PointValuePair optimal = null;
 		
 		
+		int ndim2 = ndim-1;
+		
 		
 		// Number of iterations
 		MaxIter maxIter = new MaxIter(1000);
@@ -456,7 +458,7 @@ public abstract class WeightSampler extends BEASTObject {
 		
 		
 		//SimpleBounds bounds = new SimpleBounds(new double[] { 0,0,0,0,0,0 }, new double[] { 1,1,1,1,1 } );
-		NelderMeadSimplex simplex = new NelderMeadSimplex(ndim-1);
+		NelderMeadSimplex simplex = new NelderMeadSimplex(ndim2);
 		
 		SimplexOptimizer opt = new SimplexOptimizer(1e-20, 1e-30);
 		//SimplePointChecker<PointValuePair> checker = new SimplePointChecker<PointValuePair>(1e-10, 1e-20);
@@ -464,8 +466,8 @@ public abstract class WeightSampler extends BEASTObject {
 		
 		
 		// Upper and lower bounds of search
-		double[] lower = new double[ndim-1];
-		double[] upper = new double[ndim-1];
+		double[] lower = new double[ndim2];
+		double[] upper = new double[ndim2];
 		for (int i = 0; i < lower.length; i ++) {
 			lower[i] = -10;
 			upper[i] = 10;
@@ -521,7 +523,7 @@ public abstract class WeightSampler extends BEASTObject {
 			
 			
 			System.out.print("Setting " + a + " init : "  + fn.value(initArr) + " | ");
-			for (double o : repairSticks(initArr)) System.out.print(o + ", ");
+			for (double o : initArr) System.out.print(o + ", ");
 			System.out.println();
 		
 		
@@ -543,7 +545,7 @@ public abstract class WeightSampler extends BEASTObject {
 				
 
 				System.out.print("Setting " + a + " opt : "  + fn.value(result.getPoint()) + " | ");
-				double[] w = repairSticks(result.getPoint());
+				double[] w = result.getPoint();
 				for (double o : w) System.out.print(o + ", ");
 				System.out.println("\n");
 				
@@ -621,16 +623,17 @@ public abstract class WeightSampler extends BEASTObject {
 	 public static double[] breakSticks(double[] x) {
 		 
 		 int K = x.length;
-		 double[] y = new double[K-1];
+		 int K2 = K-1;
+		 double[] y = new double[K2];
 		 double sum = 0;
-		 for (int k = 0; k < K-1; k ++) {
+		 for (int k = 0; k < K2; k ++) {
 			 
 			 double zk = x[k] / (1 - sum);
 			 double lzk = logit(zk);
 			 sum += x[k];
 			 y[k] = lzk - Math.log(1.0/(K-k));
 			 
-			 //y[k] = x[k]; //tmp
+			// y[k] = -y[k]; //tmp
 		 }
 		 return y;
 		 
@@ -639,6 +642,8 @@ public abstract class WeightSampler extends BEASTObject {
 	 
 	 public static double[] repairSticks(double[] y) {
 		 
+		 
+		 
 		 int K = y.length+1;
 		 double[] x = new double[K];
 		 double sum = 0;
@@ -646,11 +651,19 @@ public abstract class WeightSampler extends BEASTObject {
 			 double zk = ilogit(y[k] + Math.log(1.0 / (K-k)));
 			 x[k] = (1 - sum)*zk;
 			 
-			 //x[k] = y[k]; //tmp
+			// x[k] = ilogit(y[k]); //tmp
 			 sum += x[k];
 		 }
 		 x[K-1] = 1-sum;
 		 
+		 
+		 /*
+		 int K = y.length;
+		 double[] x = new double[K];
+		 for (int k = 0; k < K; k ++) {
+			 x[k] = ilogit(y[k]); //tmp
+		 }
+		 */
 		 return x;
 		 
 	 }

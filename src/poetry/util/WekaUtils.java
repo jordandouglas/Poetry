@@ -19,6 +19,8 @@ import beast.util.Randomizer;
 import poetry.learning.RandomLinearTree;
 import weka.classifiers.Classifier;
 import weka.classifiers.evaluation.Evaluation;
+import weka.classifiers.functions.GaussianProcesses;
+import weka.classifiers.functions.supportVector.RBFKernel;
 import weka.classifiers.lazy.IBk;
 import weka.classifiers.trees.RandomForest;
 import weka.core.Attribute;
@@ -311,18 +313,14 @@ public class WekaUtils {
 				
 				// New model
 				Classifier freshModel = model.getClass().getConstructor().newInstance();
-				if (freshModel instanceof RandomForest) {
+				if (freshModel instanceof GaussianProcesses) {
 					
 					// Tree
-					RandomLinearTree rlt = new RandomLinearTree();
-					
-					// Forest
-					//((RandomForest)freshModel).setClassifier(rlt);
+					GaussianProcesses gp = (GaussianProcesses) freshModel;
+					gp.setOptions(new String[] { "-N", "2", "-K", RBFKernel.class.getCanonicalName() + " -G 1e-2", "-L", "0.05" });
 					
 				}
-				if (freshModel instanceof IBk) {
-					((IBk) freshModel).setOptions(new String[] { "-K", "50" });
-				}
+
 				freshModel.buildClassifier(training);
 				
 				// Evaluate
@@ -438,13 +436,11 @@ public class WekaUtils {
 				
 				// New model
 				Classifier freshModel = model.getClass().getConstructor().newInstance();
-				if (freshModel instanceof RandomForest) {
+				if (freshModel instanceof GaussianProcesses) {
 					
 					// Tree
-					RandomLinearTree rlt = new RandomLinearTree();
-					
-					// Forest
-					//((RandomForest)freshModel).setClassifier(rlt);
+					GaussianProcesses gp = (GaussianProcesses) freshModel;
+					gp.setOptions(new String[] { "-N", "2", "-K", RBFKernel.class.getCanonicalName() + " -G 1e-2", "-L", "0.05" });
 					
 				}
 				freshModel.buildClassifier(training);
