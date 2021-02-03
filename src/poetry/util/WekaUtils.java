@@ -317,7 +317,7 @@ public class WekaUtils {
 					
 					// Tree
 					GaussianProcesses gp = (GaussianProcesses) freshModel;
-					gp.setOptions(new String[] { "-N", "2", "-K", RBFKernel.class.getCanonicalName() + " -G 1e-2", "-L", "0.05" });
+					gp.setOptions(new String[] { "-N", "1", "-K", RBFKernel.class.getCanonicalName() + " -G 1e-2", "-L", "0.05" });
 					
 				}
 
@@ -440,7 +440,7 @@ public class WekaUtils {
 					
 					// Tree
 					GaussianProcesses gp = (GaussianProcesses) freshModel;
-					gp.setOptions(new String[] { "-N", "2", "-K", RBFKernel.class.getCanonicalName() + " -G 1e-2", "-L", "0.05" });
+					gp.setOptions(new String[] { "-N", "1", "-K", RBFKernel.class.getCanonicalName() + " -G 1e-2", "-L", "0.05" });
 					
 				}
 				freshModel.buildClassifier(training);

@@ -22,16 +22,18 @@ public class CrossValidateXML extends Runnable  {
 	
 	final public Input<File> datasetInput = new Input<>("arff", "arff file", Validate.REQUIRED);
 	final public Input<String> targetFeatureInput = new Input<>("target", "target feature", Validate.REQUIRED);
+	final public Input<Integer> nfoldsInput = new Input<>("nfolds", "number of 10-fold cross-validations to do", 1);
 	final public Input<File> outInput = new Input<>("out", "text file to save cross-validation accuracy to", Validate.OPTIONAL);
 
 	
-	final int nfolds = 10;
+	int nfolds;
 	Instances dataset;
 	
 	@Override
 	public void initAndValidate() {
 		
-		
+		nfolds = nfoldsInput.get();
+		if (nfolds < 1) nfolds = 1;
 		
 		// Validate
 		File dataFile = datasetInput.get();
@@ -47,10 +49,27 @@ public class CrossValidateXML extends Runnable  {
 			throw new IllegalArgumentException("Error opening arff file");
 		}
 		
+		
+		// Remove dataset column
+		WekaUtils.removeCol(dataset, "dataset");
+		
+		
+		// Print the attributes
+		System.out.print("Covariates: ");
+		for (int attrNum  = 0;  attrNum < dataset.numAttributes(); attrNum ++) {
+			Attribute attr = dataset.attribute(attrNum);
+			if (attrNum == dataset.classIndex()) continue;
+			System.out.print(attr.name());
+			if (attrNum < dataset.numAttributes() - 1 & attrNum+1 != dataset.classIndex()) System.out.print(", ");
+		}
+		System.out.println();
+		
+		
+		
 		// Set the class
 		Attribute cls = dataset.attribute(targetFeatureInput.get());
 		dataset.setClass(cls);
-		Log.warning("Setting class to " + cls.name());
+		System.out.println("Target: " + dataset.classAttribute().name());
 		
 		
 	}
@@ -59,15 +78,16 @@ public class CrossValidateXML extends Runnable  {
 	public void run() throws Exception {
 		
 		
-		Log.warning("Running " + nfolds + " cross-validation...");
+		Log.warning("Running " + nfolds + "-times 10-fold cross-validation...");
 		
 		GaussianProcesses model = new GaussianProcesses();
+		
+		
 		double corr_reps = WekaUtils.kFoldCrossValidationReplicates(dataset, model, nfolds, null);
-		double corr = WekaUtils.kFoldCrossValidationSafe(dataset, model, nfolds);
-		
-		
-		Log.warning("Cross-validation (no stratifying): " + corr);
 		Log.warning("Cross-validation (xml stratifying): " + corr_reps);
+		
+		double corr = WekaUtils.kFoldCrossValidationSafe(dataset, model, nfolds);
+		Log.warning("Cross-validation (no stratifying): " + corr);
 		
 		// Save to file?
 		if (outInput.get() != null) {
@@ -87,5 +107,17 @@ public class CrossValidateXML extends Runnable  {
 		new Application(new CrossValidateXML(), "Tests a Gaussian Process on an arff file using xml-stratified cross-validation", args);
 	}
 	
+	
 
 }
+
+
+
+
+
+
+
+
+
+
+

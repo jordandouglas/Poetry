@@ -523,7 +523,7 @@ public abstract class WeightSampler extends BEASTObject {
 			
 			
 			System.out.print("Setting " + a + " init : "  + fn.value(initArr) + " | ");
-			for (double o : initArr) System.out.print(o + ", ");
+			for (double o : repairSticks(initArr)) System.out.print(o + ", ");
 			System.out.println();
 		
 		
@@ -545,7 +545,7 @@ public abstract class WeightSampler extends BEASTObject {
 				
 
 				System.out.print("Setting " + a + " opt : "  + fn.value(result.getPoint()) + " | ");
-				double[] w = result.getPoint();
+				double[] w = repairSticks(result.getPoint());
 				for (double o : w) System.out.print(o + ", ");
 				System.out.println("\n");
 				
@@ -588,36 +588,7 @@ public abstract class WeightSampler extends BEASTObject {
 	 
 	 
 	 
-	 /**
-	  * Breaks sticks and shuffles the order. 
-	  * There are K! possible shufflings. 
-	  * 0     1     2     3     4     5
-	  * 0123, 0132, 0213, 0231, 0312, 0321, ... for K=4
-	  * @param x
-	  * @param shuffleIndex
-	  * @return
-	  */
-	
-	 public static double[] breakSticks(double[] x, int shuffleIndex) {
-		 
-		 int K = x.length;
-		 double[] xShuf = new double[K];
-		 
-		 int[] indices = new int[K];
-		 int[][] heapPermutation = new int[(int) MathUtils.factorial(K)][];
-		 for (int i = 0; i < indices.length; i ++) indices[i] = i;
-		 
-		 heapPermutation(indices, K, K, heapPermutation);
-		 for (int i = 0; i < K; i ++) {
-			 //System.out.prin
-		 }
-		 
-		 
-		 return breakSticks(xShuf);
-		 
-		 
-	 }
-	 
+
 
 	 // https://mc-stan.org/docs/2_18/reference-manual/simplex-transform-section.html
 	 public static double[] breakSticks(double[] x) {
@@ -669,64 +640,6 @@ public abstract class WeightSampler extends BEASTObject {
 	 }
 	 
 	 
-	 
-	 /**
-	  * Generate all possible permutations of n objects using Heap's algorithm
-	  * https://www.geeksforgeeks.org/heaps-algorithm-for-generating-permutations/
-	  * @param a
-	  * @param size
-	  * @param n
-	  */
-	 public static void heapPermutation(int a[], int size, int n, int[][] out) {
-		 
-	     // If size becomes 1 then store the obtained in the next vacant position of out
-	     if (size == 1) {
-	    	 
-	    	 
-	    	 for (int i = 0; i < out.length; i ++) {
-	    		 if (out[i] == null){
-	    			 out[i] = new int[a.length];
-	    			 System.arraycopy(a, 0, out[i], 0, a.length);
-	    			 break;
-				 }
-	    	 }
-	    	 
-	         return;
-	     }
-	  
-	     for (int i = 0; i < size; i++) {
-	    	 
-	         heapPermutation(a, size - 1, n, out);
-	  
-	         // if size is odd, swap 0th i.e (first) and (size-1)th i.e (last) element
-	         if (size % 2 == 1) {
-	        	 swap(a, 0, size - 1);
-	         }
-	             
-	  
-	         // If size is even, swap ith and 
-	         // (size-1)th i.e (last) element
-	         else {
-	        	 swap(a, i, size - 1);
-	         }
-	             
-	     }
-	     
-	 }
-	 
-	 
-	 /**
-	  * Swap 2 integers in an array
-	  * @param a
-	  * @param x1
-	  * @param x2
-	  */
-	 private static void swap(int[] a, int x1, int x2) {
-		 int tmp = a[x1];
-		 a[x1] = a[x2];
-		 a[x2] = tmp;
-	 }
-
 	
 	
 }

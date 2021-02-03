@@ -27,6 +27,7 @@ import beast.core.util.Log;
 import beast.evolution.alignment.Alignment;
 import beast.evolution.tree.Tree;
 import beast.util.PackageManager;
+import beast.util.Randomizer;
 import poetry.PoetryAnalyser;
 import poetry.sampler.POEM;
 import poetry.tools.MinESS;
@@ -91,9 +92,11 @@ public class GaussianProcessSampler extends WeightSampler {
 	WeightSampler prior;
 	
 	File poetryFile;
+	int gpNormaliseOption;
 	double minWeight;
 	double priorWeight;
 	double explorativity;
+	double noise;
 	String datasetStr;
 	
 	
@@ -188,15 +191,22 @@ public class GaussianProcessSampler extends WeightSampler {
 		
 		
 		this.acquisition = acquisitionFunctionInput.get();
-		
-	
+		this.noise = noiseInput.get();
+		this.gpNormaliseOption = 2;
 		
 		// Current explorativity
 		double initE = this.explorativityInitInput.get();
 		double decay = this.explorativityDecayInput.get();
 		double finalE = Math.min(initE, this.explorativityMinInput.get());
 		if (this.iterationNum > 0) this.explorativity = Math.max((initE-finalE) * Math.pow(decay, this.iterationNum-1)+finalE, finalE);
-		else if (this.iterationNum == 0 && this.datasetStr != null && this.priorWeight > 0) this.explorativity = finalE; // Initial run should be exploitative
+		
+		// Initial run should be exploitative and with good fit (0.05 noise and normalisation)
+		// This same GP model is not as good for baysian optimisation so is only used during the first step
+		else if (this.iterationNum == 0 && this.datasetStr != null && this.priorWeight > 0) {
+			this.explorativity = finalE; 
+			this.noise = 0.05;
+			this.gpNormaliseOption = 0;
+		}
 		else this.explorativity = initE;
 		
 		
@@ -674,9 +684,14 @@ public class GaussianProcessSampler extends WeightSampler {
 		}
 		int nIter = instances.size() + 1;
 		
-		// Add boundary distances to avoid the GP from assigning weights of 0 or 1
-	    //
 		
+		// Add boundary distances to avoid the GP from assigning weights of 0 or 1
+		//else {
+			this.addBoundaryInstances(instances, currentSession);
+		//}
+		
+		
+
 
 		// Add prior database?
 		if (this.datasetStr != null && this.priorWeight > 0) {
@@ -808,10 +823,10 @@ public class GaussianProcessSampler extends WeightSampler {
 				
 		
 		
-		}else {
-			this.addBoundaryInstances(instances, currentSession);
 		}
 		
+		
+	
 		
 		/*
 		// Save the dataset
@@ -825,7 +840,7 @@ public class GaussianProcessSampler extends WeightSampler {
 		// Train the kernel
 		// No normalisation or standardisation. RBFKernel. Noise
 		GaussianProcesses kernel  = new GaussianProcesses();
-		kernel.setOptions(new String[] { "-N", "2", "-K", RBFKernel.class.getCanonicalName() + " -G 1e-2", "-L", "" + this.noiseInput.get() });
+		kernel.setOptions(new String[] { "-N", "" + this.gpNormaliseOption, "-K", RBFKernel.class.getCanonicalName() + " -G 1e-2", "-L", "" + this.noise });
 		kernel.buildClassifier(instances);
 		
 		
@@ -908,14 +923,96 @@ public class GaussianProcessSampler extends WeightSampler {
 	 */
 	private void addBoundaryInstances(Instances instances, Instance currentSession) {
 		
-		
-		
 		// Do not actually assign weights of 0 or 1 or the stick breaking will give -Inf 
 		final double wall = this.minWeight == 0 ? 1e-4 : this.minWeight;
 		double maxPMean = Math.pow(1 - 1.0/this.getNumPoems(), 2) + Math.pow(1.0/this.getNumPoems(), 2)*(1-this.getNumPoems());
 		maxPMean = Math.sqrt(maxPMean);
 		final double minVal = -logit(maxPMean);
 		
+		
+		// Add a number of random points, where each point has 0 weight for k in {1,2,..., p-1} poems
+		// and the remaining p-k poems have random weights 
+		final int nboundaries = 100;
+		for (int i = 0; i < nboundaries; i ++) {
+			
+			int p = this.getNumPoems();
+			int k = Randomizer.nextInt(p-1) + 1;
+			int[] focalIndices = new int[k];
+			for (int s = 0; s < k; s++) focalIndices[s] = -1;
+			
+			
+			
+			// Sample k poem indices
+			for (int j = 0; j < k; j ++) {
+				
+				// Find a new index
+				while (true) {
+					int randomIndex = Randomizer.nextInt(p);
+					boolean alreadySampled = false;
+					for (int s = 0; s < k; s++) {
+						if (focalIndices[s] == randomIndex) alreadySampled = true;
+					}
+					if (!alreadySampled) {
+						focalIndices[j] = randomIndex;
+						break;
+					}
+				}
+				
+			}
+			
+			
+			// Set these weights to close to 0 and the rest to a random value
+			double[] weights = new double[p];
+			double weightSum = 0;
+			for (int j = 0; j < p; j ++) {
+				boolean isFocalWeight = false;
+				for (int s = 0; s < focalIndices.length; s++) {
+					if (j == focalIndices[s]) isFocalWeight = true;
+				}
+				weights[j] = isFocalWeight ? wall : Randomizer.nextFloat();
+				weightSum += weights[j];
+			}
+			
+			// Normalise
+			for (int j = 0; j < p; j ++) {
+				weights[j] /= weightSum;
+			}
+			
+			
+			/*
+			// Print
+			System.out.print("Random weights " + (i+1) + " (k=" + k + "): ");
+			for (int j = 0; j < p; j ++) {
+				System.out.print(weights[j] + ",");
+			}
+			System.out.println();
+			*/
+			
+			// Create boundary instance
+			Instance boundary = currentSession == null ? new DenseInstance(instances.numAttributes()) : new DenseInstance(currentSession);
+			boundary.setDataset(instances);
+			
+			// Stick breaking
+			double[] tweights = breakSticks(weights);
+			for (int j = 0; j < p-1; j ++) {
+				POEM poem = this.poems.get(j);
+				Attribute attr = instances.attribute(poem.getWeightColname());
+				boundary.setValue(attr, tweights[j]);
+			}
+			
+			
+			
+			// Minimal class value
+			boundary.setClassValue(minVal);
+			//boundary.setWeight(this.priorWeight / nboundaries);
+			instances.add(boundary);
+			
+		}
+		
+		
+		
+	
+		// Add one more instance per poem where that weight is set to maximal value
 		for (int poemNum = 0; poemNum < this.getNumPoems(); poemNum ++) {
 			
 			
@@ -956,7 +1053,7 @@ public class GaussianProcessSampler extends WeightSampler {
 			
 			// Minimal class value
 			boundary.setClassValue(minVal);
-			//boundary.setWeight(1.0 / this.getNumPoems());
+			boundary.setWeight(1.0 / this.getNumPoems());
 			
 			instances.add(boundary);
 			
@@ -978,6 +1075,7 @@ public class GaussianProcessSampler extends WeightSampler {
 			boundary.setClassValue(minVal);
 			//instances.add(boundary);
 		}
+		
 		
 	}
 	
