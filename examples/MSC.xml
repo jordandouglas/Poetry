@@ -1,0 +1,543 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<beast beautitemplate='Standard' beautistatus='' namespace="beast.core:beast.evolution.alignment:beast.evolution.tree.coalescent:beast.core.util:beast.evolution.nuc:beast.evolution.operators:beast.evolution.sitemodel:beast.evolution.substitutionmodel:beast.evolution.likelihood" required="" version="2.6">
+
+	<map name="Uniform" >beast.math.distributions.Uniform</map>
+	<map name="Exponential" >beast.math.distributions.Exponential</map>
+	<map name="LogNormal" >beast.math.distributions.LogNormalDistributionModel</map>
+	<map name="Normal" >beast.math.distributions.Normal</map>
+	<map name="Beta" >beast.math.distributions.Beta</map>
+	<map name="Gamma" >beast.math.distributions.Gamma</map>
+	<map name="LaplaceDistribution" >beast.math.distributions.LaplaceDistribution</map>
+	<map name="prior" >beast.math.distributions.Prior</map>
+	<map name="InverseGamma" >beast.math.distributions.InverseGamma</map>
+	<map name="OneOnX" >beast.math.distributions.OneOnX</map>
+	<map name="Dirichlet" >beast.math.distributions.Dirichlet</map>
+
+
+
+	<!-- Alignment sampler -->
+	<data id="alignment.$(partition)" spec="poetry.sampler.DatasetSampler" partitions="50">
+
+		
+
+		<file spec="poetry.util.WeightedFile" file="../datasets/Ballesteros_2019/alignment.nex" desc="Benchmark alignment (calibrated)" species="1" speciessplit="_" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Bryson_et_al.2017/alignment.nex" desc="MSC alignment (calibrated)" species="1" speciessplit="_" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Branstetter_2017/alignment.nex" desc="Benchmark alignment" species="1" speciessplit="_" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/GiarlaEsselstyn_2015/alignment.nex" desc="MSC alignment" species="1,2" speciessplit="-" />
+		<!--<file spec="poetry.util.WeightedFile" file="../datasets/Fang_2020/alignment.nex" desc="MSC alignment (calibrated)" species="1" speciessplit="-" />-->
+		<file spec="poetry.util.WeightedFile" file="../datasets/Hernandez_2020/alignment.nex" desc="MSC alignment (calibrated)" species="1,2" speciessplit="_" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Broughton_2013/alignment.nex" desc="Benchmark alignment (calibrated)" species="1" speciessplit="_" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Belfiore_2008/alignment.nex" desc="Gopher dataset (calibrated)" species="1" speciessplit="_" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Moyle_2016/alignment.nex" desc="Benchmark alignment" species="1" speciessplit="_" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Horn_2014/alignment.nex" desc="Benchmark alignment" species="1" speciessplit="_" />
+		<file spec="poetry.util.WeightedFile" file="../datasets/Sauquet_2011/alignment.nex" desc="Benchmark alignment" species="1" speciessplit="_" />
+
+
+		<!-- Do not repeat $(partition) across all partitions in these elements. Just use the first partition -->
+		<norepeat>tree.taxonset inittree UPGMA_Distance_ref NJ_Distance_ref</norepeat>
+
+	</data>
+
+
+
+	<!-- HKYf site model -->
+	<siteModel id="siteModel.s:$(partition)" name="siteModel" spec="SiteModel" mutationRate="@clockRate.c:$(partition)">
+		<parameter id="gammaShape.s:$(partition)" spec="parameter.RealParameter" estimate="false" name="shape">1.0</parameter>
+		<substModel spec="HKY" kappa="@kappa.s:$(partition)">
+			<frequencies spec="Frequencies" frequencies="@freqParameter.s:$(partition)"/>
+		</substModel>
+	</siteModel>
+
+
+
+	<!-- Placeholder clock model -->
+  	<branchRateModel id="ClockModel.t:tree" spec="beast.evolution.branchratemodel.StrictClockModel" clock.rate="@overallClockRate.c:tree">
+			
+    </branchRateModel>
+
+
+	<run id="XMLSimulator" spec="poetry.SimulateXML" data="@alignment.$(partition)" tree="@tree" out="/home/jdou557/Documents/Marsden2019/Months/March2021/sb3_examples" nsamples="20" nreplicates="1" updateEvery="10000000" coordinateWeights="false" weightSampler="Dirichlet">
+
+
+
+
+
+		<!-- Parameter-operator-ESS mappings -->
+		<poem id="TopologyPOEM" spec="poetry.sampler.POEM" alpha="2.0" logEvery="10000">
+			<operator idref="species.tree.topology.operator" />
+			
+		</poem>
+
+
+		<poem id="NodeHeightPOEM" spec="poetry.sampler.POEM" alpha="2.0" logEvery="10000">
+			<operator idref="species.tree.height.operator" />
+			
+			<log idref="TreeStat.t:tree" />
+			<log idref="overallClockRate.c:tree" />
+		</poem>
+
+
+
+		<poem id="GeneTreeTopologyPOEM" spec="poetry.sampler.POEM" alpha="2.0" logEvery="10000">
+			<operator idref="gene.tree.topology.operator" />
+		</poem>
+
+		<poem id="GeneTreeNodeHeightPOEM" spec="poetry.sampler.POEM" alpha="2.0" logEvery="10000">
+			<operator idref="gene.tree.height.operator" />
+		</poem>
+
+		<poem id="SiteModelPOEM" spec="poetry.sampler.POEM" alpha="0.5" logEvery="10000">
+			<operator idref="site.model.operator" />
+			<log idref="clockRate.c:$(partition)" />
+			<log idref="kappa.s:$(partition)"/>
+			<log idref="freqParameter.s:$(partition)"/>
+		</poem>
+
+
+		<poem id="ClockModelRatePOEM" spec="poetry.sampler.POEM" alpha="1.0" logEvery="10000">
+			<operator idref="clock.model.rate.operator" />
+		</poem>
+
+
+		<poem id="ClockModelSDPOEM" spec="poetry.sampler.POEM" alpha="1.0" logEvery="10000">
+			<operator idref="clock.model.sd.operator" />
+
+		</poem>
+
+
+		
+		<poem id="SpeciesTreePriorPOEM" spec="poetry.sampler.POEM" alpha="1.0" logEvery="10000">
+			<operator idref="species.tree.prior.model.operator" />
+			
+		</poem>
+
+
+		<poem id="GeneTreePriorPOEM" spec="poetry.sampler.POEM" alpha="1.0" logEvery="10000">
+			<operator idref="gene.tree.prior.model.operator" />
+		</poem>
+
+
+
+
+		<poem id="GeneTreeHyperPriorPOEM" spec="poetry.sampler.POEM" alpha="1.0" logEvery="10000">
+			<operator idref="gene.tree.hyperprior.model.operator" />
+		</poem>
+		
+
+		<!--
+		<poem id="TopologyPOEM.$(partition)" spec="poetry.POEM">
+			
+		</poem>
+		-->
+
+		
+
+
+		<!-- XML functions -->
+		<function id="dnaOnly" spec="poetry.functions.XMLCondition" obj="@alignment.$(partition)" method="isDNA" />
+		<function id="aaOnly" spec="poetry.functions.XMLCondition" obj="@alignment.$(partition)" method="isAminoAcid" />
+		<function id="speciesOnly" spec="poetry.functions.XMLCondition" obj="@alignment.$(partition)" method="hasSpeciesMap" />
+		<function id="notSpeciesOnly" spec="poetry.functions.XMLCondition" obj="@alignment.$(partition)" method="hasSpeciesMap" negate="true" />
+		<function id="treeIsCalibrated" spec="poetry.functions.XMLCondition" obj="@alignment.$(partition)" method="treeIsCalibrated" />
+		<function id="treeIsUncalibrated" spec="poetry.functions.XMLCondition" obj="@alignment.$(partition)" method="treeIsCalibrated" negate="true" />
+
+		<!--
+		<function id="notUsingBModelTest" spec="poetry.functions.XMLCondition" obj="@BModelTest.model" method="wasSampled" negate="true" />
+		<function id="notUsingOBAMA" spec="poetry.functions.XMLCondition" obj="@OBAMA.model" method="wasSampled" negate="true" />
+		-->
+
+
+		<function spec="poetry.functions.XMLInputSetter" obj="@alignment.$(partition)" method="getNumPartitionsDouble" target="@site.model.logconstrain" input="sum" />
+		<!---<function spec="poetry.functions.XMLInputSetter" target="@site.model.AVMVN" input="allowNonsense" value="true" />-->
+
+
+
+		<function id="mscTaxonSet" spec="poetry.functions.XMLPopulator" obj="@alignment.$(partition)" method="getMSCTaxonSet" />
+
+
+		<!-- Species model sampler 
+		<model id="partition.model" spec="poetry.sampler.ModelSampler">
+			<file weight="0" id="Concat.model" spec="poetry.util.WeightedFile" file="../models/species/Concat.xml" desc="Loci are concatenated (as partitions)" />
+			<file id="MSC.model" spec="poetry.util.WeightedFile" file="../models/species/MSC.xml" desc="Loci are treated as gene trees" condition="@speciesOnly" />
+		</model>
+		-->
+
+
+		<!-- Operator scheme -->
+		<iterate id="msc.operators" spec="poetry.sampler.Iterate">
+			<file id="MSC.model" spec="poetry.util.WeightedFile" file="../models/species/MSC.xml" desc="Loci are treated as gene trees" condition="@speciesOnly" />
+		</iterate>
+
+
+
+
+		<!-- Tree clock sampler -->
+		<model id="treeclock.model" spec="poetry.sampler.ModelSampler">
+			<file id="Fixed.clock.model" spec="poetry.util.WeightedFile" file="../models/treeclock/Fixed.xml" desc="Tree clock rate is fixed" />
+
+			<!--
+			<file weight="0" id="Estimated.clock.model" spec="poetry.util.WeightedFile" file="../models/treeclock/Fixed.xml" desc="Tree clock rate is estimated but there are no calibrated nodes" condition="@treeIsUncalibrated" />
+
+			<file weight="0" id="Calibrated.clock.model" spec="poetry.util.WeightedFile" file="../models/treeclock/Calibrated.xml" desc="Tree clock rate is estimated using calibration nodes" condition="@treeIsCalibrated" />
+			-->
+		</model>
+
+
+		<!-- Tree prior sampler -->
+		<model id="tree.model" spec="poetry.sampler.ModelSampler">
+			<file id="Yule.model" spec="poetry.util.WeightedFile" file="../models/tree/Yule.xml" desc="A Yule tree prior" />
+		</model>
+
+
+
+
+		<!-- Site model heterogeneity sampler -->
+		<model id="site.heterogeneity.model" spec="poetry.sampler.ModelSampler">
+
+			<file id="NoHet.model" spec="poetry.util.WeightedFile" file="../models/heterogeneity/No.xml" desc="No site heteregeneity" />
+
+			<!--
+			<file id="GammaSite.model" spec="poetry.util.WeightedFile" file="../models/heterogeneity/Gamma.xml" desc="Gamma site heteregeneity model with 4 categories" />
+			<file id="Invariant.model" spec="poetry.util.WeightedFile" file="../models/heterogeneity/Invariant.xml" desc="Site model with invariant sites estimated" />
+			<file id="GammaInvariant.model" spec="poetry.util.WeightedFile" file="../models/heterogeneity/GammaInvariant.xml" desc="Gamma site heteregeneity model with 4 categories and invariant sites"/>
+			-->
+
+		</model>
+		
+
+		<!-- Branch rate model sampler -->
+		<model id="branch.model" spec="poetry.sampler.ModelSampler">
+			<file id="RelaxedLNSB3.model" spec="poetry.util.WeightedFile" file="../models/clock/SB3RelaxedClock.xml" desc="Multispecies coalescent relaxed clock model with lognormal prior" />
+		</model>
+
+
+
+
+		
+	
+		<runner id="mcmc" spec="poetry.sampler.RunnableSampler" chainLength="50000">
+
+
+
+			<file id="MCMC.search" spec="poetry.util.WeightedFile" file="../models/search/MCMC.xml" desc="Standard MCMC (i.e. MC2)" />
+
+			<!--
+			<file id="MCMCMC.search" spec="poetry.util.WeightedFile" file="../models/search/MCMCMC.xml" desc="Coupled MCMC (i.e. MC3)" />
+			-->
+
+			
+		
+
+			<state id="state" spec="State" storeEvery="1000">
+
+				<parameter spec="parameter.RealParameter" id="overallClockRate.c:tree" estimate="true" name="stateNode">1.0</parameter>
+				<tree id="tree" spec="beast.evolution.tree.Tree" name="stateNode">
+					<taxonset id="tree.taxonset" spec="TaxonSet" alignment="@alignment.$(partition)" />
+				</tree>
+				<parameter spec="parameter.RealParameter" id="clockRate.c:$(partition)" name="stateNode">1.0</parameter>
+
+				<parameter spec="parameter.RealParameter" id="kappa.s:$(partition)" lower="0.0" name="stateNode">2.0</parameter>
+				<parameter spec="parameter.RealParameter" id="freqParameter.s:$(partition)" dimension="4" name="stateNode">0.25</parameter> 
+
+			</state>
+
+
+
+
+			<distribution id="posterior" spec="util.CompoundDistribution">
+
+
+				<distribution id="prior" spec="util.CompoundDistribution">
+
+					<distribution  id="treePrior" spec="beast.core.util.CompoundDistribution">
+
+					</distribution>
+
+
+
+					<distribution  id="HKYPrior" spec="beast.core.util.CompoundDistribution">
+
+						<prior id="kappaPrior.t:$(partition)" name="distribution" x="@kappa.s:$(partition)">
+							<LogNormal name="distr">
+								<parameter spec="parameter.RealParameter" estimate="false" name="M">1.0</parameter>
+								<parameter spec="parameter.RealParameter" estimate="false" name="S">1.25</parameter>
+							</LogNormal>
+						</prior>
+
+
+						<prior id="freqParameterPrior.t:$(partition)" name="distribution" x="@freqParameter.s:$(partition)">
+							<Dirichlet alpha="10 10 10 10" name="distr"/>
+						</prior>
+
+					</distribution>
+
+
+
+
+					<prior id="clockRatePrior.t:$(partition)" name="distribution" x="@clockRate.c:$(partition)">
+						<LogNormal name="distr" meanInRealSpace="true">
+							<parameter spec="parameter.RealParameter" estimate="false" name="M">1.0</parameter>
+							<parameter spec="parameter.RealParameter" estimate="false" name="S">0.6</parameter>
+						</LogNormal>
+					</prior>
+
+				</distribution>
+
+
+
+				<distribution id="likelihood" spec="util.CompoundDistribution" useThreads="true">
+						<distribution id="treeLikelihood.$(partition)" spec="ThreadedTreeLikelihood" tree="@tree" data="@alignment.$(partition)" siteModel="@siteModel.s:$(partition)" branchRateModel="@ClockModel.t:tree" />
+				</distribution>
+
+
+
+			</distribution>
+
+
+
+			<!-- Species tree node height operator -->
+			<operator id="species.tree.height.operator" spec="poetry.operators.MetaOperator"  weight="1.0">
+
+				<operator id="AdaptableNodeHeightOperator.tree" spec="orc.operators.AdaptableOperatorSampler" tree="@tree" weight="1.0" uniformp="0.1">
+
+
+
+					<operator id="TreeScaler.t:tree" spec="ScaleOperator" scaleFactor="0.5" tree="@tree" weight="1.0"/>
+					<operator id="TreeRootScaler.t:tree" spec="ScaleOperator" rootOnly="true" scaleFactor="0.5" tree="@tree" weight="1.0"/>
+					<operator id="UniformOperator.t:tree" spec="Uniform" tree="@tree" weight="1.0"/>
+					<operator idref="SubtreeSlide.t:tree"/>
+
+
+				
+
+
+				</operator>
+
+			</operator>
+
+
+
+			<!-- Species tree topology operator -->
+			<operator id="species.tree.topology.operator" spec="poetry.operators.MetaOperator"  weight="1.0">
+
+				<operator id="AdaptableTopologyOperator.tree" spec="orc.operators.AdaptableOperatorSampler" tree="@tree" weight="1.0" uniformp="0.1">
+					<metric spec="beast.evolution.tree.RobinsonsFouldMetric" taxonset="@tree.taxonset"/>
+
+					<operator id="SubtreeSlide.t:tree" spec="SubtreeSlide" tree="@tree" weight="1.0"/>
+					<operator id="Wide.t:tree" spec="Exchange" isNarrow="false" tree="@tree" weight="13.0"/>
+					<operator id="Narrow.t:tree" spec="Exchange" isNarrow="true" tree="@tree" weight="1.0"/>
+					<operator id="WilsonBalding.t:tree" spec="WilsonBalding" tree="@tree" weight="1.0"/>
+				</operator>
+
+			</operator>
+
+
+
+
+			<!-- Gene Tree node height operator -->
+			<operator id="gene.tree.height.operator" spec="poetry.operators.MetaOperator"  weight="1.0">
+			
+
+
+			</operator>
+
+
+
+
+	
+
+
+
+
+
+			<!-- Gene tree topology operator -->
+			<operator id="gene.tree.topology.operator" spec="poetry.operators.MetaOperator"  weight="1.0">
+			
+			
+
+
+			</operator>
+
+
+			<!-- Site model operator -->
+			<operator id="site.model.operator" spec="poetry.operators.MetaOperator" weight="1.0">
+
+
+				 <operator id="AdaptableOperatorSampler.siteModel" spec="orc.operators.AdaptableOperatorSampler" weight="1.0" dimensional="true">
+
+
+				 		<!-- The parameters we want to change -->
+			    		<parameter idref="kappa.s:$(partition)" />
+			    		<parameter idref="clockRate.c:$(partition)" />
+			    		<parameter idref="freqParameter.s:$(partition)"/>
+
+
+			 	    	<!-- ParallelAVMN -->
+						<operator id="ParallelMCMCRealParameterOperator" spec="starbeast3.operators.ParallelMCMCRealParameterOperator" otherState="@state" chainLength="78" weight="1" >
+					    	<distribution idref="likelihood"/>
+						</operator>
+
+
+						<operator id="site.model.AVMVN" spec="beast.evolution.operators.AdaptableVarianceMultivariateNormalOperator" 
+			                weight="1"
+			                coefficient="1"
+			                scaleFactor="1"
+			                beta="0.05"
+			                initial="1000"
+			                burnin="500"
+			                every="1"
+			                allowNonsense="true">
+
+							
+                               <transformations id="site.model.logconstrain.freq:$(partition)" spec="beast.util.Transform$LogConstrainedSumTransform" sum="1.0">
+									<f idref="freqParameter.s:$(partition)"/>
+								</transformations>
+
+								<transformations id="site.model.logtransform" spec="beast.util.Transform$LogTransform">
+									<f idref="kappa.s:$(partition)"/>
+								</transformations>
+								
+								
+								<transformations id="site.model.logconstrain" spec="beast.util.Transform$LogConstrainedSumTransform" >
+									<f idref="clockRate.c:$(partition)" />
+								</transformations>
+
+						
+						</operator>
+
+
+				</operator>
+
+			</operator>
+
+
+
+			<!-- Species tree prior model operator -->
+			<operator id="species.tree.prior.model.operator" spec="poetry.operators.MetaOperator"  weight="1.0">
+
+
+				<operator id="tree.prior.AVMVN" spec="beast.evolution.operators.AdaptableVarianceMultivariateNormalOperator" 
+	                weight="1"
+	                coefficient="1"
+	                scaleFactor="1"
+	                beta="0.05"
+	                initial="1000"
+	                burnin="500"
+	                every="1"
+	                allowNonsense="true">
+
+					<transformations id="tree.prior.logtransform" spec="beast.util.Transform$LogTransform">
+					</transformations>
+
+
+	
+				
+				</operator>
+
+
+			</operator>
+
+
+			<!-- Gene tree(s) prior model operator -->
+			<operator id="gene.tree.prior.model.operator" spec="poetry.operators.MetaOperator"  weight="1.0">
+
+
+			</operator>
+
+
+
+			<!-- Gene tree(s) hyper prior model operator -->
+			<operator id="gene.tree.hyperprior.model.operator" spec="poetry.operators.MetaOperator"  weight="1.0">
+
+
+			</operator>
+			
+
+
+			<!-- Clock model rate operator -->
+			<operator id="clock.model.rate.operator" spec="poetry.operators.MetaOperator" weight="1.0">
+
+
+			</operator>
+			
+
+
+
+
+			<!-- Clock model sd operator -->
+			<operator id="clock.model.sd.operator" spec="poetry.operators.MetaOperator" weight="1.0">
+
+
+			</operator>
+			
+
+
+
+
+			<!-- Clock model operator 
+			<operator id="clock.model.operator" spec="poetry.operators.MetaOperator">
+
+				<operator id="ClockRateExchanger" spec="BactrianDeltaExchangeOperator" delta="0.01" weight="0.4">
+					<kernelDistribution spec="beast.evolution.operators.KernelDistribution$Bactrian" m="0.95" mode="uniform"/>
+					<parameter idref="clockRate.c:$(partition)"/>
+				</operator>
+
+			</operator>
+			-->
+			
+
+
+			<logger id="screenlog" spec="Logger" logEvery="10000">
+				<log idref="posterior"/>
+			</logger>
+
+
+
+		    <logger id="treeLogger" fileName="$(filebase).trees" logEvery="10000" mode="tree">
+		    	<log spec="beast.evolution.tree.TreeWithMetaDataLogger" branchratemodel="@ClockModel.t:tree" tree="@tree"/>
+			</logger>
+
+
+
+			<logger id="tracelog" fileName="$(filebase).log" spec="Logger" logEvery="10000">
+				<log idref="posterior"/>
+				<log idref="likelihood"/>
+				<log idref="prior"/>
+				<log idref="treePrior" />
+				<log idref="overallClockRate.c:tree" />
+				<log idref="kappa.s:$(partition)"/>
+				<log idref="freqParameter.s:$(partition)"/>
+				<log id="TreeStat.t:tree" spec="beast.evolution.tree.TreeStatLogger" tree="@tree"/>
+				
+				<log idref="clockRate.c:$(partition)"/>
+			</logger>
+
+			
+		</runner>
+
+		
+
+		
+
+
+		<!--
+		<distribution id="treeLikelihood.$(partition)" spec="TreeLikelihood" tree="@tree">
+			<data spec="FilteredAlignment" data="@benchmark" filter="1-649"/>
+			<siteModel idref="siteModel.$(partition)" />
+			<branchRateModel idref="clockModel" />
+		</distribution>
+		-->
+		
+
+
+
+	</run>
+
+</beast>
+
+
+
+
+
+
+

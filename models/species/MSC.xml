@@ -14,7 +14,7 @@
 	<override id="treeLikelihood.$(partition)" tree="@GeneTree.t:$(partition)" name="distribution" spec="ThreadedTreeLikelihood" data="@alignment.$(partition)" siteModel="@siteModel.s:$(partition)">
 
 
-		<branchRateModel id="SpeciesTreeRelaxedClock.c:$(partition)" spec="starbeast3.StarBeast3Clock" clock.rate="@clockRate.t:$(partition)" geneTree="@treePrior.t:$(partition)" speciesTreeRates="@branchRatesModel.Species"/>
+		<branchRateModel id="SpeciesTreeRelaxedClock.c:$(partition)" spec="starbeast3.StarBeast3Clock" clock.rate="@clockRate.c:$(partition)" geneTree="@treePrior.t:$(partition)" speciesTreeRates="@branchRatesModel.Species"/>
 
 	</override>
 		
@@ -23,6 +23,18 @@
 
 	
 	<populate id="tree.taxonset" function="@mscTaxonSet" />
+
+
+	
+	<override id="siteModel.s:$(partition)" name="siteModel" spec="SiteModel" mutationRate="@clockRate.c:$(partition)">
+
+		<parameter id="gammaShape.s:$(partition)" spec="parameter.RealParameter" estimate="false" name="shape">1.0</parameter>
+		<substModel spec="HKY" kappa="@kappa.s:$(partition)">
+			<frequencies spec="Frequencies" frequencies="@freqParameter.s:$(partition)"/>
+		</substModel>
+
+	</override>
+
 
 
 
@@ -84,7 +96,7 @@
 
 
 	        <prior id="popMean.prior" name="distribution" x="@popMean">
-	            <LogNormal name="distr">
+	            <LogNormal id="popMeanLogNormal" name="distr">
 	                <parameter estimate="false" name="M">-5.0</parameter>
 	                <parameter  estimate="false" lower="0.0" name="S" upper="5.0">1.25</parameter>
 	            </LogNormal>
@@ -115,86 +127,246 @@
 
 
 
-	<append id="gene.tree.height.operator">
 
-        <operator id="AdaptableNodeHeightOperator.$(partition)" spec="orc.operators.AdaptableOperatorSampler" tree="@GeneTree.t:$(partition)" weight="1.0">
-
-	  		<operator id="TreeScaler.t:$(partition)" spec="ScaleOperator" scaleFactor="0.95" tree="@GeneTree.t:$(partition)" weight="1.0"/>
-	        <operator id="TreeRootScaler.t:$(partition)" spec="ScaleOperator" rootOnly="true" scaleFactor="0.7" tree="@GeneTree.t:$(partition)" weight="1.0"/>
-	        <operator id="UniformOperator.t:$(partition)" spec="Uniform" tree="@GeneTree.t:$(partition)" weight="1.0"/>
-	        <operator idref="SubtreeSlide.t:$(partition)" spec="SubtreeSlide" size="0.002" tree="@GeneTree.t:$(partition)" weight="1.0"/>
+	<!-- Species tree topology -->
+	<append id="AdaptableTopologyOperator.tree">
 
 
-	         <operator id="Reheight.t:Species" spec="starbeast3.operators.NodeReheight2" taxonset="@tree.taxonset" tree="@tree" weight="1.0">
-				<gene idref="treePrior.t:$(partition)"/>
-	        </operator>
-	            
-	        <operator id="coordinatedUniform.t:Species" spec="starbeast3.operators.CoordinatedUniform" speciesTree="@tree" weight="1.0">
-				<gene idref="treePrior.t:$(partition)"/>
-	        </operator>
-	            
-	        <operator id="coordinatedExponential.t:Species" spec="starbeast3.operators.CoordinatedExponential" speciesTree="@tree" weight="1.0">
-				<gene idref="treePrior.t:$(partition)"/>
-			</operator>
+		 <!-- Node reheight -->
+        <operator idref="Reheight.t:Species" />
 
-	        
-            <operator id="clockUpDownOperator.t:$(partition)" spec="UpDownOperator" scaleFactor="0.95" weight="1.0">
-            	<down idref="GeneTree.t:$(partition)"/>
-        	</operator>
-			
+    	<!-- NER -->
+    	<operator idref="NEROperator_dAE_dBE_dCE" />
 
-			<operator id="updownAll:Species" spec="UpDownOperator" scaleFactor="0.75" weight="1.0">
-	            <up idref="birthRate"/>
-	            <down idref="tree"/>
-	            <down idref="GeneTree.t:$(partition)"/>
-	            <down idref="popSize"/>
-	            <down idref="popMean"/>
-	        </operator>
+    	<!-- Coordinate narrow exchange -->
+		<operator idref="CoordinatedExchange" />
 
-        </operator>
+    	<!-- Coordinate narrow exchange rates -->
+		<operator idref="CoordinatedExchangeRates" />
+
 
 	</append>
 
 
+	<!-- Species tree node heights -->
+	<append id="AdaptableNodeHeightOperator.tree">
+
+
+		<!-- Constant distance -->
+        <operator idref="ConstantDistanceOperatorSpeciesTree" />
+
+        <!-- Node reheight -->
+        <operator idref="Reheight.t:Species" spec="starbeast3.operators.NodeReheight2" taxonset="@taxonsuperset" tree="@Tree.t:Species" weight="1.0" />
+
+
+        <!-- Coordinated uniform -->
+		<operator idref="coordinatedExponential.t:Species" spec="starbeast3.operators.CoordinatedExponential" speciesTree="@Tree.t:Species" weight="1.0" />
+
+
+         <!-- Coordinated exponential -->
+  		<operator idref="coordinatedUniform.t:Species" spec="starbeast3.operators.CoordinatedUniform" speciesTree="@Tree.t:Species" weight="1.0" />
+
+
+	</append>
+
+
+	<!-- Gene tree topology -->
 	<append id="gene.tree.topology.operator">
 
- 		<operator id="AdaptableTopologyOperator.$(partition)" spec="orc.operators.AdaptableOperatorSampler" tree="@GeneTree.t:$(partition)" weight="1.0">
-        	<metric spec="beast.evolution.tree.RobinsonsFouldMetric" taxonset="@tree.taxonset"/>
 
-	        <operator id="SubtreeSlide.t:$(partition)" spec="SubtreeSlide" size="0.002" tree="@GeneTree.t:$(partition)" weight="1.0"/>
-	        <operator id="Narrow.t:$(partition)" spec="Exchange" tree="@GeneTree.t:$(partition)" weight="1.0"/>
-	        <operator id="Wide.t:$(partition)" spec="Exchange" isNarrow="false" tree="@GeneTree.t:$(partition)" weight="1.0"/>
-	        <operator id="WilsonBalding.t:$(partition)" spec="WilsonBalding" tree="@GeneTree.t:$(partition)" weight="1.0"/>
+		<operator id="gene.tree.topology.adaptable.operator" spec="orc.operators.AdaptableOperatorSampler" weight="1.0" dimensional="true">
 
-        </operator>
+
+
+			<!-- Metric: gene tree toplogies -->
+			<metric spec="beast.evolution.tree.RobinsonsFouldMetric" taxonset="@tree.taxonset" recursive="true"/>
+	    	<tree idref="GeneTree.t:$(partition)"/>
+
+
+
+		    <!-- Parallel gene tree operator -->	
+			<operator idref="ParallelMCMCTreeOperator" />
+
+
+			<!-- Adaptable -->
+	    	<operator id="AdaptableOperatorSampler.geneTopology.inner" spec="orc.operators.AdaptableOperatorSampler" weight="1.0">
+
+	    		<metric spec="beast.evolution.tree.RobinsonsFouldMetric" taxonset="@tree.taxonset" recursive="true"/>
+		    	<tree idref="GeneTree.t:$(partition)"/>
+
+
+	         	<!-- Subtree slide -->
+		    	<operator idref="SubtreeSlide.t:geneTrees" />
+		    	
+
+	    		<!-- Wilson balding operator -->
+				<operator id="WilsonBalding.t:geneTrees" spec="starbeast3.operators.WilsonBalding" weight="1.0">
+					<gene idref="treePrior.t:$(partition)"/>   
+				</operator>
+				
+		            
+		        <!-- Wide exchange -->
+		        <operator id="Wide.t:geneTrees" spec="starbeast3.operators.Exchange" isNarrow="false" weight="1.0">
+		        	<gene idref="treePrior.t:$(partition)"/>     
+		        </operator>
+		            
+		        <!-- Narrow exchange -->
+		        <operator id="Narrow.t:geneTrees" spec="starbeast3.operators.Exchange" isNarrow="true" weight="1.0">
+		        	<gene idref="treePrior.t:$(partition)"/>   
+		        </operator>
+
+
+		        <!-- Node reheight -->
+		        <operator idref="Reheight.t:Species" />
+
+		    	<!-- NER -->
+		    	<operator id="NEROperator_dAE_dBE_dCE" spec="orc.ner.NEROperator_dAE_dBE_dCE" tree="@tree" rates="@rates.clock" weight="1"/>
+
+		    	<!-- Coordinate narrow exchange -->
+				<operator id="CoordinatedExchange" spec="starbeast3.operators.CoordinatedExchangeRates" tree="@tree"  rates="@rates.clock" weight="1">
+					<gene idref="treePrior.t:$(partition)"/> 
+				</operator>
+
+		    	<!-- Coordinate narrow exchange rates -->
+				<operator id="CoordinatedExchangeRates" spec="starbeast3.operators.NEROperator_dAE_dBE_dCE" tree="@tree" rates="@rates.clock" weight="1">
+					<gene idref="treePrior.t:$(partition)"/>   
+				</operator>
+
+
+		  	</operator>
+
+	  </operator>
 
 	</append>
 
 
 
+	<!-- Gene tree node heights -->
+    <append id="gene.tree.height.operator">
+
+
+    	<operator id="gene.tree.height.adaptable.operator" spec="orc.operators.AdaptableOperatorSampler" weight="1.0" dimensional="true">
+
+
+	    	<!-- Metric: gene tree node heights -->
+	    	<tree idref="GeneTree.t:$(partition)"/>
+
+
+			<!-- Parallel gene tree operator -->	
+			<operator id="ParallelMCMCTreeOperator" includeRealParameters="false" spec="starbeast3.operators.ParallelMCMCTreeOperator" weight="1" otherState="@state" chainLength="250">
+		    	<distribution spec="starbeast3.operators.ParallelMCMCTreeOperatorTreeDistribution" tree="@GeneTree.t:$(partition)" geneprior="@treePrior.t:$(partition)" treelikelihood="@treeLikelihood.$(partition)"/>
+			</operator>
+
+
+	    	<!-- Adaptable -->
+	    	<operator id="AdaptableOperatorSampler.geneHeights.inner" spec="orc.operators.AdaptableOperatorSampler" weight="1.0">
+
+		    	
+	       		<tree idref="GeneTree.t:$(partition)"/>
+
+
+		         <!-- Root scale -->
+		        <operator id="TreeRootScaler.t:geneTrees" spec="starbeast3.operators.TreeScaleOperator" rootOnly="true" scaleFactor="0.7" weight="1.0">
+		        	<gene idref="treePrior.t:$(partition)"/>
+		        </operator>
+
+		         <!-- Tree scale -->
+		        <operator id="TreeScaler.t:geneTrees" spec="starbeast3.operators.TreeScaleOperator" scaleFactor="0.95" weight="1.0">
+		        	<gene idref="treePrior.t:$(partition)"/>   
+		        </operator>
+		        
+
+
+				<!-- Uniform -->
+		    	<operator id="UniformOperator.t:geneTrees" spec="starbeast3.operators.Uniform" weight="1.0">
+					<gene idref="treePrior.t:$(partition)"/> 
+		    	</operator>
+
+		    	<!-- Subtree slide -->
+		    	<operator id="SubtreeSlide.t:geneTrees" spec="starbeast3.operators.SubtreeSlide" size="0.002" weight="1.0">
+	   				<gene idref="treePrior.t:$(partition)"/>
+		    	</operator>
+				
+
+	
+
+		  		 <!-- Node reheight  -->
+		        <operator id="Reheight.t:Species" spec="starbeast3.operators.NodeReheight2" taxonset="@tree.taxonset" tree="@tree" weight="1.0">
+					<gene idref="treePrior.t:$(partition)"/>
+		        </operator>
+		            
+		        <!-- Coordinated uniform -->
+		        <operator id="coordinatedUniform.t:Species" spec="starbeast3.operators.CoordinatedUniform" speciesTree="@tree" weight="1.0">
+					<gene idref="treePrior.t:$(partition)"/>
+		        </operator>
+		            
+
+		        <!-- Coordinated exponential -->
+		        <operator id="coordinatedExponential.t:Species" spec="starbeast3.operators.CoordinatedExponential" speciesTree="@tree" weight="1.0">
+					<gene idref="treePrior.t:$(partition)"/>
+				</operator>
+
+				
+				<!-- UpDown  -->
+				<operator id="updownAll:Species" spec="UpDownOperator" scaleFactor="0.75" weight="1.0">
+		            <up idref="birthRate"/>
+		            <down idref="tree"/>
+		            <down idref="GeneTree.t:$(partition)"/>
+		            <up idref="clockRate.c:$(partition)"/>
+		            <down idref="popSize"/>
+		            <down idref="popMean"/>
+		        </operator>
+
+
+
+		    </operator>
+
+
+		</operator>
+
+	</append>
+
+
+
+
+
+	<!-- Population sizes -->
 	<append id="gene.tree.prior.model.operator">
 
+		<operator id="AdaptableOperatorSampler.popSize" spec="orc.operators.AdaptableOperatorSampler" weight="1.0" parameter="@popSize" dimensional="true">
 
-		<operator id="orc.operators.AdaptableOperatorSampler.speciesPop" spec="orc.operators.AdaptableOperatorSampler" weight="1.0">
-
-			<parameter idref="popSize" />
+			<!-- Gibbs operator -->
 			<operator id="PopSizeGibbsSampler" spec='starbeast3.operators.PopSizeGibbsSampler' weight="1.0" popSizes="@popSize">
-				<gammaprior idref="popPriorDistr"/>
+				<gammaprior id="gammaPrior" spec="beast.math.distributions.Gamma" alpha="2.0" beta="@popMean"/>
 				<gene idref="treePrior.t:$(partition)"/>
 			</operator>
 
-	        <operator id="constPopSizesSwap.Species" spec="starbeast3.operators.RealCycle" k="2" optimise="false" parameter="@popSize" weight="1.0"/>
-	        <operator id="constPopSizesScale.Species" spec="ScaleOperator" parameter="@popSize" scaleFactor="0.5" weight="1.0"/>
+		</operator>
+		
+		
+	</append>
 
 
+	<!-- Population size mean -->
+	<append id="gene.tree.hyperprior.model.operator">
+
+		<operator id="AdaptableOperatorSampler.popmean" spec="orc.operators.AdaptableOperatorSampler" weight="1.0" parameter="@popMean" dimensional="true">
+
+
+			<!-- Scale -->
+			<operator id="Scale.popmean" spec="BactrianScaleOperator" parameter="@popMean" scaleFactor="0.75" weight="1.0"/>
+
+
+			<!-- UpDown -->
 	        <operator idref="updownAll:Species" />
+
+	        <!-- SampleFromPrior -->
+			<operator id="SampleFromPriorOperator.popmean" spec="orc.operators.SampleFromPriorOperator" parameter="@popMean" np="1" prior="@popMeanLogNormal" weight="1"/>
+
 
 		</operator>
 
 
-        <operator id="constPopMeanScale.Species" spec="ScaleOperator" parameter="@popMean" scaleFactor="0.75" weight="1.0"/>
-		
-		
 	</append>
 
 
@@ -220,11 +392,14 @@
 
 
 	<append id="GeneTreePriorPOEM">
-		<log idref="popMean"/>
 		<log idref="popSize"/>
 		<log idref="speciescoalescent" />
 		<log idref="speciesTreePopPrior" />
 		<log idref="SpeciesTreePopSize.Species" />
+	</append>
+
+	<append id="GeneTreeHyperPriorPOEM">
+		<log idref="popMean"/>
 	</append>
 
 

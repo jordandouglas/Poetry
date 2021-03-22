@@ -9,12 +9,12 @@
 		<parameter id="gammaShape.s:$(partition)" spec="parameter.RealParameter" estimate="true" name="stateNode" >1.0</parameter>
 		<parameter id="proportionInvariant.s:$(partition)" spec="parameter.RealParameter" name="stateNode" lower="0.0" upper="1.0">0.01</parameter>
 
-		<parameter id="freqParameter.t:$(partition)" spec="parameter.RealParameter" dimension="4" name="stateNode">0.25</parameter> 
+		<parameter id="freqParameter.t:$(partition)" spec="parameter.RealParameter" dimension="4" lower="0" upper="1" name="stateNode">0.25</parameter> 
 		<parameter id="BMT_Rates.s:$(partition)" spec="parameter.RealParameter" dimension="6" lower="0.01" name="stateNode" upper="100.0">1.0</parameter>
 
-       	<stateNode id="hasInvariableSites.s:$(partition)" spec="parameter.IntegerParameter">1</stateNode>
-    	<stateNode id="hasGammaRates.s:$(partition)" spec="parameter.IntegerParameter">1</stateNode>
-        <stateNode id="hasEqualFreqs.s:$(partition)" spec="parameter.BooleanParameter">false</stateNode>
+	       	<stateNode id="hasInvariableSites.s:$(partition)" spec="parameter.IntegerParameter">1</stateNode>
+	    	<stateNode id="hasGammaRates.s:$(partition)" spec="parameter.IntegerParameter">1</stateNode>
+		<stateNode id="hasEqualFreqs.s:$(partition)" spec="parameter.BooleanParameter">false</stateNode>
 		<stateNode id="BMT_ModelIndicator.s:$(partition)" spec="parameter.IntegerParameter" lower="0" upper="5">5</stateNode>
 
 
