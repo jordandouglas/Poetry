@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
 
-<runner id="mcmc" spec="beast.coupledMCMC.CoupledMCMC" deltaTemperature="0.05" chains="4" resampleEvery="1000" chainLength="100000000" />
+<runner id="mcmc" spec="beast.coupledMCMC.CoupledMCMC" deltaTemperature="0.05" chains="4" resampleEvery="1000" chainLength="200000000" />
 
 
 

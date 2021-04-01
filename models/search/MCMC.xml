@@ -2,7 +2,7 @@
 
 
 
-<runner id="mcmc" spec="beast.core.MCMC" chainLength="100000000" />
+<runner id="mcmc" spec="beast.core.MCMC" chainLength="200000000" />
 
 
 
